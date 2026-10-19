@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عيادتي الهادئة</title>
+<meta name="theme-color" content="#2E2A6E">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="عيادتي">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="light-mode">
+<div id="netBar" data-i18n="offline_bar">غير متصل بالخادم — جارٍ إعادة الاتصال…</div>
+<div id="toast-container"></div>
+<div id="visual-alert-container"></div>
+<input type="file" id="globalImageInput" accept="image/*" multiple style="display:none">
+
+<div id="lightboxModal" data-act="closeLightbox"><img id="lightboxImg" src="" alt=""></div>
+
+<!-- تخطي الدور -->
+<div id="skipQueueModal" class="modal-overlay">
+  <div class="modal-card" style="text-align:center">
+    <div style="font-size:36px;margin-bottom:10px">⚠️</div>
+    <h3 style="margin-bottom:10px;font-size:18px;color:var(--warning-warm)" data-i18n="skip_title">تنبيه تخطي الدور!</h3>
+    <p id="skipQueueMessage" style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6"></p>
+    <div style="display:flex;gap:10px">
+      <button type="button" class="btn-primary btn-green" style="flex:1" data-act="skipAllow" data-i18n="skip_allow">نعم، السماح بالدخول ✅</button>
+      <button type="button" class="btn-action btn-red" style="flex:1;padding:12px" data-act="skipDeny" data-i18n="skip_deny">رفض ❌</button>
+    </div>
+  </div>
+</div>
+
+<!-- الكاميرا -->
+<div id="cameraLiveModal" class="modal-overlay">
+  <div class="modal-card" style="text-align:center">
+    <h3 style="margin-bottom:12px;font-size:16px" data-i18n="camera_title">كاميرا المعاينة المباشرة 📸</h3>
+    <video id="cameraVideo" autoplay playsinline muted style="width:100%;max-height:60vh;border-radius:12px;background:#000;object-fit:cover"></video>
+    <div style="display:flex;gap:10px;margin-top:15px">
+      <button type="button" class="btn-primary btn-green" data-act="snap" data-i18n="snap">التقاط الآن 📸</button>
+      <button type="button" class="btn-action btn-red" style="width:35%" data-act="closeCamera" data-i18n="close">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- تعديل مريض -->
+<div id="editPatientModal" class="modal-overlay">
+  <form class="modal-card" data-form="editPatient">
+    <h3 style="margin-bottom:15px;font-size:16px" data-i18n="edit_patient">تعديل بيانات المريض ✏️</h3>
+    <input type="hidden" id="editPatientId">
+    <div id="editFields"></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button type="submit" class="btn-primary" data-i18n="save">حفظ ✅</button>
+      <button type="button" class="btn-action btn-red" style="width:35%" data-act="closeModal" data-i18n="cancel">إلغاء</button>
+    </div>
+  </form>
+</div>
+
+<!-- تعديل ممرضة -->
+<div id="editNurseModal" class="modal-overlay">
+  <form class="modal-card" data-form="editNurse">
+    <h3 style="margin-bottom:15px;font-size:16px" data-i18n="edit_nurse">تعديل بيانات الممرضة ✏️</h3>
+    <input type="hidden" id="editNurseId">
+    <div class="form-group"><label data-i18n="nurse_fullname">اسم الممرضة:</label><input type="text" id="editNurseName" maxlength="60" required></div>
+    <div class="form-group"><label data-i18n="lbl_phone_s">رقم الهاتف:</label><input type="tel" id="editNursePhone" maxlength="25"></div>
+    <div class="form-group"><label data-i18n="new_pass_opt">كلمة مرور جديدة (اتركها فارغة لعدم التغيير):</label><input type="password" id="editNursePass" autocomplete="new-password" minlength="6" placeholder="••••••••"></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button type="submit" class="btn-primary" data-i18n="save">حفظ ✅</button>
+      <button type="button" class="btn-action btn-red" style="width:35%" data-act="closeModal" data-i18n="cancel">إلغاء</button>
+    </div>
+  </form>
+</div>
+
+<!-- QR المريض -->
+<div id="qrModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3 style="font-size:16px" id="qrTitle"></h3>
+    <p style="font-size:12px;color:var(--text-secondary);margin-top:4px" data-i18n="qr_help">اطلب من المريض مسح الرمز بكاميرا هاتفه ليتابع دوره دون أن يرى بيانات أي مريض آخر.</p>
+    <div class="qr-box" id="qrBox"></div>
+    <div class="qr-link" id="qrLink"></div>
+    <div class="qr-warn" id="qrWarn" style="display:none" data-i18n="qr_local_warn">⚠️ عنوان هذا الموقع محلي؛ لن يفتحه هاتف المريض إلا إن كان على نفس الشبكة. يُفضّل نشر الخادم بعنوان عام (انظر README).</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px">
+      <button type="button" class="btn-action btn-green" data-act="qrPrint" data-i18n="print">🖨️ طباعة</button>
+      <button type="button" class="btn-action" data-act="qrCopy" data-i18n="copy_link">نسخ الرابط</button>
+      <button type="button" class="btn-action btn-yellow" id="qrShareBtn" data-act="qrShare" data-i18n="share">مشاركة</button>
+      <button type="button" class="btn-action btn-red" data-act="closeModal" data-i18n="close">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- 1. الدخول -->
+<div id="authScreen" class="screen active">
+  <div class="auth-container">
+    <div class="auth-header">
+      <div class="auth-logo">🦷</div>
+      <h2 style="margin-bottom:4px;font-size:24px" data-i18n="app_title">عيادتي الهادئة</h2>
+      <p style="font-size:13px" data-i18n="app_sub">إدارة الانتظار والمعاينة — متزامنة بين الأجهزة</p>
+    </div>
+    <div class="auth-seg" role="tablist">
+      <button type="button" data-act="authMode" data-mode="doctor" class="on" data-i18n="seg_doctor">طبيب</button>
+      <button type="button" data-act="authMode" data-mode="nurse" data-i18n="seg_nurse">ممرضة</button>
+      <button type="button" data-act="authMode" data-mode="register" data-i18n="seg_register">حساب جديد</button>
+    </div>
+
+    <form id="formDoctor" data-form="loginDoctor" autocomplete="on">
+      <div class="form-group"><label data-i18n="username">اسم المستخدم:</label><input type="text" id="lUser" autocomplete="username" autocapitalize="none" spellcheck="false" dir="ltr" required></div>
+      <div class="form-group"><label data-i18n="pass">كلمة المرور:</label><input type="password" id="lPass" autocomplete="current-password" required></div>
+      <button type="submit" class="btn-primary" data-i18n="login">تسجيل الدخول 🚀</button>
+    </form>
+
+    <form id="formNurse" data-form="loginNurse" style="display:none" autocomplete="on">
+      <div class="form-group"><label data-i18n="clinic_code">رمز العيادة (يعطيه لكِ الطبيب):</label><input type="text" id="nCode" autocapitalize="characters" autocomplete="off" spellcheck="false" dir="ltr" maxlength="12" required></div>
+      <div class="form-group"><label data-i18n="nurse_name">اسمكِ كما سجّله الطبيب:</label><input type="text" id="nName" autocomplete="username" required></div>
+      <div class="form-group"><label data-i18n="pass">كلمة المرور:</label><input type="password" id="nPass" autocomplete="current-password" required></div>
+      <button type="submit" class="btn-primary" data-i18n="login">تسجيل الدخول 🚀</button>
+    </form>
+
+    <form id="formRegister" data-form="register" style="display:none" autocomplete="on">
+      <div class="form-group"><label data-i18n="clinic_name">اسم العيادة:</label><input type="text" id="rClinic" maxlength="80" required></div>
+      <div class="form-group"><label data-i18n="doc_name">اسم الطبيب الكامل:</label><input type="text" id="rDoctor" maxlength="80" required></div>
+      <div class="form-group"><label data-i18n="username">اسم المستخدم:</label><input type="text" id="rUser" autocomplete="username" autocapitalize="none" spellcheck="false" dir="ltr" pattern="[A-Za-z0-9._@\-]{3,40}" required>
+        <div class="hint" data-i18n="username_hint">3–40 حرفاً لاتينياً/أرقاماً (مثل dr.ahmed)</div></div>
+      <div class="form-group"><label data-i18n="pass">كلمة المرور:</label><input type="password" id="rPass" autocomplete="new-password" minlength="8" required>
+        <div class="hint" data-i18n="pass_hint">8 أحرف على الأقل. لا يمكن استرجاعها إن نُسيت — احتفظ بها.</div></div>
+      <div class="form-group"><label data-i18n="pass2">تأكيد كلمة المرور:</label><input type="password" id="rPass2" autocomplete="new-password" minlength="8" required></div>
+      <div class="form-group" id="rCodeGroup" style="display:none"><label data-i18n="reg_code">رمز التسجيل (من مدير الخدمة):</label><input type="text" id="rCode" autocomplete="off" dir="ltr"></div>
+      <button type="submit" class="btn-primary" data-i18n="create_account">إنشاء حساب الطبيب والبدء 🚀</button>
+    </form>
+    <div class="auth-err" id="authErr" role="alert"></div>
+  </div>
+</div>
+
+<!-- 2. الطبيب -->
+<div id="doctorScreen" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <div><h3 style="font-weight:600;font-size:20px" id="doctorHeaderTitle"></h3><span style="font-size:12px" id="doctorSubtitle"></span></div>
+    <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button>
+  </div>
+  <div class="nav-tabs">
+    <button type="button" class="tab-btn active" data-act="docTab" data-tab="waiting"><span data-i18n="tab_waiting">الانتظار</span> (<span id="waitingCount">0</span>)</button>
+    <button type="button" class="tab-btn" id="consultationNavBtn" data-act="docTab" data-tab="consultation" data-i18n="tab_consult">المعاينة 🩺</button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="addPatientDoc" data-i18n="tab_add">تسجيل ➕</button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="nurses" data-i18n="tab_nurses">الممرضات 👩‍⚕️</button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="archive" data-i18n="tab_archive">الأرشيف 📁</button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="settingsDoc" data-i18n="tab_settings">الإعدادات ⚙️</button>
+  </div>
+
+  <div id="waitingTab" class="tab-content active"><ul id="docWaitingList" class="patient-list"></ul></div>
+  <div id="consultationTab" class="tab-content"><div id="consultationArea"></div></div>
+
+  <div id="addPatientDocTab" class="tab-content">
+    <h4 style="margin-bottom:15px;font-size:15px" data-i18n="reg_doc_title">تسجيل مريض جديد</h4>
+    <form data-form="addPatient" data-pre="pd" style="background:var(--surface-card);padding:20px;border-radius:16px;border:1px solid var(--border-calm)">
+      <div class="fields"></div>
+      <button type="submit" class="btn-primary" data-i18n="btn_reg_add">تسجيل وإضافة للانتظار 🔔</button>
+    </form>
+  </div>
+
+  <div id="nursesTab" class="tab-content">
+    <div class="clinic-code">
+      <div><div style="font-size:12px;color:var(--text-secondary)" data-i18n="clinic_code_title">رمز عيادتك (تدخل به الممرضات)</div><b id="clinicCodeShow">------</b></div>
+      <button type="button" class="btn-action" data-act="copyCode" data-i18n="copy">نسخ</button>
+    </div>
+    <h4 style="margin-bottom:12px;font-size:15px" data-i18n="manage_nurses">إدارة ممرضات العيادة</h4>
+    <form data-form="addNurse" style="background:var(--surface-card);padding:20px;border-radius:16px;margin-bottom:20px">
+      <div class="form-group"><input type="text" id="newNurseName" maxlength="60" required data-i18n-ph="nurse_fullname"></div>
+      <div class="form-group"><input type="tel" id="newNursePhone" maxlength="25" data-i18n-ph="lbl_phone_s"></div>
+      <div class="form-group"><input type="password" id="newNursePass" minlength="6" autocomplete="new-password" required data-i18n-ph="nurse_pass"></div>
+      <button type="submit" class="btn-primary" data-i18n="btn_add_nurse">إضافة ممرضة جديدة 👩‍⚕️</button>
+    </form>
+    <ul id="nursesList" class="patient-list"></ul>
+  </div>
+
+  <div id="archiveTab" class="tab-content">
+    <h4 style="margin-bottom:15px;font-size:15px" data-i18n="archive_title">أرشيف السجلات الطبية 📁</h4>
+    <div style="background:var(--surface-card);padding:16px;border-radius:16px;margin-bottom:20px;display:flex;flex-direction:column;gap:12px">
+      <input type="text" id="aName" data-input="archive" data-i18n-ph="search_name">
+      <div style="display:flex;gap:10px">
+        <input type="number" id="aYear" data-input="archive" style="flex:1" data-i18n-ph="search_year">
+        <select id="aGender" data-input="archive" style="flex:1"><option value="" data-i18n="all_genders">جميع الأجناس</option><option value="ذكر" data-i18n="male">ذكر</option><option value="أنثى" data-i18n="female">أنثى</option></select>
+      </div>
+      <div style="display:flex;gap:10px">
+        <input type="text" id="aTooth" data-input="archive" style="flex:1" data-i18n-ph="search_tooth">
+        <select id="aTreat" data-input="archive" style="flex:1">
+          <option value="" data-i18n="all_treat">جميع العلاجات</option><option value="قلع" data-i18n="tr_ext">قلع</option><option value="عصب" data-i18n="tr_endo">علاج عصب</option>
+          <option value="استشارة" data-i18n="tr_cons">استشارة</option><option value="تركيب" data-i18n="tr_pros">تركيب</option><option value="تبييض" data-i18n="tr_white">تبييض</option><option value="أخرى" data-i18n="tr_other">أخرى</option>
+        </select>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--primary-sage);font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between"><span data-i18n="match_results">النتائج المطابقة:</span><span id="archiveResultCount" style="color:var(--warning-warm)">0</span></div>
+    <ul id="archiveList" class="patient-list"></ul>
+    <div class="more-row"><button type="button" class="btn-action" id="archiveMore" data-act="archiveMore" style="display:none" data-i18n="load_more">عرض المزيد</button></div>
+  </div>
+
+  <div id="settingsDocTab" class="tab-content"><div class="settings-container-box"></div></div>
+</div>
+
+<!-- 3. الممرضة -->
+<div id="nurseScreen" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <div><h3 style="font-weight:600;font-size:20px" id="nurseHeaderTitle"></h3><span style="font-size:12px" id="nurseUserWelcome"></span></div>
+    <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button>
+  </div>
+  <div class="nav-tabs">
+    <button type="button" class="tab-btn active" data-act="nurseTab" data-tab="patientsNurse" data-i18n="tab_patients">المرضى والانتظار 👥</button>
+    <button type="button" class="tab-btn" data-act="nurseTab" data-tab="settingsNurse" data-i18n="tab_settings">الإعدادات ⚙️</button>
+  </div>
+  <div id="patientsNurseTab" class="tab-content active">
+    <div style="background:var(--primary-soft);border:1px solid var(--primary-line);padding:14px 20px;border-radius:var(--radius-md);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;font-weight:600">
+      <span data-i18n="waiting_rem">👥 المرضى المتبقون في الانتظار:</span>
+      <span id="nurseWaitingBadge" style="background:var(--primary-sage);color:var(--on-primary);padding:4px 14px;border-radius:20px;font-size:15px">0</span>
+    </div>
+    <form data-form="addPatient" data-pre="pn" style="background:var(--surface-card);padding:20px;border-radius:16px;margin-bottom:25px;border:1px solid var(--border-calm)">
+      <div class="fields"></div>
+      <button type="submit" class="btn-primary" data-i18n="btn_reg_add">تسجيل مريض جديد 🔔</button>
+    </form>
+    <h4 style="margin-bottom:12px;font-size:15px" data-i18n="today_patients">قائمة مرضى اليوم</h4>
+    <ul id="nursePatientList" class="patient-list"></ul>
+  </div>
+  <div id="settingsNurseTab" class="tab-content"><div class="settings-container-box"></div></div>
+</div>
+
+<template id="settingsTemplate">
+  <h4 style="margin-bottom:15px;font-size:16px" data-i18n="settings_title">إعدادات التطبيق ⚙️</h4>
+
+  <div class="settings-card">
+    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_appearance">المظهر والألوان</h5>
+    <div class="settings-item"><div><strong data-i18n="dark_mode">الوضع الداكن</strong></div>
+      <label class="toggle-switch"><input type="checkbox" class="darkModeToggle" data-change="dark"><span class="slider"></span></label></div>
+    <div class="settings-item"><div><strong data-i18n="theme_color">لون العيادة</strong></div>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="theme-color-btn" style="background:#2E2A6E" data-act="setTheme" data-theme="sky" aria-label="indigo"></button>
+        <button type="button" class="theme-color-btn" style="background:#1F6F78" data-act="setTheme" data-theme="mint" aria-label="teal"></button>
+        <button type="button" class="theme-color-btn" style="background:#7B2D6E" data-act="setTheme" data-theme="purple" aria-label="purple"></button>
+        <button type="button" class="theme-color-btn" style="background:#A8324A" data-act="setTheme" data-theme="rose" aria-label="rose"></button>
+      </div></div>
+  </div>
+
+  <div class="settings-card">
+    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_lang">اللغة</h5>
+    <div class="settings-item"><div><strong data-i18n="app_lang">لغة التطبيق</strong></div>
+      <select class="langSelect" data-change="lang" style="width:120px;padding:6px 10px"><option value="ar">العربية</option><option value="en">English</option></select></div>
+  </div>
+
+  <div class="settings-card">
+    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_sound">التنبيهات</h5>
+    <div class="settings-item"><div><strong data-i18n="sound_alerts">التنبيهات الصوتية</strong></div>
+      <label class="toggle-switch"><input type="checkbox" class="soundToggle" data-change="sound"><span class="slider"></span></label></div>
+    <div class="settings-item"><div><strong data-i18n="auto_qr">إظهار QR بعد تسجيل المريض</strong></div>
+      <label class="toggle-switch"><input type="checkbox" class="autoQrToggle" data-change="autoQr"><span class="slider"></span></label></div>
+    <div class="settings-item"><div><strong data-i18n="sys_notif">إشعارات النظام</strong><div class="hint" data-i18n="sys_notif_sub">تظهر عندما يكون التطبيق مفتوحاً في الخلفية</div></div>
+      <button type="button" class="btn-action" data-act="askNotif" data-i18n="enable">تفعيل</button></div>
+  </div>
+
+  <div class="settings-card install-card">
+    <div class="settings-item"><div><strong data-i18n="install_app">تثبيت التطبيق</strong><div class="hint" data-i18n="install_sub">يُفتح كتطبيق مستقل على الجوال أو الحاسوب</div></div>
+      <button type="button" class="btn-action" data-act="installApp" data-i18n="install">تثبيت</button></div>
+  </div>
+
+  <div class="settings-card doc-only">
+    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_clinic">بيانات العيادة</h5>
+    <form data-form="clinicInfo">
+      <div class="form-group"><label data-i18n="clinic_name">اسم العيادة:</label><input type="text" class="setClinicName" maxlength="80" required></div>
+      <div class="form-group"><label data-i18n="doc_name">اسم الطبيب:</label><input type="text" class="setDoctorName" maxlength="80" required></div>
+      <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
+    </form>
+  </div>
+
+  <div class="settings-card doc-only">
+    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="chg_pass">تغيير كلمة المرور</h5>
+    <form data-form="changePass">
+      <input type="password" class="oldPass" autocomplete="current-password" required data-i18n-ph="old_pass">
+      <input type="password" class="newPass" autocomplete="new-password" minlength="8" required data-i18n-ph="new_pass">
+      <button type="submit" class="btn-action" style="margin-top:10px" data-i18n="change">تغيير</button>
+      <div class="hint" data-i18n="chg_pass_hint">ستُغلق جلسات باقي الأجهزة.</div>
+    </form>
+  </div>
+
+  <div class="settings-card doc-only">
+    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_backup">النسخ الاحتياطي</h5>
+    <div style="display:flex;gap:10px;margin-top:10px">
+      <button type="button" class="btn-action btn-green" style="flex:1;padding:12px" data-act="exportData" data-i18n="export_data">تصدير نسخة 📥</button>
+      <button type="button" class="btn-action btn-yellow" style="flex:1;padding:12px" data-act="importData" data-i18n="import_data">استعادة 📤</button>
+    </div>
+    <div class="hint" data-i18n="backup_hint">النسخة تشمل المرضى والأرشيف والصور (دون كلمات المرور).</div>
+    <button type="button" style="background:transparent;border:none;color:var(--danger-soft);font-size:12px;margin-top:15px;width:100%;text-decoration:underline" data-act="wipeData" data-i18n="wipe_data">حذف جميع بيانات المرضى…</button>
+    <button type="button" style="background:transparent;border:none;color:var(--danger-soft);font-size:12px;margin-top:8px;width:100%;text-decoration:underline" data-act="deleteAccount" data-i18n="delete_account">حذف الحساب نهائياً…</button>
+  </div>
+</template>
+
+<div class="print-slip" id="printSlip"></div>
+
+<script src="qr.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
