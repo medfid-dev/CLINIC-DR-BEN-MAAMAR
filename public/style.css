@@ -167,3 +167,15 @@ body[data-role=nurse] .doc-only{display:none}
   .print-slip p{font-size:14px;margin:6px 0}
 }
 .install-card{display:none}body.can-install .install-card{display:block}
+
+/* اقتراحات المرضى من الأرشيف */
+.suggest-wrap{position:relative}
+.suggest-box{position:absolute;inset-inline:0;top:100%;z-index:30;list-style:none;margin:4px 0 0;padding:4px;max-height:264px;overflow:auto;background:var(--surface-card);border:1px solid var(--primary-line);border-radius:var(--radius-md);box-shadow:0 10px 28px rgba(0,0,0,.2)}
+.suggest-box[hidden]{display:none}
+.suggest-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.suggest-item:hover,.suggest-item.sg-on{background:var(--primary-soft)}
+.suggest-item.sg-busy{opacity:.6}
+.sg-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sg-main strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sg-main span,.sg-sub{font-size:12px;color:var(--text-secondary)}
+.sg-sub{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;text-align:end}

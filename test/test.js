@@ -67,7 +67,7 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     const t2 = (await J('GET', '/api/state', A)).j.patients.find(x => x.id === p2.id).ticket;
     r = await J('GET', `/api/ticket/${t2}`); ok(r.s === 200 && r.j.state === 'waiting' && r.j.ahead === 0 && r.j.busy === true, 'تذكرة 2: لا أحد أمامه والطبيب مشغول');
     const t3 = p3.ticket; r = await J('GET', `/api/ticket/${t3}`); ok(r.j.ahead === 1, 'تذكرة 3: واحد أمامه');
-    const dump = JSON.stringify(r.j); ok(!dump.includes('مريض1') && !dump.includes('مريض2') && !dump.includes('0550000000') && !dump.includes('1990') && !dump.includes('16'), 'التذكرة لا تكشف اسم/هاتف/سن أي مريض آخر');
+    const { updated: _u, ...tk } = r.j, dump = JSON.stringify(tk); ok(!dump.includes('مريض1') && !dump.includes('مريض2') && !dump.includes('0550000000') && !dump.includes('1990') && !dump.includes('16'), 'التذكرة لا تكشف اسم/هاتف/سن أي مريض آخر');
     ok(Object.keys(r.j).sort().join() === 'ahead,busy,clinic,estMin,firstName,state,ticketNo,updated', 'حقول التذكرة محصورة');
     r = await J('GET', '/api/ticket/AAAAAAAAAAAAAAAAAAAAAAAA'); ok(r.s === 404, 'رمز تذكرة مجهول 404');
     r = await J('GET', '/api/ticket/../state'); ok(r.s === 401 || r.s === 404, 'لا ثغرة مسار في التذكرة');
@@ -84,6 +84,15 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     ac.abort(); acN.abort(); acT.abort();
 
     console.log('النسخ الاحتياطي والاستعادة والحذف');
+    console.log('اقتراحات المرضى من الأرشيف');
+    const arch0 = (await J('GET', '/api/archive', A)).j.items[0];
+    r = await J('GET', '/api/patients/suggest?q=' + encodeURIComponent(arch0.name.slice(0, 3))); ok(r.s === 401, 'الاقتراحات تتطلب تسجيل دخول');
+    r = await J('GET', '/api/patients/suggest?q=' + encodeURIComponent(arch0.name.slice(0, 3)), N); ok(r.s === 200 && r.j.items.some(x => x.name === arch0.name), 'الممرضة تحصل على اقتراح من الأرشيف');
+    const sg0 = r.j.items.find(x => x.name === arch0.name); ok(['name', 'birthYear', 'gender', 'phone', 'visits'].every(k => k in sg0) && !('notes' in sg0) && !('treatment' in sg0) && !('images' in sg0) && !('id' in sg0), 'الاقتراح لا يكشف التشخيص أو الصور');
+    r = await J('GET', '/api/patients/suggest?q=' + encodeURIComponent(arch0.name.slice(0, 1)), N); ok(r.s === 200 && r.j.items.length === 0, 'لا اقتراحات لحرف واحد');
+    r = await J('GET', '/api/patients/suggest?q=' + encodeURIComponent(String(arch0.phone).slice(0, 5)), N); ok(r.j.items.some(x => x.name === arch0.name), 'الاقتراح بالهاتف');
+    r = await J('GET', '/api/patients/suggest?q=' + encodeURIComponent(arch0.name.slice(0, 3)), B); ok(r.s === 200 && r.j.items.length === 0, 'اقتراحات عيادة ب لا ترى أرشيف عيادة أ');
+
     const bk = await (await fetch(base + '/api/backup', { headers: { Authorization: 'Bearer ' + A } })).json(); ok(bk.archive.length === 1 && Object.keys(bk.images).length === 1, 'تصدير نسخة احتياطية');
     r = await J('POST', '/api/restore', B, bk); ok(r.s === 200, 'استعادة في عيادة ب');
     const stB2 = (await J('GET', '/api/state', B)).j; ok(stB2.patients.every(x => x.ticket !== t3), 'رموز التذاكر لا تتكرر بين العيادات');

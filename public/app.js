@@ -26,7 +26,7 @@ const L = {
     old_pass: 'كلمة المرور الحالية', new_pass: 'كلمة المرور الجديدة (8 أحرف فأكثر)', change: 'تغيير', chg_pass_hint: 'ستُغلق جلسات باقي الأجهزة.', set_backup: 'النسخ الاحتياطي',
     export_data: 'تصدير نسخة 📥', import_data: 'استعادة 📤', backup_hint: 'النسخة تشمل المرضى والأرشيف والصور (دون كلمات المرور).', wipe_data: 'حذف جميع بيانات المرضى…', delete_account: 'حذف الحساب نهائياً…',
     // ديناميكية
-    lbl_name: 'اسم المريض:', lbl_birth: 'سنة الازدياد:', lbl_gender: 'الجنس:', lbl_reason: 'سبب الزيارة:', lbl_tooth: 'السن (اختياري):', lbl_phone: 'رقم الهاتف (اختياري):',
+    sg_visits: 'الزيارات: {n} · آخرها {d}', sg_waiting: '⏳ في الانتظار الآن', sg_already: 'هذا المريض مسجّل بالفعل في قائمة الانتظار.', lbl_name: 'اسم المريض:', lbl_birth: 'سنة الازدياد:', lbl_gender: 'الجنس:', lbl_reason: 'سبب الزيارة:', lbl_tooth: 'السن (اختياري):', lbl_phone: 'رقم الهاتف (اختياري):',
     age_fmt: 'العمر: {n} سنة', age_none: 'العمر: --', years_short: 'سنة', doc_title: 'لوحة الطبيب 🔔', doc_sub: 'إشراف عام وعيادة مباشرة', nurse_title: 'شاشة الممرضة', nurse_welcome: 'الممرضة: {n}',
     doc_sub2: '{c} — {n}', in_room: 'في المعاينة 🩺', enter: 'دخول', edit: 'تعديل', del: 'حذف', call: 'استدعاء 🩺', qr: 'QR', doctor_word: 'طبيب', ticket_no: 'تذكرة',
     sex: 'الجنس', birth: 'سنة الميلاد', tooth: 'السن', empty_today: 'لا توجد سجلات اليوم', empty_wait: 'قاعة الانتظار فارغة', empty_room: 'لا يوجد مريض حالياً في غرفة الكشف.',
@@ -69,7 +69,7 @@ const L = {
     install_app: 'Install app', install_sub: 'Opens as a standalone app on phone or computer', install: 'Install', set_clinic: 'Clinic info', chg_pass: 'Change password',
     old_pass: 'Current password', new_pass: 'New password (8+ chars)', change: 'Change', chg_pass_hint: 'Other devices will be signed out.', set_backup: 'Backup',
     export_data: 'Export backup 📥', import_data: 'Restore 📤', backup_hint: 'Includes patients, archive and images (not passwords).', wipe_data: 'Delete all patient data…', delete_account: 'Delete account permanently…',
-    lbl_name: 'Patient name:', lbl_birth: 'Birth year:', lbl_gender: 'Gender:', lbl_reason: 'Reason for visit:', lbl_tooth: 'Tooth (optional):', lbl_phone: 'Phone (optional):',
+    sg_visits: 'Visits: {n} · last {d}', sg_waiting: '⏳ Waiting now', sg_already: 'This patient is already in the waiting list.', lbl_name: 'Patient name:', lbl_birth: 'Birth year:', lbl_gender: 'Gender:', lbl_reason: 'Reason for visit:', lbl_tooth: 'Tooth (optional):', lbl_phone: 'Phone (optional):',
     age_fmt: 'Age: {n}', age_none: 'Age: --', years_short: 'y', doc_title: 'Doctor panel 🔔', doc_sub: 'Supervision & direct clinic', nurse_title: 'Nurse screen', nurse_welcome: 'Nurse: {n}',
     doc_sub2: '{c} — {n}', in_room: 'In consultation 🩺', enter: 'Enter', edit: 'Edit', del: 'Delete', call: 'Call in 🩺', qr: 'QR', doctor_word: 'Doctor', ticket_no: 'Ticket',
     sex: 'Gender', birth: 'Birth year', tooth: 'Tooth', empty_today: 'No records today', empty_wait: 'Waiting room is empty', empty_room: 'No patient in the consultation room.',
@@ -319,15 +319,52 @@ function imgBlobUrl(rec, img) {
 function hydrate(root) { $$('img[data-rec]', root).forEach(el => { if (!el.src) imgBlobUrl(el.dataset.rec, el.dataset.img).then(u => { el.src = u; }).catch(() => {}); }); }
 
 /* ===================== نماذج المرضى ===================== */
+const sg = (mode, pre) => (pre === 'pe' ? '' : ` data-suggest="${mode}" data-pre="${pre}" autocomplete="off"`);
 function fieldsHTML(pre) {
   const opts = REASONS.map(r => `<option value="${esc(r[0])}">${esc(settings.lang === 'en' ? r[1] : r[0])}</option>`).join('');
-  return `<div class="form-group"><label>${t('lbl_name')}</label><input type="text" id="${pre}Name" maxlength="80" required></div>
+  return `<div class="form-group suggest-wrap"><label>${t('lbl_name')}</label><input type="text" id="${pre}Name" maxlength="80" required${sg('name', pre)}><ul class="suggest-box" role="listbox" hidden></ul></div>
     <div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label>${t('lbl_birth')}</label><input type="number" id="${pre}Year" min="1900" max="${YEAR}" placeholder="1990" data-input="age" data-pre="${pre}" required><div id="${pre}Age" style="font-size:12px;color:var(--warning-warm);font-weight:600;margin-top:3px">${t('age_none')}</div></div>
     <div class="form-group" style="flex:1"><label>${t('lbl_gender')}</label><select id="${pre}Gender"><option value="ذكر">${t('male')}</option><option value="أنثى">${t('female')}</option></select></div></div>
     <div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label>${t('lbl_reason')}</label><select id="${pre}Reason">${opts}</select></div>
     <div class="form-group" style="flex:1"><label>${t('lbl_tooth')}</label><input type="text" id="${pre}Tooth" maxlength="20" placeholder="16"></div></div>
-    <div class="form-group"><label>${t('lbl_phone')}</label><input type="tel" id="${pre}Phone" maxlength="25" placeholder="05xxxxxxxx"></div>`;
+    <div class="form-group suggest-wrap"><label>${t('lbl_phone')}</label><input type="tel" id="${pre}Phone" maxlength="25" placeholder="05xxxxxxxx"${sg('phone', pre)}><ul class="suggest-box" role="listbox" hidden></ul></div>`;
 }
+/* ===================== اقتراح المرضى من الأرشيف ===================== */
+const SG = { seq: 0, timer: 0, items: [], active: -1, input: null };
+function sgClose() { $$('.suggest-box').forEach(b => { b.hidden = true; b.innerHTML = ''; }); SG.items = []; SG.active = -1; SG.input = null; }
+function sgMark() { $$('.suggest-box:not([hidden]) .suggest-item').forEach((li, i) => { li.classList.toggle('sg-on', i === SG.active); if (i === SG.active) li.scrollIntoView({ block: 'nearest' }); }); }
+function sgRender(inp, items) {
+  const box = inp.parentElement.querySelector('.suggest-box');
+  $$('.suggest-box').forEach(b => { if (b !== box) { b.hidden = true; b.innerHTML = ''; } });
+  SG.items = items; SG.active = -1; SG.input = inp;
+  if (!items.length) { box.hidden = true; box.innerHTML = ''; return; }
+  box.innerHTML = items.map((x, i) => `<li role="option" class="suggest-item${x.active ? ' sg-busy' : ''}" data-act="sgPick" data-i="${i}"><div class="sg-main"><strong>${esc(x.name)}</strong><span>${esc(genderL(x.gender))} · ${x.birthYear} · ${t('age_fmt', { n: x.age })}</span></div><div class="sg-sub">${x.phone ? `<span dir="ltr">${esc(x.phone)}</span>` : ''}<span>${x.active ? t('sg_waiting') : t('sg_visits', { n: x.visits, d: new Date(x.lastVisit).toLocaleDateString(locale()) })}</span></div></li>`).join('');
+  box.hidden = false;
+}
+function sgQuery(inp) {
+  clearTimeout(SG.timer); const v = inp.value.trim();
+  const enough = inp.dataset.suggest === 'phone' ? v.replace(/\D/g, '').length >= 3 : v.length >= 2;
+  const seq = ++SG.seq; if (!enough) return sgClose();
+  SG.timer = setTimeout(async () => {
+    let r; try { r = await api('GET', '/api/patients/suggest?q=' + encodeURIComponent(v)); } catch (e) { return; }
+    if (seq === SG.seq && document.activeElement === inp) sgRender(inp, (r && r.items) || []);
+  }, 180);
+}
+function sgPick(i) {
+  const x = SG.items[i], pre = SG.input && SG.input.dataset.pre; if (!x || !pre) return;
+  if (x.active) { toast(t('sg_already'), 'warning'); return sgClose(); }
+  $('#' + pre + 'Name').value = x.name; $('#' + pre + 'Year').value = x.birthYear; $('#' + pre + 'Gender').value = x.gender;
+  if (x.phone) $('#' + pre + 'Phone').value = x.phone;
+  updateAge(pre); sgClose(); $('#' + pre + 'Reason').focus();
+}
+document.addEventListener('mousedown', e => { if (e.target.closest('.suggest-box')) e.preventDefault(); });
+document.addEventListener('focusout', e => { const el = e.target; if (el.dataset && el.dataset.suggest) setTimeout(() => { if (SG.input === el && document.activeElement !== el) sgClose(); }, 200); });
+document.addEventListener('keydown', e => {
+  const el = e.target; if (!el.dataset || !el.dataset.suggest || !SG.items.length || SG.input !== el) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const n = SG.items.length; SG.active = e.key === 'ArrowDown' ? (SG.active + 1) % n : (SG.active - 1 + n) % n; sgMark(); }
+  else if (e.key === 'Enter' && SG.active >= 0) { e.preventDefault(); sgPick(SG.active); }
+  else if (e.key === 'Escape') sgClose();
+});
 function renderPatientForms() {
   $$('form[data-form=addPatient]').forEach(f => { const keep = {}; $$('input,select', f).forEach(i => { keep[i.id] = i.value; }); $('.fields', f).innerHTML = fieldsHTML(f.dataset.pre); $$('input,select', f).forEach(i => { if (keep[i.id]) i.value = keep[i.id]; }); });
   const ef = $('#editFields'); const keep = {}; $$('input,select', ef).forEach(i => { keep[i.id] = i.value; }); ef.innerHTML = fieldsHTML('pe'); $$('input,select', ef).forEach(i => { if (keep[i.id]) i.value = keep[i.id]; });
@@ -505,6 +542,7 @@ const ACT = {
   editNurse(el) { const n = S.nurses.find(x => x.id === el.dataset.id); if (!n) return; $('#editNurseId').value = n.id; $('#editNurseName').value = n.name; $('#editNursePhone').value = n.phone || ''; $('#editNursePass').value = ''; openModal('editNurseModal'); },
   async delArchive(el) { if (confirm(t('c_del_arch')) && await run(() => api('DELETE', `/api/archive/${el.dataset.id}`))) loadArchive(true); },
   archiveMore: () => loadArchive(false),
+  sgPick: el => sgPick(+el.dataset.i),
   setTheme: el => { settings.theme = el.dataset.theme; applySettings(); }, askNotif,
   installApp: async () => { if (!S.installEvt) return; S.installEvt.prompt(); S.installEvt = null; document.body.classList.remove('can-install'); },
   async exportData() { const b = await run(() => api('GET', '/api/backup', undefined, { blob: true })); if (b) download(b, `clinic_backup_${new Date().toISOString().slice(0, 10)}.json`); },
@@ -526,6 +564,7 @@ document.addEventListener('input', e => {
   const el = e.target;
   if (el.dataset.input === 'age') updateAge(el.dataset.pre);
   else if (el.dataset.input === 'archive') loadArchive(true);
+  else if (el.dataset.suggest) sgQuery(el);
 });
 document.addEventListener('change', e => {
   const el = e.target, c = el.dataset.change;
@@ -546,6 +585,7 @@ document.addEventListener('submit', async e => {
     try { await afterLogin(await api('POST', '/api/register', { clinicName: $('#rClinic').value, doctorName: $('#rDoctor').value, username: $('#rUser').value, password: $('#rPass').value, registrationCode: $('#rCode').value }, { anon: true })); } catch (x) { authError(x); }
   } else if (kind === 'addPatient') {
     const pre = f.dataset.pre, v = readPatient(pre); if (!v) return;
+    clearTimeout(SG.timer); SG.seq++; sgClose();
     lastOwnAdd = Date.now();
     const r = await run(() => api('POST', '/api/patients', v)); if (!r) return;
     ['Name', 'Year', 'Tooth', 'Phone'].forEach(k => { $('#' + pre + k).value = ''; }); updateAge(pre);

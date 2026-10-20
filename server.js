@@ -90,6 +90,25 @@ function validatePatient(b) {
   return { name, birthYear: by, gender: b.gender === 'أنثى' ? 'أنثى' : 'ذكر', reason: str(b.reason, 60) || 'استشارة وطوارئ', tooth: str(b.tooth, 20) || 'غير محدد', phone };
 }
 const ageOf = p => THIS_YEAR() - p.birthYear;
+
+/* ---------- اقتراحات المرضى من الأرشيف (للطبيب والممرضة: حقول الهوية فقط) ---------- */
+const normName = v => String(v || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+const nameCache = new WeakMap();
+const normOf = r => { let n = nameCache.get(r); if (n === undefined) { n = normName(r.name); nameCache.set(r, n); } return n; };
+const personKey = r => normOf(r) + '|' + r.birthYear + '|' + r.gender;
+function suggestPatients(c, raw) {
+  const isPhone = /^[0-9+\-\s()]+$/.test(raw), digits = raw.replace(/\D/g, ''), q = normName(raw);
+  if (isPhone ? digits.length < 3 : q.length < 2) return [];
+  const toks = q.split(' ').filter(Boolean), active = new Set(c.patients.map(personKey)), seen = new Map();
+  for (const r of c.archive) {                       // الأرشيف مرتّب من الأحدث إلى الأقدم
+    const hit = isPhone ? (r.phone || '').replace(/\D/g, '').includes(digits) : toks.every(t => normOf(r).includes(t));
+    if (!hit) continue;
+    const k = personKey(r), e = seen.get(k);
+    if (e) { e.visits++; if (!e.phone && r.phone) e.phone = r.phone; continue; }
+    seen.set(k, { name: r.name, birthYear: r.birthYear, age: ageOf(r), gender: r.gender, phone: r.phone || '', visits: 1, lastVisit: r.finishedAt || r.createdAt, active: active.has(k), _s: !isPhone && normOf(r).startsWith(q) ? 0 : 1 });
+  }
+  return [...seen.values()].sort((a, b) => a._s - b._s).slice(0, 6).map(({ _s, ...x }) => x);
+}
 function patientView(p) {
   return { id: p.id, ticket: p.ticket, ticketNo: p.ticketNo, name: p.name, birthYear: p.birthYear, age: ageOf(p), gender: p.gender, reason: p.reason, tooth: p.tooth, phone: p.phone, status: p.status, createdAt: p.createdAt, startedAt: p.startedAt || null, images: (p.images || []).map(i => i.id) };
 }
@@ -287,6 +306,11 @@ async function api(req, res, url) {
     return;
   }
 
+  /* اقتراحات الأرشيف أثناء إدخال مريض */
+  if (m === 'GET' && p === '/api/patients/suggest') {
+    const a = authOf(req); rate('sg:' + a.key, 240, 6e4);
+    return send(res, 200, { items: suggestPatients(a.clinic, str(url.searchParams.get('q') || '', 80)) });
+  }
   /* مرضى اليوم */
   if (m === 'POST' && p === '/api/patients') {
     const a = authOf(req), c = a.clinic, v = validatePatient(await readJSON(req));
