@@ -43,6 +43,20 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     r = await J('GET', '/api/state'); ok(r.s === 401, 'بدون رمز: 401');
     r = await J('GET', '/api/state', 'bogus'); ok(r.s === 401, 'رمز مزيّف: 401');
 
+    console.log('ساعات تسجيل الممرضة');
+    const hm = d => String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'), H = 36e5, nw = Date.now();
+    r = await J('PUT', '/api/clinic/hours', N, { enabled: true, start: '08:00', end: '17:00', tz: 'UTC' }); ok(r.s === 403, 'الممرضة لا تغيّر ساعات التسجيل');
+    r = await J('PUT', '/api/clinic/hours', A, { enabled: true, start: '25:00', end: '17:00', tz: 'UTC' }); ok(r.s === 400, 'رفض وقت غير صالح');
+    r = await J('PUT', '/api/clinic/hours', A, { enabled: true, start: '08:00', end: '17:00', tz: 'Not/AZone' }); ok(r.s === 400, 'رفض منطقة زمنية غير صالحة');
+    r = await J('PUT', '/api/clinic/hours', A, { enabled: true, start: hm(new Date(nw + 2 * H)), end: hm(new Date(nw + 3 * H)), tz: 'UTC' }); ok(r.s === 200 && r.j.open === false, 'ضبط وقت لا يشمل الآن → مغلق');
+    r = await J('POST', '/api/patients', N, pat('خارج الوقت')); ok(r.s === 403 && r.j.error === 'closed', 'الممرضة لا تضيف مريضاً خارج الوقت');
+    r = await J('POST', '/api/patients', A, pat('طبيب خارج الوقت')); ok(r.s === 201, 'الطبيب يضيف في أي وقت'); await J('DELETE', `/api/patients/${r.j.id}`, A);
+    ok((await J('GET', '/api/state', N)).j.hours.open === false, 'حالة الإغلاق تصل للممرضة');
+    r = await J('PUT', '/api/clinic/hours', A, { enabled: true, start: hm(new Date(nw - H)), end: hm(new Date(nw + H)), tz: 'UTC' }); ok(r.j.open === true, 'وقت يشمل الآن → مفتوح');
+    r = await J('PUT', '/api/clinic/hours', A, { enabled: true, start: hm(new Date(nw - H)), end: hm(new Date(nw - 2 * H)), tz: 'UTC' }); ok(r.j.open === true, 'نطاق يعبر منتصف الليل: الآن داخله → مفتوح');
+    r = await J('PUT', '/api/clinic/hours', A, { enabled: true, start: hm(new Date(nw + H)), end: hm(new Date(nw - H)), tz: 'UTC' }); ok(r.j.open === false && r.j.nextIn > 0, 'نطاق يعبر منتصف الليل: الآن خارجه → مغلق');
+    r = await J('PUT', '/api/clinic/hours', A, { enabled: false, start: '08:00', end: '17:00', tz: 'UTC' }); ok(r.j.open === true && r.j.nextIn === null, 'إيقاف التقييد → مفتوح دائماً');
+
     console.log('الطابور وتخطي الدور');
     const events = [], ac = await sse(await (async () => { const t = (await J('POST', '/api/stream-ticket', A)).j.ticket; return `${base}/api/stream?ticket=${t}`; })(), (e, d) => events.push([e, d]));
     const nEv = [], acN = await sse(`${base}/api/stream?ticket=${(await J('POST', '/api/stream-ticket', N)).j.ticket}`, (e, d) => nEv.push([e, d]));
@@ -81,6 +95,8 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     r = await J('GET', `/api/ticket/${t2}`); ok(r.j.state === 'in', 'تذكرة 2: دورك الآن');
     r = await J('GET', '/api/archive?name=مريض1', A); ok(r.j.total === 1 && r.j.items[0].images.length === 1, 'البحث في الأرشيف');
     r = await J('GET', '/api/archive?name=مريض1', B); ok(r.j.total === 0, 'أرشيف ب فارغ');
+    const t0 = Date.now(); r = await J('GET', `/api/archive?from=${t0 - 864e5}&to=${t0 + 864e5}`, A); ok(r.j.total === 1, 'فلتر اليوم: سجل اليوم يظهر');
+    r = await J('GET', `/api/archive?from=${t0 - 3 * 864e5}&to=${t0 - 2 * 864e5}`, A); ok(r.j.total === 0, 'فلتر اليوم: يوم آخر لا يعرض شيئاً');
     ac.abort(); acN.abort(); acT.abort();
 
     console.log('النسخ الاحتياطي والاستعادة والحذف');

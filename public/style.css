@@ -162,8 +162,9 @@ body[data-role=nurse] .doc-only{display:none}
   body>*:not(.print-slip){display:none!important}
   body{overflow:visible;height:auto;background:#fff}
   .print-slip{display:block!important;text-align:center;color:#000;font-family:'Readex Pro',Tahoma,sans-serif;padding:24px}
-  .print-slip h2{font-size:22px;margin-bottom:6px}.print-slip .no{font-size:64px;font-weight:700;margin:6px 0}
-  .print-slip .qr{width:260px;margin:12px auto;line-height:0}.print-slip .qr svg{width:100%}
+  .print-slip h2{font-size:34px;font-weight:800;margin:0 0 10px;padding-bottom:10px;border-bottom:3px solid #000;line-height:1.3}
+  .print-slip .no{font-size:130px;font-weight:800;line-height:1.05;margin:10px 0;border:4px solid #000;border-radius:24px;display:inline-block;padding:4px 36px}
+  .print-slip .qr{width:230px;margin:12px auto;line-height:0}.print-slip .qr svg{width:100%}
   .print-slip p{font-size:14px;margin:6px 0}
 }
 .install-card{display:none}body.can-install .install-card{display:block}
@@ -179,3 +180,34 @@ body[data-role=nurse] .doc-only{display:none}
 .sg-main strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sg-main span,.sg-sub{font-size:12px;color:var(--text-secondary)}
 .sg-sub{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;text-align:end}
+
+/* ===== الساعة الحيّة (بسيطة وأنيقة في شريط العنوان) ===== */
+.live-clock{flex:0 0 auto;margin:0 10px;padding:4px 12px;border-radius:12px;text-align:center;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22)}
+.lc-time{display:flex;justify-content:center;align-items:baseline;gap:1px;font-size:20px;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.lc-time span{display:inline-block;text-align:center}
+.lc-s{font-size:14px;color:#FFB59E;min-width:1.3ch}
+.lc-sep{opacity:.8;animation:lcBlink 1s steps(1) infinite}
+.lc-s+.lc-sep{display:none}
+.lc-dot{display:none}
+.lc-date{font-size:9.5px;opacity:.75;font-weight:500;white-space:nowrap}
+@keyframes lcBlink{50%{opacity:.3}}
+@media (max-width:480px){.live-clock{margin:0 6px;padding:3px 8px}.lc-time{font-size:17px}.lc-s{font-size:12px}.lc-date{display:none}}
+@media (prefers-reduced-motion:reduce){.lc-sep{animation:none}}
+/* ===== فلتر اليوم في الأرشيف ===== */
+.day-filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.day-filter label{font-size:13px;font-weight:600;color:var(--primary-sage)}
+.day-filter input[type=date]{flex:1;min-width:140px}
+#doctorScreen>div:first-child .live-clock span,#nurseScreen>div:first-child .live-clock span{color:#fff!important}
+#doctorScreen>div:first-child .live-clock .lc-s,#nurseScreen>div:first-child .live-clock .lc-s{color:#FFB59E!important}
+#doctorScreen>div:first-child .live-clock .lc-date,#nurseScreen>div:first-child .live-clock .lc-date{color:rgba(255,255,255,.8)!important}
+/* ===== اسم العيادة: العنوان الرئيسي ===== */
+#doctorScreen>div:first-child>div:first-child,#nurseScreen>div:first-child>div:first-child{min-width:0;flex:1 1 auto}
+#doctorScreen>div:first-child h3,#nurseScreen>div:first-child h3{font-size:clamp(20px,5.6vw,28px)!important;font-weight:800!important;letter-spacing:.2px;line-height:1.2;text-shadow:0 2px 12px rgba(0,0,0,.3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#doctorScreen>div:first-child>div:first-child span,#nurseScreen>div:first-child>div:first-child span{display:block;margin-top:3px;font-size:13px!important;font-weight:500;color:rgba(255,255,255,.85)!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ساعات تسجيل الممرضة */
+.hours-row{display:flex;gap:12px;margin:10px 0}
+.hours-row label{flex:1;display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--text-secondary)}
+.hours-row input{width:100%}
+.hours-status{font-size:13px;font-weight:600;margin:6px 0 10px;color:var(--text-secondary)}
+.hours-status[data-open="1"]{color:var(--accent-mint)}.hours-status[data-open="0"]{color:var(--danger-soft)}
+.closed-note{background:color-mix(in srgb,var(--warning-warm) 14%,transparent);border:1px solid var(--warning-warm);color:var(--warning-warm);border-radius:var(--radius-md);padding:16px 18px;margin-bottom:20px;font-weight:700;font-size:15px;text-align:center;line-height:1.7}

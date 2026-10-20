@@ -1,43 +1,121 @@
 'use strict';
-/* عيادتي الهادئة — خادم المزامنة (Node.js بدون أي اعتماديات خارجية)
+/* عيادتي الهادئة — خادم المزامنة
    - كل طبيب = "عيادة" مستقلة تماماً (حسابات وممرضات ومرضى وصور وأرشيف)
    - مزامنة فورية عبر SSE
-   - صفحة تذكرة عامة للمريض عبر رمز عشوائي غير قابل للتخمين لا تكشف أي مريض آخر */
+   - صفحة تذكرة عامة للمريض عبر رمز عشوائي غير قابل للتخمين لا تكشف أي مريض آخر
+   - التخزين: قاعدة بيانات MongoDB سحابية (MongoDB Atlas المجاني) عبر MONGODB_URI أو DATABASE_URL.
+     بدون هذا المتغيّر يعمل الخادم بذاكرة مؤقتة فقط (للتجربة المحلية — تضيع البيانات عند الإيقاف). */
 const http = require('http'), fs = require('fs'), path = require('path'), crypto = require('crypto'), { promisify } = require('util');
 const scrypt = promisify(crypto.scrypt);
 
 const PORT = +process.env.PORT || 3000;
-const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(__dirname, 'data'));
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const REG_CODE = process.env.REGISTRATION_CODE || '';           // اختياري: رمز دعوة للتسجيل
 const ALLOW_REG = process.env.ALLOW_REGISTRATION !== 'false';
 const TRUST_PROXY = process.env.TRUST_PROXY === '1';
 const PUBLIC_URL = (process.env.PUBLIC_URL || '').replace(/\/+$/, '');
+const DB_URI = process.env.MONGODB_URI || process.env.DATABASE_URL || '';
+const DB_NAME = process.env.MONGODB_DB || 'calm_clinic';
 const SESSION_MS = 30 * 864e5, TICKET_DONE_MS = 24 * 36e5;
 const THIS_YEAR = () => new Date().getFullYear();
 
-fs.mkdirSync(path.join(DATA_DIR, 'img'), { recursive: true });
-
-/* ---------- قاعدة البيانات (ملف JSON بكتابة ذرّية) ---------- */
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+/* ---------- طبقة التخزين ----------
+   الحالة تبقى في الذاكرة (فالمنطق البرمجي كما هو تماماً) ويُكتب كل تغيير إلى MongoDB خلال ~250ms.
+   المجموعات: clinics (الحساب والممرضات ومرضى اليوم) · archive (سجل لكل زيارة منتهية)
+              images (الصور، بيانات ثنائية) · sessions (جلسات الدخول، مُجزّأة SHA-256) */
 let db = { clinics: {}, sessions: {} };
-(function load() {
-  for (const f of [DB_FILE, DB_FILE + '.bak']) {
-    try { db = JSON.parse(fs.readFileSync(f, 'utf8')); db.clinics = db.clinics || {}; db.sessions = db.sessions || {}; return; } catch (e) { if (e.code !== 'ENOENT') console.error('تعذّر قراءة', f, e.message); }
+const mem = { images: new Map() };       // وضع الذاكرة المؤقتة (بدون قاعدة بيانات)
+let M = null;                            // { clients, col } عند الاتصال بـ MongoDB
+const persisted = { clinics: new Map(), archive: new Map(), sessions: new Map() };
+const imgKey = (cid, id) => cid + ':' + id;
+
+async function connectDB() {
+  if (!DB_URI) { console.warn('⚠️  لا يوجد MONGODB_URI — الوضع المؤقت: كل البيانات ستضيع عند إيقاف الخادم!'); return; }
+  if (!/^mongodb(\+srv)?:\/\//.test(DB_URI)) throw new Error('DATABASE_URL/MONGODB_URI يجب أن يبدأ بـ mongodb:// أو mongodb+srv://');
+  const { MongoClient } = require('mongodb');
+  const client = new MongoClient(DB_URI, { serverSelectionTimeoutMS: 20000, maxPoolSize: 10 });
+  await client.connect();
+  const d = client.db(DB_NAME);
+  M = { client, clinics: d.collection('clinics'), archive: d.collection('archive'), images: d.collection('images'), sessions: d.collection('sessions') };
+  await M.archive.createIndex({ clinicId: 1 }); await M.images.createIndex({ clinicId: 1 });
+  const all = {}; // تحميل كل شيء إلى الذاكرة
+  for (const c of await M.clinics.find({}).toArray()) {
+    const { _id, ...rest } = c; all[_id] = { id: _id, ...rest, archive: [] };
+    persisted.clinics.set(_id, JSON.stringify(c)); persisted.archive.set(_id, new Map());
   }
-})();
-let saveTimer = null;
-function save() { if (saveTimer) return; saveTimer = setTimeout(flush, 250); }
-function flush() {
-  clearTimeout(saveTimer); saveTimer = null;
-  const tmp = DB_FILE + '.tmp';
-  try {
-    fs.writeFileSync(tmp, JSON.stringify(db));
-    try { fs.copyFileSync(DB_FILE, DB_FILE + '.bak'); } catch (e) {}
-    fs.renameSync(tmp, DB_FILE);
-  } catch (e) { console.error('فشل حفظ قاعدة البيانات:', e.message); }
+  const arch = await M.archive.find({}).toArray();
+  for (const a of arch) { const c = all[a.clinicId]; if (c) { c.archive.push(a.d); persisted.archive.get(c.id).set(a.d.id, a.d); } }
+  for (const c of Object.values(all)) c.archive.sort((x, y) => (y.finishedAt || 0) - (x.finishedAt || 0));   // الأحدث أولاً
+  db.clinics = all;
+  for (const s of await M.sessions.find({}).toArray()) { const { _id, ...rest } = s; db.sessions[_id] = rest; persisted.sessions.set(_id, JSON.stringify(rest)); }
+  console.log(`متصل بـ MongoDB — ${Object.keys(all).length} عيادة، ${arch.length} سجل أرشيف`);
 }
-for (const s of ['SIGINT', 'SIGTERM']) process.on(s, () => { flush(); process.exit(0); });
+
+const clinicDoc = c => ({ _id: c.id, code: c.code, name: c.name, doctor: c.doctor, nurses: c.nurses, patients: c.patients, counter: c.counter, hours: c.hours || null, createdAt: c.createdAt });
+let saveTimer = null, flushing = null, dirtyAgain = false;
+function save() { if (!M || saveTimer || flushing) { if (flushing) dirtyAgain = true; return; } saveTimer = setTimeout(() => flush().catch(() => {}), 250); }
+async function bulk(col, ops) { for (let i = 0; i < ops.length; i += 500) await col.bulkWrite(ops.slice(i, i + 500), { ordered: false }); }
+function flush() {
+  if (!M) return Promise.resolve();
+  clearTimeout(saveTimer); saveTimer = null;
+  if (flushing) { dirtyAgain = true; return flushing; }
+  flushing = (async () => {
+    try {
+      do {
+        dirtyAgain = false;
+        const cOps = [], aOps = [], sOps = [], done = [];
+        for (const c of Object.values(db.clinics)) {
+          const doc = clinicDoc(c), js = JSON.stringify(doc);
+          if (persisted.clinics.get(c.id) !== js) { cOps.push({ replaceOne: { filter: { _id: c.id }, replacement: doc, upsert: true } }); done.push(() => persisted.clinics.set(c.id, js)); }
+          let pm = persisted.archive.get(c.id); if (!pm) persisted.archive.set(c.id, pm = new Map());
+          const cur = new Map(c.archive.map(r => [r.id, r]));
+          for (const [rid_, r] of cur) if (pm.get(rid_) !== r) { aOps.push({ replaceOne: { filter: { _id: imgKey(c.id, rid_) }, replacement: { _id: imgKey(c.id, rid_), clinicId: c.id, d: r }, upsert: true } }); done.push(() => pm.set(rid_, r)); }
+          for (const rid_ of pm.keys()) if (!cur.has(rid_)) { aOps.push({ deleteOne: { filter: { _id: imgKey(c.id, rid_) } } }); done.push(() => pm.delete(rid_)); }
+        }
+        const gone = [...persisted.clinics.keys()].filter(id => !db.clinics[id]);
+        for (const id of gone) { cOps.push({ deleteOne: { filter: { _id: id } } }); done.push(() => { persisted.clinics.delete(id); persisted.archive.delete(id); }); }
+        for (const [k, s] of Object.entries(db.sessions)) { const js = JSON.stringify(s); if (persisted.sessions.get(k) !== js) { sOps.push({ replaceOne: { filter: { _id: k }, replacement: { _id: k, ...s }, upsert: true } }); done.push(() => persisted.sessions.set(k, js)); } }
+        for (const k of persisted.sessions.keys()) if (!db.sessions[k]) { sOps.push({ deleteOne: { filter: { _id: k } } }); done.push(() => persisted.sessions.delete(k)); }
+        for (const id of gone) { await M.archive.deleteMany({ clinicId: id }); await M.images.deleteMany({ clinicId: id }); }
+        if (cOps.length) await bulk(M.clinics, cOps);
+        if (aOps.length) await bulk(M.archive, aOps);
+        if (sOps.length) await bulk(M.sessions, sOps);
+        done.forEach(f => f());
+      } while (dirtyAgain);
+    } catch (e) {
+      console.error('فشل حفظ قاعدة البيانات (ستُعاد المحاولة):', e.message);
+      dirtyAgain = false; setTimeout(save, 5000).unref();
+      throw e;
+    } finally { flushing = null; }
+  })();
+  return flushing;
+}
+let stopping = false;
+for (const s of ['SIGINT', 'SIGTERM']) process.on(s, async () => {
+  if (stopping) return; stopping = true;
+  const t = setTimeout(() => process.exit(1), 8000); t.unref();
+  try { await flush(); if (M) await M.client.close(); } catch (e) {}
+  process.exit(0);
+});
+
+/* الصور: MongoDB (مجموعة images) أو الذاكرة */
+const imgStore = {
+  async put(cid, id, buf) { if (!M) return void mem.images.set(imgKey(cid, id), buf); await M.images.replaceOne({ _id: imgKey(cid, id) }, { _id: imgKey(cid, id), clinicId: cid, data: buf }, { upsert: true }); },
+  async get(cid, id) {
+    if (!M) return mem.images.get(imgKey(cid, id)) || null;
+    const d = await M.images.findOne({ _id: imgKey(cid, id) }); return d ? toBuf(d.data) : null;
+  },
+  async del(cid, ids) {
+    if (!ids.length) return;
+    if (!M) { for (const i of ids) mem.images.delete(imgKey(cid, i)); return; }
+    await M.images.deleteMany({ _id: { $in: ids.map(i => imgKey(cid, i)) } });
+  },
+  async delAll(cid) {
+    if (!M) { for (const k of [...mem.images.keys()]) if (k.startsWith(cid + ':')) mem.images.delete(k); return; }
+    await M.images.deleteMany({ clinicId: cid });
+  }
+};
+const toBuf = d => Buffer.isBuffer(d) ? d : Buffer.from(d.buffer || d);
 
 const idx = { user: new Map(), code: new Map(), ticket: new Map() };
 function reindex() {
@@ -48,9 +126,7 @@ function reindex() {
     for (const p of c.archive) if (p.ticket) idx.ticket.set(p.ticket, c.id);
   }
 }
-reindex();
 const now = () => Date.now();
-for (const [k, s] of Object.entries(db.sessions)) if (s.exp < now()) delete db.sessions[k];
 
 /* ---------- أدوات ---------- */
 const b64u = n => crypto.randomBytes(n).toString('base64url');
@@ -125,10 +201,28 @@ const RT = c => rt[c.id] || (rt[c.id] = { skip: new Map(), streams: new Set() })
 const waiting = c => c.patients.filter(p => p.status === 'waiting');
 const inRoom = c => c.patients.find(p => p.status === 'in');
 
+/* ---------- ساعات استقبال الممرضة (يضبطها الطبيب) ---------- */
+const HM = /^([01]\d|2[0-3]):[0-5]\d$/;
+const toMin = s => +s.slice(0, 2) * 60 + +s.slice(3);
+function validTz(tz) { try { new Intl.DateTimeFormat('en-GB', { timeZone: tz }); return typeof tz === 'string' && tz.length <= 64; } catch (e) { return false; } }
+function hoursOf(c) { const h = c.hours || {}; return { enabled: !!h.enabled, start: HM.test(h.start) ? h.start : '08:00', end: HM.test(h.end) ? h.end : '17:00', tz: validTz(h.tz) ? h.tz : 'UTC' }; }
+function secOfDay(tz, t) {
+  const p = new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(t)), g = k => +p.find(x => x.type === k).value;
+  return g('hour') * 3600 + g('minute') * 60 + g('second');
+}
+function hoursView(c) {
+  const h = hoursOf(c); if (!h.enabled) return { ...h, open: true, nextIn: null };
+  const t = now(), sec = secOfDay(h.tz, t), s = toMin(h.start) * 60, e = toMin(h.end) * 60;
+  const open = s === e ? true : s < e ? sec >= s && sec < e : sec >= s || sec < e;
+  const until = b => { const d = (b - sec + 86400) % 86400; return d || 86400; };
+  return { ...h, open, nextIn: s === e ? null : Math.min(until(s), until(e)) * 1000 };
+}
+const nurseMayAdd = c => hoursView(c).open;
+
 function stateFor(c) {
   const r = RT(c), t = now();
   for (const [k, v] of r.skip) if (v.ts < t - 6e5 || !c.patients.some(p => p.id === k && p.status === 'waiting')) r.skip.delete(k);
-  return { patients: c.patients.map(patientView), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t };
+  return { hours: hoursView(c), patients: c.patients.map(patientView), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t };
 }
 function ticketView(c, token) {
   const i = c.patients.findIndex(p => p.ticket === token);
@@ -233,9 +327,8 @@ function meOf(ctx) {
 function enterRoom(c, p) { p.status = 'in'; p.startedAt = now(); RT(c).skip.delete(p.id); }
 function findPatient(c, id) { const p = c.patients.find(x => x.id === id); if (!p) throw httpErr(404, 'not_found'); return p; }
 const IMG_ID = /^[a-f0-9]{16}$/, REC_ID = /^[a-f0-9]{12}$/, TOKEN = /^[A-Za-z0-9_-]{20,40}$/;
-const imgPath = (c, id) => path.join(DATA_DIR, 'img', c.id, id + '.jpg');
 const isJpeg = b => b.length > 4 && b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF;
-function rmImages(c, rec) { for (const i of rec.images || []) fs.unlink(imgPath(c, i.id), () => {}); }
+function rmImages(c, rec) { imgStore.del(c.id, (rec.images || []).map(i => i.id)).catch(e => console.error('تعذّر حذف الصور:', e.message)); }
 
 /* ---------- المسارات ---------- */
 async function api(req, res, url) {
@@ -315,6 +408,7 @@ async function api(req, res, url) {
   if (m === 'POST' && p === '/api/patients') {
     const a = authOf(req), c = a.clinic, v = validatePatient(await readJSON(req));
     if (!v) throw httpErr(400, 'invalid_input');
+    if (a.role === 'nurse' && !nurseMayAdd(c)) throw httpErr(403, 'closed');
     if (c.patients.length >= 500) throw httpErr(429, 'limit');
     const pt = { id: rid(6), ticket: b64u(18), ticketNo: nextTicketNo(c), ...v, images: [], status: 'waiting', createdAt: now(), startedAt: null, createdBy: a.role };
     c.patients.push(pt); idx.ticket.set(pt.ticket, c.id);
@@ -368,14 +462,13 @@ async function api(req, res, url) {
       const a = authOf(req, ['doctor']), c = a.clinic, pt = findPatient(c, pid);
       if ((pt.images || []).length >= 12) throw httpErr(429, 'limit');
       const buf = await readBody(req, 4e6); if (!isJpeg(buf)) throw httpErr(400, 'invalid_input');
-      const id = rid(8); fs.mkdirSync(path.join(DATA_DIR, 'img', c.id), { recursive: true });
-      await fs.promises.writeFile(imgPath(c, id), buf); (pt.images = pt.images || []).push({ id });
+      const id = rid(8); await imgStore.put(c.id, id, buf); (pt.images = pt.images || []).push({ id });
       broadcast(c); return send(res, 201, { id });
     }
     if (act === 'images' && imgId && m === 'DELETE') {
       const a = authOf(req, ['doctor']), c = a.clinic, pt = findPatient(c, pid);
       const i = (pt.images || []).findIndex(z => z.id === imgId); if (i < 0) throw httpErr(404, 'not_found');
-      pt.images.splice(i, 1); fs.unlink(imgPath(c, imgId), () => {}); broadcast(c); return send(res, 200, { ok: true });
+      pt.images.splice(i, 1); imgStore.del(c.id, [imgId]).catch(e => console.error('تعذّر حذف الصورة:', e.message)); broadcast(c); return send(res, 200, { ok: true });
     }
   }
   mt = p.match(/^\/api\/records\/([a-f0-9]{12})\/images\/([a-f0-9]{16})$/);
@@ -383,14 +476,16 @@ async function api(req, res, url) {
     const a = authOf(req, ['doctor']), c = a.clinic;
     const rec = c.patients.find(z => z.id === mt[1]) || c.archive.find(z => z.id === mt[1]);
     if (!rec || !(rec.images || []).some(z => z.id === mt[2])) throw httpErr(404, 'not_found');
-    return serveFile(req, res, imgPath(c, mt[2]), { 'Cache-Control': 'private, max-age=3600', 'Content-Type': 'image/jpeg' });
+    const buf = await imgStore.get(c.id, mt[2]); if (!buf) throw httpErr(404, 'not_found');
+    res.writeHead(200, { 'Content-Type': 'image/jpeg', 'Content-Length': buf.length, 'Cache-Control': 'private, max-age=3600' });
+    return req.method === 'HEAD' ? res.end() : res.end(buf);
   }
 
   /* الأرشيف (طبيب فقط) */
   if (m === 'GET' && p === '/api/archive') {
     const a = authOf(req, ['doctor']), q = url.searchParams, name = str(q.get('name') || '', 80).toLowerCase(), year = str(q.get('year') || '', 4), gender = str(q.get('gender') || '', 4), tooth = str(q.get('tooth') || '', 20).toLowerCase(), tr = str(q.get('treatment') || '', 40);
-    const off = Math.max(0, +q.get('offset') || 0), lim = Math.min(100, Math.max(1, +q.get('limit') || 30));
-    const all = a.clinic.archive.filter(r => (!name || r.name.toLowerCase().includes(name)) && (!year || String(r.birthYear).includes(year)) && (!gender || r.gender === gender) && (!tooth || String(r.tooth).toLowerCase().includes(tooth)) && (!tr || (r.treatment || '').includes(tr)));
+    const from = Math.max(0, +q.get('from') || 0), to = Math.max(0, +q.get('to') || 0), off = Math.max(0, +q.get('offset') || 0), lim = Math.min(100, Math.max(1, +q.get('limit') || 30));
+    const all = a.clinic.archive.filter(r => (!from || r.finishedAt >= from) && (!to || r.finishedAt < to) && (!name || r.name.toLowerCase().includes(name)) && (!year || String(r.birthYear).includes(year)) && (!gender || r.gender === gender) && (!tooth || String(r.tooth).toLowerCase().includes(tooth)) && (!tr || (r.treatment || '').includes(tr)));
     return send(res, 200, { total: all.length, items: all.slice(off, off + lim).map(archiveView) });
   }
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})$/);
@@ -430,6 +525,12 @@ async function api(req, res, url) {
     const a = authOf(req, ['doctor']), b = await readJSON(req), name = str(b.clinicName, 80), dn = str(b.doctorName, 80);
     if (!name || !dn) throw httpErr(400, 'invalid_input'); a.clinic.name = name; a.clinic.doctor.name = dn; broadcast(a.clinic); return send(res, 200, meOf(a));
   }
+  if (m === 'PUT' && p === '/api/clinic/hours') {
+    const a = authOf(req, ['doctor']), b = await readJSON(req);
+    if (typeof b.start !== 'string' || typeof b.end !== 'string' || !HM.test(b.start) || !HM.test(b.end) || !validTz(b.tz)) throw httpErr(400, 'invalid_input');
+    a.clinic.hours = { enabled: !!b.enabled, start: b.start, end: b.end, tz: b.tz };
+    broadcast(a.clinic); return send(res, 200, hoursView(a.clinic));
+  }
   if (m === 'POST' && p === '/api/account/password') {
     const a = authOf(req, ['doctor']), b = await readJSON(req); rate('pw:' + a.clinic.id, 10, 6e5);
     if (!(await checkPw(b.oldPassword || '', a.clinic.doctor))) throw httpErr(401, 'bad_credentials');
@@ -443,7 +544,7 @@ async function api(req, res, url) {
     if (!(await checkPw(b.password || '', c.doctor))) throw httpErr(401, 'bad_credentials');
     for (const pt of c.patients.concat(c.archive)) idx.ticket.delete(pt.ticket);
     const toks = c.patients.map(z => z.ticket);
-    c.patients = []; c.archive = []; fs.rm(path.join(DATA_DIR, 'img', c.id), { recursive: true, force: true }, () => {});
+    c.patients = []; c.archive = []; await imgStore.delAll(c.id);
     if (b.account) {
       for (const [k, s] of Object.entries(db.sessions)) if (s.clinicId === c.id) { delete db.sessions[k]; closeStreamsOf(k); }
       idx.user.delete(c.doctor.username); idx.code.delete(c.code); delete db.clinics[c.id]; delete rt[c.id]; save();
@@ -454,7 +555,7 @@ async function api(req, res, url) {
   /* نسخ احتياطي واستعادة (طبيب فقط) */
   if (m === 'GET' && p === '/api/backup') {
     const a = authOf(req, ['doctor']), c = a.clinic, images = {};
-    for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
+    for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { const bf = await imgStore.get(c.id, i.id); if (bf) images[i.id] = bf.toString('base64'); } catch (e) {} }
     const body = JSON.stringify({ app: 'calm-clinic', version: 2, exportedAt: now(), clinicName: c.name, patients: c.patients, archive: c.archive, images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
@@ -476,8 +577,8 @@ async function api(req, res, url) {
     const P = b.patients.slice(0, 500).map(r => clean(r, false)).filter(Boolean), A = b.archive.slice(0, 50000).map(r => clean(r, true)).filter(Boolean);
     if (P.filter(z => z.status === 'in').length > 1) P.forEach((z, i) => { if (z.status === 'in' && i) z.status = 'waiting'; });
     for (const pt of c.patients.concat(c.archive)) idx.ticket.delete(pt.ticket);
-    fs.rmSync(path.join(DATA_DIR, 'img', c.id), { recursive: true, force: true }); fs.mkdirSync(path.join(DATA_DIR, 'img', c.id), { recursive: true });
-    for (const r of P.concat(A)) { for (const [id, buf] of r._w || []) fs.writeFileSync(imgPath(c, id), buf); delete r._w; idx.ticket.set(r.ticket, c.id); }
+    await imgStore.delAll(c.id);
+    for (const r of P.concat(A)) { for (const [id, buf] of r._w || []) await imgStore.put(c.id, id, buf); delete r._w; idx.ticket.set(r.ticket, c.id); }
     c.patients = P; c.archive = A; RT(c).skip.clear(); broadcast(c); return send(res, 200, { patients: P.length, archive: A.length });
   }
   throw httpErr(404, 'not_found');
@@ -500,4 +601,8 @@ const server = http.createServer(async (req, res) => {
   }
 });
 server.headersTimeout = 20000; server.requestTimeout = 0; server.keepAliveTimeout = 65000;
-server.listen(PORT, () => console.log(`عيادتي الهادئة تعمل على المنفذ ${PORT} — البيانات في: ${DATA_DIR}`));
+connectDB().then(() => {
+  reindex();
+  for (const [k, s] of Object.entries(db.sessions)) if (s.exp < now()) delete db.sessions[k];
+  server.listen(PORT, () => console.log(`عيادتي الهادئة تعمل على المنفذ ${PORT} — التخزين: ${M ? 'MongoDB' : 'ذاكرة مؤقتة (غير دائم)'}`));
+}).catch(e => { console.error('تعذّر الاتصال بقاعدة البيانات:', e.message); process.exit(1); });

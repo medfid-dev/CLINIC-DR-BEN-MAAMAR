@@ -19,11 +19,11 @@
     var d = data, card = $('card'); card.className = 'card';
     if (!d) { $('big').textContent = tr('load'); return; }
     $('clinic').textContent = d.clinic || ''; $('no').textContent = d.ticketNo ? '#' + d.ticketNo : '–'; $('name').textContent = d.firstName ? tr('hello', { n: d.firstName }) : '';
-    var big = $('big'), sub = $('sub'); big.textContent = ''; sub.textContent = '';
+    var big = $('big'), sub = $('sub'); big.className = 'big'; big.textContent = ''; sub.textContent = '';
     if (d.state === 'in') { card.classList.add('in'); big.textContent = tr('in'); sub.textContent = tr('in_s'); }
     else if (d.state === 'waiting') {
       card.classList.add('wait');
-      if (d.ahead === 0) { big.textContent = tr('next'); sub.textContent = d.busy ? tr('next_busy_s') : tr('next_s'); }
+      if (d.ahead === 0) { big.classList.add('next'); big.textContent = tr('next'); sub.textContent = d.busy ? tr('next_busy_s') : tr('next_s'); }
       else { var b = document.createElement('b'); b.textContent = d.ahead; big.appendChild(b); big.appendChild(document.createTextNode(tr('ahead'))); if (d.estMin) sub.textContent = tr('est', { n: d.estMin }); }
     } else if (d.state === 'done') { card.classList.add('done'); big.textContent = tr('done'); sub.textContent = tr('done_s'); }
     else if (d.state === 'expired') { card.classList.add('done'); big.textContent = tr('expired'); }

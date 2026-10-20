@@ -17,6 +17,8 @@ const L = {
     tab_add: 'تسجيل ➕', tab_nurses: 'الممرضات 👩‍⚕️', tab_archive: 'الأرشيف 📁', tab_settings: 'الإعدادات ⚙️', tab_patients: 'المرضى والانتظار 👥',
     reg_doc_title: 'تسجيل مريض جديد', btn_reg_add: 'تسجيل وإضافة للانتظار 🔔', clinic_code_title: 'رمز عيادتك (تدخل به الممرضات)', copy: 'نسخ',
     manage_nurses: 'إدارة ممرضات العيادة', nurse_pass: 'كلمة مرور الممرضة (6 أحرف فأكثر)', btn_add_nurse: 'إضافة ممرضة جديدة 👩‍⚕️',
+    set_hours: '⏰ ساعات تسجيل الممرضة للمرضى', hours_enable: 'تحديد وقت للتسجيل', hours_hint: 'خارج هذا الوقت لا تستطيع الممرضة إضافة أي مريض. أنت (الطبيب) تسجّل في أي وقت.', hours_from: 'من', hours_to: 'إلى', hours_open: '🟢 التسجيل مفتوح للممرضة الآن', hours_closed: '🔴 التسجيل مغلق على الممرضة الآن', hours_off: 'غير مفعّل: الممرضة تسجّل في أي وقت', nurse_closed: '⏰ التسجيل مغلق الآن. يفتح من {a} إلى {b}.', e_closed: 'التسجيل مغلق خارج الأوقات التي حدّدها الطبيب',
+    filter_day: '📆 اليوم:', day_today: 'اليوم', day_yest: 'أمس', day_all: 'الكل',
     archive_title: 'أرشيف السجلات الطبية 📁', search_name: '🔍 بحث باسم المريض...', search_year: '📅 سنة الميلاد...', search_tooth: '🦷 رقم/مكان السن...',
     all_genders: 'جميع الأجناس', male: 'ذكر', female: 'أنثى', all_treat: 'جميع العلاجات', tr_ext: 'قلع', tr_endo: 'علاج عصب', tr_cons: 'استشارة', tr_pros: 'تركيب', tr_white: 'تبييض', tr_other: 'أخرى',
     match_results: 'النتائج المطابقة:', load_more: 'عرض المزيد', waiting_rem: '👥 المرضى المتبقون في الانتظار:', today_patients: 'قائمة مرضى اليوم',
@@ -28,7 +30,7 @@ const L = {
     // ديناميكية
     sg_visits: 'الزيارات: {n} · آخرها {d}', sg_waiting: '⏳ في الانتظار الآن', sg_already: 'هذا المريض مسجّل بالفعل في قائمة الانتظار.', lbl_name: 'اسم المريض:', lbl_birth: 'سنة الازدياد:', lbl_gender: 'الجنس:', lbl_reason: 'سبب الزيارة:', lbl_tooth: 'السن (اختياري):', lbl_phone: 'رقم الهاتف (اختياري):',
     age_fmt: 'العمر: {n} سنة', age_none: 'العمر: --', years_short: 'سنة', doc_title: 'لوحة الطبيب 🔔', doc_sub: 'إشراف عام وعيادة مباشرة', nurse_title: 'شاشة الممرضة', nurse_welcome: 'الممرضة: {n}',
-    doc_sub2: '{c} — {n}', in_room: 'في المعاينة 🩺', enter: 'دخول', edit: 'تعديل', del: 'حذف', call: 'استدعاء 🩺', qr: 'QR', doctor_word: 'طبيب', ticket_no: 'تذكرة',
+    doc_sub2: '{c} — {n}', doc_sub3: '👨‍⚕️ {n} · لوحة الطبيب', in_room: 'في المعاينة 🩺', enter: 'دخول', edit: 'تعديل', del: 'حذف', call: 'استدعاء 🩺', qr: 'QR', doctor_word: 'طبيب', ticket_no: 'تذكرة',
     sex: 'الجنس', birth: 'سنة الميلاد', tooth: 'السن', empty_today: 'لا توجد سجلات اليوم', empty_wait: 'قاعة الانتظار فارغة', empty_room: 'لا يوجد مريض حالياً في غرفة الكشف.',
     consult_patient: '👤 المريض:', reason_l: '📌 السبب:', tooth_l: '🦷 رقم/مكان السن:', gender_l: '👤 الجنس:', birth_l: '📅 الميلاد:', phone_l: '📞 الهاتف:', wait_l: '⏳ وقت الانتظار:', not_set: 'غير مسجل',
     xrays: '📷 صور الكشف / الأشعة المرفقة:', no_images: 'لم يتم إرفاق صور بعد.', cam_live: '📷 الكاميرا المباشرة', upload_gal: '📁 رفع من الاستوديو', pick_treat: 'اختر نوع العلاج المنجز للمريض:',
@@ -61,6 +63,8 @@ const L = {
     tab_add: 'Register ➕', tab_nurses: 'Nurses 👩‍⚕️', tab_archive: 'Archive 📁', tab_settings: 'Settings ⚙️', tab_patients: 'Patients & Queue 👥',
     reg_doc_title: 'Register new patient', btn_reg_add: 'Register & add to queue 🔔', clinic_code_title: 'Your clinic code (nurses log in with it)', copy: 'Copy',
     manage_nurses: 'Manage clinic nurses', nurse_pass: 'Nurse password (6+ chars)', btn_add_nurse: 'Add nurse 👩‍⚕️',
+    set_hours: '⏰ Nurse registration hours', hours_enable: 'Limit registration time', hours_hint: 'Outside this time the nurse cannot add any patient. You (the doctor) can register anytime.', hours_from: 'From', hours_to: 'To', hours_open: '🟢 Registration is open for the nurse now', hours_closed: '🔴 Registration is closed for the nurse now', hours_off: 'Off: the nurse can register anytime', nurse_closed: '⏰ Registration is closed now. Open from {a} to {b}.', e_closed: 'Registration is closed outside the hours set by the doctor',
+    filter_day: '📆 Day:', day_today: 'Today', day_yest: 'Yesterday', day_all: 'All',
     archive_title: 'Medical records archive 📁', search_name: '🔍 Search by name...', search_year: '📅 Birth year...', search_tooth: '🦷 Tooth / location...',
     all_genders: 'All genders', male: 'Male', female: 'Female', all_treat: 'All treatments', tr_ext: 'Extraction', tr_endo: 'Root canal', tr_cons: 'Consultation', tr_pros: 'Prosthetics', tr_white: 'Whitening', tr_other: 'Other',
     match_results: 'Matching records:', load_more: 'Load more', waiting_rem: '👥 Patients waiting:', today_patients: "Today's patients",
@@ -71,7 +75,7 @@ const L = {
     export_data: 'Export backup 📥', import_data: 'Restore 📤', backup_hint: 'Includes patients, archive and images (not passwords).', wipe_data: 'Delete all patient data…', delete_account: 'Delete account permanently…',
     sg_visits: 'Visits: {n} · last {d}', sg_waiting: '⏳ Waiting now', sg_already: 'This patient is already in the waiting list.', lbl_name: 'Patient name:', lbl_birth: 'Birth year:', lbl_gender: 'Gender:', lbl_reason: 'Reason for visit:', lbl_tooth: 'Tooth (optional):', lbl_phone: 'Phone (optional):',
     age_fmt: 'Age: {n}', age_none: 'Age: --', years_short: 'y', doc_title: 'Doctor panel 🔔', doc_sub: 'Supervision & direct clinic', nurse_title: 'Nurse screen', nurse_welcome: 'Nurse: {n}',
-    doc_sub2: '{c} — {n}', in_room: 'In consultation 🩺', enter: 'Enter', edit: 'Edit', del: 'Delete', call: 'Call in 🩺', qr: 'QR', doctor_word: 'Doctor', ticket_no: 'Ticket',
+    doc_sub2: '{c} — {n}', doc_sub3: '👨‍⚕️ {n} · Doctor panel', in_room: 'In consultation 🩺', enter: 'Enter', edit: 'Edit', del: 'Delete', call: 'Call in 🩺', qr: 'QR', doctor_word: 'Doctor', ticket_no: 'Ticket',
     sex: 'Gender', birth: 'Birth year', tooth: 'Tooth', empty_today: 'No records today', empty_wait: 'Waiting room is empty', empty_room: 'No patient in the consultation room.',
     consult_patient: '👤 Patient:', reason_l: '📌 Reason:', tooth_l: '🦷 Tooth:', gender_l: '👤 Gender:', birth_l: '📅 Born:', phone_l: '📞 Phone:', wait_l: '⏳ Waited:', not_set: 'Not set',
     xrays: '📷 Attached photos / X-rays:', no_images: 'No images attached yet.', cam_live: '📷 Live camera', upload_gal: '📁 Upload from gallery', pick_treat: 'Select the treatment performed:',
@@ -189,7 +193,7 @@ async function boot() {
   document.body.dataset.role = S.me.role; setOnline(true);
   renderSettingsBoxes(); applySettings();
   if (S.me.role === 'doctor') {
-    $('#doctorHeaderTitle').textContent = t('doc_title'); $('#doctorSubtitle').textContent = t('doc_sub2', { c: S.me.clinicName, n: S.me.name });
+    $('#doctorHeaderTitle').textContent = S.me.clinicName; $('#doctorSubtitle').textContent = t('doc_sub3', { n: S.me.name });
     $('#clinicCodeShow').textContent = S.me.code || '------';
     showScreen('doctorScreen'); docTab('waiting');
   } else {
@@ -214,6 +218,7 @@ function forceLogout(silent) {
 function applyState(st, force) {
   if (!force && st.serverTime < S.stamp) return;
   S.stamp = st.serverTime; S.patients = st.patients; S.skipRequests = st.skipRequests || [];
+  if (st.hours) { S.hours = st.hours; clearTimeout(S.hoursTimer); if (st.hours.enabled && st.hours.nextIn) S.hoursTimer = setTimeout(() => refresh(), st.hours.nextIn + 800); }
 }
 async function connect() {
   if (S.es) { S.es.close(); S.es = null; }
@@ -243,8 +248,20 @@ function onNotify(n) {
 }
 
 /* ===================== العرض ===================== */
+function renderHours() {
+  const h = S.hours; if (!h) return;
+  const closed = !h.open, box = $('#nurseClosed');
+  if (box) { box.style.display = closed && S.me.role === 'nurse' ? '' : 'none'; box.textContent = t('nurse_closed', { a: h.start, b: h.end }); }
+  const nf = $('form[data-form=addPatient][data-pre=pn]'); if (nf) nf.style.display = closed && S.me.role === 'nurse' ? 'none' : '';
+  $$('form[data-form=hours]').forEach(f => {
+    const st = $('.hoursStatus', f); st.textContent = !h.enabled ? t('hours_off') : h.open ? t('hours_open') : t('hours_closed'); st.dataset.open = h.enabled ? (h.open ? '1' : '0') : '';
+    if (f.contains(document.activeElement)) return;
+    $('.hoursOn', f).checked = h.enabled; $('.hoursStart', f).value = h.start; $('.hoursEnd', f).value = h.end;
+  });
+}
 function renderAll() {
   if (!S.me) return;
+  renderHours();
   const waiting = S.patients.filter(p => p.status === 'waiting');
   $('#waitingCount').textContent = waiting.length; $('#nurseWaitingBadge').textContent = waiting.length;
   if (S.me.role === 'nurse') renderNurseList(); else { renderDocWaiting(); renderConsultation(); renderSkip(); }
@@ -435,8 +452,12 @@ $('#globalImageInput').addEventListener('change', async ev => {
 /* ===================== الأرشيف والممرضات ===================== */
 function archiveParams(off) {
   const q = new URLSearchParams({ name: $('#aName').value, year: $('#aYear').value, gender: $('#aGender').value, tooth: $('#aTooth').value, treatment: $('#aTreat').value, offset: off, limit: 30 });
+  const day = $('#aDay').value;   // yyyy-mm-dd بالتوقيت المحلي
+  if (day) { const [y, m, d] = day.split('-').map(Number); q.set('from', new Date(y, m - 1, d).getTime()); q.set('to', new Date(y, m - 1, d + 1).getTime()); }
   return q.toString();
 }
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+function setArchDay(offset) { const d = new Date(); if (offset !== null) d.setDate(d.getDate() + offset); $('#aDay').value = offset === null ? '' : ymd(d); loadArchive(true); }
 let archTimer, archSeq = 0;
 function loadArchive(reset = true) {
   clearTimeout(archTimer);
@@ -496,7 +517,7 @@ function applySettings() {
   $$('.langSelect').forEach(x => { x.value = settings.lang; });
   renderPatientForms(); translate();
   if (S.me) {
-    if (S.me.role === 'doctor') { $('#doctorHeaderTitle').textContent = t('doc_title'); $('#doctorSubtitle').textContent = t('doc_sub2', { c: S.me.clinicName, n: S.me.name }); }
+    if (S.me.role === 'doctor') { $('#doctorHeaderTitle').textContent = S.me.clinicName; $('#doctorSubtitle').textContent = t('doc_sub3', { n: S.me.name }); }
     else $('#nurseUserWelcome').textContent = t('nurse_welcome', { n: S.me.name });
     const c = $('#consultationArea'); c.dataset.sig = ''; renderAll(); if (S.me.role === 'doctor') { renderArchive(); renderNurses(); }
   } else { $('#nurseHeaderTitle').textContent = t('nurse_title'); }
@@ -542,6 +563,7 @@ const ACT = {
   editNurse(el) { const n = S.nurses.find(x => x.id === el.dataset.id); if (!n) return; $('#editNurseId').value = n.id; $('#editNurseName').value = n.name; $('#editNursePhone').value = n.phone || ''; $('#editNursePass').value = ''; openModal('editNurseModal'); },
   async delArchive(el) { if (confirm(t('c_del_arch')) && await run(() => api('DELETE', `/api/archive/${el.dataset.id}`))) loadArchive(true); },
   archiveMore: () => loadArchive(false),
+  dayToday: () => setArchDay(0), dayYest: () => setArchDay(-1), dayAll: () => setArchDay(null),
   sgPick: el => sgPick(+el.dataset.i),
   setTheme: el => { settings.theme = el.dataset.theme; applySettings(); }, askNotif,
   installApp: async () => { if (!S.installEvt) return; S.installEvt.prompt(); S.installEvt = null; document.body.classList.remove('can-install'); },
@@ -599,6 +621,10 @@ document.addEventListener('submit', async e => {
   } else if (kind === 'editNurse') {
     const body = { name: $('#editNurseName').value, phone: $('#editNursePhone').value }; if ($('#editNursePass').value) body.password = $('#editNursePass').value;
     if (await run(() => api('PUT', `/api/nurses/${$('#editNurseId').value}`, body))) { closeModals(); toast(t('t_saved'), 'success'); loadNurses(); }
+  } else if (kind === 'hours') {
+    let tz = 'UTC'; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch (x) {}
+    const r = await run(() => api('PUT', '/api/clinic/hours', { enabled: $('.hoursOn', f).checked, start: $('.hoursStart', f).value, end: $('.hoursEnd', f).value, tz }));
+    if (r) { S.hours = r; toast(t('t_saved'), 'success'); renderHours(); }
   } else if (kind === 'clinicInfo') {
     const r = await run(() => api('PUT', '/api/clinic', { clinicName: $('.setClinicName', f).value, doctorName: $('.setDoctorName', f).value }));
     if (r) { S.me = { ...S.me, ...r }; applySettings(); toast(t('t_saved'), 'success'); }
@@ -624,4 +650,21 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window
     if (!S.config.hasClinics && !S.token) authMode('register');
   } catch (e) { if (!S.token) $('#authErr').textContent = errMsg(e); }
   await boot();
+})();
+
+
+/* ===================== الساعة الحيّة ===================== */
+(function liveClock() {
+  const p2 = n => String(n).padStart(2, '0');
+  function tick() {
+    const d = new Date(), lang = (typeof settings !== 'undefined' && settings.lang === 'en') ? 'en-GB' : 'ar-u-nu-latn';
+    const date = d.toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    document.querySelectorAll('.live-clock').forEach(c => {
+      c.querySelector('.lc-h').textContent = p2(d.getHours()); c.querySelector('.lc-m').textContent = p2(d.getMinutes()); c.querySelector('.lc-s').textContent = p2(d.getSeconds());
+      const dt = c.querySelector('.lc-date'); if (dt.textContent !== date) dt.textContent = date;
+    });
+  }
+  let timer = null;
+  const run = () => { clearTimeout(timer); if (document.hidden) return; tick(); timer = setTimeout(run, 1000 - (Date.now() % 1000) + 5); };   // يتزامن مع بداية كل ثانية
+  document.addEventListener('visibilitychange', run); run();
 })();

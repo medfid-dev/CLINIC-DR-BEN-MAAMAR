@@ -141,6 +141,7 @@
 <div id="doctorScreen" class="screen">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
     <div><h3 style="font-weight:600;font-size:20px" id="doctorHeaderTitle"></h3><span style="font-size:12px" id="doctorSubtitle"></span></div>
+    <div class="live-clock" aria-hidden="true"><div class="lc-time" dir="ltr"><span class="lc-dot"></span><span class="lc-h">--</span><span class="lc-sep">:</span><span class="lc-m">--</span><span class="lc-sep">:</span><span class="lc-s">--</span></div><div class="lc-date"></div></div>
     <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button>
   </div>
   <div class="nav-tabs">
@@ -182,6 +183,13 @@
     <h4 style="margin-bottom:15px;font-size:15px" data-i18n="archive_title">أرشيف السجلات الطبية 📁</h4>
     <div style="background:var(--surface-card);padding:16px;border-radius:16px;margin-bottom:20px;display:flex;flex-direction:column;gap:12px">
       <input type="text" id="aName" data-input="archive" data-i18n-ph="search_name">
+      <div class="day-filter">
+        <label for="aDay" data-i18n="filter_day">📆 اليوم:</label>
+        <input type="date" id="aDay" data-input="archive" dir="ltr">
+        <button type="button" class="btn-action" data-act="dayToday" data-i18n="day_today">اليوم</button>
+        <button type="button" class="btn-action" data-act="dayYest" data-i18n="day_yest">أمس</button>
+        <button type="button" class="btn-action" data-act="dayAll" data-i18n="day_all">الكل</button>
+      </div>
       <div style="display:flex;gap:10px">
         <input type="number" id="aYear" data-input="archive" style="flex:1" data-i18n-ph="search_year">
         <select id="aGender" data-input="archive" style="flex:1"><option value="" data-i18n="all_genders">جميع الأجناس</option><option value="ذكر" data-i18n="male">ذكر</option><option value="أنثى" data-i18n="female">أنثى</option></select>
@@ -206,6 +214,7 @@
 <div id="nurseScreen" class="screen">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
     <div><h3 style="font-weight:600;font-size:20px" id="nurseHeaderTitle"></h3><span style="font-size:12px" id="nurseUserWelcome"></span></div>
+    <div class="live-clock" aria-hidden="true"><div class="lc-time" dir="ltr"><span class="lc-dot"></span><span class="lc-h">--</span><span class="lc-sep">:</span><span class="lc-m">--</span><span class="lc-sep">:</span><span class="lc-s">--</span></div><div class="lc-date"></div></div>
     <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button>
   </div>
   <div class="nav-tabs">
@@ -217,6 +226,7 @@
       <span data-i18n="waiting_rem">👥 المرضى المتبقون في الانتظار:</span>
       <span id="nurseWaitingBadge" style="background:var(--primary-sage);color:var(--on-primary);padding:4px 14px;border-radius:20px;font-size:15px">0</span>
     </div>
+    <div id="nurseClosed" class="closed-note" style="display:none" role="status"></div>
     <form data-form="addPatient" data-pre="pn" style="background:var(--surface-card);padding:20px;border-radius:16px;margin-bottom:25px;border:1px solid var(--border-calm)">
       <div class="fields"></div>
       <button type="submit" class="btn-primary" data-i18n="btn_reg_add">تسجيل مريض جديد 🔔</button>
@@ -269,6 +279,20 @@
     <form data-form="clinicInfo">
       <div class="form-group"><label data-i18n="clinic_name">اسم العيادة:</label><input type="text" class="setClinicName" maxlength="80" required></div>
       <div class="form-group"><label data-i18n="doc_name">اسم الطبيب:</label><input type="text" class="setDoctorName" maxlength="80" required></div>
+      <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
+    </form>
+  </div>
+
+  <div class="settings-card doc-only">
+    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_hours">⏰ ساعات تسجيل الممرضة للمرضى</h5>
+    <form data-form="hours">
+      <div class="settings-item"><div><strong data-i18n="hours_enable">تحديد وقت للتسجيل</strong><div class="hint" data-i18n="hours_hint">خارج هذا الوقت لا تستطيع الممرضة إضافة أي مريض. أنت (الطبيب) تسجّل في أي وقت.</div></div>
+        <label class="toggle-switch"><input type="checkbox" class="hoursOn"><span class="slider"></span></label></div>
+      <div class="hours-row">
+        <label><span data-i18n="hours_from">من</span><input type="time" class="hoursStart" value="08:00" dir="ltr" required></label>
+        <label><span data-i18n="hours_to">إلى</span><input type="time" class="hoursEnd" value="17:00" dir="ltr" required></label>
+      </div>
+      <div class="hours-status hoursStatus"></div>
       <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
     </form>
   </div>
