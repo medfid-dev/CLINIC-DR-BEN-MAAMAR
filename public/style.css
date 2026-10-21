@@ -162,52 +162,95 @@ body[data-role=nurse] .doc-only{display:none}
   body>*:not(.print-slip){display:none!important}
   body{overflow:visible;height:auto;background:#fff}
   .print-slip{display:block!important;text-align:center;color:#000;font-family:'Readex Pro',Tahoma,sans-serif;padding:24px}
-  .print-slip h2{font-size:34px;font-weight:800;margin:0 0 10px;padding-bottom:10px;border-bottom:3px solid #000;line-height:1.3}
-  .print-slip .no{font-size:130px;font-weight:800;line-height:1.05;margin:10px 0;border:4px solid #000;border-radius:24px;display:inline-block;padding:4px 36px}
-  .print-slip .qr{width:230px;margin:12px auto;line-height:0}.print-slip .qr svg{width:100%}
+  .print-slip h2{font-size:22px;margin-bottom:6px}.print-slip .no{font-size:64px;font-weight:700;margin:6px 0}
+  .print-slip .qr{width:260px;margin:12px auto;line-height:0}.print-slip .qr svg{width:100%}
   .print-slip p{font-size:14px;margin:6px 0}
 }
 .install-card{display:none}body.can-install .install-card{display:block}
 
-/* اقتراحات المرضى من الأرشيف */
-.suggest-wrap{position:relative}
-.suggest-box{position:absolute;inset-inline:0;top:100%;z-index:30;list-style:none;margin:4px 0 0;padding:4px;max-height:264px;overflow:auto;background:var(--surface-card);border:1px solid var(--primary-line);border-radius:var(--radius-md);box-shadow:0 10px 28px rgba(0,0,0,.2)}
+.suggest-box{position:absolute;inset-inline:0;top:100%;z-index:30;margin:2px 0 0;padding:4px;list-style:none;background:var(--surface-card);border:1px solid var(--border-calm);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:240px;overflow:auto}
 .suggest-box[hidden]{display:none}
-.suggest-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:13px}
-.suggest-item:hover,.suggest-item.sg-on{background:var(--primary-soft)}
-.suggest-item.sg-busy{opacity:.6}
-.sg-main{display:flex;flex-direction:column;gap:2px;min-width:0}
-.sg-main strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sg-main span,.sg-sub{font-size:12px;color:var(--text-secondary)}
-.sg-sub{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;text-align:end}
+.suggest-box li{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+.suggest-box li:hover{background:var(--border-calm)}
+.suggest-box li span{color:var(--text-secondary);font-size:12px;direction:ltr}
 
-/* ===== الساعة الحيّة (بسيطة وأنيقة في شريط العنوان) ===== */
-.live-clock{flex:0 0 auto;margin:0 10px;padding:4px 12px;border-radius:12px;text-align:center;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22)}
-.lc-time{display:flex;justify-content:center;align-items:baseline;gap:1px;font-size:20px;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
-.lc-time span{display:inline-block;text-align:center}
-.lc-s{font-size:14px;color:#FFB59E;min-width:1.3ch}
-.lc-sep{opacity:.8;animation:lcBlink 1s steps(1) infinite}
-.lc-s+.lc-sep{display:none}
-.lc-dot{display:none}
-.lc-date{font-size:9.5px;opacity:.75;font-weight:500;white-space:nowrap}
-@keyframes lcBlink{50%{opacity:.3}}
-@media (max-width:480px){.live-clock{margin:0 6px;padding:3px 8px}.lc-time{font-size:17px}.lc-s{font-size:12px}.lc-date{display:none}}
-@media (prefers-reduced-motion:reduce){.lc-sep{animation:none}}
-/* ===== فلتر اليوم في الأرشيف ===== */
-.day-filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.day-filter label{font-size:13px;font-weight:600;color:var(--primary-sage)}
-.day-filter input[type=date]{flex:1;min-width:140px}
-#doctorScreen>div:first-child .live-clock span,#nurseScreen>div:first-child .live-clock span{color:#fff!important}
-#doctorScreen>div:first-child .live-clock .lc-s,#nurseScreen>div:first-child .live-clock .lc-s{color:#FFB59E!important}
-#doctorScreen>div:first-child .live-clock .lc-date,#nurseScreen>div:first-child .live-clock .lc-date{color:rgba(255,255,255,.8)!important}
-/* ===== اسم العيادة: العنوان الرئيسي ===== */
-#doctorScreen>div:first-child>div:first-child,#nurseScreen>div:first-child>div:first-child{min-width:0;flex:1 1 auto}
-#doctorScreen>div:first-child h3,#nurseScreen>div:first-child h3{font-size:clamp(20px,5.6vw,28px)!important;font-weight:800!important;letter-spacing:.2px;line-height:1.2;text-shadow:0 2px 12px rgba(0,0,0,.3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#doctorScreen>div:first-child>div:first-child span,#nurseScreen>div:first-child>div:first-child span{display:block;margin-top:3px;font-size:13px!important;font-weight:500;color:rgba(255,255,255,.85)!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* ساعات تسجيل الممرضة */
-.hours-row{display:flex;gap:12px;margin:10px 0}
-.hours-row label{flex:1;display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--text-secondary)}
-.hours-row input{width:100%}
-.hours-status{font-size:13px;font-weight:600;margin:6px 0 10px;color:var(--text-secondary)}
-.hours-status[data-open="1"]{color:var(--accent-mint)}.hours-status[data-open="0"]{color:var(--danger-soft)}
-.closed-note{background:color-mix(in srgb,var(--warning-warm) 14%,transparent);border:1px solid var(--warning-warm);color:var(--warning-warm);border-radius:var(--radius-md);padding:16px 18px;margin-bottom:20px;font-weight:700;font-size:15px;text-align:center;line-height:1.7}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px;padding:18px 22px;border-radius:var(--radius-lg,22px);color:#fff;background:linear-gradient(135deg,var(--bar),color-mix(in srgb,var(--bar) 60%,var(--orange)));box-shadow:0 10px 30px color-mix(in srgb,var(--bar) 35%,transparent);position:relative;overflow:hidden}
+.hero::after{content:'🦷';position:absolute;inset-inline-end:-10px;bottom:-26px;font-size:120px;opacity:.07;pointer-events:none}
+.hero-id{min-width:0;flex:1 1 220px}
+.hero-clinic{font-size:26px;font-weight:700;line-height:1.25;letter-spacing:.2px;overflow-wrap:anywhere}
+.hero-doc{margin-top:6px;font-size:15px;font-weight:500;opacity:.92;display:inline-block;padding:3px 14px;border-radius:999px;background:rgba(255,255,255,.16)}
+.hero-doc:empty{display:none}
+.hero-side{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.clk{text-align:center;padding:8px 16px;border-radius:16px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(4px);direction:ltr}
+.clk-time{font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.clk-s{font-size:15px;font-weight:500;margin-inline-start:6px;opacity:.8;color:#FFD2C2}
+.clk-date{margin-top:4px;font-size:11px;opacity:.85;direction:auto;white-space:nowrap}
+.hero .btn-red{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3)}
+@media(max-width:520px){.hero{padding:14px 16px}.hero-clinic{font-size:22px}.clk-time{font-size:28px}.hero-side{width:100%;justify-content:space-between}}
+#doctorScreen>.hero.hero,#nurseScreen>.hero.hero{background:linear-gradient(135deg,var(--bar),color-mix(in srgb,var(--bar) 60%,var(--orange)));border-radius:0 0 24px 24px;margin:0 0 18px;padding:calc(16px + env(safe-area-inset-top)) max(20px,calc((100% - 860px)/2)) 16px}
+#doctorScreen>.hero.hero span,#nurseScreen>.hero.hero span{color:#fff!important}
+#doctorScreen>.hero.hero span.clk-s,#nurseScreen>.hero.hero span.clk-s{color:#FFD2C2!important}
+.hero::after{inset-inline-end:max(-10px,calc((100% - 860px)/2 - 10px))}
+/* ساعة كلاسيكية بلا إطار وترويسة أنحف */
+#doctorScreen>.hero.hero,#nurseScreen>.hero.hero{padding-top:calc(9px + env(safe-area-inset-top));padding-bottom:9px;margin-bottom:14px;border-radius:0 0 18px 18px;gap:8px}
+.hero::after{display:none}
+.hero-clinic{font-size:21px}
+.hero-doc{margin-top:3px;font-size:13px;padding:1px 11px}
+.hero-side{gap:12px}
+.clk{padding:0;background:none;border:0;backdrop-filter:none;border-radius:0;text-align:end}
+.clk-time{font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:400;letter-spacing:1px}
+.clk-s{font-family:Georgia,'Times New Roman',serif;font-size:12px;margin-inline-start:4px;opacity:.7}
+.clk-date{margin-top:1px;font-family:Georgia,'Times New Roman',serif;font-size:10.5px;opacity:.75;font-style:italic}
+.hero .btn-action{padding:6px 14px}
+@media(max-width:520px){.hero-clinic{font-size:19px}.clk-time{font-size:20px}.hero-side{width:auto}}
+
+/* مخطط الأسنان */
+.teeth-box{background:var(--surface-sunk);border:1px solid var(--border-calm);border-radius:14px;padding:14px;margin-bottom:18px}
+.teeth-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.teeth-head label{font-size:13px;font-weight:600}
+.teeth-switch{display:flex;background:var(--surface-card);border-radius:999px;padding:3px;border:1px solid var(--border-calm)}
+.teeth-switch button{border:0;background:none;padding:5px 12px;border-radius:999px;font-size:12px;color:var(--text-secondary);cursor:pointer}
+.teeth-switch button.on{background:var(--primary-sage);color:var(--on-primary)}
+.teeth-chart{direction:ltr}
+.teeth-lbl{display:flex;justify-content:space-around;font-size:10px;color:var(--text-muted);margin:2px 0}
+.arch{display:flex;gap:0}
+.arch-half{flex:1;display:flex;gap:2px;padding:0 2px}
+.arch-half:first-child{border-inline-end:2px solid var(--primary-line);padding-inline-end:4px}
+.arch-half:last-child{padding-inline-start:4px}
+.arch-sep{height:2px;background:var(--primary-line);margin:6px 0;border-radius:2px}
+.tooth-btn{flex:1;min-width:0;height:34px;padding:0;border:1.5px solid var(--border-calm);background:var(--surface-card);color:var(--text-primary);border-radius:9px 9px 14px 14px;font-size:10.5px;font-weight:600;cursor:pointer;transition:.12s}
+.arch + .arch-sep + .arch .tooth-btn{border-radius:14px 14px 9px 9px}
+.tooth-btn.molar{height:38px}
+.tooth-btn:hover{border-color:var(--primary-sage)}
+.tooth-btn.on{background:var(--orange);border-color:var(--orange);color:#fff;transform:translateY(-1px);box-shadow:0 3px 8px color-mix(in srgb,var(--orange) 45%,transparent)}
+.teeth-sum{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-size:13px}
+.teeth-sum b{color:var(--orange);font-size:15px}
+@media(max-width:520px){.tooth-btn{font-size:9px;height:30px}.tooth-btn.molar{height:33px}.arch-half{gap:1px;padding:0 1px}}
+/* الهاتف: الساعة في المنتصف */
+@media(max-width:520px){
+ #doctorScreen>.hero.hero,#nurseScreen>.hero.hero{position:sticky}
+ .hero-id{flex:1 1 100%;padding-inline-end:62px}
+ .hero-side{width:100%;justify-content:center;position:static}
+ .hero-side .btn-action{position:absolute;top:calc(9px + env(safe-area-inset-top));inset-inline-end:14px}
+ .clk{text-align:center;width:100%}
+}
+
+/* الحساب المالي وقائمة الأسعار */
+.price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.price-grid label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--text-secondary)}
+.price-grid input{padding:8px 6px;text-align:center;border-radius:12px;font-size:13px}
+.money-box,.acct-box{background:var(--surface-sunk);border:1px solid var(--border-calm);border-radius:14px;padding:14px;margin-bottom:14px}
+.acct-box{border-color:color-mix(in srgb,var(--danger-soft,#e8607a) 40%,var(--border-calm))}
+.acct-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:13px}
+.acct-debt{color:var(--danger-soft,#e8607a)}
+.acct-row{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:5px 0;border-top:1px dashed var(--border-calm);color:var(--text-secondary)}
+.acct-follow{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;font-weight:600;cursor:pointer}
+.money-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.money-row label{font-size:13px;font-weight:600;color:var(--text-secondary);min-width:96px}
+.money-row input{flex:1}
+.price-hint{font-size:12px;color:var(--text-secondary);margin:-2px 0 8px;display:flex;flex-wrap:wrap;gap:4px 8px}
+.price-hint:empty{display:none}
+.money-quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.money-quick button{border:1px solid var(--border-calm);background:var(--surface-card);color:var(--text-primary);padding:6px 12px;border-radius:999px;font-size:12px;cursor:pointer}
+.money-sum{font-size:14px}
+@media(max-width:520px){.money-row label{min-width:70px}}

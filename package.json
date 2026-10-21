@@ -1,11 +1,10 @@
 {
-  "name": "calm-clinic-pro",
+  "name": "my-smart-clinic",
   "version": "2.0.0",
-  "description": "عيادتي الهادئة — إدارة الانتظار والمعاينة مع مزامنة فورية وتذاكر QR للمرضى (تخزين MongoDB)",
+  "description": "عيادتي الذكية — إدارة الانتظار والمعاينة مع مزامنة فورية وتذاكر QR للمرضى",
   "main": "server.js",
   "scripts": { "start": "node server.js", "test": "node test/test.js" },
   "engines": { "node": ">=18" },
-  "dependencies": { "mongodb": "^6.10.0" },
   "license": "UNLICENSED",
   "private": true
 }

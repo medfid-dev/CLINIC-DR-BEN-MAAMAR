@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>عيادتي الهادئة</title>
+<title>عيادتي الذكية</title>
 <meta name="theme-color" content="#2E2A6E">
 <meta name="robots" content="noindex">
 <link rel="manifest" href="manifest.webmanifest">
@@ -100,7 +100,7 @@
   <div class="auth-container">
     <div class="auth-header">
       <div class="auth-logo">🦷</div>
-      <h2 style="margin-bottom:4px;font-size:24px" data-i18n="app_title">عيادتي الهادئة</h2>
+      <h2 style="margin-bottom:4px;font-size:24px" data-i18n="app_title">عيادتي الذكية</h2>
       <p style="font-size:13px" data-i18n="app_sub">إدارة الانتظار والمعاينة — متزامنة بين الأجهزة</p>
     </div>
     <div class="auth-seg" role="tablist">
@@ -139,10 +139,10 @@
 
 <!-- 2. الطبيب -->
 <div id="doctorScreen" class="screen">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-    <div><h3 style="font-weight:600;font-size:20px" id="doctorHeaderTitle"></h3><span style="font-size:12px" id="doctorSubtitle"></span></div>
-    <div class="live-clock" aria-hidden="true"><div class="lc-time" dir="ltr"><span class="lc-dot"></span><span class="lc-h">--</span><span class="lc-sep">:</span><span class="lc-m">--</span><span class="lc-sep">:</span><span class="lc-s">--</span></div><div class="lc-date"></div></div>
-    <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button>
+  <div class="hero">
+    <div class="hero-id"><div class="hero-clinic" id="doctorHeaderTitle"></div><div class="hero-doc" id="doctorSubtitle"></div></div>
+    <div class="hero-side"><div class="clk" aria-live="off"><div class="clk-time"><span class="clk-hm"></span><small class="clk-s"></small></div><div class="clk-date"></div></div>
+    <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button></div>
   </div>
   <div class="nav-tabs">
     <button type="button" class="tab-btn active" data-act="docTab" data-tab="waiting"><span data-i18n="tab_waiting">الانتظار</span> (<span id="waitingCount">0</span>)</button>
@@ -183,13 +183,6 @@
     <h4 style="margin-bottom:15px;font-size:15px" data-i18n="archive_title">أرشيف السجلات الطبية 📁</h4>
     <div style="background:var(--surface-card);padding:16px;border-radius:16px;margin-bottom:20px;display:flex;flex-direction:column;gap:12px">
       <input type="text" id="aName" data-input="archive" data-i18n-ph="search_name">
-      <div class="day-filter">
-        <label for="aDay" data-i18n="filter_day">📆 اليوم:</label>
-        <input type="date" id="aDay" data-input="archive" dir="ltr">
-        <button type="button" class="btn-action" data-act="dayToday" data-i18n="day_today">اليوم</button>
-        <button type="button" class="btn-action" data-act="dayYest" data-i18n="day_yest">أمس</button>
-        <button type="button" class="btn-action" data-act="dayAll" data-i18n="day_all">الكل</button>
-      </div>
       <div style="display:flex;gap:10px">
         <input type="number" id="aYear" data-input="archive" style="flex:1" data-i18n-ph="search_year">
         <select id="aGender" data-input="archive" style="flex:1"><option value="" data-i18n="all_genders">جميع الأجناس</option><option value="ذكر" data-i18n="male">ذكر</option><option value="أنثى" data-i18n="female">أنثى</option></select>
@@ -201,8 +194,20 @@
           <option value="استشارة" data-i18n="tr_cons">استشارة</option><option value="تركيب" data-i18n="tr_pros">تركيب</option><option value="تبييض" data-i18n="tr_white">تبييض</option><option value="أخرى" data-i18n="tr_other">أخرى</option>
         </select>
       </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <label style="flex:1;min-width:130px;font-size:12px;color:var(--text-secondary)"><span data-i18n="from_l">من</span>
+          <input type="date" id="aFrom" data-input="archive" style="width:100%"></label>
+        <label style="flex:1;min-width:130px;font-size:12px;color:var(--text-secondary)"><span data-i18n="to_l">إلى</span>
+          <input type="date" id="aTo" data-input="archive" style="width:100%"></label>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn-action" data-act="archiveRange" data-r="today" data-i18n="today">اليوم</button>
+        <button type="button" class="btn-action" data-act="archiveRange" data-r="yesterday" data-i18n="yesterday">أمس</button>
+        <button type="button" class="btn-action" data-act="archiveRange" data-r="week" data-i18n="this_week">هذا الأسبوع</button>
+        <button type="button" class="btn-action" data-act="archiveRange" data-r="clear" data-i18n="clear_day">مسح ✖</button>
+      </div>
     </div>
-    <div style="font-size:13px;color:var(--primary-sage);font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between"><span data-i18n="match_results">النتائج المطابقة:</span><span id="archiveResultCount" style="color:var(--warning-warm)">0</span></div>
+    <div style="font-size:13px;color:var(--primary-sage);font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between"><span data-i18n="match_results">النتائج المطابقة:</span><span id="archiveResultCount" style="color:var(--warning-warm)">0</span><span id="archiveSum" style="margin-inline-start:14px;color:var(--orange)"></span></div>
     <ul id="archiveList" class="patient-list"></ul>
     <div class="more-row"><button type="button" class="btn-action" id="archiveMore" data-act="archiveMore" style="display:none" data-i18n="load_more">عرض المزيد</button></div>
   </div>
@@ -212,10 +217,10 @@
 
 <!-- 3. الممرضة -->
 <div id="nurseScreen" class="screen">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-    <div><h3 style="font-weight:600;font-size:20px" id="nurseHeaderTitle"></h3><span style="font-size:12px" id="nurseUserWelcome"></span></div>
-    <div class="live-clock" aria-hidden="true"><div class="lc-time" dir="ltr"><span class="lc-dot"></span><span class="lc-h">--</span><span class="lc-sep">:</span><span class="lc-m">--</span><span class="lc-sep">:</span><span class="lc-s">--</span></div><div class="lc-date"></div></div>
-    <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button>
+  <div class="hero">
+    <div class="hero-id"><div class="hero-clinic" id="nurseHeaderTitle"></div><div class="hero-doc" id="nurseUserWelcome"></div></div>
+    <div class="hero-side"><div class="clk" aria-live="off"><div class="clk-time"><span class="clk-hm"></span><small class="clk-s"></small></div><div class="clk-date"></div></div>
+    <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button></div>
   </div>
   <div class="nav-tabs">
     <button type="button" class="tab-btn active" data-act="nurseTab" data-tab="patientsNurse" data-i18n="tab_patients">المرضى والانتظار 👥</button>
@@ -226,7 +231,7 @@
       <span data-i18n="waiting_rem">👥 المرضى المتبقون في الانتظار:</span>
       <span id="nurseWaitingBadge" style="background:var(--primary-sage);color:var(--on-primary);padding:4px 14px;border-radius:20px;font-size:15px">0</span>
     </div>
-    <div id="nurseClosed" class="closed-note" style="display:none" role="status"></div>
+    <div id="regClosedBanner" style="display:none;background:var(--surface-sunk);border:1.5px solid var(--orange);padding:14px 18px;border-radius:14px;margin-bottom:16px;font-size:14px;font-weight:600"></div>
     <form data-form="addPatient" data-pre="pn" style="background:var(--surface-card);padding:20px;border-radius:16px;margin-bottom:25px;border:1px solid var(--border-calm)">
       <div class="fields"></div>
       <button type="submit" class="btn-primary" data-i18n="btn_reg_add">تسجيل مريض جديد 🔔</button>
@@ -284,15 +289,25 @@
   </div>
 
   <div class="settings-card doc-only">
-    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_hours">⏰ ساعات تسجيل الممرضة للمرضى</h5>
-    <form data-form="hours">
-      <div class="settings-item"><div><strong data-i18n="hours_enable">تحديد وقت للتسجيل</strong><div class="hint" data-i18n="hours_hint">خارج هذا الوقت لا تستطيع الممرضة إضافة أي مريض. أنت (الطبيب) تسجّل في أي وقت.</div></div>
-        <label class="toggle-switch"><input type="checkbox" class="hoursOn"><span class="slider"></span></label></div>
-      <div class="hours-row">
-        <label><span data-i18n="hours_from">من</span><input type="time" class="hoursStart" value="08:00" dir="ltr" required></label>
-        <label><span data-i18n="hours_to">إلى</span><input type="time" class="hoursEnd" value="17:00" dir="ltr" required></label>
-      </div>
-      <div class="hours-status hoursStatus"></div>
+    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_schedule">تسجيل الممرضة للمرضى</h5>
+    <form data-form="schedule">
+      <div class="settings-item"><div><strong data-i18n="sched_enable">تقييد وقت التسجيل</strong><div class="hint" data-i18n="sched_enable_sub">عند الإيقاف تسجّل الممرضة في أي وقت</div></div>
+        <label class="toggle-switch"><input type="checkbox" class="schedEnabled"><span class="slider"></span></label></div>
+      <div class="form-group" style="margin-top:12px"><label data-i18n="sched_days">الأيام المسموحة:</label>
+        <div class="schedDays" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div></div>
+      <div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label data-i18n="sched_from">من الساعة:</label><input type="time" class="schedFrom" required></div>
+        <div class="form-group" style="flex:1"><label data-i18n="sched_to">إلى الساعة:</label><input type="time" class="schedTo" required></div></div>
+      <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
+      <div class="hint" data-i18n="sched_hint">خارج هذه الأيام والأوقات لا تستطيع الممرضة تسجيل مرضى جدد، أما أنت فتسجّل في أي وقت.</div>
+    </form>
+  </div>
+
+  <div class="settings-card doc-only">
+    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_prices">💰 قائمة الأسعار</h5>
+    <form data-form="prices">
+      <div class="hint" style="margin-bottom:10px" data-i18n="prices_hint">سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.</div>
+      <div class="priceRows"></div>
+      <div class="form-group" style="margin-top:10px"><label data-i18n="currency_l">العملة (اختياري):</label><input type="text" class="priceCur" maxlength="10" placeholder="دج / ر.س / $"></div>
       <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
     </form>
   </div>

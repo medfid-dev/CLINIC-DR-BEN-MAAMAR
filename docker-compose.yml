@@ -3,9 +3,9 @@ services:
     build: .
     restart: unless-stopped
     ports: ["3000:3000"]
+    volumes: ["./data:/data"]
     environment:
       # PUBLIC_URL=https://clinic.example.com   # العنوان العام الذي تفتحه هواتف المرضى (يظهر داخل رمز QR)
       # REGISTRATION_CODE=غيّر-هذا              # اختياري: لا يُنشئ حساباً جديداً إلا من يعرف الرمز
       # ALLOW_REGISTRATION=false                # أغلق التسجيل بعد إنشاء كل الحسابات
-      MONGODB_URI: ${MONGODB_URI}              # رابط MongoDB Atlas (ضعه في ملف .env)
       TRUST_PROXY: "1"
