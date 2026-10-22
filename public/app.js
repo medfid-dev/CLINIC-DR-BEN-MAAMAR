@@ -20,7 +20,7 @@ const L = {
     archive_title: 'أرشيف السجلات الطبية 📁', search_name: '🔍 بحث باسم المريض...', search_year: '📅 سنة الميلاد...', search_tooth: '🦷 رقم/مكان السن...',
     all_genders: 'جميع الأجناس', male: 'ذكر', female: 'أنثى', all_treat: 'جميع العلاجات', today: 'اليوم', yesterday: 'أمس', this_week: 'هذا الأسبوع', from_l: 'من', to_l: 'إلى', clear_day: 'مسح ✖', tr_ext: 'قلع', tr_endo: 'علاج عصب', tr_cons: 'استشارة', tr_pros: 'تركيب', tr_white: 'تبييض', tr_other: 'أخرى',
     match_results: 'النتائج المطابقة:', load_more: 'عرض المزيد', waiting_rem: '👥 المرضى المتبقون في الانتظار:', today_patients: 'قائمة مرضى اليوم',
-    settings_title: 'إعدادات التطبيق ⚙️', set_appearance: 'المظهر والألوان', dark_mode: 'الوضع الداكن', theme_color: 'لون العيادة', set_lang: 'اللغة', app_lang: 'لغة التطبيق',
+    settings_title: 'إعدادات التطبيق ⚙️', set_manage: 'إدارة العيادة', hist_title: '📋 سجل المريض', hist_first: 'أول زيارة', hist_last: 'آخر زيارة', hist_visits: 'عدد الزيارات', hist_none: 'لا توجد زيارات منتهية مسجّلة لهذا المريض بعد.', hist_cur: 'الزيارة الحالية', hist_wait_st: 'ينتظر', hist_in_st: 'في المعاينة', hist_load_fail: 'تعذّر تحميل السجل', hist_visit_n: 'زيارة {n}', set_appearance: 'المظهر والألوان', dark_mode: 'الوضع الداكن', theme_color: 'لون العيادة', set_lang: 'اللغة', app_lang: 'لغة التطبيق',
     set_sound: 'التنبيهات', sound_alerts: 'التنبيهات الصوتية', auto_qr: 'إظهار QR بعد تسجيل المريض', sys_notif: 'إشعارات النظام', sys_notif_sub: 'تصلك التنبيهات حتى لو كان التطبيق مغلقاً أو الشاشة مقفلة', enable: 'تفعيل',
     install_app: 'تثبيت التطبيق', install_sub: 'يُفتح كتطبيق مستقل على الجوال أو الحاسوب', install: 'تثبيت', set_clinic: 'بيانات العيادة', chg_pass: 'تغيير كلمة المرور',
     old_pass: 'كلمة المرور الحالية', new_pass: 'كلمة المرور الجديدة (8 أحرف فأكثر)', change: 'تغيير', chg_pass_hint: 'ستُغلق جلسات باقي الأجهزة.', set_backup: 'النسخ الاحتياطي', set_schedule: 'تسجيل الممرضة للمرضى', sched_enable: 'تقييد وقت التسجيل', sched_enable_sub: 'عند الإيقاف تسجّل الممرضة في أي وقت', sched_days: 'الأيام المسموحة:', sched_from: 'من الساعة:', sched_to: 'إلى الساعة:', sched_hint: 'خارج هذه الأيام والأوقات لا تستطيع الممرضة تسجيل مرضى جدد، أما أنت فتسجّل في أي وقت.', days_full: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'], reg_closed: '⏰ التسجيل مغلق حالياً. أوقات التسجيل: {d} من {a} إلى {b}', e_registration_closed: 'التسجيل مغلق خارج الأوقات التي حدّدها الطبيب', t_sched_saved: 'تم حفظ أوقات التسجيل',
@@ -64,7 +64,7 @@ const L = {
     archive_title: 'Medical records archive 📁', search_name: '🔍 Search by name...', search_year: '📅 Birth year...', search_tooth: '🦷 Tooth / location...',
     all_genders: 'All genders', male: 'Male', female: 'Female', all_treat: 'All treatments', today: 'Today', yesterday: 'Yesterday', this_week: 'This week', from_l: 'From', to_l: 'To', clear_day: 'Clear ✖', tr_ext: 'Extraction', tr_endo: 'Root canal', tr_cons: 'Consultation', tr_pros: 'Prosthetics', tr_white: 'Whitening', tr_other: 'Other',
     match_results: 'Matching records:', load_more: 'Load more', waiting_rem: '👥 Patients waiting:', today_patients: "Today's patients",
-    settings_title: 'App settings ⚙️', set_appearance: 'Appearance', dark_mode: 'Dark mode', theme_color: 'Theme color', set_lang: 'Language', app_lang: 'Interface language',
+    settings_title: 'App settings ⚙️', set_manage: 'Clinic management', hist_title: '📋 Patient record', hist_first: 'First visit', hist_last: 'Last visit', hist_visits: 'Visits', hist_none: 'No completed visits recorded for this patient yet.', hist_cur: 'Current visit', hist_wait_st: 'Waiting', hist_in_st: 'In consultation', hist_load_fail: 'Could not load the record', hist_visit_n: 'Visit {n}', set_appearance: 'Appearance', dark_mode: 'Dark mode', theme_color: 'Theme color', set_lang: 'Language', app_lang: 'Interface language',
     set_sound: 'Notifications', sound_alerts: 'Sound alerts', auto_qr: 'Show QR after registering a patient', sys_notif: 'System notifications', sys_notif_sub: 'Alerts reach you even when the app is closed or the screen is locked', enable: 'Enable',
     install_app: 'Install app', install_sub: 'Opens as a standalone app on phone or computer', install: 'Install', set_clinic: 'Clinic info', chg_pass: 'Change password',
     old_pass: 'Current password', new_pass: 'New password (8+ chars)', change: 'Change', chg_pass_hint: 'Other devices will be signed out.', set_backup: 'Backup', set_schedule: 'Nurse patient registration', sched_enable: 'Restrict registration times', sched_enable_sub: 'When off, nurses can register at any time', sched_days: 'Allowed days:', sched_from: 'From:', sched_to: 'To:', sched_hint: 'Outside these days and times nurses cannot register new patients. You can always register.', days_full: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], reg_closed: '⏰ Registration is closed right now. Hours: {d}, {a} to {b}', e_registration_closed: 'Registration is closed outside the hours set by the doctor', t_sched_saved: 'Registration hours saved',
@@ -146,7 +146,8 @@ function sysNotify(title, body) {
   else try { new Notification(title, o); } catch (e) {}
 }
 function openModal(id) { $('#' + id).classList.add('active'); }
-function closeModals() { $$('.modal-overlay.active').forEach(m => { if (m.id !== 'skipQueueModal') m.classList.remove('active'); }); closeCamera(); }
+function closeModals() { const pf = $('form[data-form=prices]'); if (pf && pf.closest('.modal-overlay.active')) { delete pf.dataset.dirty; renderPriceForm(); }
+  $$('.modal-overlay.active').forEach(m => { if (m.id !== 'skipQueueModal') m.classList.remove('active'); }); closeCamera(); }
 function showScreen(id) { $$('.screen').forEach(s => s.classList.remove('active')); $('#' + id).classList.add('active'); }
 function setOnline(on) { document.body.classList.toggle('offline', !on); }
 const fmtMin = m => (m < 1 ? t('lt1') : t('min_n', { n: m }));
@@ -193,7 +194,7 @@ async function boot() {
   if (S.me.role === 'doctor') {
     setHero();
     $('#clinicCodeShow').textContent = S.me.code || '------';
-    showScreen('doctorScreen'); docTab(startTab(['waiting', 'consultation', 'addPatientDoc', 'archive'], 'waiting'));
+    showScreen('doctorScreen'); docTab(startTab(['waiting', 'consultation', 'addPatientDoc', 'archive', 'stats'], 'waiting'));
   } else {
     setHero();
     showScreen('nurseScreen'); nurseTab('patientsNurse');
@@ -269,7 +270,7 @@ function renderNurseList() {
 }
 function renderDocWaiting() {
   const w = S.patients.filter(p => p.status === 'waiting'), list = $('#docWaitingList'); let r = 1;
-  list.innerHTML = w.length ? w.map(p => `<li class="patient-card"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> <span class="badge">${esc(reasonL(p.reason))}</span>
+  list.innerHTML = w.length ? w.map(p => `<li class="patient-card" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> <span class="badge">${esc(reasonL(p.reason))}</span>
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div></div>
     <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button><button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
     <button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button></div></li>`).join('')
@@ -313,8 +314,10 @@ const CATS = ['base', 'front', 'pre', 'molar'];
 const treatList = () => (S.me && S.me.prices && S.me.prices.treatments && S.me.prices.treatments.length) ? S.me.prices.treatments : TREATS.map(x => x[0]);
 const treatLabel = v => TREAT_I18N[v] ? t(TREAT_I18N[v]) : v;
 function fillTreatFilter() {
-  const sel = $('#aTreat'); if (!sel || !S.me || S.me.role !== 'doctor') return; const v = sel.value;
-  sel.innerHTML = `<option value="" data-i18n="all_treat">${esc(t('all_treat'))}</option>` + treatList().map(k => `<option value="${esc(k)}">${esc(treatLabel(k))}</option>`).join(''); sel.value = treatList().includes(v) ? v : '';
+  const sel = $('#aTreat'); if (!sel || !S.me || S.me.role !== 'doctor') return; const v = sel.value, sig = treatList().join('\u0001') + settings.lang;
+  if (sel.dataset.sig === sig) return; sel.dataset.sig = sig;
+  sel.innerHTML = `<option value="" data-i18n="all_treat">${esc(t('all_treat'))}</option>` + treatList().map(k => `<option value="${esc(k)}">${esc(treatLabel(k))}</option>`).join(''); const keep = treatList().includes(v) ? v : ''; sel.value = keep;
+  if (v && !keep && $('#archiveTab.active')) loadArchive(true);   // العلاج المحدَّد في الفلتر حُذف
 }
 const cur = () => (S.me && S.me.prices && S.me.prices.currency) || '';
 const money = v => v == null ? '' : Number(v).toLocaleString(settings.lang === 'en' ? 'en-US' : 'ar-u-nu-latn') + (cur() ? ' ' + cur() : '');
@@ -334,8 +337,8 @@ function treatRowHTML(v, vals) {
     <div class="price-grid">${CATS.map(c => `<label><span>${t('price_cat_' + c)}</span><input type="number" min="0" step="any" inputmode="decimal" data-cat="${c}" value="${o[c] != null ? o[c] : ''}" placeholder="0"></label>`).join('')}</div></div>`;
 }
 function renderPriceForm() {
-  const f = $('#settingsDocTab form[data-form=prices]'); if (!f || !S.me || S.me.role !== 'doctor') return;
   fillTreatFilter();
+  const f = $('form[data-form=prices]'); if (!f || !S.me || S.me.role !== 'doctor') return;
   if (f.contains(document.activeElement) || f.dataset.dirty) return;   // لا نمحو تعديلات لم تُحفظ
   const L2 = S.me.prices.list;
   $('.priceRows', f).innerHTML = treatList().map(v => treatRowHTML(v, L2[v])).join('') + `<div class="hint" style="margin-bottom:6px">${t('prices_hint2')}</div>`;
@@ -520,7 +523,7 @@ function loadArchive(reset = true) {
 function renderArchive() {
   $('#archiveResultCount').textContent = S.archive.total; $('#archiveSum').innerHTML = S.archive.sum ? `${t('total_due')} <b>${money(S.archive.sum)}</b> · ${t('total_paid')} <b>${money(S.archive.paidSum)}</b>${S.archive.debt ? ` · ${t('total_debt')} <b style="color:var(--danger-soft,#e8607a)">${money(S.archive.debt)}</b>` : ''}` : '';
   const l = $('#archiveList');
-  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card" style="align-items:flex-start"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> <span class="badge">${esc(a.treatment)}</span>${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">💰 ${money(a.price)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">✔ ${t('paid_l')}</span>` : '')}${a.followUp ? ' <span class="badge">↻</span>' : ''}
+  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> <span class="badge">${esc(a.treatment)}</span>${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">💰 ${money(a.price)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">✔ ${t('paid_l')}</span>` : '')}${a.followUp ? ' <span class="badge">↻</span>' : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong></div>
     ${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
@@ -530,6 +533,29 @@ function renderArchive() {
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('no_results')}</li>`;
   $('#archiveMore').style.display = S.archive.items.length < S.archive.total ? '' : 'none';
   hydrate(l);
+}
+/* سجل المريض الكامل: من أول زيارة إلى آخرها */
+async function showHistory(name, year) {
+  const body = $('#historyBody'); body.innerHTML = `<div class="hint" style="text-align:center;padding:20px">…</div>`; openModal('historyModal');
+  const r = await run(() => api('GET', '/api/history?name=' + encodeURIComponent(name) + '&year=' + encodeURIComponent(year)));
+  if (!r) { body.innerHTML = `<div class="hint" style="text-align:center;padding:20px">${t('hist_load_fail')}</div>`; return; }
+  const dt = v => v ? new Date(v).toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' }) : '—', dd = v => v ? new Date(v).toLocaleDateString(locale(), { dateStyle: 'medium' }) : '—';
+  const teethOf = x => (x.teeth && x.teeth.length ? x.teeth.join('، ') : (x.tooth && x.tooth !== 'غير محدد' ? x.tooth : '---'));
+  const imgs = x => x.images && x.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${x.images.map(i => `<img data-rec="${x.id}" data-img="${i}" data-act="lightbox" style="width:48px;height:48px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-card)" alt="">`).join('')}</div>` : '';
+  const cur = r.current ? `<div class="hist-item cur"><div class="hi-date">${t('hist_cur')} · ${r.current.status === 'in' ? t('hist_in_st') : t('hist_wait_st')}</div>
+      <div class="hi-line">${t('reason_s')}: ${esc(reasonL(r.current.reason))} | ${t('tooth')}: <strong>${esc(r.current.tooth || '---')}</strong> | ${t('date_l')} ${dt(r.current.createdAt)}</div>${imgs(r.current)}</div>` : '';
+  const items = r.records.slice().reverse().map((x, i) => `<div class="hist-item"><div class="hi-date">${t('hist_visit_n', { n: r.records.length - i })} · ${dt(x.finishedAt)}${x.followUp ? ' · ↻' : ''}</div>
+      <div class="hi-line"><span class="badge">${esc(x.treatment)}</span> ${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ${t('reason_s')}: ${esc(reasonL(x.reason))}</div>
+      ${x.price != null ? `<div class="hi-line">💰 ${money(x.price)} · ${t('paid_l')} ${money(x.paid)}${x.remaining > 0 ? ` · <b style="color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(x.remaining)}</b>` : ''}</div>` : ''}
+      ${x.payments && x.payments.length ? `<div class="hi-line">${t('pays_l')} ${x.payments.map(p => money(p.amt) + ' (' + new Date(p.t).toLocaleDateString(locale()) + ')').join(' · ')}</div>` : ''}
+      ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${imgs(x)}
+      <div class="hi-line" style="font-size:11px">${t('wait_s')} ${fmtMin(x.waitMin)} · ${t('dur_l')} ${fmtMin(x.durationMin)}</div></div>`).join('');
+  body.innerHTML = `<div class="hist-sum"><div class="hs-name">${esc(r.name)}</div>
+      <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div>
+      <div class="hist-stats"><div>${t('hist_visits')}<b>${r.visits}</b></div><div>${t('hist_first')}<b>${dd(r.firstVisit)}</b></div><div>${t('hist_last')}<b>${dd(r.lastVisit)}</b></div>
+      ${r.due ? `<div>${t('total_due')}<b>${money(r.due)}</b></div><div>${t('total_paid')}<b>${money(r.paid)}</b></div>` : ''}${r.balance ? `<div>${t('total_debt')}<b style="color:var(--danger-soft,#e8607a)">${money(r.balance)}</b></div>` : ''}</div></div>
+    <div class="hist-tl">${cur}${items || (cur ? '' : `<div class="hint">${t('hist_none')}</div>`)}</div>`;
+  hydrate(body);
 }
 async function loadNurses() { const r = await run(() => api('GET', '/api/nurses')); if (r) { S.nurses = r; renderNurses(); } }
 function renderNurses() {
@@ -559,7 +585,7 @@ function updateRegGate() {
 }
 setInterval(updateRegGate, 30000);
 function syncSchedule() {
-  const form = $('#settingsDocTab form[data-form=schedule]'), s = S.schedule;
+  const form = $('form[data-form=schedule]'), s = S.schedule;
   if (!form || !s || S.me.role !== 'doctor') return;
   const sig = JSON.stringify(s) + settings.lang; if (sig === S.schedSig || form.contains(document.activeElement)) return;
   S.schedSig = sig;
@@ -570,7 +596,7 @@ function docTab(tab) {
   if (window.showHero) showHero();
   $$('#doctorScreen .tab-content').forEach(s => s.classList.remove('active')); $$('#doctorScreen .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   $('#' + tab + 'Tab').classList.add('active');
-  if (tab === 'archive') loadArchive(true); if (tab === 'nurses') loadNurses();
+  if (tab === 'archive') loadArchive(true); if (tab === 'nurses') loadNurses(); if (tab === 'stats' && window.loadStats) { const st = S.stats; if (st) st.data = null; loadStats(); }
 }
 function nurseTab(tab) {
   if (window.showHero) showHero();
@@ -609,7 +635,7 @@ function applySettings() {
   document.title = t('app_title');
   $$('.darkModeToggle').forEach(x => { x.checked = settings.darkMode; }); $$('.soundToggle').forEach(x => { x.checked = settings.sound; }); $$('.autoQrToggle').forEach(x => { x.checked = settings.autoQr; });
   $$('.langSelect').forEach(x => { x.value = settings.lang; });
-  renderPatientForms(); translate(); renderPriceForm();
+  renderPatientForms(); translate(); renderPriceForm(); if (window.renderStats) renderStats();
   if (S.me) {
     setHero();
     const c = $('#consultationArea'); c.dataset.sig = ''; renderAll(); if (S.me.role === 'doctor') { renderArchive(); renderNurses(); }
@@ -669,7 +695,14 @@ function download(blob, name) { const a = document.createElement('a'); a.href = 
 const ACT = {
   authMode: el => authMode(el.dataset.mode), logout, closeAlert: el => el.parentElement.remove(),
   docTab: el => docTab(el.dataset.tab), nurseTab: el => nurseTab(el.dataset.tab),
-  closeModal: closeModals, closeLightbox: () => $('#lightboxModal').classList.remove('active'),
+  closeModal: closeModals,
+  patHistory: el => showHistory(el.dataset.name, el.dataset.year),
+  openSet(el) {
+    const m = el.dataset.m; if (m === 'set_clinicModal') { $$('.setClinicName').forEach(i => { i.value = S.me.clinicName; }); $$('.setDoctorName').forEach(i => { i.value = S.me.name; }); }
+    if (m === 'set_pricesModal') { const f = $('form[data-form=prices]'); delete f.dataset.dirty; renderPriceForm(); }
+    if (m === 'set_scheduleModal') { S.schedSig = ''; syncSchedule(); }
+    openModal(m);
+  }, closeLightbox: () => $('#lightboxModal').classList.remove('active'),
   lightbox: async el => { try { $('#lightboxImg').src = await imgBlobUrl(el.dataset.rec, el.dataset.img); $('#lightboxModal').classList.add('active'); } catch (e) {} },
   async enter(el) {
     const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/enter`)); if (!r) return;
@@ -796,7 +829,7 @@ document.addEventListener('submit', async e => {
     }
     if (!treatments.length) { toast(t('tr_last'), 'danger'); return; }
     const r = await run(() => api('PUT', '/api/prices', { currency: $('.priceCur', f).value, list, treatments }));
-    if (r) { S.me.prices = r; delete f.dataset.dirty; toast(t('t_prices_saved'), 'success'); if (!treatList().includes(S.treatment)) S.treatment = treatList()[0]; renderPriceForm(); recalc(); const c = $('#consultationArea'); if (c) c.dataset.sig = ''; renderAll(); }
+    if (r) { S.me.prices = r; delete f.dataset.dirty; toast(t('t_prices_saved'), 'success'); if (!treatList().includes(S.treatment)) S.treatment = treatList()[0]; fillTreatFilter(); renderPriceForm(); recalc(); const c = $('#consultationArea'); if (c) c.dataset.sig = ''; renderAll(); closeModals(); }
   } else if (kind === 'schedule') {
     const days = $$('.schedDays input:checked', f).map(x => +x.value), enabled = $('.schedEnabled', f).checked;
     if (enabled && !days.length) { toast(t('e_invalid_input'), 'danger'); return; }
@@ -807,7 +840,7 @@ document.addEventListener('submit', async e => {
   }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModals(); $('#lightboxModal').classList.remove('active'); } });
-document.addEventListener('click', e => { if (e.target.classList && e.target.classList.contains('modal-overlay') && e.target.id !== 'skipQueueModal') closeModals(); });
+document.addEventListener('click', e => { if (e.target.classList && e.target.classList.contains('modal-overlay') && e.target.id !== 'skipQueueModal' && !(e.target.querySelector('form[data-dirty]') || e.target.querySelector('form[data-form=prices][data-dirty]'))) closeModals(); });
 
 /* ===================== التثبيت وبدء التشغيل ===================== */
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; updateInstallUI(); });

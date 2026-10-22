@@ -247,6 +247,117 @@ function serveStatic(req, res, pathname) {
 }
 
 /* ---------- المصادقة ---------- */
+/* ---------- الإحصائيات (طبيب فقط): تُحسب كلها في الخادم من الأرشيف والمرضى الحاليين ---------- */
+const isDayStr = v => /^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(v + 'T00:00:00Z'));
+function rangeOf(q) {   // نفس منطق الأرشيف: التواريخ بتوقيت جهاز الطبيب (tz = getTimezoneOffset)
+  const tz = Math.max(-840, Math.min(840, +q.get('tz') || 0)), ds = v => Date.parse(v + 'T00:00:00Z') + tz * 6e4;
+  const f = str(q.get('from') || '', 10), t = str(q.get('to') || '', 10);
+  let d0 = isDayStr(f) ? ds(f) : 0, d1 = isDayStr(t) ? ds(t) + 864e5 : 0;
+  if (d0 && d1 && d0 >= d1) { d0 = ds(t); d1 = ds(f) + 864e5; }
+  return { tz, d0, d1 };
+}
+const AGE_BANDS = [[0, 12], [13, 17], [18, 29], [30, 44], [45, 59], [60, 200]];
+const WAIT_BOUNDS = [5, 15, 30, 60], DUR_BOUNDS = [10, 20, 30, 45, 60];   // حدود الشرائح بالدقائق (الأخيرة: ما فوق)
+const sumOf = (a, f) => r2(a.reduce((x, y) => x + f(y), 0));
+const avgOf = a => a.length ? r2(a.reduce((x, y) => x + y, 0) / a.length) : 0;
+const medOf = a => { if (!a.length) return 0; const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return r2(s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2); };
+const paysOf = a => (a.payments && a.payments.length) ? a.payments : (paidOf(a) > 0 ? [{ t: a.finishedAt, amt: paidOf(a) }] : []);
+const bump = (m, k, init) => { let o = m.get(k); if (!o) m.set(k, o = init()); return o; };
+const bucketOf = (v, bounds) => { for (let i = 0; i < bounds.length; i++) if (v <= bounds[i]) return i; return bounds.length; };
+const dist = (vals, bounds) => { const n = Array(bounds.length + 1).fill(0); for (const v of vals) n[bucketOf(v, bounds)]++; return n; };
+const toothCatOf = n => { const d = n % 10, qd = Math.floor(n / 10); return d <= 3 ? 'front' : (qd >= 5 ? 'molar' : d <= 5 ? 'pre' : 'molar'); };
+
+function statsFor(c, d0, d1, tz) {
+  const t0 = now(), loc = t => new Date(t - tz * 6e4);
+  const dayKey = t => loc(t).toISOString().slice(0, 10), monKey = t => loc(t).toISOString().slice(0, 7);
+  const arch = c.archive.filter(r => r.finishedAt);
+  const inR = r => (!d0 || r.finishedAt >= d0) && (!d1 || r.finishedAt < d1);
+  const rs = arch.filter(inR);
+  const cashIn = (a0, a1) => r2(arch.reduce((x, r) => x + paysOf(r).reduce((y, p) => y + ((!a0 || p.t >= a0) && (!a1 || p.t < a1) ? (+p.amt || 0) : 0), 0), 0));
+  const mk = (list, a0, a1) => {
+    const priced = list.filter(r => (r.price || 0) > 0);
+    return { visits: list.length, patients: new Set(list.map(patKey)).size, billed: sumOf(list, dueOf), collected: cashIn(a0, a1), outstanding: sumOf(list, remOf),
+      avgBill: avgOf(priced.map(r => r.price)), avgWait: avgOf(list.map(r => r.waitMin || 0)), avgDuration: avgOf(list.map(r => r.durationMin || 0)),
+      followUps: list.filter(r => r.followUp).length, images: list.reduce((x, r) => x + (r.images || []).length, 0), paidVisits: priced.length, freeVisits: list.length - priced.length };
+  };
+  const summary = mk(rs, d0, d1);
+  let prev = null;
+  if (d0 && d1) { const len = d1 - d0, p0 = d0 - len; prev = mk(arch.filter(r => r.finishedAt >= p0 && r.finishedAt < d0), p0, d0); }
+
+  /* السلسلة الزمنية: يومية حتى ~3 أشهر ثم شهرية */
+  const start = d0 || (arch.length ? Math.min(...arch.map(r => r.finishedAt)) : t0), stop = d1 ? d1 - 1 : t0;
+  const gran = (stop - start) / 864e5 > 92 ? 'month' : 'day', keyOf = gran === 'month' ? monKey : dayKey, buckets = new Map();
+  if (start <= stop) {
+    if (gran === 'day') { for (let d = Date.parse(dayKey(start) + 'T00:00:00Z'), e = Date.parse(dayKey(stop) + 'T00:00:00Z'); d <= e; d += 864e5) buckets.set(new Date(d).toISOString().slice(0, 10), { k: new Date(d).toISOString().slice(0, 10), visits: 0, billed: 0, collected: 0 }); }
+    else { let y = +monKey(start).slice(0, 4), mo = +monKey(start).slice(5), ey = +monKey(stop).slice(0, 4), em = +monKey(stop).slice(5); for (; y < ey || (y === ey && mo <= em); mo++) { if (mo > 12) { mo = 1; y++; if (y > ey || (y === ey && mo > em)) break; } const k = `${y}-${String(mo).padStart(2, '0')}`; buckets.set(k, { k, visits: 0, billed: 0, collected: 0 }); } }
+  }
+  const bk = k => bump(buckets, k, () => ({ k, visits: 0, billed: 0, collected: 0 }));
+  for (const r of rs) { const b = bk(keyOf(r.finishedAt)); b.visits++; b.billed = r2(b.billed + dueOf(r)); }
+  for (const r of arch) for (const p of paysOf(r)) if ((!d0 || p.t >= d0) && (!d1 || p.t < d1)) { const b = bk(keyOf(p.t)); b.collected = r2(b.collected + (+p.amt || 0)); }
+  const series = [...buckets.values()].sort((x, y) => x.k < y.k ? -1 : 1);
+
+  /* الأوقات: خريطة حرارية (يوم × ساعة وصول) وأيام الأسبوع */
+  const heat = Array.from({ length: 7 }, () => Array(24).fill(0)), weekday = Array.from({ length: 7 }, () => ({ visits: 0, billed: 0 }));
+  for (const r of rs) { const a = loc(r.createdAt || r.finishedAt); heat[a.getUTCDay()][a.getUTCHours()]++; const w = weekday[loc(r.finishedAt).getUTCDay()]; w.visits++; w.billed = r2(w.billed + dueOf(r)); }
+  const hours = Array(24).fill(0); for (const row of heat) row.forEach((n, h) => { hours[h] += n; });
+
+  /* العلاجات */
+  const tm = new Map();
+  for (const r of rs) { const o = bump(tm, r.treatment || 'استشارة', () => ({ name: r.treatment || 'استشارة', visits: 0, billed: 0, paid: 0, debt: 0, dur: [] })); o.visits++; o.billed = r2(o.billed + dueOf(r)); o.paid = r2(o.paid + paidOf(r)); o.debt = r2(o.debt + remOf(r)); o.dur.push(r.durationMin || 0); }
+  const treatments = [...tm.values()].map(o => ({ name: o.name, visits: o.visits, billed: o.billed, paid: o.paid, debt: o.debt, avgPrice: o.visits ? r2(o.billed / o.visits) : 0, avgDuration: avgOf(o.dur) })).sort((x, y) => y.visits - x.visits || y.billed - x.billed);
+
+  /* الديموغرافيا */
+  const gender = { 'ذكر': { visits: 0, billed: 0 }, 'أنثى': { visits: 0, billed: 0 } };
+  const ages = AGE_BANDS.map(([a, b]) => ({ from: a, to: b, visits: 0, billed: 0 }));
+  const reasons = new Map();
+  for (const r of rs) {
+    const g = gender[r.gender === 'أنثى' ? 'أنثى' : 'ذكر']; g.visits++; g.billed = r2(g.billed + dueOf(r));
+    const age = loc(r.finishedAt).getUTCFullYear() - r.birthYear, band = ages.find(z => age >= z.from && age <= z.to) || ages[ages.length - 1]; band.visits++; band.billed = r2(band.billed + dueOf(r));
+    bump(reasons, r.reason || 'استشارة وطوارئ', () => ({ name: r.reason || 'استشارة وطوارئ', visits: 0 })).visits++;
+  }
+
+  /* الأسنان: لكل سن، ولكل نوع، والفك، والدائمة/اللبنية */
+  const perTooth = {}, cats = { front: 0, pre: 0, molar: 0 }, jaw = { upper: 0, lower: 0 }, side = { right: 0, left: 0 }, dentition = { permanent: 0, primary: 0 }; let toothTotal = 0, noTooth = 0;
+  for (const r of rs) {
+    const list = (r.teeth && r.teeth.length ? r.teeth : String(r.tooth || '').split(/\s+/)).filter(x => FDI.has(x));
+    if (!list.length) { noTooth++; continue; }
+    for (const s of list) { const n = +s, qd = Math.floor(n / 10); perTooth[s] = (perTooth[s] || 0) + 1; toothTotal++; cats[toothCatOf(n)]++; (qd === 1 || qd === 2 || qd === 5 || qd === 6 ? jaw.upper++ : jaw.lower++); (qd === 1 || qd === 4 || qd === 5 || qd === 8 ? side.right++ : side.left++); (qd <= 4 ? dentition.permanent++ : dentition.primary++); }
+  }
+
+  /* الانتظار والمعاينة */
+  const waits = rs.map(r => r.waitMin || 0), durs = rs.map(r => r.durationMin || 0);
+  const timing = { wait: { avg: avgOf(waits), median: medOf(waits), max: waits.length ? Math.max(...waits) : 0, buckets: dist(waits, WAIT_BOUNDS), bounds: WAIT_BOUNDS }, duration: { avg: avgOf(durs), median: medOf(durs), max: durs.length ? Math.max(...durs) : 0, buckets: dist(durs, DUR_BOUNDS), bounds: DUR_BOUNDS }, totalChairMin: durs.reduce((x, y) => x + y, 0) };
+
+  /* المرضى: جدد/عائدون، تكرار الزيارات، الأكثر زيارة/إنفاقاً */
+  const firstEver = new Map(); for (const r of arch) { const k = patKey(r); if (!firstEver.has(k) || r.finishedAt < firstEver.get(k)) firstEver.set(k, r.finishedAt); }
+  const pm = new Map();
+  for (const r of rs) { const o = bump(pm, patKey(r), () => ({ name: r.name, birthYear: r.birthYear, visits: 0, billed: 0, debt: 0 })); o.visits++; o.billed = r2(o.billed + dueOf(r)); o.debt = r2(o.debt + remOf(r)); }
+  let newP = 0; for (const k of pm.keys()) { const f = firstEver.get(k); if ((!d0 || f >= d0) && (!d1 || f < d1)) newP++; }
+  const pl = [...pm.values()], freq = [0, 0, 0, 0]; for (const o of pl) freq[Math.min(3, o.visits - 1)]++;
+  const patients = { unique: pl.length, new: newP, returning: pl.length - newP, avgVisits: pl.length ? r2(rs.length / pl.length) : 0, freq,
+    topVisits: pl.slice().sort((x, y) => y.visits - x.visits || y.billed - x.billed).slice(0, 8), topBilled: pl.slice().sort((x, y) => y.billed - x.billed).filter(z => z.billed > 0).slice(0, 8) };
+
+  /* من سجّل المرضى (الطبيب أو الممرضة باسمها) */
+  const rg = new Map();
+  for (const r of rs) { const role = r.createdBy === 'nurse' ? 'nurse' : 'doctor', name = role === 'nurse' ? (r.createdByName || '') : ''; bump(rg, role + '|' + name, () => ({ role, name, n: 0 })).n++; }
+  const registrars = [...rg.values()].sort((x, y) => y.n - x.n);
+
+  /* الديون الكلية (كل الأرشيف، بغضّ النظر عن الفترة) */
+  const dm = new Map(), aging = [0, 0, 0, 0]; let debtTotal = 0;
+  for (const r of arch) { const rem = remOf(r); if (rem <= 0) continue; debtTotal = r2(debtTotal + rem); const days = (t0 - r.finishedAt) / 864e5; aging[days <= 30 ? 0 : days <= 60 ? 1 : days <= 90 ? 2 : 3] = r2(aging[days <= 30 ? 0 : days <= 60 ? 1 : days <= 90 ? 2 : 3] + rem);
+    const o = bump(dm, patKey(r), () => ({ name: r.name, birthYear: r.birthYear, phone: r.phone || '', balance: 0, since: r.finishedAt })); o.balance = r2(o.balance + rem); if (r.finishedAt < o.since) o.since = r.finishedAt; if (!o.phone && r.phone) o.phone = r.phone; }
+  const debtors = [...dm.values()].sort((x, y) => y.balance - x.balance);
+  const debt = { total: debtTotal, count: debtors.length, aging, top: debtors.slice(0, 10) };
+
+  /* لمحة اليوم (بتوقيت الطبيب) والإجمالي العام */
+  const ts = Date.parse(dayKey(t0) + 'T00:00:00Z') + tz * 6e4, td = arch.filter(r => r.finishedAt >= ts);
+  const today = { waiting: waiting(c).length, inRoom: inRoom(c) ? 1 : 0, registered: c.patients.filter(p => p.createdAt >= ts).length + arch.filter(r => (r.createdAt || r.finishedAt) >= ts).length, finished: td.length, billed: sumOf(td, dueOf), collected: cashIn(ts, 0) };
+  const overall = { visits: arch.length, patients: firstEver.size, firstVisit: arch.length ? Math.min(...arch.map(r => r.finishedAt)) : null, nurses: c.nurses.length, treatments: treatsOf(c).length };
+
+  return { range: { d0, d1, tz, gran, from: start, to: stop }, summary, prev, series, hours, heat, weekday, treatments, gender, ages, reasons: [...reasons.values()].sort((x, y) => y.visits - x.visits),
+    teeth: { perTooth, cats, jaw, side, dentition, total: toothTotal, none: noTooth }, timing, patients, registrars, debt, today, overall };
+}
+
 function authOf(req, roles) {
   const h = req.headers.authorization || '';
   const tok = h.startsWith('Bearer ') ? h.slice(7) : '';
@@ -361,7 +472,7 @@ async function api(req, res, url) {
     if (!v) throw httpErr(400, 'invalid_input');
     if (a.role === 'nurse' && !scheduleOpen(c)) throw httpErr(403, 'registration_closed');
     if (c.patients.length >= 500) throw httpErr(429, 'limit');
-    const pt = { id: rid(6), ticket: b64u(18), ticketNo: nextTicketNo(c), ...v, images: [], status: 'waiting', createdAt: now(), startedAt: null, createdBy: a.role };
+    const pt = { id: rid(6), ticket: b64u(18), ticketNo: nextTicketNo(c), ...v, images: [], status: 'waiting', createdAt: now(), startedAt: null, createdBy: a.role, createdByName: a.nurse ? a.nurse.name : '' };
     c.patients.push(pt); idx.ticket.set(pt.ticket, c.id);
     broadcast(c, { to: 'doctor', exclude: a.key, data: { type: 'add', name: pt.name } });
     return send(res, 201, patientView(pt));
@@ -442,6 +553,21 @@ async function api(req, res, url) {
     a.clinic.prices = { currency: str(b.currency, 10), list: normList(b.list, treatments), treatments }; save(); return send(res, 200, pricesOf(a.clinic));
   }
 
+  /* سجل المريض الكامل: كل زياراته من الأولى إلى الأخيرة + زيارته الحالية إن وُجدت (طبيب فقط) */
+  if (m === 'GET' && p === '/api/history') {
+    const a = authOf(req, ['doctor']), q = url.searchParams, year = parseInt(q.get('year'));
+    if (!Number.isInteger(year)) throw httpErr(400, 'invalid_input');
+    const k = patKey({ name: str(q.get('name') || '', 80), birthYear: year });
+    const rs = a.clinic.archive.filter(r => patKey(r) === k).sort((x, y) => (x.finishedAt || 0) - (y.finishedAt || 0)).slice(-300);
+    const cur = a.clinic.patients.find(z => patKey(z) === k);
+    const first = rs[0] || cur, last = rs[rs.length - 1];
+    return send(res, 200, {
+      name: first ? first.name : '', birthYear: year, gender: first ? first.gender : '', phone: (cur && cur.phone) || (last && last.phone) || (first && first.phone) || '',
+      firstVisit: first ? (first.createdAt || first.finishedAt) : null, lastVisit: last ? last.finishedAt : null,
+      visits: rs.length, due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)),
+      current: cur ? patientView(cur) : null, records: rs.map(archiveView)
+    });
+  }
   /* حساب مريض: المستحق والمدفوع والمتبقي (طبيب فقط) */
   if (m === 'GET' && p === '/api/account') {
     const a = authOf(req, ['doctor']), q = url.searchParams, k = patKey({ name: str(q.get('name') || '', 80), birthYear: parseInt(q.get('year')) });
@@ -471,6 +597,13 @@ async function api(req, res, url) {
     }
     const out = [...seen.values()].slice(0, 8);
     return send(res, 200, out);
+  }
+
+  /* الإحصائيات المفصّلة (طبيب فقط) */
+  if (m === 'GET' && p === '/api/stats') {
+    const a = authOf(req, ['doctor']); rate('stats:' + a.key, 60, 6e4);
+    const { tz, d0, d1 } = rangeOf(url.searchParams);
+    return send(res, 200, statsFor(a.clinic, d0, d1, tz));
   }
 
   /* الأرشيف (طبيب فقط) */

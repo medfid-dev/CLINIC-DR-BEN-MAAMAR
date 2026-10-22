@@ -207,8 +207,8 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       await wait(200); ok(pushes.filter(z => z.url === '/doctor').length === 2, 'الطبيب لا يستلم إشعار إنهائه');
       /* تخطي الدور */
       const q1 = (await J('POST', '/api/patients', N, pat('أول'))).j, q2 = (await J('POST', '/api/patients', N, pat('ثاني'))).j; await got('/doctor', 3);
-      r = await J('POST', `/api/patients/${q2.id}/enter`, N); ok(r.s === 202, 'طلب تخطي'); g = await got('/doctor', 5);
-      const m3 = decryptPush(g[g.length - 1].body, D.e, D.auth); ok(m3.type === 'skip_request' && m3.urgent && m3.body.includes('أول') && m3.body.includes('ثاني'), 'طلب التخطي يصل دفعاً عاجلاً بالاسمين');
+      r = await J('POST', `/api/patients/${q2.id}/enter`, N); ok(r.s === 202, 'طلب تخطي'); let m3 = null;   // الرسائل قد تصل بترتيب مختلف: نبحث عن طلب التخطي بدل افتراض أنه الأخير
+      for (let i = 0; i < 40 && !m3; i++) { g = await got('/doctor', 5); m3 = g.map(x => decryptPush(x.body, D.e, D.auth)).find(x => x.type === 'skip_request') || null; if (!m3) await wait(50); } ok(m3.type === 'skip_request' && m3.urgent && m3.body.includes('أول') && m3.body.includes('ثاني'), 'طلب التخطي يصل دفعاً عاجلاً بالاسمين');
       /* عزل العيادات */
       const before = pushes.length; await J('POST', '/api/patients', B, pat('عيادة ب')); await wait(300); ok(pushes.length === before, 'عيادة أخرى لا تُرسل ولا تستقبل إشعارات عيادة أ');
       /* حذف الاشتراك عند الخروج وعند 410 */
@@ -216,6 +216,40 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       await J('POST', `/api/patients/${q2.id}/skip`, A, { allow: false }); await wait(300); ok(pushes.length === nb, 'لا دفع بعد إلغاء الاشتراك');
       const GN = mkSub('/gone'); await J('POST', '/api/push/subscribe', N, { subscription: GN.sub }); await J('POST', `/api/patients/${q2.id}/skip`, A, { allow: false }); await got('/gone'); await wait(200);
       const gl = pushes.length; await J('POST', `/api/patients/${q2.id}/skip`, A, { allow: false }); await wait(300); ok(pushes.length === gl, 'اشتراك منتهٍ (410) يُحذف تلقائياً'); }
+
+    console.log('الإحصائيات');
+    { const SD = (await J('POST', '/api/register', null, { clinicName: 'عيادة إحصاء', doctorName: 'د. نور', username: 'stats1', password: 'password9' })).j.token;
+      const SN = (await J('POST', '/api/nurses', SD, { name: 'ليلى', phone: '', password: 'nurse123' }), (await J('POST', '/api/login/nurse', null, { code: (await J('GET', '/api/state', SD)).j.me.code, name: 'ليلى', password: 'nurse123' })).j.token);
+      let r = await J('GET', '/api/stats?tz=0', SD); ok(r.s === 200 && r.j.summary.visits === 0 && r.j.series.length >= 1, 'إحصائيات عيادة فارغة بلا أخطاء');
+      const visit = async (tok, who, treat, teeth, price, paid, extra) => { const p0 = (await J('POST', '/api/patients', tok, pat(who, extra))).j; await J('POST', `/api/patients/${p0.id}/enter`, SD); return (await J('POST', `/api/patients/${p0.id}/finish`, SD, { treatment: treat, teeth, price, paid, followUp: false, notes: '' })); };
+      await visit(SD, 'سمير', 'قلع', ['16', '17'], 5000, 5000);
+      await visit(SN, 'منى', 'علاج عصب', ['36'], 8000, 3000, { gender: 'أنثى', birthYear: 2015 });
+      await visit(SD, 'سمير', 'استشارة', [], 1000, 0, { tooth: 'غير محدد' });
+      await visit(SN, 'كريم', 'قلع', ['55'], 4000, 4000, { birthYear: 2018 });
+      r = await J('GET', '/api/stats?tz=0', SD); const d = r.j;
+      ok(r.s === 200 && d.summary.visits === 4 && d.summary.patients === 3, 'عدد الزيارات 4 والمرضى المختلفون 3');
+      ok(d.summary.billed === 18000 && d.summary.collected === 12000 && d.summary.outstanding === 6000, 'المستحق 18000 / المحصَّل 12000 / المتبقي 6000');
+      ok(d.treatments.find(x => x.name === 'قلع').visits === 2 && d.treatments[0].name === 'قلع', 'توزيع العلاجات مرتّب بالأكثر');
+      ok(d.gender['أنثى'].visits === 1 && d.gender['ذكر'].visits === 3, 'توزيع الجنس');
+      ok(d.teeth.perTooth['16'] === 1 && d.teeth.total === 4 && d.teeth.dentition.primary === 1 && d.teeth.jaw.upper === 3 && d.teeth.jaw.lower === 1 && d.teeth.none === 1, 'خريطة الأسنان: دائمة/لبنية/فك/زيارات بلا سن');
+      ok(d.debt.total === 6000 && d.debt.count === 2 && d.debt.top[0].name === 'منى', 'الديون: الإجمالي وأكبر مدين');
+      ok(d.patients.new === 3 && d.patients.returning === 0 && d.patients.freq[1] === 1, 'مرضى جدد وتكرار الزيارة');
+      ok(d.registrars.find(x => x.role === 'nurse' && x.name === 'ليلى').n === 2 && d.registrars.find(x => x.role === 'doctor').n === 2, 'من سجّل المرضى (ممرضة باسمها / طبيب)');
+      ok(d.hours.reduce((x, y) => x + y, 0) === 4 && d.heat.flat().reduce((x, y) => x + y, 0) === 4 && d.today.finished === 4, 'الساعات والخريطة الحرارية ولمحة اليوم');
+      ok(d.series.reduce((x, y) => x + y.visits, 0) === 4 && d.series.reduce((x, y) => x + y.collected, 0) === 12000, 'السلسلة الزمنية تطابق المجاميع');
+      const day = new Date().toISOString().slice(0, 10);
+      r = await J('GET', `/api/stats?from=${day}&to=${day}&tz=0`, SD); ok(r.j.summary.visits === 4 && r.j.prev && r.j.prev.visits === 0, 'نطاق اليوم + فترة سابقة للمقارنة');
+      r = await J('GET', '/api/stats?from=2001-01-01&to=2001-01-31&tz=0', SD); ok(r.j.summary.visits === 0 && r.j.series.length === 31 && r.j.debt.total === 6000, 'نطاق فارغ: أيام بلا زيارات، والديون كلية');
+      r = await J('GET', '/api/stats?from=2020-01-01&tz=0', SD); ok(r.j.range.gran === 'month' && r.j.series.length > 60, 'نطاق طويل يُجمَّع شهرياً');
+      const pay = (await J('GET', '/api/archive?limit=50', SD)).j.items.find(x => x.name === 'منى'); await J('POST', `/api/archive/${pay.id}/payment`, SD, { amount: 5000 });
+      r = await J('GET', '/api/stats?tz=0', SD); ok(r.j.summary.collected === 17000 && r.j.debt.total === 1000 && r.j.debt.count === 1, 'دفعة لاحقة تُحتسب في المحصَّل وتُنقص الديون');
+      r = await J('GET', '/api/stats', SN); ok(r.s === 403, 'الممرضة لا تصل للإحصائيات');
+      r = await J('GET', '/api/stats'); ok(r.s === 401, 'بلا دخول: مرفوض');
+      const SD2 = (await J('POST', '/api/register', null, { clinicName: 'عيادة أخرى', doctorName: 'د. هدى', username: 'stats2', password: 'password9' })).j.token;
+      { const q = (await J('POST', '/api/patients', SD2, pat('وحيد'))).j; await J('POST', `/api/patients/${q.id}/enter`, SD2); await J('POST', `/api/patients/${q.id}/finish`, SD2, { treatment: 'قلع', teeth: ['11'], price: 700, paid: 0 }); }
+      r = await J('GET', '/api/stats?tz=0', SD2); ok(r.s === 200 && r.j.summary.visits === 1 && r.j.debt.total === 700 && r.j.patients.unique === 1, 'عزل: عيادة أخرى ترى أرقامها فقط');
+      r = await J('GET', '/api/stats?tz=0', SD); ok(r.j.summary.visits === 4 && r.j.debt.total === 1000, 'عزل: إحصائيات العيادة الأولى لم تتأثر');
+      r = await J('GET', '/api/stats?from=zzz&to=%00&tz=abc', SD); ok(r.s === 200, 'مدخلات تواريخ فاسدة لا تُسقط الخادم'); }
 
     console.log('الملفات الثابتة والأمان');
     for (const f of ['/', '/app.js', '/qr.js', '/style.css', '/sw.js', '/manifest.webmanifest', '/icons/icon-192.png', '/t/abc123abc123abc123abc123']) { const x = await fetch(base + f); ok(x.status === 200, 'GET ' + f); }

@@ -150,6 +150,7 @@
     <button type="button" class="tab-btn" data-act="docTab" data-tab="addPatientDoc" data-i18n="tab_add">تسجيل ➕</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="nurses" data-i18n="tab_nurses">الممرضات 👩‍⚕️</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="archive" data-i18n="tab_archive">الأرشيف 📁</button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="stats" data-i18n="tab_stats">الإحصائيات 📊</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="settingsDoc" data-i18n="tab_settings">الإعدادات ⚙️</button>
   </div>
 
@@ -210,6 +211,28 @@
     <div style="font-size:13px;color:var(--primary-sage);font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between"><span data-i18n="match_results">النتائج المطابقة:</span><span id="archiveResultCount" style="color:var(--warning-warm)">0</span><span id="archiveSum" style="margin-inline-start:14px;color:var(--orange)"></span></div>
     <ul id="archiveList" class="patient-list"></ul>
     <div class="more-row"><button type="button" class="btn-action" id="archiveMore" data-act="archiveMore" style="display:none" data-i18n="load_more">عرض المزيد</button></div>
+  </div>
+
+  <div id="statsTab" class="tab-content">
+    <h4 style="margin-bottom:15px;font-size:15px" data-i18n="st_title">الإحصائيات المفصّلة 📊</h4>
+    <div class="st-filter">
+      <div class="st-ranges">
+        <button type="button" class="btn-action" data-act="statsRange" data-r="today" data-i18n="st_today">اليوم</button>
+        <button type="button" class="btn-action" data-act="statsRange" data-r="7" data-i18n="st_7d">7 أيام</button>
+        <button type="button" class="btn-action st-on" data-act="statsRange" data-r="30" data-i18n="st_30d">30 يوماً</button>
+        <button type="button" class="btn-action" data-act="statsRange" data-r="month" data-i18n="st_month">هذا الشهر</button>
+        <button type="button" class="btn-action" data-act="statsRange" data-r="year" data-i18n="st_year">هذه السنة</button>
+        <button type="button" class="btn-action" data-act="statsRange" data-r="all" data-i18n="st_all">الكل</button>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <label style="flex:1;min-width:130px;font-size:12px;color:var(--text-secondary)"><span data-i18n="from_l">من</span>
+          <input type="date" id="sFrom" data-input="stats" style="width:100%"></label>
+        <label style="flex:1;min-width:130px;font-size:12px;color:var(--text-secondary)"><span data-i18n="to_l">إلى</span>
+          <input type="date" id="sTo" data-input="stats" style="width:100%"></label>
+        <button type="button" class="btn-action" data-act="statsExport" data-i18n="st_export">تصدير CSV ⬇️</button>
+      </div>
+    </div>
+    <div id="statsBody"></div>
   </div>
 
   <div id="settingsDocTab" class="tab-content"><div class="settings-container-box"></div></div>
@@ -280,16 +303,37 @@
   </div>
 
   <div class="settings-card doc-only">
-    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_clinic">بيانات العيادة</h5>
+    <h5 style="margin-bottom:8px;color:var(--primary-sage)" data-i18n="set_manage">إدارة العيادة</h5>
+    <button type="button" class="settings-link" data-act="openSet" data-m="set_clinicModal"><span class="sl-ic">🏥</span><span class="sl-tx" data-i18n="set_clinic"></span><span class="sl-ar">‹</span></button>
+    <button type="button" class="settings-link" data-act="openSet" data-m="set_scheduleModal"><span class="sl-ic">🕒</span><span class="sl-tx" data-i18n="set_schedule"></span><span class="sl-ar">‹</span></button>
+    <button type="button" class="settings-link" data-act="openSet" data-m="set_pricesModal"><span class="sl-ic">💰</span><span class="sl-tx" data-i18n="set_prices"></span><span class="sl-ar">‹</span></button>
+    <button type="button" class="settings-link" data-act="openSet" data-m="set_passModal"><span class="sl-ic">🔑</span><span class="sl-tx" data-i18n="chg_pass"></span><span class="sl-ar">‹</span></button>
+    <button type="button" class="settings-link" data-act="openSet" data-m="set_backupModal"><span class="sl-ic">💾</span><span class="sl-tx" data-i18n="set_backup"></span><span class="sl-ar">‹</span></button>
+  </div>
+</template>
+
+<!-- سجل المريض الكامل -->
+<div id="historyModal" class="modal-overlay">
+  <div class="modal-card settings-modal history-card">
+    <div class="modal-head"><h4 data-i18n="hist_title">📋 سجل المريض</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
+    <div id="historyBody"></div>
+  </div>
+</div>
+<!-- نافذة إعدادات: clinic -->
+<div id="set_clinicModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="set_clinic">بيانات العيادة</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="clinicInfo">
       <div class="form-group"><label data-i18n="clinic_name">اسم العيادة:</label><input type="text" class="setClinicName" maxlength="80" required></div>
       <div class="form-group"><label data-i18n="doc_name">اسم الطبيب:</label><input type="text" class="setDoctorName" maxlength="80" required></div>
       <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
     </form>
   </div>
-
-  <div class="settings-card doc-only">
-    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_schedule">تسجيل الممرضة للمرضى</h5>
+</div>
+<!-- نافذة إعدادات: schedule -->
+<div id="set_scheduleModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="set_schedule">تسجيل الممرضة للمرضى</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="schedule">
       <div class="settings-item"><div><strong data-i18n="sched_enable">تقييد وقت التسجيل</strong><div class="hint" data-i18n="sched_enable_sub">عند الإيقاف تسجّل الممرضة في أي وقت</div></div>
         <label class="toggle-switch"><input type="checkbox" class="schedEnabled"><span class="slider"></span></label></div>
@@ -301,9 +345,11 @@
       <div class="hint" data-i18n="sched_hint">خارج هذه الأيام والأوقات لا تستطيع الممرضة تسجيل مرضى جدد، أما أنت فتسجّل في أي وقت.</div>
     </form>
   </div>
-
-  <div class="settings-card doc-only">
-    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_prices">💰 قائمة الأسعار</h5>
+</div>
+<!-- نافذة إعدادات: prices -->
+<div id="set_pricesModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="set_prices">💰 قائمة الأسعار</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="prices">
       <div class="hint" style="margin-bottom:6px" data-i18n="prices_hint">سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.</div>
       <div class="hint" style="margin-bottom:10px" data-i18n="tr_hint">أضف علاجاتك أو عدّل أسماءها وأسعارها أو احذفها. تظهر هذه القائمة في واجهة المعاينة.</div>
@@ -313,9 +359,11 @@
       <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
     </form>
   </div>
-
-  <div class="settings-card doc-only">
-    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="chg_pass">تغيير كلمة المرور</h5>
+</div>
+<!-- نافذة إعدادات: pass -->
+<div id="set_passModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="chg_pass">تغيير كلمة المرور</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="changePass">
       <input type="password" class="oldPass" autocomplete="current-password" required data-i18n-ph="old_pass">
       <input type="password" class="newPass" autocomplete="new-password" minlength="8" required data-i18n-ph="new_pass">
@@ -323,9 +371,11 @@
       <div class="hint" data-i18n="chg_pass_hint">ستُغلق جلسات باقي الأجهزة.</div>
     </form>
   </div>
-
-  <div class="settings-card doc-only">
-    <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_backup">النسخ الاحتياطي</h5>
+</div>
+<!-- نافذة إعدادات: backup -->
+<div id="set_backupModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="set_backup">النسخ الاحتياطي</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <div style="display:flex;gap:10px;margin-top:10px">
       <button type="button" class="btn-action btn-green" style="flex:1;padding:12px" data-act="exportData" data-i18n="export_data">تصدير نسخة 📥</button>
       <button type="button" class="btn-action btn-yellow" style="flex:1;padding:12px" data-act="importData" data-i18n="import_data">استعادة 📤</button>
@@ -334,11 +384,12 @@
     <button type="button" style="background:transparent;border:none;color:var(--danger-soft);font-size:12px;margin-top:15px;width:100%;text-decoration:underline" data-act="wipeData" data-i18n="wipe_data">حذف جميع بيانات المرضى…</button>
     <button type="button" style="background:transparent;border:none;color:var(--danger-soft);font-size:12px;margin-top:8px;width:100%;text-decoration:underline" data-act="deleteAccount" data-i18n="delete_account">حذف الحساب نهائياً…</button>
   </div>
-</template>
+</div>
 
 <div class="print-slip" id="printSlip"></div>
 
 <script src="qr.js"></script>
 <script src="app.js"></script>
+<script src="stats.js"></script>
 </body>
 </html>
