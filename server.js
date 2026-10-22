@@ -17,6 +17,7 @@ const SESSION_MS = 30 * 864e5, TICKET_DONE_MS = 24 * 36e5;
 const THIS_YEAR = () => new Date().getFullYear();
 
 fs.mkdirSync(path.join(DATA_DIR, 'img'), { recursive: true });
+const webpush = require('./push').create({ dataDir: DATA_DIR, subject: process.env.VAPID_SUBJECT || (/^https:/.test(PUBLIC_URL) ? PUBLIC_URL : 'mailto:admin@example.com'), extraHosts: (process.env.PUSH_EXTRA_HOSTS || '').split(',') });
 
 /* ---------- قاعدة البيانات (ملف JSON بكتابة ذرّية) ---------- */
 const DB_FILE = path.join(DATA_DIR, 'db.json');
@@ -95,8 +96,17 @@ const cleanTeeth = a => [...new Set((Array.isArray(a) ? a : []).map(String).filt
 const TREAT_KEYS = ['قلع', 'علاج عصب', 'استشارة', 'جلسة تركيب', 'تبييض أسنان', 'أخرى'];
 const num = (v, max = 1e9) => { if (v === '' || v == null) return null; const n = Math.round(Number(v) * 100) / 100; return Number.isFinite(n) && n >= 0 && n <= max ? n : null; };
 const PRICE_CATS = ['base', 'front', 'pre', 'molar'];   // عام / أمامية (قواطع وأنياب) / ضواحك / أضراس
-const normList = l => { const out = {}; for (const k of TREAT_KEYS) { const v = l && l[k]; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
-const pricesOf = c => c.prices ? { currency: c.prices.currency || '', list: normList(c.prices.list) } : { currency: '', list: {} };
+const treatsOf = c => (c.prices && Array.isArray(c.prices.treatments) && c.prices.treatments.length) ? c.prices.treatments : TREAT_KEYS;
+const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
+const pricesOf = c => { const tr = treatsOf(c); return { currency: (c.prices && c.prices.currency) || '', list: normList(c.prices && c.prices.list, tr), treatments: tr }; };
+/* أسماء العلاجات: 1–30 اسماً فريداً (بلا حساسية لحالة الأحرف)، كل اسم حتى 40 حرفاً */
+function normTreatments(a) {
+  if (!Array.isArray(a)) throw httpErr(400, 'invalid_input');
+  const out = [], seen = new Set();
+  for (const v of a) { const n = str(v, 60).replace(/\s+/g, ' '); if (!n || n.length > 40 || n === '__proto__') throw httpErr(400, 'invalid_input'); const k = n.toLowerCase(); if (seen.has(k)) throw httpErr(400, 'duplicate'); seen.add(k); out.push(n); }
+  if (!out.length || out.length > 30) throw httpErr(400, 'invalid_input');
+  return out;
+}
 /* حساب المريض: المستحق/المدفوع. سجل قديم بلا مدفوع يُعدّ مسدَّداً */
 const patKey = r => String(r.name).trim().toLowerCase() + '|' + r.birthYear;
 const dueOf = a => a.price || 0, paidOf = a => a.paid == null ? dueOf(a) : a.paid, remOf = a => Math.max(0, Math.round((dueOf(a) - paidOf(a)) * 100) / 100);
@@ -162,8 +172,24 @@ function ticketView(c, token) {
 const ticketStreams = new Map();   // token -> Set<res>
 const streamTickets = new Map();   // تذكرة اتصال لمرة واحدة
 function sse(res, event, data) { res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`); }
+/* إشعارات النظام (Web Push): تصل حتى لو كان التطبيق مغلقاً أو الشاشة مقفلة */
+const PUSH_TXT = {
+  ar: { add: ['🔔 مريض جديد في الانتظار', n => `تمت إضافة: ${n.name}`], enter: ['🩺 دخول مريض للمعاينة', n => `تم إدخال المريض: ${n.name}`], skip_request: ['⚠️ تنبيه تخطي الدور!', n => `الممرضة تحاول إدخال ${n.name} وقبله ${n.first || ''} في القائمة. هل تسمح؟`], finish: ['✅ انتهت المعاينة!', n => `انتهى الطبيب من ${n.name}. يمكنك إدخال المريض التالي.`], skip_denied: ['⛔ رفض الطبيب التخطي', n => `رفض الطبيب إدخال ${n.name} قبل دوره.`] },
+  en: { add: ['🔔 New patient waiting', n => `Added: ${n.name}`], enter: ['🩺 Patient entering', n => `Patient sent in: ${n.name}`], skip_request: ['⚠️ Queue skip request!', n => `The nurse wants to send in ${n.name} before ${n.first || ''}. Allow?`], finish: ['✅ Consultation finished!', n => `The doctor finished with ${n.name}. You can send in the next patient.`], skip_denied: ['⛔ Skip declined', n => `The doctor declined to see ${n.name} before their turn.`] }
+};
+function pushNotify(c, notify) {
+  const d = notify.data; if (!d) return;
+  for (const [k, s] of Object.entries(db.sessions)) {
+    if (s.clinicId !== c.id || !s.push || s.exp < now() || k === notify.exclude || (notify.to && s.role !== notify.to)) continue;
+    const tx = (PUSH_TXT[s.push.lang] || PUSH_TXT.ar)[d.type]; if (!tx) continue;
+    const urgent = d.type === 'skip_request' || d.type === 'add';
+    webpush.send(s.push.sub, { title: tx[0], body: tx[1](d), tag: 'cc-' + d.type + (d.pid ? '-' + d.pid : ''), urgent, type: d.type }, { urgency: 'high', ttl: urgent ? 1800 : 900 })
+      .then(r => { if (r === 'gone' && db.sessions[k] && db.sessions[k].push && db.sessions[k].push.sub === s.push.sub) { delete db.sessions[k].push; save(); } });
+  }
+}
 function broadcast(c, notify, extraTokens) {
   const r = RT(c), st = stateFor(c);
+  if (notify) pushNotify(c, notify);
   for (const s of r.streams) {
     try { sse(s.res, 'state', st); if (notify && (!notify.to || notify.to === s.role)) sse(s.res, 'notify', notify.data); } catch (e) {}
   }
@@ -301,6 +327,17 @@ async function api(req, res, url) {
   /* ---- ما بعد هذا يتطلب تسجيل دخول ---- */
   if (m === 'POST' && p === '/api/logout') { const a = authOf(req); delete db.sessions[a.key]; closeStreamsOf(a.key); save(); return send(res, 200, { ok: true }); }
   if (m === 'GET' && p === '/api/state') { const a = authOf(req); return send(res, 200, { me: meOf(a), ...stateFor(a.clinic) }); }
+  /* اشتراك الجهاز في إشعارات النظام (Web Push) — مرتبط بجلسة الدخول، ويُحذف عند الخروج */
+  if (m === 'GET' && p === '/api/push/key') { authOf(req); return send(res, 200, { key: webpush.publicKey }); }
+  if (m === 'POST' && p === '/api/push/subscribe') {
+    const a = authOf(req); rate('push:' + a.key, 30, 36e5);
+    const b = await readJSON(req, 10e3), sub = webpush.validSub(b.subscription);
+    if (!sub) throw httpErr(400, 'invalid_input');
+    for (const s of Object.values(db.sessions)) if (s.push && s.push.sub.endpoint === sub.endpoint) delete s.push;   // الجهاز نفسه لا يستلم مرتين
+    db.sessions[a.key].push = { sub, lang: b.lang === 'en' ? 'en' : 'ar' }; save();
+    return send(res, 200, { ok: true });
+  }
+  if (m === 'DELETE' && p === '/api/push/subscribe') { const a = authOf(req); delete db.sessions[a.key].push; save(); return send(res, 200, { ok: true }); }
   if (m === 'POST' && p === '/api/stream-ticket') {
     const a = authOf(req), t = b64u(18); streamTickets.set(t, { key: a.key, exp: now() + 3e4 });
     return send(res, 200, { ticket: t });
@@ -326,7 +363,7 @@ async function api(req, res, url) {
     if (c.patients.length >= 500) throw httpErr(429, 'limit');
     const pt = { id: rid(6), ticket: b64u(18), ticketNo: nextTicketNo(c), ...v, images: [], status: 'waiting', createdAt: now(), startedAt: null, createdBy: a.role };
     c.patients.push(pt); idx.ticket.set(pt.ticket, c.id);
-    broadcast(c, { to: 'doctor', data: { type: 'add', name: pt.name } });
+    broadcast(c, { to: 'doctor', exclude: a.key, data: { type: 'add', name: pt.name } });
     return send(res, 201, patientView(pt));
   }
   mt = p.match(/^\/api\/patients\/([a-f0-9]{12})(?:\/(enter|skip|finish|images))?(?:\/([a-f0-9]{16}))?$/);
@@ -350,17 +387,17 @@ async function api(req, res, url) {
       const first = waiting(c)[0];
       if (a.role === 'nurse' && first !== pt) {
         RT(c).skip.set(pid, { ts: now(), name: pt.name, firstName: first.name });
-        broadcast(c, { to: 'doctor', data: { type: 'skip_request', name: pt.name } });
+        broadcast(c, { to: 'doctor', exclude: a.key, data: { type: 'skip_request', name: pt.name, first: first.name, pid } });
         return send(res, 202, { skipRequested: true });
       }
-      enterRoom(c, pt); broadcast(c, { to: 'doctor', data: { type: 'enter', name: pt.name } }); return send(res, 200, patientView(pt));
+      enterRoom(c, pt); broadcast(c, { to: 'doctor', exclude: a.key, data: { type: 'enter', name: pt.name } }); return send(res, 200, patientView(pt));
     }
     if (act === 'skip' && m === 'POST') {
       const a = authOf(req, ['doctor']), c = a.clinic, pt = findPatient(c, pid), b = await readJSON(req);
       if (b.allow) {
         if (pt.status !== 'waiting') throw httpErr(409, 'not_waiting'); if (inRoom(c)) throw httpErr(409, 'busy');
-        enterRoom(c, pt); broadcast(c, { to: 'doctor', data: { type: 'enter', name: pt.name } });
-      } else { RT(c).skip.delete(pid); broadcast(c, { to: 'nurse', data: { type: 'skip_denied', name: pt.name } }); }
+        enterRoom(c, pt); broadcast(c, { to: 'doctor', exclude: a.key, data: { type: 'enter', name: pt.name } });
+      } else { RT(c).skip.delete(pid); broadcast(c, { to: 'nurse', exclude: a.key, data: { type: 'skip_denied', name: pt.name } }); }
       return send(res, 200, { ok: true });
     }
     if (act === 'finish' && m === 'POST') {
@@ -373,7 +410,7 @@ async function api(req, res, url) {
         entry.paid = cur; entry.payments = cur > 0 ? [{ t, amt: cur }] : [];
         if (pay > 0) { const k = patKey(pt); for (let i = c.archive.length - 1; i >= 0 && pay > 0; i--) { const o = c.archive[i]; if (patKey(o) !== k) continue; const rem = remOf(o); if (rem <= 0) continue; const x = Math.min(rem, pay); o.paid = r2(paidOf(o) + x); (o.payments = o.payments || []).push({ t, amt: x }); pay = r2(pay - x); } } }
       c.patients = c.patients.filter(z => z !== pt); c.archive.unshift(entry);
-      broadcast(c, { to: 'nurse', data: { type: 'finish', name: pt.name } }, [pt.ticket]);
+      broadcast(c, { to: 'nurse', exclude: a.key, data: { type: 'finish', name: pt.name } }, [pt.ticket]);
       return send(res, 200, archiveView(entry));
     }
     if (act === 'images' && !imgId && m === 'POST') {
@@ -400,9 +437,9 @@ async function api(req, res, url) {
 
   /* قائمة الأسعار (طبيب فقط) */
   if (p === '/api/prices' && m === 'PUT') {
-    const a = authOf(req, ['doctor']), b = await readJSON(req), list = {};
-    Object.assign(list, normList(b.list));
-    a.clinic.prices = { currency: str(b.currency, 10), list }; save(); return send(res, 200, a.clinic.prices);
+    const a = authOf(req, ['doctor']), b = await readJSON(req);
+    const treatments = b.treatments === undefined ? treatsOf(a.clinic) : normTreatments(b.treatments);
+    a.clinic.prices = { currency: str(b.currency, 10), list: normList(b.list, treatments), treatments }; save(); return send(res, 200, pricesOf(a.clinic));
   }
 
   /* حساب مريض: المستحق والمدفوع والمتبقي (طبيب فقط) */

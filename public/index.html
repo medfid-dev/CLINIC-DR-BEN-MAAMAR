@@ -270,13 +270,13 @@
       <label class="toggle-switch"><input type="checkbox" class="soundToggle" data-change="sound"><span class="slider"></span></label></div>
     <div class="settings-item"><div><strong data-i18n="auto_qr">إظهار QR بعد تسجيل المريض</strong></div>
       <label class="toggle-switch"><input type="checkbox" class="autoQrToggle" data-change="autoQr"><span class="slider"></span></label></div>
-    <div class="settings-item"><div><strong data-i18n="sys_notif">إشعارات النظام</strong><div class="hint" data-i18n="sys_notif_sub">تظهر عندما يكون التطبيق مفتوحاً في الخلفية</div></div>
+    <div class="settings-item"><div><strong data-i18n="sys_notif">إشعارات النظام</strong><div class="hint" data-i18n="sys_notif_sub">تصلك التنبيهات حتى لو كان التطبيق مغلقاً أو الشاشة مقفلة</div><div class="hint" id="pushStatus" style="font-weight:600"></div></div>
       <button type="button" class="btn-action" data-act="askNotif" data-i18n="enable">تفعيل</button></div>
   </div>
 
   <div class="settings-card install-card">
-    <div class="settings-item"><div><strong data-i18n="install_app">تثبيت التطبيق</strong><div class="hint" data-i18n="install_sub">يُفتح كتطبيق مستقل على الجوال أو الحاسوب</div></div>
-      <button type="button" class="btn-action" data-act="installApp" data-i18n="install">تثبيت</button></div>
+    <div class="settings-item"><div><strong data-i18n="install_app">تثبيت التطبيق</strong><div class="hint" data-i18n="install_sub">يُفتح كتطبيق مستقل على الجوال أو الحاسوب</div><div class="hint installStatus" style="font-weight:600"></div></div>
+      <button type="button" class="btn-action installBtn" data-act="installApp" data-i18n="install">تثبيت</button></div>
   </div>
 
   <div class="settings-card doc-only">
@@ -305,8 +305,10 @@
   <div class="settings-card doc-only">
     <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_prices">💰 قائمة الأسعار</h5>
     <form data-form="prices">
-      <div class="hint" style="margin-bottom:10px" data-i18n="prices_hint">سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.</div>
+      <div class="hint" style="margin-bottom:6px" data-i18n="prices_hint">سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.</div>
+      <div class="hint" style="margin-bottom:10px" data-i18n="tr_hint">أضف علاجاتك أو عدّل أسماءها وأسعارها أو احذفها. تظهر هذه القائمة في واجهة المعاينة.</div>
       <div class="priceRows"></div>
+      <button type="button" class="btn-action btn-green" style="margin-top:6px" data-act="addTreat" data-i18n="tr_add">＋ إضافة علاج</button>
       <div class="form-group" style="margin-top:10px"><label data-i18n="currency_l">العملة (اختياري):</label><input type="text" class="priceCur" maxlength="10" placeholder="دج / ر.س / $"></div>
       <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
     </form>

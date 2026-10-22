@@ -21,7 +21,7 @@ const L = {
     all_genders: 'جميع الأجناس', male: 'ذكر', female: 'أنثى', all_treat: 'جميع العلاجات', today: 'اليوم', yesterday: 'أمس', this_week: 'هذا الأسبوع', from_l: 'من', to_l: 'إلى', clear_day: 'مسح ✖', tr_ext: 'قلع', tr_endo: 'علاج عصب', tr_cons: 'استشارة', tr_pros: 'تركيب', tr_white: 'تبييض', tr_other: 'أخرى',
     match_results: 'النتائج المطابقة:', load_more: 'عرض المزيد', waiting_rem: '👥 المرضى المتبقون في الانتظار:', today_patients: 'قائمة مرضى اليوم',
     settings_title: 'إعدادات التطبيق ⚙️', set_appearance: 'المظهر والألوان', dark_mode: 'الوضع الداكن', theme_color: 'لون العيادة', set_lang: 'اللغة', app_lang: 'لغة التطبيق',
-    set_sound: 'التنبيهات', sound_alerts: 'التنبيهات الصوتية', auto_qr: 'إظهار QR بعد تسجيل المريض', sys_notif: 'إشعارات النظام', sys_notif_sub: 'تظهر عندما يكون التطبيق مفتوحاً في الخلفية', enable: 'تفعيل',
+    set_sound: 'التنبيهات', sound_alerts: 'التنبيهات الصوتية', auto_qr: 'إظهار QR بعد تسجيل المريض', sys_notif: 'إشعارات النظام', sys_notif_sub: 'تصلك التنبيهات حتى لو كان التطبيق مغلقاً أو الشاشة مقفلة', enable: 'تفعيل',
     install_app: 'تثبيت التطبيق', install_sub: 'يُفتح كتطبيق مستقل على الجوال أو الحاسوب', install: 'تثبيت', set_clinic: 'بيانات العيادة', chg_pass: 'تغيير كلمة المرور',
     old_pass: 'كلمة المرور الحالية', new_pass: 'كلمة المرور الجديدة (8 أحرف فأكثر)', change: 'تغيير', chg_pass_hint: 'ستُغلق جلسات باقي الأجهزة.', set_backup: 'النسخ الاحتياطي', set_schedule: 'تسجيل الممرضة للمرضى', sched_enable: 'تقييد وقت التسجيل', sched_enable_sub: 'عند الإيقاف تسجّل الممرضة في أي وقت', sched_days: 'الأيام المسموحة:', sched_from: 'من الساعة:', sched_to: 'إلى الساعة:', sched_hint: 'خارج هذه الأيام والأوقات لا تستطيع الممرضة تسجيل مرضى جدد، أما أنت فتسجّل في أي وقت.', days_full: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'], reg_closed: '⏰ التسجيل مغلق حالياً. أوقات التسجيل: {d} من {a} إلى {b}', e_registration_closed: 'التسجيل مغلق خارج الأوقات التي حدّدها الطبيب', t_sched_saved: 'تم حفظ أوقات التسجيل',
     export_data: 'تصدير نسخة 📥', import_data: 'استعادة 📤', backup_hint: 'النسخة تشمل المرضى والأرشيف والصور (دون كلمات المرور).', wipe_data: 'حذف جميع بيانات المرضى…', delete_account: 'حذف الحساب نهائياً…',
@@ -41,7 +41,7 @@ const L = {
     t_deleted: 'تم الحذف.', t_finished: 'تم إنهاء المعاينة وحفظ الملف في الأرشيف! ✅', t_nurse_added: 'تمت إضافة الممرضة بنجاح 👩‍⚕️', t_copied: 'تم النسخ ✅', t_img_ok: 'تمت إضافة الصور 📷', t_img_fail: 'تعذّر تحميل بعض الصور',
     c_del_patient: 'هل تأكدت من حذف هذا المريض؟', c_del_nurse: 'هل أنت متأكد من حذف حساب هذه الممرضة؟', c_del_arch: 'حذف هذا السجل نهائياً من الأرشيف؟', c_restore: 'سيتم استبدال بيانات المرضى والأرشيف الحالية بالنسخة الاحتياطية. المتابعة؟',
     c_wipe: 'سيتم حذف كل المرضى والأرشيف والصور نهائياً. اكتب كلمة مرور الطبيب للتأكيد:', c_delacc: 'سيتم حذف حسابك وكل بياناته نهائياً ولا يمكن التراجع. اكتب كلمة مرور الطبيب للتأكيد:', restored: 'تمت الاستعادة: {p} مريض في الانتظار، {a} سجل أرشيف',
-    cam_not_ready: 'الكاميرا غير جاهزة بعد', pass_mismatch: 'كلمتا المرور غير متطابقتين', bad_year: 'تحقق من اسم المريض وسنة الازدياد (1900 – {y})', notif_on: 'تم تفعيل الإشعارات', notif_denied: 'الإشعارات محظورة من إعدادات المتصفح',
+    cam_not_ready: 'الكاميرا غير جاهزة بعد', pass_mismatch: 'كلمتا المرور غير متطابقتين', bad_year: 'تحقق من اسم المريض وسنة الازدياد (1900 – {y})', notif_on: 'تم تفعيل الإشعارات', notif_denied: 'الإشعارات محظورة من إعدادات المتصفح', push_on: '✅ مفعّلة على هذا الجهاز', push_off: '⚠️ غير مفعّلة — اضغط «تفعيل» لتصلك التنبيهات والتطبيق مغلق', push_blocked: '⛔ محظورة — فعّلها من إعدادات الموقع في المتصفح/النظام', push_ios: 'ℹ️ على آيفون: أضف التطبيق إلى الشاشة الرئيسية (مشاركة ← إضافة إلى الشاشة الرئيسية) ثم افتحه وفعّل التنبيهات', push_unsupported: 'ℹ️ هذا المتصفح لا يدعم إشعارات النظام', push_fail: 'تعذّر تفعيل الإشعارات، حاول مجدداً', install_done: '✅ التطبيق مثبّت ويعمل كتطبيق مستقل', install_ready: 'اضغط «تثبيت» ليُضاف إلى شاشتك الرئيسية ويفتح كتطبيق مستقل', install_ios: 'على آيفون/آيباد: اضغط زر المشاركة في سفاري ثم «إضافة إلى الشاشة الرئيسية»', install_manual: 'من قائمة المتصفح ⋮ اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». (يتطلب اتصال HTTPS)', tr_add: '＋ إضافة علاج', tr_name_ph: 'اسم العلاج', tr_hint: 'أضف علاجاتك أو عدّل أسماءها وأسعارها أو احذفها. تظهر هذه القائمة في واجهة المعاينة. السجلات القديمة في الأرشيف لا تتغيّر.', tr_last: 'يجب أن يبقى علاج واحد على الأقل', e_duplicate: 'اسم علاج مكرر', tr_empty_name: 'اكتب اسماً لكل علاج', tr_up: 'أعلى', tr_down: 'أسفل', tr_del: 'حذف',
     qr_title: 'تذكرة {n} — {name}', slip_title: 'تابع دورك من هاتفك', slip_sub: 'امسح الرمز لمعرفة عدد المنتظرين قبلك. لا تظهر لك بيانات أي مريض آخر.',
     e_bad_credentials: 'بيانات الدخول غير صحيحة', e_rate_limited: 'محاولات كثيرة، أعد المحاولة بعد قليل', e_exists: 'الاسم مستخدم مسبقاً', e_invalid_input: 'تحقق من البيانات المدخلة', e_forbidden: 'غير مسموح لك بهذا الإجراء',
     e_unauthorized: 'انتهت الجلسة، سجّل الدخول من جديد', e_reg_closed: 'التسجيل مغلق على هذا الخادم', e_bad_code: 'رمز التسجيل غير صحيح', e_busy: 'الطبيب مشغول حالياً بمعاينة مريض آخر.', e_not_found: 'العنصر غير موجود (ربما حُذف)',
@@ -65,7 +65,7 @@ const L = {
     all_genders: 'All genders', male: 'Male', female: 'Female', all_treat: 'All treatments', today: 'Today', yesterday: 'Yesterday', this_week: 'This week', from_l: 'From', to_l: 'To', clear_day: 'Clear ✖', tr_ext: 'Extraction', tr_endo: 'Root canal', tr_cons: 'Consultation', tr_pros: 'Prosthetics', tr_white: 'Whitening', tr_other: 'Other',
     match_results: 'Matching records:', load_more: 'Load more', waiting_rem: '👥 Patients waiting:', today_patients: "Today's patients",
     settings_title: 'App settings ⚙️', set_appearance: 'Appearance', dark_mode: 'Dark mode', theme_color: 'Theme color', set_lang: 'Language', app_lang: 'Interface language',
-    set_sound: 'Notifications', sound_alerts: 'Sound alerts', auto_qr: 'Show QR after registering a patient', sys_notif: 'System notifications', sys_notif_sub: 'Shown when the app is open in the background', enable: 'Enable',
+    set_sound: 'Notifications', sound_alerts: 'Sound alerts', auto_qr: 'Show QR after registering a patient', sys_notif: 'System notifications', sys_notif_sub: 'Alerts reach you even when the app is closed or the screen is locked', enable: 'Enable',
     install_app: 'Install app', install_sub: 'Opens as a standalone app on phone or computer', install: 'Install', set_clinic: 'Clinic info', chg_pass: 'Change password',
     old_pass: 'Current password', new_pass: 'New password (8+ chars)', change: 'Change', chg_pass_hint: 'Other devices will be signed out.', set_backup: 'Backup', set_schedule: 'Nurse patient registration', sched_enable: 'Restrict registration times', sched_enable_sub: 'When off, nurses can register at any time', sched_days: 'Allowed days:', sched_from: 'From:', sched_to: 'To:', sched_hint: 'Outside these days and times nurses cannot register new patients. You can always register.', days_full: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], reg_closed: '⏰ Registration is closed right now. Hours: {d}, {a} to {b}', e_registration_closed: 'Registration is closed outside the hours set by the doctor', t_sched_saved: 'Registration hours saved',
     export_data: 'Export backup 📥', import_data: 'Restore 📤', backup_hint: 'Includes patients, archive and images (not passwords).', wipe_data: 'Delete all patient data…', delete_account: 'Delete account permanently…',
@@ -83,7 +83,7 @@ const L = {
     t_deleted: 'Deleted.', t_finished: 'Consultation finished and archived! ✅', t_nurse_added: 'Nurse added 👩‍⚕️', t_copied: 'Copied ✅', t_img_ok: 'Images added 📷', t_img_fail: 'Some images could not be uploaded',
     c_del_patient: 'Delete this patient?', c_del_nurse: "Delete this nurse's account?", c_del_arch: 'Permanently delete this archive record?', c_restore: 'Current patients and archive will be replaced by the backup. Continue?',
     c_wipe: 'All patients, archive and images will be permanently deleted. Enter the doctor password to confirm:', c_delacc: 'Your account and all its data will be permanently deleted. Enter the doctor password to confirm:', restored: 'Restored: {p} waiting, {a} archive records',
-    cam_not_ready: 'Camera not ready yet', pass_mismatch: 'Passwords do not match', bad_year: 'Check patient name and birth year (1900 – {y})', notif_on: 'Notifications enabled', notif_denied: 'Notifications are blocked in browser settings',
+    cam_not_ready: 'Camera not ready yet', pass_mismatch: 'Passwords do not match', bad_year: 'Check patient name and birth year (1900 – {y})', notif_on: 'Notifications enabled', notif_denied: 'Notifications are blocked in browser settings', push_on: '✅ Enabled on this device', push_off: '⚠️ Not enabled — tap “Enable” to receive alerts while the app is closed', push_blocked: '⛔ Blocked — allow notifications in the site/system settings', push_ios: 'ℹ️ On iPhone: add the app to the Home Screen (Share → Add to Home Screen), open it, then enable alerts', push_unsupported: 'ℹ️ This browser does not support system notifications', push_fail: 'Could not enable notifications, please retry', install_done: '✅ The app is installed and runs standalone', install_ready: 'Tap “Install” to add it to your home screen and open it as a standalone app', install_ios: 'On iPhone/iPad: tap Share in Safari, then “Add to Home Screen”', install_manual: 'From the browser menu ⋮ choose “Install app” or “Add to Home screen”. (Requires HTTPS)', tr_add: '＋ Add treatment', tr_name_ph: 'Treatment name', tr_hint: 'Add your treatments, or edit their names and prices, or delete them. This list appears in the consultation screen. Existing archive records are not changed.', tr_last: 'At least one treatment must remain', e_duplicate: 'Duplicate treatment name', tr_empty_name: 'Enter a name for every treatment', tr_up: 'Up', tr_down: 'Down', tr_del: 'Delete',
     qr_title: 'Ticket {n} — {name}', slip_title: 'Follow your turn on your phone', slip_sub: "Scan the code to see how many people are ahead of you. You can't see any other patient's data.",
     e_bad_credentials: 'Incorrect login details', e_rate_limited: 'Too many attempts, try again shortly', e_exists: 'Name already in use', e_invalid_input: 'Please check the entered data', e_forbidden: 'You are not allowed to do this',
     e_unauthorized: 'Session expired, please sign in again', e_reg_closed: 'Registration is closed on this server', e_bad_code: 'Wrong registration code', e_busy: 'The doctor is busy with another patient.', e_not_found: 'Item not found (maybe deleted)',
@@ -95,6 +95,7 @@ const REASONS = [
   ['تركيب وجسور', 'Crowns & bridges'], ['تبييض وتنظيف', 'Whitening & scaling'], ['إجراء طبي آخر', 'Other procedure']
 ];
 const REASON_TREAT = { 'قلع أسنان': 'قلع', 'علاج عصب (قناة الجذر)': 'علاج عصب', 'استشارة وطوارئ': 'استشارة', 'تركيب وجسور': 'جلسة تركيب', 'تبييض وتنظيف': 'تبييض أسنان', 'إجراء طبي آخر': 'أخرى' };
+const TREAT_I18N = { 'قلع': 't_ext', 'علاج عصب': 't_endo', 'استشارة': 't_cons', 'جلسة تركيب': 't_pros', 'تبييض أسنان': 't_white', 'أخرى': 't_other' };
 const TREATS = [['قلع', 't_ext'], ['علاج عصب', 't_endo'], ['استشارة', 't_cons'], ['جلسة تركيب', 't_pros'], ['تبييض أسنان', 't_white'], ['أخرى', 't_other']];
 
 /* ===================== الحالة ===================== */
@@ -138,7 +139,7 @@ function visualAlert(title, text, ok) {
   clearTimeout(alertTimer); alertTimer = setTimeout(() => { c.innerHTML = ''; }, 7000);
 }
 function sysNotify(title, body) {
-  if (!('Notification' in window) || Notification.permission !== 'granted' || !document.hidden) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted' || !document.hidden || S.pushOk) return;
   const o = { body, icon: 'icons/icon-192.png', tag: 'calm-clinic', dir: 'auto' };
   if (navigator.serviceWorker && navigator.serviceWorker.getRegistration)
     navigator.serviceWorker.getRegistration().then(r => r ? r.showNotification(title, o) : new Notification(title, o)).catch(() => {});
@@ -197,9 +198,10 @@ async function boot() {
     setHero();
     showScreen('nurseScreen'); nurseTab('patientsNurse');
   }
-  connect(); renderAll(); requestNotifOnce();
+  connect(); renderAll(); requestNotifOnce(); pushSync();
 }
 async function logout() {
+  await pushOff();
   try { await api('POST', '/api/logout'); } catch (e) {}
   forceLogout(true);
 }
@@ -227,8 +229,9 @@ async function connect() {
   es.onerror = () => { es.close(); if (S.es === es) S.es = null; setOnline(false); retryConnect(); };
 }
 function retryConnect() { if (!S.token) return; S.retry = Math.min(S.retry + 1, 8); setTimeout(() => { if (S.token && !S.es) connect(); }, Math.min(15000, 1000 * S.retry)); }
-document.addEventListener('visibilitychange', () => { if (!document.hidden && S.token && !S.es) { S.retry = 0; connect(); } });
-window.addEventListener('online', () => { if (S.token && !S.es) connect(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.token) { if (!S.es) { S.retry = 0; connect(); } refresh(); pushSync(); } });
+window.addEventListener('focus', () => { if (S.token) refresh(); });
+window.addEventListener('online', () => { if (S.token) { if (!S.es) connect(); refresh(); } });
 async function refresh() { try { applyState(await api('GET', '/api/state')); renderAll(); } catch (e) {} }
 
 let lastOwnAdd = 0;
@@ -279,6 +282,7 @@ function renderConsultation() {
   if (area.dataset.sig === sig) return;
   const samePid = area.dataset.pid === (a ? a.id : ''), notes = samePid && $('#consultNotes') ? $('#consultNotes').value : '';
   if (!samePid) { S.treatment = (a && REASON_TREAT[a.reason]) || 'أخرى'; if (a) teethInit(a); moneyReset(); }
+  if (!treatList().includes(S.treatment)) S.treatment = treatList().includes('أخرى') ? 'أخرى' : treatList()[0];
   if (!a) { area.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);background:var(--surface-card);border-radius:16px">${t('empty_room')}</div>`; }
   else {
     const imgs = a.images.length ? a.images.map(id => `<div class="thumb-box"><img data-rec="${a.id}" data-img="${id}" data-act="lightbox" alt=""><button type="button" class="del-img" data-act="delImage" data-id="${a.id}" data-img="${id}">✕</button></div>`).join('') : `<span style="font-size:12px;color:var(--text-muted)">${t('no_images')}</span>`;
@@ -293,7 +297,7 @@ function renderConsultation() {
         <div style="display:flex;gap:10px;margin-top:12px"><button type="button" class="btn-action btn-green" style="flex:1" data-act="openCamera" data-id="${a.id}">${t('cam_live')}</button><button type="button" class="btn-action btn-yellow" style="flex:1" data-act="pickFile" data-id="${a.id}">${t('upload_gal')}</button></div></div>
       ${teethHTML()}
       <label style="font-size:13px;font-weight:600;color:var(--text-secondary)">${t('pick_treat')}</label>
-      <div class="treatment-grid">${TREATS.map(([v, k]) => `<div class="treatment-item ${v === S.treatment ? 'selected' : ''}" data-act="treat" data-v="${esc(v)}">${t(k)}</div>`).join('')}</div>
+      <div class="treatment-grid">${treatList().map(v => `<div class="treatment-item ${v === S.treatment ? 'selected' : ''}" data-act="treat" data-v="${esc(v)}">${esc(treatLabel(v))}</div>`).join('')}</div>
       ${moneyHTML()}
       <textarea id="consultNotes" maxlength="2000" placeholder="${esc(t('notes_ph'))}" style="height:80px;margin-bottom:15px"></textarea>
       <button type="button" class="btn-primary btn-green" data-act="finish" data-id="${a.id}" style="padding:16px;font-size:16px">${t('finish')}</button></div>`;
@@ -305,6 +309,13 @@ function renderConsultation() {
 }
 /* ===== الأسعار والحساب المالي ===== */
 const CATS = ['base', 'front', 'pre', 'molar'];
+/* قائمة العلاجات يعدّلها الطبيب من الإعدادات؛ الافتراضية تُترجَم، والمخصّصة تُعرض بأسمائها */
+const treatList = () => (S.me && S.me.prices && S.me.prices.treatments && S.me.prices.treatments.length) ? S.me.prices.treatments : TREATS.map(x => x[0]);
+const treatLabel = v => TREAT_I18N[v] ? t(TREAT_I18N[v]) : v;
+function fillTreatFilter() {
+  const sel = $('#aTreat'); if (!sel || !S.me || S.me.role !== 'doctor') return; const v = sel.value;
+  sel.innerHTML = `<option value="" data-i18n="all_treat">${esc(t('all_treat'))}</option>` + treatList().map(k => `<option value="${esc(k)}">${esc(treatLabel(k))}</option>`).join(''); sel.value = treatList().includes(v) ? v : '';
+}
 const cur = () => (S.me && S.me.prices && S.me.prices.currency) || '';
 const money = v => v == null ? '' : Number(v).toLocaleString(settings.lang === 'en' ? 'en-US' : 'ar-u-nu-latn') + (cur() ? ' ' + cur() : '');
 const toothCat = n => { n = +n; const d = n % 10, q = Math.floor(n / 10); return d <= 3 ? 'front' : (q >= 5 ? 'molar' : d <= 5 ? 'pre' : 'molar'); };
@@ -316,12 +327,21 @@ function priceFor(tr, teeth) {
   const parts = teeth.slice().sort().map(n => { const c = toothCat(n); return { n, c, v: e[c] != null ? e[c] : (e.base || 0) }; });
   return { total: Math.round(parts.reduce((x, y) => x + y.v, 0) * 100) / 100, parts };
 }
+function treatRowHTML(v, vals) {
+  const o = vals || {};
+  return `<div class="treat-row" ${v ? `data-orig="${esc(v)}"` : ''}><div class="treat-head"><input type="text" class="treat-name" maxlength="40" placeholder="${esc(t('tr_name_ph'))}" value="${esc(v ? treatLabel(v) : '')}">
+    <button type="button" class="btn-action" data-act="moveTreat" data-d="-1" title="${esc(t('tr_up'))}" aria-label="${esc(t('tr_up'))}">▲</button><button type="button" class="btn-action" data-act="moveTreat" data-d="1" title="${esc(t('tr_down'))}" aria-label="${esc(t('tr_down'))}">▼</button><button type="button" class="btn-action btn-red" data-act="delTreat" title="${esc(t('tr_del'))}" aria-label="${esc(t('tr_del'))}">✕</button></div>
+    <div class="price-grid">${CATS.map(c => `<label><span>${t('price_cat_' + c)}</span><input type="number" min="0" step="any" inputmode="decimal" data-cat="${c}" value="${o[c] != null ? o[c] : ''}" placeholder="0"></label>`).join('')}</div></div>`;
+}
 function renderPriceForm() {
-  const f = $('#settingsDocTab form[data-form=prices]'); if (!f || !S.me || S.me.role !== 'doctor' || f.contains(document.activeElement)) return;
+  const f = $('#settingsDocTab form[data-form=prices]'); if (!f || !S.me || S.me.role !== 'doctor') return;
+  fillTreatFilter();
+  if (f.contains(document.activeElement) || f.dataset.dirty) return;   // لا نمحو تعديلات لم تُحفظ
   const L2 = S.me.prices.list;
-  $('.priceRows', f).innerHTML = TREATS.map(([v, k]) => `<div style="margin-bottom:12px"><div style="font-size:14px;font-weight:600;margin-bottom:5px">${t(k)}</div><div class="price-grid">${CATS.map(c => `<label><span>${t('price_cat_' + c)}</span><input type="number" min="0" step="any" inputmode="decimal" data-treat="${esc(v)}" data-cat="${c}" value="${L2[v] && L2[v][c] != null ? L2[v][c] : ''}" placeholder="0"></label>`).join('')}</div></div>`).join('') + `<div class="hint" style="margin-bottom:6px">${t('prices_hint2')}</div>`;
+  $('.priceRows', f).innerHTML = treatList().map(v => treatRowHTML(v, L2[v])).join('') + `<div class="hint" style="margin-bottom:6px">${t('prices_hint2')}</div>`;
   $('.priceCur', f).value = cur();
 }
+document.addEventListener('input', ev => { const f = ev.target.closest && ev.target.closest('form[data-form=prices]'); if (f) f.dataset.dirty = '1'; });
 /* حالة المال في المعاينة */
 const prevBal = () => (S.account && S.account.balance) || 0;
 function moneyReset() { S.price = ''; S.paid = ''; S.priceDirty = false; S.paidDirty = false; S.followUp = false; S.account = null; }
@@ -547,11 +567,13 @@ function syncSchedule() {
   $('.schedDays', form).innerHTML = t('days_full').map((n, i) => `<label style="display:flex;align-items:center;gap:6px;font-size:13px;background:var(--surface-sunk);padding:6px 12px;border-radius:999px"><input type="checkbox" value="${i}" style="width:auto" ${s.days.includes(i) ? 'checked' : ''}>${esc(n)}</label>`).join('');
 }
 function docTab(tab) {
+  if (window.showHero) showHero();
   $$('#doctorScreen .tab-content').forEach(s => s.classList.remove('active')); $$('#doctorScreen .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   $('#' + tab + 'Tab').classList.add('active');
   if (tab === 'archive') loadArchive(true); if (tab === 'nurses') loadNurses();
 }
 function nurseTab(tab) {
+  if (window.showHero) showHero();
   $$('#nurseScreen .tab-content').forEach(s => s.classList.remove('active')); $$('#nurseScreen .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   $('#' + tab + 'Tab').classList.add('active');
 }
@@ -593,13 +615,54 @@ function applySettings() {
     const c = $('#consultationArea'); c.dataset.sig = ''; renderAll(); if (S.me.role === 'doctor') { renderArchive(); renderNurses(); }
   } else { $('#nurseHeaderTitle').textContent = t('nurse_title'); }
   const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = getComputedStyle(document.body).getPropertyValue('--bar').trim() || '#2E2A6E';
-  jset('cc_settings', settings);
+  jset('cc_settings', settings); updatePushStatus(); updateInstallUI(); if (S.token && settings.lang !== S.pushLang) { S.pushLang = settings.lang; pushSync(); }
 }
-function requestNotifOnce() { if ('Notification' in window && Notification.permission === 'default' && !localStorage.getItem('cc_asked')) { localStorage.setItem('cc_asked', '1'); setTimeout(() => Notification.requestPermission(), 1500); } }
-async function askNotif() {
+/* ===== إشعارات النظام (Web Push) ===== */
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+function pushState() {
+  if (!pushSupported()) return IS_IOS ? 'ios' : 'unsupported';
+  return Notification.permission === 'denied' ? 'blocked' : (Notification.permission === 'granted' && S.pushOk ? 'on' : 'off');
+}
+/* ===== تثبيت التطبيق ===== */
+const isStandalone = () => S.installed || window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: window-controls-overlay)').matches || navigator.standalone === true;
+function updateInstallUI() {
+  const done = isStandalone(), msg = done ? 'install_done' : S.installEvt ? 'install_ready' : IS_IOS ? 'install_ios' : 'install_manual';
+  $$('.installStatus').forEach(el => { el.textContent = t(msg); });
+  $$('.installBtn').forEach(b => { b.disabled = done; b.classList.toggle('btn-disabled', done); });
+}
+function updatePushStatus() { const el = $('#pushStatus'); if (el) { const k = pushState(); el.textContent = t('push_' + k); el.dataset.state = k; } }
+const keyBytes = b64 => Uint8Array.from(atob(b64.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+/* يسجّل اشتراك هذا الجهاز لدى الخادم (آمن للاستدعاء مراراً: يجدّد الاشتراك عند الحاجة) */
+async function pushSync(force) {
+  if (!S.token || !pushSupported() || Notification.permission !== 'granted') { S.pushOk = false; return updatePushStatus(); }
+  if (S.pushBusy) return; S.pushBusy = true;
+  try {
+    const reg = await navigator.serviceWorker.ready, key = (await api('GET', '/api/push/key')).key;
+    let sub = await reg.pushManager.getSubscription();
+    if (sub && sub.options && sub.options.applicationServerKey && btoa(String.fromCharCode(...new Uint8Array(sub.options.applicationServerKey))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') !== key) { await sub.unsubscribe(); sub = null; }
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(key) });
+    const sig = S.token.slice(-8) + settings.lang + sub.endpoint;
+    if (force || S.pushSig !== sig) { await api('POST', '/api/push/subscribe', { subscription: sub.toJSON(), lang: settings.lang }); S.pushSig = sig; }
+    S.pushOk = true;
+  } catch (e) { S.pushOk = false; S.pushSig = ''; }
+  S.pushBusy = false; updatePushStatus();
+}
+async function pushOff() {
+  try { if (S.token) await api('DELETE', '/api/push/subscribe'); const r = await navigator.serviceWorker.getRegistration(); const s = r && await r.pushManager.getSubscription(); if (s) await s.unsubscribe(); } catch (e) {}
+  S.pushOk = false; S.pushSig = '';
+}
+function requestNotifOnce() {
   if (!('Notification' in window)) return;
-  const r = await Notification.requestPermission(); toast(r === 'granted' ? t('notif_on') : t('notif_denied'), r === 'granted' ? 'success' : 'warning');
+  if (Notification.permission === 'default' && !localStorage.getItem('cc_asked')) { localStorage.setItem('cc_asked', '1'); setTimeout(() => Notification.requestPermission().then(() => pushSync(true)), 1500); }
+  else if (Notification.permission !== 'granted') setTimeout(() => { if (S.token && pushState() !== 'on') toast(t('push_' + pushState()), 'warning'); }, 2500);
 }
+async function askNotif() {
+  if (!('Notification' in window)) return toast(t('push_unsupported'), 'warning');
+  const r = await Notification.requestPermission(); await pushSync(true);
+  if (r === 'granted' && pushState() !== 'on') toast(t('push_fail'), 'warning'); else toast(r === 'granted' ? t('notif_on') : t('notif_denied'), r === 'granted' ? 'success' : 'warning');
+}
+if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', ev => { const d = ev.data || {}; if (d.type === 'push' || d.type === 'push-open') { if (S.token) refresh(); } });
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }
 
 /* ===================== الأفعال (تفويض الأحداث) ===================== */
@@ -630,7 +693,7 @@ const ACT = {
   followUp(el) {
     S.followUp = el.checked; S.priceDirty = false; S.paidDirty = false;
     const r = el.checked && S.account && S.account.records.find(x => x.remaining > 0) || null;
-    if (r) { if (TREATS.some(x => x[0] === r.treatment)) S.treatment = r.treatment; S.teeth = new Set(r.teeth || []); }
+    if (r) { if (treatList().includes(r.treatment)) S.treatment = r.treatment; S.teeth = new Set(r.teeth || []); }
     const c = $('#consultationArea'); c.dataset.sig = ''; renderAll();
   },
   payQuick(el) { const due = +S.price || 0, v = el.dataset.v; S.paid = v === 'all' ? String(Math.round((due + prevBal()) * 100) / 100) : v === 'half' ? String(Math.round(due * 50) / 100) : '0'; S.paidDirty = true; recalc(); },
@@ -656,8 +719,15 @@ const ACT = {
     else if (r === 'week') { const w = new Date(now); w.setDate(w.getDate() - w.getDay()); a = iso(w); b = iso(now); }  // الأسبوع يبدأ الأحد
     $('#aFrom').value = a; $('#aTo').value = b; loadArchive(true);
   },
+  addTreat(el) { const f = el.closest('form'); const row = document.createElement('div'); row.innerHTML = treatRowHTML('', null); const n = row.firstElementChild; $('.priceRows', f).insertBefore(n, $('.priceRows .hint', f)); f.dataset.dirty = '1'; $('.treat-name', n).focus(); n.scrollIntoView({ block: 'center' }); },
+  delTreat(el) { const f = el.closest('form'); if ($$('.treat-row', f).length <= 1) return toast(t('tr_last'), 'warning'); el.closest('.treat-row').remove(); f.dataset.dirty = '1'; },
+  moveTreat(el) { const row = el.closest('.treat-row'), f = el.closest('form'), d = +el.dataset.d, sib = d < 0 ? row.previousElementSibling : row.nextElementSibling; if (!sib || !sib.classList.contains('treat-row')) return; if (d < 0) sib.before(row); else sib.after(row); f.dataset.dirty = '1'; },
   setTheme: el => { settings.theme = el.dataset.theme; applySettings(); }, askNotif,
-  installApp: async () => { if (!S.installEvt) return; S.installEvt.prompt(); S.installEvt = null; document.body.classList.remove('can-install'); },
+  installApp: async () => {
+    if (isStandalone()) return;
+    if (!S.installEvt) { toast(t(IS_IOS ? 'install_ios' : 'install_manual'), 'info'); return; }
+    const e = S.installEvt; S.installEvt = null; e.prompt(); try { await e.userChoice; } catch (x) {} updateInstallUI();
+  },
   async exportData() { const b = await run(() => api('GET', '/api/backup', undefined, { blob: true })); if (b) download(b, `clinic_backup_${new Date().toISOString().slice(0, 10)}.json`); },
   importData() {
     const i = document.createElement('input'); i.type = 'file'; i.accept = '.json,application/json';
@@ -716,9 +786,17 @@ document.addEventListener('submit', async e => {
     const r = await run(() => api('PUT', '/api/clinic', { clinicName: $('.setClinicName', f).value, doctorName: $('.setDoctorName', f).value }));
     if (r) { S.me = { ...S.me, ...r }; applySettings(); toast(t('t_saved'), 'success'); }
   } else if (kind === 'prices') {
-    const list = {}; $$('input[data-treat]', f).forEach(i => { if (i.value !== '') (list[i.dataset.treat] = list[i.dataset.treat] || {})[i.dataset.cat] = i.value; });
-    const r = await run(() => api('PUT', '/api/prices', { currency: $('.priceCur', f).value, list }));
-    if (r) { S.me.prices = r; toast(t('t_prices_saved'), 'success'); recalc(); renderPriceForm(); const c = $('#consultationArea'); if (c) c.dataset.sig = ''; renderAll(); }
+    const treatments = [], list = {}, seen = new Set();
+    for (const row of $$('.treat-row', f)) {
+      const name = $('.treat-name', row).value.trim().replace(/\s+/g, ' '), orig = row.dataset.orig;
+      if (!name) { toast(t('tr_empty_name'), 'danger'); return; }
+      const key = orig && name === treatLabel(orig) ? orig : name;   // الاسم الافتراضي غير المعدَّل يحتفظ بمفتاحه الأصلي
+      if (seen.has(key.toLowerCase())) { toast(t('e_duplicate'), 'danger'); return; } seen.add(key.toLowerCase());
+      treatments.push(key); $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
+    }
+    if (!treatments.length) { toast(t('tr_last'), 'danger'); return; }
+    const r = await run(() => api('PUT', '/api/prices', { currency: $('.priceCur', f).value, list, treatments }));
+    if (r) { S.me.prices = r; delete f.dataset.dirty; toast(t('t_prices_saved'), 'success'); if (!treatList().includes(S.treatment)) S.treatment = treatList()[0]; renderPriceForm(); recalc(); const c = $('#consultationArea'); if (c) c.dataset.sig = ''; renderAll(); }
   } else if (kind === 'schedule') {
     const days = $$('.schedDays input:checked', f).map(x => +x.value), enabled = $('.schedEnabled', f).checked;
     if (enabled && !days.length) { toast(t('e_invalid_input'), 'danger'); return; }
@@ -732,8 +810,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal
 document.addEventListener('click', e => { if (e.target.classList && e.target.classList.contains('modal-overlay') && e.target.id !== 'skipQueueModal') closeModals(); });
 
 /* ===================== التثبيت وبدء التشغيل ===================== */
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; document.body.classList.add('can-install'); });
-window.addEventListener('appinstalled', () => document.body.classList.remove('can-install'));
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; updateInstallUI(); });
+window.addEventListener('appinstalled', () => { S.installEvt = null; S.installed = true; updateInstallUI(); });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 
 (async function init() {
@@ -746,4 +824,28 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window
     if (!S.config.hasClinics && !S.token) authMode('register');
   } catch (e) { if (!S.token) $('#authErr').textContent = errMsg(e); }
   await boot();
+})();
+
+/* ===== ترويسة ذكية (جوال): إخفاء عند التمرير لأسفل، وإظهار عند التمرير لأعلى أو عند أعلى الصفحة ===== */
+(function smartHeader() {
+  const mq = window.matchMedia('(max-width:700px)');
+  ['doctorScreen', 'nurseScreen'].forEach(id => {
+    const sc = document.getElementById(id), hero = sc && sc.querySelector('.hero'); if (!hero) return;
+    let last = 0, acc = 0, tick = false;
+    const show = () => hero.classList.remove('hide');
+    sc.addEventListener('scroll', () => {
+      if (tick) return; tick = true;
+      requestAnimationFrame(() => {
+        tick = false; const y = sc.scrollTop, d = y - last; last = y;
+        if (!mq.matches || y < 0) return show();           // مطاطية iOS أو شاشة كبيرة
+        if (y <= 24) { acc = 0; return show(); }
+        if (sc.scrollHeight - sc.clientHeight < 160) return show();   // محتوى قصير: لا داعي للإخفاء
+        if ((d > 0) !== (acc > 0)) acc = 0; acc += d;       // تجميع الاتجاه لتجاهل الاهتزازات الصغيرة
+        if (acc > 12 && y > 80) hero.classList.add('hide'); else if (acc < -8) show();
+      });
+    }, { passive: true });
+    mq.addEventListener && mq.addEventListener('change', show);
+    new MutationObserver(show).observe(sc, { attributes: true, attributeFilter: ['class'] });   // عند فتح/إغلاق الشاشة
+  });
+  window.showHero = () => document.querySelectorAll('#doctorScreen>.hero,#nurseScreen>.hero').forEach(h => h.classList.remove('hide'));
 })();

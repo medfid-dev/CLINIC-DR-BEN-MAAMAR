@@ -117,7 +117,7 @@ body:not(.light-mode) .treatment-item.selected{background:var(--primary-sage);co
 .settings-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-calm)}
 .settings-item:last-child{border-bottom:0}
 .theme-color-btn{width:30px;height:30px;border-radius:50%;border:2px solid var(--surface-card);box-shadow:0 0 0 1px var(--border-calm)}
-.install-card{display:none}body.can-install .install-card{display:block}
+
 .toggle-switch{position:relative;display:inline-block;width:48px;height:26px;flex:none}
 .toggle-switch input{opacity:0;width:0;height:0;padding:0}
 .slider{position:absolute;inset:0;cursor:pointer;background:var(--border-calm);border-radius:34px;transition:.25s}
@@ -166,7 +166,7 @@ body[data-role=nurse] .doc-only{display:none}
   .print-slip .qr{width:260px;margin:12px auto;line-height:0}.print-slip .qr svg{width:100%}
   .print-slip p{font-size:14px;margin:6px 0}
 }
-.install-card{display:none}body.can-install .install-card{display:block}
+
 
 .suggest-box{position:absolute;inset-inline:0;top:100%;z-index:30;margin:2px 0 0;padding:4px;list-style:none;background:var(--surface-card);border:1px solid var(--border-calm);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:240px;overflow:auto}
 .suggest-box[hidden]{display:none}
@@ -254,3 +254,14 @@ body[data-role=nurse] .doc-only{display:none}
 .money-quick button{border:1px solid var(--border-calm);background:var(--surface-card);color:var(--text-primary);padding:6px 12px;border-radius:999px;font-size:12px;cursor:pointer}
 .money-sum{font-size:14px}
 @media(max-width:520px){.money-row label{min-width:70px}}
+
+.treat-row{margin-bottom:14px;padding:10px;border:1px solid var(--border-calm);border-radius:14px;background:var(--surface-sunk)}
+.treat-head{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.treat-head .treat-name{flex:1;min-width:0;font-weight:600}
+.treat-head .btn-action{padding:8px 10px;flex:none}
+
+/* ترويسة ذكية على الجوال: تختفي عند التمرير لأسفل وتظهر عند التمرير لأعلى */
+@media(max-width:700px){
+#doctorScreen>.hero.hero,#nurseScreen>.hero.hero{transition:transform .25s ease,box-shadow .25s ease;will-change:transform}
+#doctorScreen>.hero.hero.hide,#nurseScreen>.hero.hero.hide{transform:translateY(-105%);box-shadow:none}
+}

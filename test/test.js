@@ -3,7 +3,20 @@
 const { spawn } = require('child_process'), fs = require('fs'), os = require('os'), path = require('path'), assert = require('assert');
 const port = 4100 + Math.floor(Math.random() * 500), base = `http://127.0.0.1:${port}`;
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-'));
-const srv = spawn(process.execPath, [path.join(__dirname, '..', 'server.js')], { env: { ...process.env, PORT: port, DATA_DIR: dir }, stdio: 'inherit' });
+const pushPort = port + 1000, pushes = [];   // خادم دفع وهمي يلتقط الرسائل المشفّرة
+const mock = require('http').createServer((req, res) => { const ch = []; req.on('data', c => ch.push(c)); req.on('end', () => { pushes.push({ url: req.url, headers: req.headers, body: Buffer.concat(ch) }); res.writeHead(req.url.startsWith('/gone') ? 410 : 201); res.end(); }); }).listen(pushPort, '127.0.0.1');
+const srv = spawn(process.execPath, [path.join(__dirname, '..', 'server.js')], { env: { ...process.env, PORT: port, DATA_DIR: dir, PUSH_EXTRA_HOSTS: `127.0.0.1:${pushPort}` }, stdio: 'inherit' });
+const crypto = require('crypto');
+/* فكّ تشفير RFC 8291 كما يفعل المتصفح، للتحقق من صحة التنسيق */
+function decryptPush(body, ecdh, auth) {
+  const salt = body.subarray(0, 16), idlen = body[20], asPub = body.subarray(21, 21 + idlen), ct = body.subarray(21 + idlen), uaPub = ecdh.getPublicKey();
+  const hk = (ikm, s, info, n) => Buffer.from(crypto.hkdfSync('sha256', ikm, s, info, n));
+  const prk = hk(ecdh.computeSecret(asPub), auth, Buffer.concat([Buffer.from('WebPush: info\0'), uaPub, asPub]), 32);
+  const d = crypto.createDecipheriv('aes-128-gcm', hk(prk, salt, Buffer.from('Content-Encoding: aes128gcm\0'), 16), hk(prk, salt, Buffer.from('Content-Encoding: nonce\0'), 12));
+  d.setAuthTag(ct.subarray(ct.length - 16)); const pt = Buffer.concat([d.update(ct.subarray(0, ct.length - 16)), d.final()]);
+  return JSON.parse(pt.subarray(0, pt.lastIndexOf(2)).toString('utf8'));
+}
+const mkSub = path => { const e = crypto.createECDH('prime256v1'); e.generateKeys(); const auth = crypto.randomBytes(16); return { e, auth, sub: { endpoint: `http://127.0.0.1:${pushPort}${path}`, keys: { p256dh: e.getPublicKey().toString('base64url'), auth: auth.toString('base64url') } } }; };
 const J = async (m, p, tok, body, raw) => {
   const r = await fetch(base + p, { method: m, headers: { ...(tok ? { Authorization: 'Bearer ' + tok } : {}), ...(raw ? { 'Content-Type': 'image/jpeg' } : body ? { 'Content-Type': 'application/json' } : {}) }, body: raw || (body ? JSON.stringify(body) : undefined) });
   let j = null; try { j = await r.json(); } catch (e) {} return { s: r.status, j };
@@ -67,7 +80,7 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     const t2 = (await J('GET', '/api/state', A)).j.patients.find(x => x.id === p2.id).ticket;
     r = await J('GET', `/api/ticket/${t2}`); ok(r.s === 200 && r.j.state === 'waiting' && r.j.ahead === 0 && r.j.busy === true, 'تذكرة 2: لا أحد أمامه والطبيب مشغول');
     const t3 = p3.ticket; r = await J('GET', `/api/ticket/${t3}`); ok(r.j.ahead === 1, 'تذكرة 3: واحد أمامه');
-    const dump = JSON.stringify(r.j); ok(!dump.includes('مريض1') && !dump.includes('مريض2') && !dump.includes('0550000000') && !dump.includes('1990') && !dump.includes('16'), 'التذكرة لا تكشف اسم/هاتف/سن أي مريض آخر');
+    const dump = JSON.stringify({ ...r.j, updated: 0 }); ok(!dump.includes('مريض1') && !dump.includes('مريض2') && !dump.includes('0550000000') && !dump.includes('1990') && !dump.includes('16'), 'التذكرة لا تكشف اسم/هاتف/سن أي مريض آخر');
     ok(Object.keys(r.j).sort().join() === 'ahead,busy,clinic,estMin,firstName,state,ticketNo,updated', 'حقول التذكرة محصورة');
     r = await J('GET', '/api/ticket/AAAAAAAAAAAAAAAAAAAAAAAA'); ok(r.s === 404, 'رمز تذكرة مجهول 404');
     r = await J('GET', '/api/ticket/../state'); ok(r.s === 401 || r.s === 404, 'لا ثغرة مسار في التذكرة');
@@ -147,6 +160,63 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('POST', `/api/archive/${rec.id}/payment`, B, { amount: 10 }); ok(r.s === 409, 'لا دفعة على سجل مسدَّد');
       r = await J('GET', '/api/archive?name=' + encodeURIComponent('مريض مالي'), B); ok(r.j.sum === 5000 && r.j.paidSum === 5000 && r.j.debt === 0, 'إجماليات الأرشيف: مستحق/محصَّل/متبقٍ'); }
 
+    console.log('إدارة العلاجات والأسعار');
+    { const D = (await J('POST', '/api/register', null, { clinicName: 'عيادة علاج', doctorName: 'د. ع', username: 'treatdoc', password: 'password7' })).j.token;
+      r = await J('GET', '/api/state', D); ok(r.j.me.prices.treatments.length === 6 && r.j.me.prices.treatments[0] === 'قلع', 'القائمة الافتراضية 6 علاجات');
+      r = await J('PUT', '/api/prices', D, { currency: 'دج', treatments: ['قلع', 'تنظيف الجير', 'حشوة تجميلية'], list: { 'قلع': 1000, 'تنظيف الجير': { base: 2500 }, 'حشوة تجميلية': { front: 4000, molar: 6000 }, 'محذوف': 5 } });
+      ok(r.s === 200 && r.j.treatments.join('|') === 'قلع|تنظيف الجير|حشوة تجميلية' && r.j.list['تنظيف الجير'].base === 2500 && r.j.list['حشوة تجميلية'].molar === 6000 && !r.j.list['محذوف'], 'إضافة علاجات مخصّصة وحذف الباقي مع أسعارها');
+      r = await J('GET', '/api/state', D); ok(r.j.me.prices.treatments.length === 3 && r.j.me.prices.list['قلع'].base === 1000, 'التعديل يُحفظ ويُرجَع في الحالة');
+      r = await J('PUT', '/api/prices', D, { currency: 'دج', treatments: ['قلع', ' قلع '], list: {} }); ok(r.s === 400, 'رفض اسم مكرر');
+      r = await J('PUT', '/api/prices', D, { currency: 'دج', treatments: ['A', 'a'], list: {} }); ok(r.s === 400, 'رفض مكرر بلا حساسية للحالة');
+      r = await J('PUT', '/api/prices', D, { currency: 'دج', treatments: [], list: {} }); ok(r.s === 400, 'يجب بقاء علاج واحد على الأقل');
+      r = await J('PUT', '/api/prices', D, { currency: 'دج', treatments: ['x'.repeat(41)], list: {} }); ok(r.s === 400, 'رفض اسم أطول من 40');
+      r = await J('PUT', '/api/prices', D, { currency: 'دج', treatments: ['__proto__'], list: {} }); ok(r.s === 400, 'رفض اسم خطِر');
+      r = await J('PUT', '/api/prices', D, { currency: 'دج', treatments: Array.from({ length: 31 }, (_, i) => 'علاج' + i), list: {} }); ok(r.s === 400, 'حدّ 30 علاجاً');
+      r = await J('PUT', '/api/prices', D, { currency: '$', list: { 'قلع': 1200 } }); ok(r.s === 200 && r.j.treatments.length === 3 && r.j.list['قلع'].base === 1200, 'طلب بلا قائمة علاجات يُبقي القائمة الحالية');
+      const tp = (await J('POST', '/api/patients', D, pat('مريض علاج'))).j; await J('POST', `/api/patients/${tp.id}/enter`, D);
+      r = await J('POST', `/api/patients/${tp.id}/finish`, D, { treatment: 'حشوة تجميلية', price: 4000 }); ok(r.s === 200 && r.j.treatment === 'حشوة تجميلية', 'إنهاء المعاينة بعلاج مخصّص');
+      r = await J('GET', '/api/archive?treatment=' + encodeURIComponent('حشوة'), D); ok(r.j.items.length === 1, 'فلترة الأرشيف بالعلاج المخصّص'); }
+
+    console.log('إشعارات النظام (Web Push)');
+    { /* عيادة جديدة نظيفة لهذا القسم */
+      const A = (await J('POST', '/api/register', null, { clinicName: 'عيادة الدفع', doctorName: 'د. دفع', username: 'pushdoc', password: 'password9' })).j.token;
+      const pc = (await J('GET', '/api/state', A)).j.me.code; await J('POST', '/api/nurses', A, { name: 'ممرضة', phone: '1', password: 'nurse999' });
+      const N = (await J('POST', '/api/login/nurse', null, { code: pc, name: 'ممرضة', password: 'nurse999' })).j.token;
+      const pk = (await J('GET', '/api/push/key', A)).j.key; ok(Buffer.from(pk, 'base64url').length === 65, 'مفتاح VAPID العام (65 بايت)');
+      r = await J('GET', '/api/push/key'); ok(r.s === 401, 'المفتاح يتطلب تسجيل دخول');
+      r = await J('POST', '/api/push/subscribe', A, { subscription: { endpoint: 'https://evil.example.com/x', keys: { p256dh: mkSub('/x').sub.keys.p256dh, auth: mkSub('/x').sub.keys.auth } } }); ok(r.s === 400, 'رفض نقطة نهاية خارج خدمات الدفع المعروفة');
+      r = await J('POST', '/api/push/subscribe', A, { subscription: { endpoint: 'http://127.0.0.1:9/x', keys: mkSub('/x').sub.keys } }); ok(r.s === 400, 'رفض عنوان داخلي (SSRF)');
+      r = await J('POST', '/api/push/subscribe', A, { subscription: { endpoint: mkSub('/x').sub.endpoint, keys: { p256dh: 'AAAA', auth: 'AAAA' } } }); ok(r.s === 400, 'رفض مفاتيح غير صالحة');
+      const D = mkSub('/doctor'), NU = mkSub('/nurse');
+      r = await J('POST', '/api/push/subscribe', A, { subscription: D.sub, lang: 'ar' }); ok(r.s === 200, 'اشتراك الطبيب');
+      r = await J('POST', '/api/push/subscribe', N, { subscription: NU.sub, lang: 'en' }); ok(r.s === 200, 'اشتراك الممرضة');
+      const got = async (p, n = 1) => { for (let i = 0; i < 40; i++) { const f = pushes.filter(z => z.url === p); if (f.length >= n) return f; await wait(50); } return []; };
+      pushes.length = 0;
+      const np = (await J('POST', '/api/patients', N, pat('مريض الدفع'))).j;
+      let g = await got('/doctor'); ok(g.length === 1, 'الطبيب يستلم دفعاً عند تسجيل مريض');
+      const m1 = decryptPush(g[0].body, D.e, D.auth); ok(m1.title.includes('مريض جديد') && m1.body.includes('مريض الدفع') && m1.urgent === true, 'الحمولة تُفكّ وتحوي اسم المريض (تشفير صحيح)');
+      ok(g[0].headers.urgency === 'high' && g[0].headers['content-encoding'] === 'aes128gcm' && +g[0].headers.ttl > 0, 'أولوية عالية + aes128gcm + TTL');
+      { const [, t64] = /t=([^,]+)/.exec(g[0].headers.authorization), [h, b2, sg] = t64.split('.'), pub = Buffer.from(pk, 'base64url');
+        const key = crypto.createPublicKey({ key: { kty: 'EC', crv: 'P-256', x: pub.subarray(1, 33).toString('base64url'), y: pub.subarray(33).toString('base64url') }, format: 'jwk' });
+        ok(crypto.verify('sha256', Buffer.from(h + '.' + b2), { key, dsaEncoding: 'ieee-p1363' }, Buffer.from(sg, 'base64url')) && JSON.parse(Buffer.from(b2, 'base64url')).aud === `http://127.0.0.1:${pushPort}`, 'توقيع VAPID (ES256) صحيح'); }
+      await wait(200); ok(pushes.filter(z => z.url === '/nurse').length === 0, 'من قام بالفعل لا يستلم إشعاراً عن فعلته');
+      r = await J('POST', `/api/patients/${np.id}/enter`, N); ok(r.s === 200, 'الممرضة تُدخل المريض');
+      g = await got('/doctor', 2); ok(g.length === 2 && decryptPush(g[1].body, D.e, D.auth).type === 'enter', 'الطبيب يستلم دفعاً عند الدخول');
+      r = await J('POST', `/api/patients/${np.id}/finish`, A, { treatment: 'استشارة', price: 0 }); ok(r.s === 200, 'الطبيب ينهي المعاينة');
+      g = await got('/nurse'); ok(g.length === 1, 'الممرضة تستلم دفعاً عند انتهاء المعاينة'); const m2 = decryptPush(g[0].body, NU.e, NU.auth); ok(m2.title.includes('finished') && m2.body.includes('مريض الدفع'), 'نص الإشعار بلغة الممرضة (إنجليزي)');
+      await wait(200); ok(pushes.filter(z => z.url === '/doctor').length === 2, 'الطبيب لا يستلم إشعار إنهائه');
+      /* تخطي الدور */
+      const q1 = (await J('POST', '/api/patients', N, pat('أول'))).j, q2 = (await J('POST', '/api/patients', N, pat('ثاني'))).j; await got('/doctor', 3);
+      r = await J('POST', `/api/patients/${q2.id}/enter`, N); ok(r.s === 202, 'طلب تخطي'); g = await got('/doctor', 5);
+      const m3 = decryptPush(g[g.length - 1].body, D.e, D.auth); ok(m3.type === 'skip_request' && m3.urgent && m3.body.includes('أول') && m3.body.includes('ثاني'), 'طلب التخطي يصل دفعاً عاجلاً بالاسمين');
+      /* عزل العيادات */
+      const before = pushes.length; await J('POST', '/api/patients', B, pat('عيادة ب')); await wait(300); ok(pushes.length === before, 'عيادة أخرى لا تُرسل ولا تستقبل إشعارات عيادة أ');
+      /* حذف الاشتراك عند الخروج وعند 410 */
+      r = await J('DELETE', '/api/push/subscribe', N); ok(r.s === 200, 'حذف اشتراك الممرضة'); const nb = pushes.length;
+      await J('POST', `/api/patients/${q2.id}/skip`, A, { allow: false }); await wait(300); ok(pushes.length === nb, 'لا دفع بعد إلغاء الاشتراك');
+      const GN = mkSub('/gone'); await J('POST', '/api/push/subscribe', N, { subscription: GN.sub }); await J('POST', `/api/patients/${q2.id}/skip`, A, { allow: false }); await got('/gone'); await wait(200);
+      const gl = pushes.length; await J('POST', `/api/patients/${q2.id}/skip`, A, { allow: false }); await wait(300); ok(pushes.length === gl, 'اشتراك منتهٍ (410) يُحذف تلقائياً'); }
+
     console.log('الملفات الثابتة والأمان');
     for (const f of ['/', '/app.js', '/qr.js', '/style.css', '/sw.js', '/manifest.webmanifest', '/icons/icon-192.png', '/t/abc123abc123abc123abc123']) { const x = await fetch(base + f); ok(x.status === 200, 'GET ' + f); }
     let x = await fetch(base + '/..%2fserver.js'); ok(x.status !== 200, 'منع تجاوز المسار');
@@ -155,5 +225,5 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     ok((await fetch(base + '/')).headers.get('content-security-policy').includes("script-src 'self'"), 'سياسة CSP');
     console.log(`\nنجحت كل الاختبارات: ${pass}`);
   } catch (e) { console.error('\n✗ فشل:', e.message); process.exitCode = 1; }
-  srv.on('exit', () => fs.rmSync(dir, { recursive: true, force: true })); srv.kill();
+  srv.on('exit', () => fs.rmSync(dir, { recursive: true, force: true })); srv.kill(); mock.close();
 })();
