@@ -442,6 +442,9 @@ body[data-role=nurse] .doc-only{display:none}
   .rxp-d{font-size:14pt}.rxp-d span{font-size:12pt;color:#333}
   .rxp-p{font-size:12pt;margin-top:2px}
   .rxp-n{font-size:11pt;font-style:italic;color:#333}
+  .rxp-free{font-size:10.5pt;color:#333}
+  .rxp-head .rxp-logo{order:0}.rxp-head .rxp-hc{order:1}.rxp-head .rxp-date{order:3}.rxp-head.lp-end .rxp-logo{order:2}
+  .rxp-head.lp-top{display:grid;grid-template-columns:1fr auto}.rxp-head.lp-top .rxp-logo{grid-column:1/-1;justify-self:center;margin-bottom:6px}
   .rxp-sign{margin-top:46px;text-align:end;font-size:11pt;border-top:1px solid #000;width:55mm;margin-inline-start:auto;padding-top:4px;text-align:center}
 }
 
@@ -526,3 +529,17 @@ body[data-role=nurse] .doc-only{display:none}
 .rx-line.dragging{opacity:.4}
 .rx-line.drop-before{box-shadow:0 -3px 0 var(--primary-sage)}.rx-line.drop-after{box-shadow:0 3px 0 var(--primary-sage)}
 .rx-newline{margin-top:10px;border:1.5px dashed #aab;background:transparent;color:#667;border-radius:10px;padding:8px 14px;cursor:pointer;font:inherit;width:100%}.rx-newline:hover{border-color:var(--primary-sage);color:var(--primary-sage)}
+
+/* أسطر الترويسة: ترتيب/حذف/إضافة + مكان الشعار */
+.rx-ph .rx-logo{order:0}.rx-ph .rx-pcol{order:1}.rx-ph .rx-pd{order:3}.rx-ph.lp-end .rx-logo{order:2}
+.rx-ph.lp-top{display:grid;grid-template-columns:1fr auto}.rx-ph.lp-top .rx-logo{grid-column:1/-1;justify-self:center;margin-bottom:6px}
+.rx-prow{display:flex;align-items:center;gap:4px;border-radius:6px}
+.rx-prow>input,.rx-prow>.rx-pcontact{flex:1;min-width:0}
+.rx-paper .rx-pfree{font-size:13px;color:#333;border-bottom:1px dotted #bbc!important}
+.rx-rc{display:flex;gap:2px;flex:none;opacity:0;transition:.15s}.rx-prow:hover .rx-rc,.rx-prow:focus-within .rx-rc{opacity:1}
+.rx-rc button{width:22px;height:22px;padding:0;border:1px solid #ccd;border-radius:6px;background:#fff;color:#556;font-size:10px;line-height:1;cursor:pointer}
+.rx-rc button:hover:not(:disabled){border-color:var(--primary-sage);color:var(--primary-sage)}.rx-rc button:disabled{opacity:.3;cursor:default}
+.rx-rc button[data-act=rxRowDel]:hover{border-color:#c0392b;color:#c0392b}
+.rx-padd{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:4px}.rx-padd small{color:#778;font-size:11px}
+.rx-padd button{border:1px dashed #aab;border-radius:999px;background:transparent;color:#556;font-size:11px;padding:2px 9px;cursor:pointer}.rx-padd button:hover{border-color:var(--primary-sage);color:var(--primary-sage)}
+@media(hover:none){.rx-rc{opacity:1}}

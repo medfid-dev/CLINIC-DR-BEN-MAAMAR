@@ -265,6 +265,18 @@ function cleanTpl(b) {
   for (const [k, n] of [['clinic', 120], ['doctor', 120], ['spec', 120], ['phone', 60], ['address', 160]]) o[k] = b[k] == null ? null : str(b[k], n);
   o.logo = typeof b.logo === 'string' && b.logo.length <= 160000 && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(b.logo) ? b.logo : '';
   o.lang = ['ar', 'fr', 'en'].includes(b.lang) ? b.lang : 'ar';
+  o.logoPos = ['start', 'end', 'top'].includes(b.logoPos) ? b.logoPos : 'start';
+  // أسطر الترويسة: ترتيبها وما يظهر منها (null = الافتراضي). سطر النص الحر 'free' يحمل نصّه في t
+  o.rows = null;
+  if (Array.isArray(b.rows)) {
+    const seen = new Set(), rows = []; let free = 0;
+    for (const z of b.rows.slice(0, 16)) {
+      const k = z && z.k; if (!['clinic', 'doctor', 'spec', 'contact', 'phone', 'address', 'free'].includes(k) || rows.length >= 8) continue;
+      if (k === 'free') { if (free >= 4) continue; free++; rows.push({ k, t: str(z.t, 160) }); continue; }
+      if (seen.has(k)) continue; seen.add(k); rows.push({ k });
+    }
+    o.rows = seen.has('contact') ? rows.filter(r => r.k !== 'phone' && r.k !== 'address') : rows;   // contact يجمع الهاتف والعنوان فلا يتكرران
+  }
   return o;
 }
 const cleanDrug = z => { const r = Array.isArray(z) ? z : typeof z === 'string' ? [z] : (z && typeof z === 'object' ? [z.n || z.name, z.ar, z.b, z.f, z.c] : null); if (!r) return null; const n = str(r[0], 100); return n ? [n, str(r[1], 100), str(r[2], 400), str(r[3], 400), str(r[4], 80)] : null; };

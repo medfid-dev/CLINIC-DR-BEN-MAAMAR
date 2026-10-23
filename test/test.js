@@ -271,6 +271,10 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('PUT', '/api/rx/template', RD, { clinic: ' عيادة الأمل ', doctor: null, spec: 'جراحة الأسنان', phone: '0550 00 00 00', address: 'x'.repeat(400), logo: 'data:image/png;base64,iVBORw0KGgo=', lang: 'fr' });
       ok(r.s === 200 && r.j.clinic === 'عيادة الأمل' && r.j.doctor === null && r.j.phone === '0550 00 00 00' && r.j.address.length === 160 && r.j.lang === 'fr' && r.j.logo.startsWith('data:image/png'), 'قالب الوصفة: حفظ وتقليم');
       r = await J('PUT', '/api/rx/template', RD, { logo: 'data:text/html;base64,PHNjcmlwdD4=', lang: 'zz', clinic: 5 }); ok(r.j.logo === '' && r.j.lang === 'ar', 'قالب الوصفة: يرفض شعاراً غير صورة ولغة غير معروفة');
+      r = await J('PUT', '/api/rx/template', RD, { logoPos: 'end', rows: [{ k: 'doctor' }, { k: 'doctor' }, { k: 'x' }, { k: 'free', t: ' ' + 'y'.repeat(300) }, { k: 'contact' }, { k: 'phone' }, { k: 'clinic' }] });
+      ok(r.j.logoPos === 'end' && r.j.rows.map(z => z.k).join() === 'doctor,free,contact,clinic' && r.j.rows[1].t.length === 160, 'قالب الوصفة: أسطر الترويسة (ترتيب، تنقية المكرر والمجهول، تقليم النص الحر) ومكان الشعار');
+      r = await J('PUT', '/api/rx/template', RD, { logoPos: 'zz', rows: 'x' }); ok(r.j.logoPos === 'start' && r.j.rows === null, 'قالب الوصفة: مكان شعار غير معروف/أسطر غير صالحة ← الافتراضي');
+      r = await J('PUT', '/api/rx/template', RD, { rows: [] }); ok(Array.isArray(r.j.rows) && r.j.rows.length === 0, 'قالب الوصفة: يمكن حذف كل أسطر الترويسة');
       r = await J('PUT', '/api/rx/template', RD, { clinic: 'عيادة الأمل', lang: 'en' }); r = await J('GET', '/api/rx', RD2); ok(r.j.template === null, 'عزل: قالب عيادة أخرى لم يتأثر');
       r = await J('PUT', '/api/rx/drugs', RD, { drugs: [['Foo', 'فو', 'Foobar, Foox', 'cp 10 mg; sirop', 'تجريبي'], { n: 'Bar', b: 'Barx', f: 'gél 5 mg' }, 'Baz', { name: '' }, 7, ['']] });
       ok(r.s === 200 && r.j.count === 3, 'استيراد أدوية: يُقبل الصالح فقط (3)');

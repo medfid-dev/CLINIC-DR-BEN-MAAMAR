@@ -8,7 +8,7 @@ Object.assign(L.ar, {
   rx_list: 'أدوية هذه الوصفة', rx_empty: 'لا أدوية في الوصفة بعد.', rx_no_results: 'لا نتيجة في القاعدة — يمكنك إضافة الاسم كدواء مخصّص:', rx_custom: '＋ إضافة «{q}» كدواء مخصّص', rx_add: 'إضافة',
   rx_dose: 'الجرعة', rx_freq: 'التكرار', rx_dur: 'المدة', rx_note: 'ملاحظة (اختياري)', rx_print: 'طباعة الوصفة 🖨️', rx_clear: 'مسح الوصفة', rx_clear_c: 'مسح كل أدوية هذه الوصفة؟',
   rx_added: 'أُضيف إلى الوصفة', rx_dup: 'هذا الدواء موجود في الوصفة مسبقاً', rx_fav_saved: 'حُفظ في السلة ⭐', rx_fav_removed: 'أُزيل من السلة', rx_del_basket: 'إزالة هذا الدواء من السلة؟', rx_to_basket: 'حفظ في السلة', rx_in_basket: 'في السلة', rx_up: 'أعلى', rx_down: 'أسفل', rx_del: 'حذف من الوصفة',
-  rx_db: '{a} دواء مدمج + {b} مستورد', rx_rec: '💊 الوصفة ({n})', rx_reprint: 'طباعة', rx_open: 'فتح الوصفة', rxs_open: '＋ إضافة دواء إلى السلة', rxs_close: 'إغلاق البحث', rxs_hint: 'اضغط على الشكل/المقدار لإضافته إلى سلتك، أو «＋ وصفة» لوضعه في الوصفة مباشرة.', rxs_rx: '＋ وصفة', rxs_to_rx: 'إضافة إلى الوصفة مباشرة', rxs_to_basket: 'إضافة إلى السلة', rxs_cust: 'إضافة «{q}» إلى السلة', rxs_dup: 'موجود في السلة', rxl_new: '＋ سطر جديد', rxl_grip: 'اسحب لتغيير الترتيب', rxl_name: 'اسم الدواء أو نص حر', rxl_form: 'الشكل / المقدار', rxt_lang: 'لغة الوصفة', rxt_reset: 'استعادة الترويسة الافتراضية', rxt_reset_c: 'استعادة بيانات الترويسة الافتراضية (الاسم، الهاتف، الشعار…)؟', rxt_clinic: 'اسم العيادة', rxt_doctor: 'اسم الطبيب', rxt_spec: 'التخصص (اختياري)', rxt_phone: 'الهاتف', rxt_addr: 'العنوان (اختياري)', rxt_logo: 'شعار', rxt_logo_rm: 'حذف الشعار', rxt_logo_bad: 'تعذّر قراءة الصورة', rxt_saved: 'حُفظت الترويسة', rxb_new: '＋ دواء جديد', rxb_quick_ph: 'اكتب اسم دواء لإضافته إلى سلتي…', rxb_add: 'إضافة', rxb_edit: 'تعديل', rxb_save: 'حفظ في السلة', rxb_cancel: 'إلغاء', rxb_name: 'اسم الدواء', rxb_form: 'الشكل / المقدار', rxb_hint: 'أضف أدويتك المعتادة بنفسك. نقرة على الاسم تضيفه للوصفة (بجرعته إن حفظتها بزر ✎).', rxb_need: 'اكتب اسم الدواء', rx_sum_empty: 'لم تُضف أدوية بعد', rx_close: 'تم', rx_add_title: 'إضافة أدوية', rx_for: 'المريض',
+  rx_db: '{a} دواء مدمج + {b} مستورد', rx_rec: '💊 الوصفة ({n})', rx_reprint: 'طباعة', rx_open: 'فتح الوصفة', rxs_open: '＋ إضافة دواء إلى السلة', rxs_close: 'إغلاق البحث', rxs_hint: 'اضغط على الشكل/المقدار لإضافته إلى سلتك، أو «＋ وصفة» لوضعه في الوصفة مباشرة.', rxs_rx: '＋ وصفة', rxs_to_rx: 'إضافة إلى الوصفة مباشرة', rxs_to_basket: 'إضافة إلى السلة', rxs_cust: 'إضافة «{q}» إلى السلة', rxs_dup: 'موجود في السلة', rxl_new: '＋ سطر جديد', rxl_grip: 'اسحب لتغيير الترتيب', rxl_name: 'اسم الدواء أو نص حر', rxl_form: 'الشكل / المقدار', rxt_lang: 'لغة الوصفة', rxt_reset: 'استعادة الترويسة الافتراضية', rxt_reset_c: 'استعادة بيانات الترويسة الافتراضية (الاسم، الهاتف، الشعار…)؟', rxt_clinic: 'اسم العيادة', rxt_doctor: 'اسم الطبيب', rxt_spec: 'التخصص (اختياري)', rxt_phone: 'الهاتف', rxt_addr: 'العنوان (اختياري)', rxt_logo: 'شعار', rxt_logo_rm: 'حذف الشعار', rxt_lp: 'مكان الشعار', rxt_lp_start: 'بداية السطر', rxt_lp_end: 'نهاية السطر', rxt_lp_top: 'أعلى الورقة (وسط)', rxt_row_up: 'تحريك لأعلى', rxt_row_down: 'تحريك لأسفل', rxt_row_del: 'حذف هذا السطر', rxt_row_add: 'إضافة سطر:', rxt_free: 'نص حر', rxt_free_ph: 'سطر نص حر (مثال: أيام العمل 8:00–16:00)', rxt_row_full: 'بلغت الحد الأقصى لأسطر الترويسة', rxt_logo_bad: 'تعذّر قراءة الصورة', rxt_saved: 'حُفظت الترويسة', rxb_new: '＋ دواء جديد', rxb_quick_ph: 'اكتب اسم دواء لإضافته إلى سلتي…', rxb_add: 'إضافة', rxb_edit: 'تعديل', rxb_save: 'حفظ في السلة', rxb_cancel: 'إلغاء', rxb_name: 'اسم الدواء', rxb_form: 'الشكل / المقدار', rxb_hint: 'أضف أدويتك المعتادة بنفسك. نقرة على الاسم تضيفه للوصفة (بجرعته إن حفظتها بزر ✎).', rxb_need: 'اكتب اسم الدواء', rx_sum_empty: 'لم تُضف أدوية بعد', rx_close: 'تم', rx_add_title: 'إضافة أدوية', rx_for: 'المريض',
   rxp_title: 'وصفة طبية', rxp_patient: 'المريض', rxp_age: 'العمر', rxp_date: 'التاريخ', rxp_sign: 'التوقيع والختم', rxp_years: 'سنة',
   set_drugs: 'قاعدة الأدوية 💊', drugs_import: 'استيراد قائمة 📥', drugs_clear: 'حذف المستورد 🗑️', drugs_info: 'المدمجة: {a} دواء · المستوردة: {b} دواء', drugs_hint: 'يمكنك توسيع البحث باستيراد قائمة أدوية بصيغة CSV أو JSON أو TXT (مثل مدوّنة الأدوية الوطنية بعد حفظها بصيغة CSV). الأعمدة المعروفة: DCI / Nom de marque / Forme / Dosage / Classe. ما يُستورد يضاف لقاعدة بحثك فقط ولا يغيّر وصفات سابقة.',
   drugs_done: 'تم استيراد {n} دواء', drugs_bad: 'تعذّرت قراءة الملف أو لا يحوي أسماء أدوية', drugs_confirm: 'سيُضاف {n} دواء إلى قاعدة بحثك. متابعة؟', drugs_trunc: 'الحد الأقصى {n} دواء؛ تم تجاهل الباقي', drugs_clear_c: 'حذف كل الأدوية المستوردة؟ (القاعدة المدمجة والسلة لا تتأثران)', drugs_cleared: 'حُذفت الأدوية المستوردة',
@@ -20,7 +20,7 @@ Object.assign(L.en, {
   rx_list: 'Drugs in this prescription', rx_empty: 'No drugs in the prescription yet.', rx_no_results: 'No match in the database — you can add the name as a custom drug:', rx_custom: '＋ Add “{q}” as a custom drug', rx_add: 'Add',
   rx_dose: 'Dose', rx_freq: 'Frequency', rx_dur: 'Duration', rx_note: 'Note (optional)', rx_print: 'Print prescription 🖨️', rx_clear: 'Clear prescription', rx_clear_c: 'Remove all drugs from this prescription?',
   rx_added: 'Added to the prescription', rx_dup: 'Already in the prescription', rx_fav_saved: 'Saved to basket ⭐', rx_fav_removed: 'Removed from basket', rx_del_basket: 'Remove this drug from the basket?', rx_to_basket: 'Save to basket', rx_in_basket: 'In basket', rx_up: 'Up', rx_down: 'Down', rx_del: 'Remove from prescription',
-  rx_db: '{a} built-in + {b} imported drugs', rx_rec: '💊 Prescription ({n})', rx_reprint: 'Print', rx_open: 'Open prescription', rxs_open: '＋ Add a drug to basket', rxs_close: 'Close search', rxs_hint: 'Tap a form/strength to add it to your basket, or “＋ Rx” to put it straight on the prescription.', rxs_rx: '＋ Rx', rxs_to_rx: 'Add straight to the prescription', rxs_to_basket: 'Add to basket', rxs_cust: 'Add “{q}” to basket', rxs_dup: 'Already in basket', rxl_new: '＋ New line', rxl_grip: 'Drag to reorder', rxl_name: 'Drug name or free text', rxl_form: 'Form / strength', rxt_lang: 'Prescription language', rxt_reset: 'Restore default header', rxt_reset_c: 'Restore the default header (name, phone, logo…)?', rxt_clinic: 'Clinic name', rxt_doctor: 'Doctor name', rxt_spec: 'Specialty (optional)', rxt_phone: 'Phone', rxt_addr: 'Address (optional)', rxt_logo: 'Logo', rxt_logo_rm: 'Remove logo', rxt_logo_bad: 'Could not read the image', rxt_saved: 'Header saved', rxb_new: '＋ New drug', rxb_quick_ph: 'Type a drug name to add to my basket…', rxb_add: 'Add', rxb_edit: 'Edit', rxb_save: 'Save to basket', rxb_cancel: 'Cancel', rxb_name: 'Drug name', rxb_form: 'Form / strength', rxb_hint: 'Add your usual drugs yourself. Tap a name to put it on the prescription (with its dose if saved via ✎).', rxb_need: 'Enter the drug name', rx_sum_empty: 'No drugs added yet', rx_close: 'Done', rx_add_title: 'Add drugs', rx_for: 'Patient',
+  rx_db: '{a} built-in + {b} imported drugs', rx_rec: '💊 Prescription ({n})', rx_reprint: 'Print', rx_open: 'Open prescription', rxs_open: '＋ Add a drug to basket', rxs_close: 'Close search', rxs_hint: 'Tap a form/strength to add it to your basket, or “＋ Rx” to put it straight on the prescription.', rxs_rx: '＋ Rx', rxs_to_rx: 'Add straight to the prescription', rxs_to_basket: 'Add to basket', rxs_cust: 'Add “{q}” to basket', rxs_dup: 'Already in basket', rxl_new: '＋ New line', rxl_grip: 'Drag to reorder', rxl_name: 'Drug name or free text', rxl_form: 'Form / strength', rxt_lang: 'Prescription language', rxt_reset: 'Restore default header', rxt_reset_c: 'Restore the default header (name, phone, logo…)?', rxt_clinic: 'Clinic name', rxt_doctor: 'Doctor name', rxt_spec: 'Specialty (optional)', rxt_phone: 'Phone', rxt_addr: 'Address (optional)', rxt_logo: 'Logo', rxt_logo_rm: 'Remove logo', rxt_lp: 'Logo position', rxt_lp_start: 'Start of line', rxt_lp_end: 'End of line', rxt_lp_top: 'Top (centered)', rxt_row_up: 'Move up', rxt_row_down: 'Move down', rxt_row_del: 'Delete this line', rxt_row_add: 'Add a line:', rxt_free: 'Free text', rxt_free_ph: 'Free text line (e.g. Working hours 8:00–16:00)', rxt_row_full: 'Header line limit reached', rxt_logo_bad: 'Could not read the image', rxt_saved: 'Header saved', rxb_new: '＋ New drug', rxb_quick_ph: 'Type a drug name to add to my basket…', rxb_add: 'Add', rxb_edit: 'Edit', rxb_save: 'Save to basket', rxb_cancel: 'Cancel', rxb_name: 'Drug name', rxb_form: 'Form / strength', rxb_hint: 'Add your usual drugs yourself. Tap a name to put it on the prescription (with its dose if saved via ✎).', rxb_need: 'Enter the drug name', rx_sum_empty: 'No drugs added yet', rx_close: 'Done', rx_add_title: 'Add drugs', rx_for: 'Patient',
   rxp_title: 'Prescription', rxp_patient: 'Patient', rxp_age: 'Age', rxp_date: 'Date', rxp_sign: 'Signature & stamp', rxp_years: 'y/o',
   set_drugs: 'Drug database 💊', drugs_import: 'Import a list 📥', drugs_clear: 'Delete imported 🗑️', drugs_info: 'Built-in: {a} drugs · Imported: {b} drugs', drugs_hint: 'Extend the search by importing a drug list as CSV, JSON or TXT (e.g. the national drug nomenclature saved as CSV). Known columns: DCI / Brand name / Form / Strength / Class. Imported drugs only enrich your search; past prescriptions are untouched.',
   drugs_done: '{n} drugs imported', drugs_bad: 'Could not read the file or it has no drug names', drugs_confirm: '{n} drugs will be added to your search database. Continue?', drugs_trunc: 'Maximum is {n} drugs; the rest was ignored', drugs_clear_c: 'Delete all imported drugs? (built-in database and basket are not affected)', drugs_cleared: 'Imported drugs deleted',
@@ -100,27 +100,52 @@ const RXP_L = {
   en: { dir: 'ltr', loc: 'en-GB', date: 'Date', patient: 'Patient', age: 'Age', years: 'y/o', title: 'Prescription', sign: 'Signature & stamp', dr: 'Dr. ', phone: 'Tel' }
 };
 const RXP_NAMES = { ar: 'العربية', fr: 'Français', en: 'English' };
+const RX_LPOS = ['start', 'end', 'top'], RX_MAXROWS = 8, RX_MAXFREE = 4;
+const RX_DEF_ROWS = [{ k: 'clinic' }, { k: 'doctor' }, { k: 'spec' }, { k: 'contact' }];   // الترويسة الافتراضية
 function rxTpl() {   // القيم الفعلية = ما عدّله الطبيب أو الافتراضي
   const T = RX.tpl || {}, lang = RXP_L[T.lang] ? T.lang : 'ar', L = RXP_L[lang], me = S.me || {}, nm = String(me.doctorName || me.name || '').trim();
   const dflt = nm ? (/^(د\.|dr\b)/i.test(nm) ? nm : L.dr + nm) : '';
   const v = (k, d) => T[k] == null ? d : T[k];
-  return { lang, L, clinic: v('clinic', me.clinicName || ''), doctor: v('doctor', dflt), spec: v('spec', ''), phone: v('phone', ''), address: v('address', ''), logo: T.logo || '' };
+  return { lang, L, clinic: v('clinic', me.clinicName || ''), doctor: v('doctor', dflt), spec: v('spec', ''), phone: v('phone', ''), address: v('address', ''), logo: T.logo || '', logoPos: RX_LPOS.includes(T.logoPos) ? T.logoPos : 'start', rows: (Array.isArray(T.rows) ? T.rows : RX_DEF_ROWS).map(r => ({ ...r })) };
 }
 function rxTplSet(patch) {
-  const base = RX.tpl || { clinic: null, doctor: null, spec: null, phone: null, address: null, logo: '', lang: rxTpl().lang };
+  const base = RX.tpl || { clinic: null, doctor: null, spec: null, phone: null, address: null, logo: '', logoPos: 'start', rows: null, lang: rxTpl().lang };
   RX.tpl = Object.assign({}, base, patch); clearTimeout(RX.tplT); RX.tplT = setTimeout(rxTplFlush, 700);
 }
 async function rxTplFlush() {
   if (!RX.tplT) return; clearTimeout(RX.tplT); RX.tplT = 0;
   try { const r = await api('PUT', '/api/rx/template', RX.tpl || {}); RX.tpl = r; } catch (e) {}
 }
+function rxRowsHTML(T) {
+  const L = T.L, inp = (k, ph, cls) => `<input class="${cls}" data-tp="${k}" maxlength="${k === 'phone' ? 60 : k === 'address' ? 160 : 120}" placeholder="${esc(ph)}" value="${esc(T[k])}">`;
+  const FLD = { clinic: ['rx-pc', t('rxt_clinic')], doctor: ['rx-pdoc', t('rxt_doctor')], spec: ['rx-psp', t('rxt_spec')], address: ['rx-pad', t('rxt_addr')] };
+  const n = T.rows.length, btn = (act, i, ico, key, off) => `<button type="button" data-act="${act}" data-i="${i}" title="${esc(t(key))}"${off ? ' disabled' : ''}>${ico}</button>`;
+  const body = (r, i) => r.k === 'contact' ? `<div class="rx-pcontact">${inp('phone', L.phone + ' / ' + t('rxt_phone'), 'rx-pph')}${inp('address', t('rxt_addr'), 'rx-pad')}</div>`
+    : r.k === 'phone' ? inp('phone', L.phone + ' / ' + t('rxt_phone'), 'rx-pph')
+    : r.k === 'free' ? `<input class="rx-pfree" data-tpi="${i}" maxlength="160" placeholder="${esc(t('rxt_free_ph'))}" value="${esc(r.t || '')}">`
+    : FLD[r.k] ? inp(r.k, FLD[r.k][1], FLD[r.k][0]) : '';
+  const rows = T.rows.map((r, i) => `<div class="rx-prow">${body(r, i)}<span class="rx-rc">${btn('rxRowUp', i, '▲', 'rxt_row_up', i === 0)}${btn('rxRowDown', i, '▼', 'rxt_row_down', i === n - 1)}${btn('rxRowDel', i, '✕', 'rxt_row_del')}</span></div>`).join('');
+  const has = k => T.rows.some(r => r.k === k), hasContact = has('contact');
+  const miss = ['clinic', 'doctor', 'spec', 'phone', 'address'].filter(k => !has(k) && !((k === 'phone' || k === 'address') && hasContact));
+  const chips = miss.map(k => ({ k, l: t({ clinic: 'rxt_clinic', doctor: 'rxt_doctor', spec: 'rxt_spec', phone: 'rxt_phone', address: 'rxt_addr' }[k]) }));
+  if (T.rows.filter(r => r.k === 'free').length < RX_MAXFREE) chips.push({ k: 'free', l: t('rxt_free') });
+  return rows + (chips.length ? `<div class="rx-padd"><small>${esc(t('rxt_row_add'))}</small>${chips.map(c => `<button type="button" data-act="rxRowAdd" data-k="${c.k}">＋ ${esc(c.l)}</button>`).join('')}</div>` : '');
+}
 function rxPaperTopHTML() {
-  const T = rxTpl(), L = T.L, pat = RX.pat || {}, age = pat.birthYear ? new Date().getFullYear() - pat.birthYear : null, inp = (k, ph, cls) => `<input class="${cls}" data-tp="${k}" maxlength="${k === 'phone' ? 60 : k === 'address' ? 160 : 120}" placeholder="${esc(ph)}" value="${esc(T[k])}">`;
-  return `<div class="rx-ph"><div class="rx-logo">${T.logo ? `<img src="${esc(T.logo)}" alt=""><button type="button" class="rx-logo-x" data-act="rxLogoDel" title="${esc(t('rxt_logo_rm'))}">✕</button>` : `<button type="button" class="rx-logo-add" data-act="rxLogoPick">＋<small>${esc(t('rxt_logo'))}</small></button>`}</div>
-    <div class="rx-pcol">${inp('clinic', t('rxt_clinic'), 'rx-pc')}${inp('doctor', t('rxt_doctor'), 'rx-pdoc')}${inp('spec', t('rxt_spec'), 'rx-psp')}<div class="rx-pcontact">${inp('phone', L.phone + ' / ' + t('rxt_phone'), 'rx-pph')}${inp('address', t('rxt_addr'), 'rx-pad')}</div></div>
+  const T = rxTpl(), L = T.L, pat = RX.pat || {}, age = pat.birthYear ? new Date().getFullYear() - pat.birthYear : null;
+  return `<div class="rx-ph lp-${T.logoPos}"><div class="rx-logo">${T.logo ? `<img src="${esc(T.logo)}" alt=""><button type="button" class="rx-logo-x" data-act="rxLogoDel" title="${esc(t('rxt_logo_rm'))}">✕</button>` : `<button type="button" class="rx-logo-add" data-act="rxLogoPick">＋<small>${esc(t('rxt_logo'))}</small></button>`}</div>
+    <div class="rx-pcol">${rxRowsHTML(T)}</div>
     <div class="rx-pd">${esc(L.date)}: ${esc(new Date().toLocaleDateString(L.loc, { dateStyle: 'long' }))}</div></div>
     <div class="rx-pp"><span>${esc(L.patient)}: <b>${esc(pat.name || '')}</b></span>${age != null ? `<span>${esc(L.age)}: <b>${age} ${esc(L.years)}</b></span>` : ''}</div>
     <div class="rx-pt">℞ <span>${esc(L.title)}</span></div>`;
+}
+function rxRowsEdit(fn) { const rows = rxTpl().rows; if (fn(rows) === false) return; rxTplSet({ rows }); rxRenderPaperTop(); }
+function rxRowsPrint(T) {   // أسطر الترويسة عند الطباعة (الفارغ منها يُتجاوز)
+  const L = T.L, line = (c, v) => v ? `<div${c ? ` class="${c}"` : ''}>${esc(v)}</div>` : '';
+  return T.rows.map(r => r.k === 'clinic' ? line('rxp-clinic', T.clinic) : r.k === 'doctor' ? line('', T.doctor) : r.k === 'spec' ? line('rxp-spec', T.spec)
+    : r.k === 'contact' ? line('rxp-contact', [T.phone ? `${L.phone}: ${T.phone}` : '', T.address].filter(Boolean).join(' · '))
+    : r.k === 'phone' ? line('rxp-contact', T.phone ? `${L.phone}: ${T.phone}` : '') : r.k === 'address' ? line('rxp-contact', T.address)
+    : r.k === 'free' ? line('rxp-free', r.t) : '').join('');
 }
 function rxRenderPaperTop() { const b = $('#rxPaperTop'), p = $('#rxPaper'); if (!b) return; p.dir = rxTpl().L.dir; b.innerHTML = rxPaperTopHTML(); const sg = $('#rxSign'); if (sg) sg.textContent = rxTpl().L.sign; }
 function rxLogoFromFile(file) {
@@ -146,7 +171,7 @@ function rxHTML() {   // في واجهة المعاينة: زر واحد ومل�
 function rxModalHTML() {
   const L2 = RX_LISTS[rxTpl().lang] || RX_LISTS.ar, dl = (id, a) => `<datalist id="${id}">${a.map(x => `<option value="${esc(x)}">`).join('')}</datalist>`;
   return `<div class="modal-card settings-modal rx-modal" id="rxBox"><button type="button" class="btn-action btn-red modal-x rx-xbtn" data-act="closeModal" aria-label="close">✕</button>
-    <div class="rx-cols"><section class="rx-col rx-rxcol"><div class="rx-langbar"><label for="rxLang">🌐 ${esc(t('rxt_lang'))}</label><select id="rxLang">${Object.keys(RXP_NAMES).map(k => `<option value="${k}"${k === rxTpl().lang ? ' selected' : ''}>${RXP_NAMES[k]}</option>`).join('')}</select><button type="button" class="btn-action" data-act="rxTplReset">${esc(t('rxt_reset'))}</button><input type="file" id="rxLogoFile" accept="image/*" hidden></div>
+    <div class="rx-cols"><section class="rx-col rx-rxcol"><div class="rx-langbar"><label for="rxLang">🌐 ${esc(t('rxt_lang'))}</label><select id="rxLang">${Object.keys(RXP_NAMES).map(k => `<option value="${k}"${k === rxTpl().lang ? ' selected' : ''}>${RXP_NAMES[k]}</option>`).join('')}</select><label for="rxLogoPos">🖼 ${esc(t('rxt_lp'))}</label><select id="rxLogoPos">${RX_LPOS.map(k => `<option value="${k}"${k === rxTpl().logoPos ? ' selected' : ''}>${esc(t('rxt_lp_' + k))}</option>`).join('')}</select><button type="button" class="btn-action" data-act="rxTplReset">${esc(t('rxt_reset'))}</button><input type="file" id="rxLogoFile" accept="image/*" hidden></div>
       <div class="rx-paper" id="rxPaper" dir="${rxTpl().L.dir}"><div id="rxPaperTop">${rxPaperTopHTML()}</div>
       <div id="rxList"></div><button type="button" class="rx-newline" data-act="rxLineNew">${esc(t('rxl_new'))}</button><div class="rx-psign" id="rxSign">${esc(rxTpl().L.sign)}</div></div></section>
     <section class="rx-col rx-find"><div class="rx-sub">${esc(t('rx_basket'))}</div>
@@ -240,8 +265,12 @@ Object.assign(ACT, {
   rxBAddRes(el) { const l = rxFromRes(el); if (!l) return; if (RX.basket.some(b => rxKey(b) === rxKey(l))) return toast(t('rxs_dup'), 'info'); if (RX.basket.length >= 100) return toast(t('rx_basket_full'), 'error'); rxPutBasket(RX.basket.concat([{ name: l.name, form: l.form || '', dose: '', freq: '', dur: '', note: '' }]), t('rx_fav_saved')); },
   rxLineNew() { if (RX.lines.length >= 25) return toast(t('rx_basket_full'), 'error'); RX.lines.push({ name: '', form: '', dose: '', freq: '', dur: '', note: '' }); rxSave(); rxRenderList(); const n = document.querySelector(`[data-rx=name][data-i="${RX.lines.length - 1}"]`); if (n) n.focus(); },
   rxLogoPick() { const f = $('#rxLogoFile'); if (f) f.click(); },
+  rxRowUp(el) { const i = +el.dataset.i; rxRowsEdit(r => { if (i < 1 || i >= r.length) return false; [r[i - 1], r[i]] = [r[i], r[i - 1]]; }); },
+  rxRowDown(el) { const i = +el.dataset.i; rxRowsEdit(r => { if (i < 0 || i >= r.length - 1) return false; [r[i + 1], r[i]] = [r[i], r[i + 1]]; }); },
+  rxRowDel(el) { const i = +el.dataset.i; rxRowsEdit(r => { if (!r[i]) return false; r.splice(i, 1); }); },
+  rxRowAdd(el) { const k = el.dataset.k; rxRowsEdit(r => { if (r.length >= RX_MAXROWS) { toast(t('rxt_row_full'), 'error'); return false; } r.push(k === 'free' ? { k, t: '' } : { k }); }); if (k === 'free') { const a = document.querySelectorAll('.rx-pfree'); if (a.length) a[a.length - 1].focus(); } },
   rxLogoDel() { rxTplSet({ logo: '' }); rxRenderPaperTop(); },
-  rxTplReset() { if (!confirm(t('rxt_reset_c'))) return; RX.tpl = { clinic: null, doctor: null, spec: null, phone: null, address: null, logo: '', lang: rxTpl().lang }; RX.tplT = 1; rxTplFlush(); rxRenderPaperTop(); },
+  rxTplReset() { if (!confirm(t('rxt_reset_c'))) return; RX.tpl = { clinic: null, doctor: null, spec: null, phone: null, address: null, logo: '', logoPos: 'start', rows: null, lang: rxTpl().lang }; RX.tplT = 1; rxTplFlush(); rxRenderPaperTop(); },
   rxBEdit(el) { const b = RX.basket.find(x => x.id === el.dataset.id); if (!b) return; RX.editB = b.id; RX.bd = { name: b.name, form: b.form, dose: b.dose, freq: b.freq, dur: b.dur, note: b.note }; rxRenderBasket(); },
   rxBCancel() { RX.editB = null; RX.bd = {}; rxRenderBasket(); },
   async rxBSave() {
@@ -259,12 +288,14 @@ document.addEventListener('input', e => {
   const el = e.target; if (!el || !el.id && !el.dataset) return;
   if (el.id === 'rxSearch') { RX.q = el.value; rxRenderResults(); }
   else if (el.dataset && el.dataset.tp) { rxTplSet({ [el.dataset.tp]: el.value }); }
+  else if (el.dataset && el.dataset.tpi != null && el.dataset.tpi !== '') { const rows = rxTpl().rows, r = rows[+el.dataset.tpi]; if (r && r.k === 'free') { r.t = el.value; rxTplSet({ rows }); } }
   else if (el.dataset && el.dataset.bf) { RX.bd[el.dataset.bf] = el.value; }
   else if (el.dataset && el.dataset.rx) { const l = RX.lines[+el.dataset.i]; if (l && ['name', 'form', 'dose', 'freq', 'dur', 'note'].includes(el.dataset.rx)) { l[el.dataset.rx] = el.value; rxSave(); } }
 });
 document.addEventListener('change', async e => {
   const el = e.target; if (!el) return;
   if (el.id === 'rxLang') { rxTplSet({ lang: el.value }); RX.lines = RX.lines.map(l => rxTrLine(l, el.value)); rxSave(); rxRenderPaperTop(); rxRenderList(); rxFillLists(); }
+  else if (el.id === 'rxLogoPos') { rxTplSet({ logoPos: el.value }); rxRenderPaperTop(); }
   else if (el.id === 'rxLogoFile' && el.files && el.files[0]) { try { rxTplSet({ logo: await rxLogoFromFile(el.files[0]) }); rxRenderPaperTop(); } catch (x) { toast(t('rxt_logo_bad'), 'error'); } el.value = ''; }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && e.target && e.target.id === 'rxSearch') { ACT.rxFindClose(); } });
@@ -288,8 +319,8 @@ document.addEventListener('dragend', () => { rxDrag = -1; rxClearDrop(); });
 function rxPrintDoc(lines, pat, ts) {
   if (!lines || !lines.length) return toast(t('rx_empty'), 'info');
   let box = $('#rxPrint'); if (!box) { box = document.createElement('div'); box.id = 'rxPrint'; document.body.appendChild(box); }
-  const T = rxTpl(), L = T.L, yr = new Date(ts).getFullYear(), age = pat && pat.birthYear ? yr - pat.birthYear : null, contact = [T.phone ? `${L.phone}: ${T.phone}` : '', T.address].filter(Boolean).join(' · ');
-  box.innerHTML = `<div class="rxp" dir="${L.dir}"><div class="rxp-head">${T.logo ? `<img class="rxp-logo" src="${esc(T.logo)}" alt="">` : ''}<div class="rxp-hc"><div class="rxp-clinic">${esc(T.clinic)}</div>${T.doctor ? `<div>${esc(T.doctor)}</div>` : ''}${T.spec ? `<div class="rxp-spec">${esc(T.spec)}</div>` : ''}${contact ? `<div class="rxp-contact">${esc(contact)}</div>` : ''}</div><div class="rxp-date">${esc(L.date)}: ${esc(new Date(ts).toLocaleDateString(L.loc, { dateStyle: 'long' }))}</div></div>
+  const T = rxTpl(), L = T.L, yr = new Date(ts).getFullYear(), age = pat && pat.birthYear ? yr - pat.birthYear : null;
+  box.innerHTML = `<div class="rxp" dir="${L.dir}"><div class="rxp-head lp-${T.logoPos}">${T.logo ? `<img class="rxp-logo" src="${esc(T.logo)}" alt="">` : ''}<div class="rxp-hc">${rxRowsPrint(T)}</div><div class="rxp-date">${esc(L.date)}: ${esc(new Date(ts).toLocaleDateString(L.loc, { dateStyle: 'long' }))}</div></div>
     <div class="rxp-pat"><span>${esc(L.patient)}: <b>${esc(pat && pat.name || '')}</b></span>${age != null ? `<span>${esc(L.age)}: <b>${age} ${esc(L.years)}</b></span>` : ''}</div>
     <div class="rxp-title">℞ <span>${esc(L.title)}</span></div>
     <ol class="rxp-list">${lines.map(l => `<li><div class="rxp-d"><b>${esc(l.name)}</b>${l.form ? ` <span>${esc(l.form)}</span>` : ''}</div>${rxPoso(l) ? `<div class="rxp-p">${esc(rxPoso(l))}</div>` : ''}${l.note ? `<div class="rxp-n">${esc(l.note)}</div>` : ''}</li>`).join('')}</ol>
