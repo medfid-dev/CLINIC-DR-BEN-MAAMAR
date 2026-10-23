@@ -307,6 +307,7 @@
     <button type="button" class="settings-link" data-act="openSet" data-m="set_clinicModal"><span class="sl-ic">🏥</span><span class="sl-tx" data-i18n="set_clinic"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_scheduleModal"><span class="sl-ic">🕒</span><span class="sl-tx" data-i18n="set_schedule"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_pricesModal"><span class="sl-ic">💰</span><span class="sl-tx" data-i18n="set_prices"></span><span class="sl-ar">‹</span></button>
+    <button type="button" class="settings-link" data-act="openSet" data-m="set_drugsModal"><span class="sl-ic">💊</span><span class="sl-tx" data-i18n="set_drugs"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_passModal"><span class="sl-ic">🔑</span><span class="sl-tx" data-i18n="chg_pass"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_backupModal"><span class="sl-ic">💾</span><span class="sl-tx" data-i18n="set_backup"></span><span class="sl-ar">‹</span></button>
   </div>
@@ -372,6 +373,19 @@
     </form>
   </div>
 </div>
+<!-- نافذة إعدادات: قاعدة الأدوية -->
+<div id="set_drugsModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="set_drugs">قاعدة الأدوية 💊</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
+    <div class="hint" id="drugsInfo" style="font-weight:600"></div>
+    <input type="file" id="drugsFile" accept=".csv,.json,.txt,text/csv,application/json,text/plain" hidden>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button type="button" class="btn-action btn-green" style="flex:1;padding:12px" data-act="drugsPick" data-i18n="drugs_import">استيراد قائمة 📥</button>
+      <button type="button" class="btn-action btn-red" style="flex:1;padding:12px" data-act="drugsClear" data-i18n="drugs_clear">حذف المستورد 🗑️</button>
+    </div>
+    <div class="hint" style="margin-top:10px" data-i18n="drugs_hint"></div>
+  </div>
+</div>
 <!-- نافذة إعدادات: backup -->
 <div id="set_backupModal" class="modal-overlay">
   <div class="modal-card settings-modal">
@@ -391,5 +405,7 @@
 <script src="qr.js"></script>
 <script src="app.js"></script>
 <script src="stats.js"></script>
+<script src="drugs.js"></script>
+<script src="rx.js"></script>
 </body>
 </html>

@@ -183,6 +183,9 @@ function renderStats() {
       <div class="st-grid2"><div><h6>${esc(t('st_top_visits'))}</h6>${hbars(pt.topVisits.map(p => ({ label: p.name, v: p.visits })))}</div>
       <div><h6>${esc(t('st_top_billed'))}</h6>${hbars(pt.topBilled.map(p => ({ label: p.name, v: p.billed })), i => esc(money(i.v)))}</div></div>`, 'wide'));
 
+    /* الأدوية الموصوفة */
+    if (d.rx && d.rx.prescriptions) out.push(card(t('st_rx'), `<div class="st-kpis sm">${kpi(t('st_rx_n'), stN(d.rx.prescriptions), stN(stPc(d.rx.prescriptions, s.visits)) + '%')}${kpi(t('st_rx_lines'), stN(d.rx.lines))}${kpi(t('st_rx_avg'), stN(d.rx.lines / d.rx.prescriptions))}</div><h6>${esc(t('st_rx_top'))}</h6>${hbars(d.rx.top.map(x => ({ label: x.name, v: x.n })))}`));
+
     /* من سجّل */
     out.push(card(t('st_reg'), hbars(d.registrars.map(r => ({ label: r.role === 'doctor' ? t('st_doctor') : (r.name || t('st_nurse_old')), v: r.n })))));
   }
@@ -213,6 +216,7 @@ function statsCsv() {
   sec(t('st_gender')); ['ذكر', 'أنثى'].forEach(g => add(genderL(g), d.gender[g].visits, d.gender[g].billed));
   sec(t('st_reasons')); d.reasons.forEach(r => add(reasonL(r.name), r.visits));
   sec(t('st_teeth')); Object.keys(d.teeth.perTooth).sort().forEach(k => add(k, d.teeth.perTooth[k]));
+  if (d.rx && d.rx.top.length) { sec(t('st_rx_top')); d.rx.top.forEach(x => add(x.name, x.n)); }
   sec(t('st_top_debtors')); add(t('st_c_pat'), t('st_c_phone'), t('st_c_bal')); d.debt.top.forEach(x => add(x.name, x.phone, x.balance));
   return '\ufeff' + rows.join('\r\n');
 }

@@ -251,6 +251,52 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('GET', '/api/stats?tz=0', SD); ok(r.j.summary.visits === 4 && r.j.debt.total === 1000, 'عزل: إحصائيات العيادة الأولى لم تتأثر');
       r = await J('GET', '/api/stats?from=zzz&to=%00&tz=abc', SD); ok(r.s === 200, 'مدخلات تواريخ فاسدة لا تُسقط الخادم'); }
 
+    console.log('الوصفات الطبية');
+    { const RD = (await J('POST', '/api/register', null, { clinicName: 'عيادة وصفات', doctorName: 'د. وصفة', username: 'rxdoc1', password: 'password9' })).j.token;
+      const RD2 = (await J('POST', '/api/register', null, { clinicName: 'عيادة وصفات 2', doctorName: 'د. ثانٍ', username: 'rxdoc2', password: 'password9' })).j.token;
+      const RN = (await J('POST', '/api/nurses', RD, { name: 'سلمى', phone: '', password: 'nurse123' }), (await J('POST', '/api/login/nurse', null, { code: (await J('GET', '/api/state', RD)).j.me.code, name: 'سلمى', password: 'nurse123' })).j.token);
+      let r = await J('GET', '/api/rx', RD); ok(r.s === 200 && Array.isArray(r.j.basket) && r.j.basket.length === 0 && r.j.drugs.length === 0, 'سلة وقاعدة أدوية فارغتان في البداية');
+      r = await J('GET', '/api/rx', RN); ok(r.s === 403, 'الممرضة لا ترى السلة'); r = await J('PUT', '/api/rx/basket', RN, { items: [{ name: 'x' }] }); ok(r.s === 403, 'الممرضة لا تعدّل السلة');
+      r = await J('GET', '/api/rx'); ok(r.s === 401, 'بلا دخول: مرفوض');
+      r = await J('PUT', '/api/rx/basket', RD, { items: [{ name: ' Amoxicilline ', form: 'gél 500 mg', dose: '1 gél', freq: '3 fois/j', dur: '7 j' }, { name: 'amoxicilline', form: 'GÉL 500 MG' }, { name: 'Paracétamol', form: 'cp 1 g' }, { name: '' }, 5, null, { form: 'بلا اسم' }, { name: 'A'.repeat(500), form: 'f'.repeat(500), note: 'n'.repeat(500) }] });
+      ok(r.s === 200 && r.j.length === 3, 'السلة: تُحذف المكررة والفارغة وغير الصالحة');
+      ok(r.j[0].name === 'Amoxicilline' && r.j[0].dose === '1 gél' && /^[a-f0-9]{12}$/.test(r.j[0].id), 'السلة: تقليم الاسم + حفظ الجرعة الافتراضية + معرّف مولّد');
+      ok(r.j[2].name.length === 120 && r.j[2].form.length === 160 && r.j[2].note.length === 200, 'السلة: حدود أطوال الحقول');
+      const many = Array.from({ length: 150 }, (_, i) => ({ name: 'دواء' + i })); r = await J('PUT', '/api/rx/basket', RD, { items: many }); ok(r.s === 200 && r.j.length === 100, 'السلة: حدّ 100 دواء');
+      r = await J('PUT', '/api/rx/basket', RD, { items: [{ name: 'Ibuprofène', form: 'cp 400 mg', dose: '1 cp', freq: '3 fois/j', dur: '3 j' }] }); const keepId = r.j[0].id;
+      r = await J('PUT', '/api/rx/basket', RD, { items: [{ id: keepId, name: 'Ibuprofène', form: 'cp 400 mg', dose: '1 cp', freq: '2 fois/j', dur: '5 j' }] }); ok(r.j[0].id === keepId && r.j[0].freq === '2 fois/j', 'السلة: تحديث دواء موجود يُبقي معرّفه');
+      r = await J('GET', '/api/rx', RD2); ok(r.j.basket.length === 0, 'عزل: سلة عيادة أخرى فارغة');
+      r = await J('GET', '/api/rx', RD); ok(r.j.template === null, 'قالب الوصفة: افتراضي في البداية');
+      r = await J('PUT', '/api/rx/template', RN, { clinic: 'x' }); ok(r.s === 403, 'الممرضة لا تعدّل قالب الوصفة');
+      r = await J('PUT', '/api/rx/template', RD, { clinic: ' عيادة الأمل ', doctor: null, spec: 'جراحة الأسنان', phone: '0550 00 00 00', address: 'x'.repeat(400), logo: 'data:image/png;base64,iVBORw0KGgo=', lang: 'fr' });
+      ok(r.s === 200 && r.j.clinic === 'عيادة الأمل' && r.j.doctor === null && r.j.phone === '0550 00 00 00' && r.j.address.length === 160 && r.j.lang === 'fr' && r.j.logo.startsWith('data:image/png'), 'قالب الوصفة: حفظ وتقليم');
+      r = await J('PUT', '/api/rx/template', RD, { logo: 'data:text/html;base64,PHNjcmlwdD4=', lang: 'zz', clinic: 5 }); ok(r.j.logo === '' && r.j.lang === 'ar', 'قالب الوصفة: يرفض شعاراً غير صورة ولغة غير معروفة');
+      r = await J('PUT', '/api/rx/template', RD, { clinic: 'عيادة الأمل', lang: 'en' }); r = await J('GET', '/api/rx', RD2); ok(r.j.template === null, 'عزل: قالب عيادة أخرى لم يتأثر');
+      r = await J('PUT', '/api/rx/drugs', RD, { drugs: [['Foo', 'فو', 'Foobar, Foox', 'cp 10 mg; sirop', 'تجريبي'], { n: 'Bar', b: 'Barx', f: 'gél 5 mg' }, 'Baz', { name: '' }, 7, ['']] });
+      ok(r.s === 200 && r.j.count === 3, 'استيراد أدوية: يُقبل الصالح فقط (3)');
+      r = await J('GET', '/api/rx', RD); ok(r.j.drugs.length === 3 && r.j.drugs[0].length === 5 && r.j.drugs[1][0] === 'Bar' && r.j.drugs[1][2] === 'Barx' && r.j.drugs[2][0] === 'Baz', 'قاعدة الأدوية المستوردة تُحفظ بصيغة موحّدة');
+      r = await J('GET', '/api/rx', RD2); ok(r.j.drugs.length === 0, 'عزل: قاعدة العيادة الأخرى لم تتأثر');
+      r = await J('PUT', '/api/rx/drugs', RD, { drugs: Array.from({ length: 4500 }, (_, i) => ['D' + i, '', '', '', '']) }); ok(r.s === 200 && r.j.count === 4000, 'استيراد أدوية: حدّ 4000');
+      r = await J('DELETE', '/api/rx/drugs', RD); ok(r.s === 200 && r.j.count === 0 && (await J('GET', '/api/rx', RD)).j.drugs.length === 0, 'حذف الأدوية المستوردة');
+
+      const finishRx = async (name, rx, extra) => { const p0 = (await J('POST', '/api/patients', RD, pat(name, extra))).j; await J('POST', `/api/patients/${p0.id}/enter`, RD); return await J('POST', `/api/patients/${p0.id}/finish`, RD, { treatment: 'قلع', teeth: ['16'], price: 1000, paid: 1000, notes: '', rx }); };
+      r = await finishRx('مريض وصفة', [{ name: ' Amoxicilline ', form: 'gél 500 mg', dose: '1 gél', freq: '3 fois/j', dur: '7 j', note: 'بعد الأكل' }, { name: 'Ibuprofène', form: 'cp 400 mg', dose: '1', freq: 'عند اللزوم', dur: '3 j' }, { name: '' }, 'x', null, { name: '<img src=x onerror=1>', form: '', dose: '', freq: '', dur: '', note: '' }]);
+      ok(r.s === 200 && r.j.rx.length === 3 && r.j.rx[0].name === 'Amoxicilline' && r.j.rx[0].note === 'بعد الأكل', 'إنهاء المعاينة يحفظ الوصفة وينقّيها (3 أسطر صالحة)');
+      const rxId = r.j.id; r = await J('GET', '/api/archive?limit=50', RD); const rec = r.j.items.find(x => x.id === rxId); ok(rec && rec.rx.length === 3 && rec.rx[1].freq === 'عند اللزوم', 'الأرشيف يعرض الوصفة المحفوظة');
+      r = await J('GET', '/api/history?name=' + encodeURIComponent('مريض وصفة') + '&year=1990', RD); ok(r.s === 200 && r.j.records[0].rx.length === 3, 'سجل المريض يعرض الوصفة');
+      r = await finishRx('بلا وصفة', undefined); ok(r.s === 200 && Array.isArray(r.j.rx) && r.j.rx.length === 0, 'زيارة بلا وصفة: مصفوفة فارغة');
+      r = await finishRx('وصفة طويلة', Array.from({ length: 40 }, (_, i) => ({ name: 'دواء' + i }))); ok(r.j.rx.length === 25, 'وصفة: حدّ 25 سطراً');
+      r = await J('GET', '/api/stats?tz=0', RD); ok(r.j.rx.prescriptions === 2 && r.j.rx.top[0].n >= 1 && r.j.rx.lines === 28, 'الإحصائيات: عدد الوصفات وأسطر الأدوية وأكثر الأدوية وصفاً');
+      r = await J('GET', '/api/stats?tz=0', RD2); ok(r.j.rx.prescriptions === 0 && r.j.rx.top.length === 0, 'عزل: إحصائيات الأدوية لعيادة أخرى فارغة');
+      /* نسخ احتياطي واستعادة */
+      await J('PUT', '/api/rx/drugs', RD, { drugs: [['Foo', '', 'Foobar', 'cp 10 mg', '']] });
+      const bk = await J('GET', '/api/backup', RD); ok(bk.s === 200 && Array.isArray(bk.j.rxBasket) && bk.j.rxBasket.length === 1 && bk.j.rxDrugs.length === 1, 'النسخة الاحتياطية تشمل السلة وقاعدة الأدوية');
+      await J('PUT', '/api/rx/basket', RD, { items: [] }); await J('DELETE', '/api/rx/drugs', RD);
+      r = await J('POST', '/api/restore', RD, bk.j); ok(r.s === 200, 'استعادة النسخة');
+      r = await J('GET', '/api/rx', RD); ok(r.j.basket.length === 1 && r.j.basket[0].name === 'Ibuprofène' && r.j.drugs.length === 1, 'الاستعادة تعيد السلة وقاعدة الأدوية');
+      r = await J('GET', '/api/archive?limit=50', RD); ok(r.j.items.find(x => x.name === 'مريض وصفة').rx.length === 3, 'الاستعادة تحفظ وصفات الأرشيف');
+      const old = { ...bk.j }; delete old.rxBasket; delete old.rxDrugs; await J('POST', '/api/restore', RD, old); r = await J('GET', '/api/rx', RD); ok(r.j.basket.length === 1, 'استعادة نسخة قديمة (بلا سلة) لا تمسح السلة الحالية'); }
+
     console.log('الملفات الثابتة والأمان');
     for (const f of ['/', '/app.js', '/qr.js', '/style.css', '/sw.js', '/manifest.webmanifest', '/icons/icon-192.png', '/t/abc123abc123abc123abc123']) { const x = await fetch(base + f); ok(x.status === 200, 'GET ' + f); }
     let x = await fetch(base + '/..%2fserver.js'); ok(x.status !== 200, 'منع تجاوز المسار');

@@ -116,7 +116,7 @@ function patientView(p) {
   return { id: p.id, ticket: p.ticket, ticketNo: p.ticketNo, name: p.name, birthYear: p.birthYear, age: ageOf(p), gender: p.gender, reason: p.reason, tooth: p.tooth, phone: p.phone, status: p.status, createdAt: p.createdAt, startedAt: p.startedAt || null, images: (p.images || []).map(i => i.id) };
 }
 function archiveView(a) {
-  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: a.payments || [], followUp: !!a.followUp, teeth: a.teeth || [], notes: a.notes || '', createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
+  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: a.payments || [], followUp: !!a.followUp, teeth: a.teeth || [], notes: a.notes || '', rx: a.rx || [], createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
 }
 function nextTicketNo(c) {
   const d = new Date().toLocaleDateString('en-CA');
@@ -247,6 +247,29 @@ function serveStatic(req, res, pathname) {
 }
 
 /* ---------- المصادقة ---------- */
+/* ---------- الوصفات الطبية: سلة الأدوية المفضلة وقاعدة أدوية العيادة المستوردة ---------- */
+const RX_MAX_LINES = 25, RX_MAX_BASKET = 100, RX_MAX_DRUGS = 4000;
+const cleanRxLine = z => { if (!z || typeof z !== 'object') return null; const name = str(z.name, 120); return name ? { name, form: str(z.form, 160), dose: str(z.dose, 80), freq: str(z.freq, 80), dur: str(z.dur, 80), note: str(z.note, 200) } : null; };
+const cleanRx = a => (Array.isArray(a) ? a : []).slice(0, RX_MAX_LINES).map(cleanRxLine).filter(Boolean);
+function cleanBasket(a) {
+  const seen = new Set(), out = [];
+  for (const z of (Array.isArray(a) ? a : []).slice(0, 400)) {
+    const l = cleanRxLine(z); if (!l) continue; const k = (l.name + '|' + l.form).toLowerCase(); if (seen.has(k)) continue; seen.add(k);
+    out.push({ id: z && typeof z.id === 'string' && /^[a-f0-9]{12}$/.test(z.id) ? z.id : rid(6), ...l }); if (out.length >= RX_MAX_BASKET) break;
+  }
+  return out;
+}
+/* قالب الوصفة: ترويسة قابلة للتعديل (اسم العيادة/الطبيب/تخصص/هاتف/عنوان/شعار) ولغة الورقة. null = القيمة الافتراضية */
+function cleanTpl(b) {
+  b = b && typeof b === 'object' ? b : {}; const o = {};
+  for (const [k, n] of [['clinic', 120], ['doctor', 120], ['spec', 120], ['phone', 60], ['address', 160]]) o[k] = b[k] == null ? null : str(b[k], n);
+  o.logo = typeof b.logo === 'string' && b.logo.length <= 160000 && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(b.logo) ? b.logo : '';
+  o.lang = ['ar', 'fr', 'en'].includes(b.lang) ? b.lang : 'ar';
+  return o;
+}
+const cleanDrug = z => { const r = Array.isArray(z) ? z : typeof z === 'string' ? [z] : (z && typeof z === 'object' ? [z.n || z.name, z.ar, z.b, z.f, z.c] : null); if (!r) return null; const n = str(r[0], 100); return n ? [n, str(r[1], 100), str(r[2], 400), str(r[3], 400), str(r[4], 80)] : null; };
+const cleanDrugs = a => (Array.isArray(a) ? a : []).slice(0, RX_MAX_DRUGS).map(cleanDrug).filter(Boolean);
+
 /* ---------- الإحصائيات (طبيب فقط): تُحسب كلها في الخادم من الأرشيف والمرضى الحاليين ---------- */
 const isDayStr = v => /^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(v + 'T00:00:00Z'));
 function rangeOf(q) {   // نفس منطق الأرشيف: التواريخ بتوقيت جهاز الطبيب (tz = getTimezoneOffset)
@@ -337,6 +360,11 @@ function statsFor(c, d0, d1, tz) {
   const patients = { unique: pl.length, new: newP, returning: pl.length - newP, avgVisits: pl.length ? r2(rs.length / pl.length) : 0, freq,
     topVisits: pl.slice().sort((x, y) => y.visits - x.visits || y.billed - x.billed).slice(0, 8), topBilled: pl.slice().sort((x, y) => y.billed - x.billed).filter(z => z.billed > 0).slice(0, 8) };
 
+  /* الأدوية الموصوفة */
+  const rxRecs = rs.filter(r => r.rx && r.rx.length), rxm = new Map();
+  for (const r of rxRecs) for (const l of r.rx) bump(rxm, l.name.toLowerCase(), () => ({ name: l.name, n: 0 })).n++;
+  const rx = { prescriptions: rxRecs.length, lines: rxRecs.reduce((x, r) => x + r.rx.length, 0), top: [...rxm.values()].sort((x, y) => y.n - x.n || (x.name < y.name ? -1 : 1)).slice(0, 12) };
+
   /* من سجّل المرضى (الطبيب أو الممرضة باسمها) */
   const rg = new Map();
   for (const r of rs) { const role = r.createdBy === 'nurse' ? 'nurse' : 'doctor', name = role === 'nurse' ? (r.createdByName || '') : ''; bump(rg, role + '|' + name, () => ({ role, name, n: 0 })).n++; }
@@ -355,7 +383,7 @@ function statsFor(c, d0, d1, tz) {
   const overall = { visits: arch.length, patients: firstEver.size, firstVisit: arch.length ? Math.min(...arch.map(r => r.finishedAt)) : null, nurses: c.nurses.length, treatments: treatsOf(c).length };
 
   return { range: { d0, d1, tz, gran, from: start, to: stop }, summary, prev, series, hours, heat, weekday, treatments, gender, ages, reasons: [...reasons.values()].sort((x, y) => y.visits - x.visits),
-    teeth: { perTooth, cats, jaw, side, dentition, total: toothTotal, none: noTooth }, timing, patients, registrars, debt, today, overall };
+    teeth: { perTooth, cats, jaw, side, dentition, total: toothTotal, none: noTooth }, timing, patients, rx, registrars, debt, today, overall };
 }
 
 function authOf(req, roles) {
@@ -515,7 +543,7 @@ async function api(req, res, url) {
       const a = authOf(req, ['doctor']), c = a.clinic, pt = findPatient(c, pid), b = await readJSON(req);
       if (pt.status !== 'in') throw httpErr(409, 'not_waiting');
       const t = now(), treatment = str(b.treatment, 200) || 'استشارة';
-      const teeth = cleanTeeth(b.teeth), price = num(b.price), entry = { ...pt, price, followUp: !!b.followUp, ...(teeth.length ? { teeth, tooth: teeth.join(' ') } : {}), status: 'done', treatment, notes: str(b.notes, 2000), finishedAt: t, waitMin: Math.max(0, Math.round(((pt.startedAt || t) - pt.createdAt) / 6e4)), durationMin: Math.max(1, Math.round((t - (pt.startedAt || t)) / 6e4)) };
+      const teeth = cleanTeeth(b.teeth), price = num(b.price), entry = { ...pt, price, followUp: !!b.followUp, ...(teeth.length ? { teeth, tooth: teeth.join(' ') } : {}), status: 'done', treatment, notes: str(b.notes, 2000), ...(cleanRx(b.rx).length ? { rx: cleanRx(b.rx) } : {}), finishedAt: t, waitMin: Math.max(0, Math.round(((pt.startedAt || t) - pt.createdAt) / 6e4)), durationMin: Math.max(1, Math.round((t - (pt.startedAt || t)) / 6e4)) };
       /* الدفع: يغطي سعر هذه الزيارة أولاً ثم الفائض يسدّد أقدم متبقٍ سابق للمريض نفسه */
       { let pay = b.paid === undefined ? (price || 0) : (num(b.paid) || 0); const cur = Math.min(pay, price || 0); pay = r2(pay - cur);
         entry.paid = cur; entry.payments = cur > 0 ? [{ t, amt: cur }] : [];
@@ -598,6 +626,19 @@ async function api(req, res, url) {
     const out = [...seen.values()].slice(0, 8);
     return send(res, 200, out);
   }
+
+  /* الوصفات: السلة وقاعدة الأدوية المستوردة (طبيب فقط) */
+  if (p === '/api/rx' && m === 'GET') { const a = authOf(req, ['doctor']); return send(res, 200, { basket: a.clinic.rxBasket || [], drugs: a.clinic.rxDrugs || [], template: a.clinic.rxTpl || null }); }
+  if (p === '/api/rx/template' && m === 'PUT') { const a = authOf(req, ['doctor']); rate('rxt:' + a.key, 60, 6e4); const b = await readJSON(req, 400e3); a.clinic.rxTpl = cleanTpl(b); save(); return send(res, 200, a.clinic.rxTpl); }
+  if (p === '/api/rx/basket' && m === 'PUT') {
+    const a = authOf(req, ['doctor']); rate('rx:' + a.key, 120, 6e4); const b = await readJSON(req, 400e3);
+    a.clinic.rxBasket = cleanBasket(b.items); save(); return send(res, 200, a.clinic.rxBasket);
+  }
+  if (p === '/api/rx/drugs' && m === 'PUT') {
+    const a = authOf(req, ['doctor']); rate('rxd:' + a.key, 10, 6e4); const b = await readJSON(req, 6e6);
+    a.clinic.rxDrugs = cleanDrugs(b.drugs); save(); return send(res, 200, { count: a.clinic.rxDrugs.length });
+  }
+  if (p === '/api/rx/drugs' && m === 'DELETE') { const a = authOf(req, ['doctor']); a.clinic.rxDrugs = []; save(); return send(res, 200, { count: 0 }); }
 
   /* الإحصائيات المفصّلة (طبيب فقط) */
   if (m === 'GET' && p === '/api/stats') {
@@ -682,7 +723,7 @@ async function api(req, res, url) {
   if (m === 'GET' && p === '/api/backup') {
     const a = authOf(req, ['doctor']), c = a.clinic, images = {};
     for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
-    const body = JSON.stringify({ app: 'calm-clinic', version: 2, exportedAt: now(), clinicName: c.name, patients: c.patients, archive: c.archive, images });
+    const body = JSON.stringify({ app: 'calm-clinic', version: 2, exportedAt: now(), clinicName: c.name, patients: c.patients, archive: c.archive, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
   }
@@ -699,6 +740,7 @@ async function api(req, res, url) {
       for (const i of Array.isArray(r.images) ? r.images : []) { if (i && IMG_ID.test(i.id) && typeof imgs[i.id] === 'string') { const buf = Buffer.from(imgs[i.id], 'base64'); if (isJpeg(buf)) { out.images.push({ id: i.id }); out._w = (out._w || []).concat([[i.id, buf]]); } } }
       if (done) { out.price = num(r.price); out.paid = r.paid == null ? null : num(r.paid); out.followUp = !!r.followUp; out.payments = (Array.isArray(r.payments) ? r.payments : []).slice(0, 50).map(z => ({ t: +z.t || now(), amt: num(z && z.amt) || 0 })); }
       if (done) { const tt = cleanTeeth(r.teeth); if (tt.length) { out.teeth = tt; out.tooth = tt.join(' '); } }
+      if (done) { const rx = cleanRx(r.rx); if (rx.length) out.rx = rx; }
       if (done) Object.assign(out, { treatment: str(r.treatment, 200) || 'استشارة', notes: str(r.notes, 2000), finishedAt: +r.finishedAt || now(), waitMin: +r.waitMin || 0, durationMin: +r.durationMin || 0 });
       return out;
     };
@@ -707,6 +749,7 @@ async function api(req, res, url) {
     for (const pt of c.patients.concat(c.archive)) idx.ticket.delete(pt.ticket);
     fs.rmSync(path.join(DATA_DIR, 'img', c.id), { recursive: true, force: true }); fs.mkdirSync(path.join(DATA_DIR, 'img', c.id), { recursive: true });
     for (const r of P.concat(A)) { for (const [id, buf] of r._w || []) fs.writeFileSync(imgPath(c, id), buf); delete r._w; idx.ticket.set(r.ticket, c.id); }
+    if (Array.isArray(b.rxBasket)) c.rxBasket = cleanBasket(b.rxBasket); if (Array.isArray(b.rxDrugs)) c.rxDrugs = cleanDrugs(b.rxDrugs);
     c.patients = P; c.archive = A; RT(c).skip.clear(); broadcast(c); return send(res, 200, { patients: P.length, archive: A.length });
   }
   throw httpErr(404, 'not_found');
