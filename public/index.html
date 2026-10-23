@@ -7,8 +7,9 @@
 <meta name="theme-color" content="#2E2A6E">
 <meta name="robots" content="noindex">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="عيادتي">
@@ -21,6 +22,23 @@
 <div id="netBar" data-i18n="offline_bar">غير متصل بالخادم — جارٍ إعادة الاتصال…</div>
 <div id="toast-container"></div>
 <div id="visual-alert-container"></div>
+<div id="taskBubbles" aria-live="assertive"></div>
+<button type="button" id="taskFab" data-act="openTasks" aria-label="مهمة للممرضة"><span class="tf-ic">📌</span><span class="tf-badge" id="taskFabBadge" hidden>0</span></button>
+
+<!-- مهام الطبيب للممرضة -->
+<div id="tasksModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-head"><h4 data-i18n="task_title">📌 مهمة للممرضة</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
+    <form data-form="sendTask" autocomplete="off">
+      <div class="form-group"><label data-i18n="task_to_l">إرسال إلى:</label><select id="taskTo"></select></div>
+      <div class="form-group"><textarea id="taskText" maxlength="300" rows="3" required data-i18n-ph="task_ph" placeholder="اكتب المهمة…"></textarea></div>
+      <div class="task-chips" id="taskChips"></div>
+      <button type="submit" class="btn-primary btn-green" data-i18n="task_send">إرسال المهمة</button>
+    </form>
+    <h4 style="margin:16px 0 8px;font-size:14px" data-i18n="task_list_t">المهام المرسلة</h4>
+    <ul id="taskList" class="task-list"></ul>
+  </div>
+</div>
 <input type="file" id="globalImageInput" accept="image/*" multiple style="display:none">
 
 <div id="lightboxModal" data-act="closeLightbox"><img id="lightboxImg" src="" alt=""></div>
@@ -378,7 +396,7 @@
   <div class="modal-card settings-modal">
     <div class="modal-head"><h4 data-i18n="set_drugs">قاعدة الأدوية 💊</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <div class="hint" id="drugsInfo" style="font-weight:600"></div>
-    <input type="file" id="drugsFile" accept=".csv,.json,.txt,text/csv,application/json,text/plain" hidden>
+    <input type="file" id="drugsFile" accept=".xlsx,.xlsm,.csv,.json,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,application/json,text/plain" hidden>
     <div style="display:flex;gap:10px;margin-top:12px">
       <button type="button" class="btn-action btn-green" style="flex:1;padding:12px" data-act="drugsPick" data-i18n="drugs_import">استيراد قائمة 📥</button>
       <button type="button" class="btn-action btn-red" style="flex:1;padding:12px" data-act="drugsClear" data-i18n="drugs_clear">حذف المستورد 🗑️</button>

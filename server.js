@@ -95,7 +95,7 @@ const FDI = new Set(); for (const q of [1, 2, 3, 4]) { for (let i = 1; i <= 8; i
 const cleanTeeth = a => [...new Set((Array.isArray(a) ? a : []).map(String).filter(x => FDI.has(x)))];
 const TREAT_KEYS = ['قلع', 'علاج عصب', 'استشارة', 'جلسة تركيب', 'تبييض أسنان', 'أخرى'];
 const num = (v, max = 1e9) => { if (v === '' || v == null) return null; const n = Math.round(Number(v) * 100) / 100; return Number.isFinite(n) && n >= 0 && n <= max ? n : null; };
-const PRICE_CATS = ['base', 'front', 'pre', 'molar'];   // عام / أمامية (قواطع وأنياب) / ضواحك / أضراس
+const PRICE_CATS = ['base', 'front', 'pre', 'molar', 'wisdom'];   // عام / أمامية (قواطع وأنياب) / ضواحك / أضراس
 const treatsOf = c => (c.prices && Array.isArray(c.prices.treatments) && c.prices.treatments.length) ? c.prices.treatments : TREAT_KEYS;
 const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
 const pricesOf = c => { const tr = treatsOf(c); return { currency: (c.prices && c.prices.currency) || '', list: normList(c.prices && c.prices.list, tr), treatments: tr }; };
@@ -107,6 +107,10 @@ function normTreatments(a) {
   if (!out.length || out.length > 30) throw httpErr(400, 'invalid_input');
   return out;
 }
+/* علاجات الزيارة: قائمة أسماء (حتى 12) + بنود الأسعار الموافقة لها. السجلات القديمة فيها treatment نصّاً واحداً فقط */
+function cleanTreats(a) { const out = [], seen = new Set(); for (const v of Array.isArray(a) ? a : []) { const n = str(v, 60).replace(/\s+/g, ' '); if (!n || n.length > 40 || n === '__proto__') continue; const k = n.toLowerCase(); if (seen.has(k)) continue; seen.add(k); out.push(n); if (out.length >= 12) break; } return out; }
+function cleanItems(a, names) { const m = new Map(); for (const i of Array.isArray(a) ? a : []) { if (i && typeof i.name === 'string') m.set(i.name.trim().replace(/\s+/g, ' '), Math.max(0, num(i.price) || 0)); } return names.map(n => ({ name: n, price: m.has(n) ? m.get(n) : 0 })); }
+const treatmentsOf = r => Array.isArray(r.treatments) && r.treatments.length ? r.treatments : [r.treatment || 'استشارة'];
 /* حساب المريض: المستحق/المدفوع. سجل قديم بلا مدفوع يُعدّ مسدَّداً */
 const patKey = r => String(r.name).trim().toLowerCase() + '|' + r.birthYear;
 const dueOf = a => a.price || 0, paidOf = a => a.paid == null ? dueOf(a) : a.paid, remOf = a => Math.max(0, Math.round((dueOf(a) - paidOf(a)) * 100) / 100);
@@ -116,7 +120,7 @@ function patientView(p) {
   return { id: p.id, ticket: p.ticket, ticketNo: p.ticketNo, name: p.name, birthYear: p.birthYear, age: ageOf(p), gender: p.gender, reason: p.reason, tooth: p.tooth, phone: p.phone, status: p.status, createdAt: p.createdAt, startedAt: p.startedAt || null, images: (p.images || []).map(i => i.id) };
 }
 function archiveView(a) {
-  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: a.payments || [], followUp: !!a.followUp, teeth: a.teeth || [], notes: a.notes || '', rx: a.rx || [], createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
+  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, treatments: treatmentsOf(a), items: a.items || [], price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: a.payments || [], followUp: !!a.followUp, teeth: a.teeth || [], notes: a.notes || '', rx: a.rx || [], rxHead: a.rxHead || null, createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
 }
 function nextTicketNo(c) {
   const d = new Date().toLocaleDateString('en-CA');
@@ -147,10 +151,18 @@ function normSchedule(b) {
   if (enabled && !days.length) throw httpErr(400, 'invalid_input');
   return { enabled, days, from, to, tz };
 }
-function stateFor(c) {
+/* مهام الطبيب للممرضات: تبقى ظاهرة للممرضة (فقاعة) حتى تُنجَز، وتُحذف المنجَزة بعد 24 ساعة */
+const TASK_KEEP_MS = 24 * 36e5;
+function pruneTasks(c) { if (!c.tasks) return; const t = now(); c.tasks = c.tasks.filter(k => !k.done || t - k.doneAt < TASK_KEEP_MS).slice(0, 100); }
+function tasksFor(c, role, nurseId) {
+  pruneTasks(c); const nm = id => { const n = c.nurses.find(z => z.id === id); return n ? n.name : ''; };
+  return (c.tasks || []).filter(k => role === 'doctor' || (!k.done && (!k.to || k.to === nurseId)))
+    .map(k => ({ id: k.id, text: k.text, to: k.to || null, toName: k.to ? nm(k.to) : '', createdAt: k.createdAt, done: !!k.done, doneAt: k.doneAt || null, doneBy: k.doneBy || '' }));
+}
+function stateFor(c, role, nurseId) {
   const r = RT(c), t = now();
   for (const [k, v] of r.skip) if (v.ts < t - 6e5 || !c.patients.some(p => p.id === k && p.status === 'waiting')) r.skip.delete(k);
-  return { patients: c.patients.map(patientView), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c) };
+  return { patients: c.patients.map(patientView), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), tasks: role ? tasksFor(c, role, nurseId) : [] };
 }
 function ticketView(c, token) {
   const i = c.patients.findIndex(p => p.ticket === token);
@@ -174,15 +186,15 @@ const streamTickets = new Map();   // تذكرة اتصال لمرة واحدة
 function sse(res, event, data) { res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`); }
 /* إشعارات النظام (Web Push): تصل حتى لو كان التطبيق مغلقاً أو الشاشة مقفلة */
 const PUSH_TXT = {
-  ar: { add: ['🔔 مريض جديد في الانتظار', n => `تمت إضافة: ${n.name}`], enter: ['🩺 دخول مريض للمعاينة', n => `تم إدخال المريض: ${n.name}`], skip_request: ['⚠️ تنبيه تخطي الدور!', n => `الممرضة تحاول إدخال ${n.name} وقبله ${n.first || ''} في القائمة. هل تسمح؟`], finish: ['✅ انتهت المعاينة!', n => `انتهى الطبيب من ${n.name}. يمكنك إدخال المريض التالي.`], skip_denied: ['⛔ رفض الطبيب التخطي', n => `رفض الطبيب إدخال ${n.name} قبل دوره.`] },
-  en: { add: ['🔔 New patient waiting', n => `Added: ${n.name}`], enter: ['🩺 Patient entering', n => `Patient sent in: ${n.name}`], skip_request: ['⚠️ Queue skip request!', n => `The nurse wants to send in ${n.name} before ${n.first || ''}. Allow?`], finish: ['✅ Consultation finished!', n => `The doctor finished with ${n.name}. You can send in the next patient.`], skip_denied: ['⛔ Skip declined', n => `The doctor declined to see ${n.name} before their turn.`] }
+  ar: { task: ['📌 مهمة جديدة من الطبيب', n => n.text || ''], task_done: ['✅ تمت المهمة', n => `${n.by || ''}: ${n.text || ''}`], add: ['🔔 مريض جديد في الانتظار', n => `تمت إضافة: ${n.name}`], enter: ['🩺 دخول مريض للمعاينة', n => `تم إدخال المريض: ${n.name}`], skip_request: ['⚠️ تنبيه تخطي الدور!', n => `الممرضة تحاول إدخال ${n.name} وقبله ${n.first || ''} في القائمة. هل تسمح؟`], finish: ['✅ انتهت المعاينة!', n => `انتهى الطبيب من ${n.name}. يمكنك إدخال المريض التالي.`], skip_denied: ['⛔ رفض الطبيب التخطي', n => `رفض الطبيب إدخال ${n.name} قبل دوره.`] },
+  en: { task: ['📌 New task from the doctor', n => n.text || ''], task_done: ['✅ Task completed', n => `${n.by || ''}: ${n.text || ''}`], add: ['🔔 New patient waiting', n => `Added: ${n.name}`], enter: ['🩺 Patient entering', n => `Patient sent in: ${n.name}`], skip_request: ['⚠️ Queue skip request!', n => `The nurse wants to send in ${n.name} before ${n.first || ''}. Allow?`], finish: ['✅ Consultation finished!', n => `The doctor finished with ${n.name}. You can send in the next patient.`], skip_denied: ['⛔ Skip declined', n => `The doctor declined to see ${n.name} before their turn.`] }
 };
 function pushNotify(c, notify) {
   const d = notify.data; if (!d) return;
   for (const [k, s] of Object.entries(db.sessions)) {
-    if (s.clinicId !== c.id || !s.push || s.exp < now() || k === notify.exclude || (notify.to && s.role !== notify.to)) continue;
+    if (s.clinicId !== c.id || !s.push || s.exp < now() || k === notify.exclude || (notify.to && s.role !== notify.to) || (notify.nurseId && s.nurseId !== notify.nurseId)) continue;
     const tx = (PUSH_TXT[s.push.lang] || PUSH_TXT.ar)[d.type]; if (!tx) continue;
-    const urgent = d.type === 'skip_request' || d.type === 'add';
+    const urgent = d.type === 'skip_request' || d.type === 'add' || d.type === 'task';
     webpush.send(s.push.sub, { title: tx[0], body: tx[1](d), tag: 'cc-' + d.type + (d.pid ? '-' + d.pid : ''), urgent, type: d.type }, { urgency: 'high', ttl: urgent ? 1800 : 900 })
       .then(r => { if (r === 'gone' && db.sessions[k] && db.sessions[k].push && db.sessions[k].push.sub === s.push.sub) { delete db.sessions[k].push; save(); } });
   }
@@ -191,7 +203,7 @@ function broadcast(c, notify, extraTokens) {
   const r = RT(c), st = stateFor(c);
   if (notify) pushNotify(c, notify);
   for (const s of r.streams) {
-    try { sse(s.res, 'state', st); if (notify && (!notify.to || notify.to === s.role)) sse(s.res, 'notify', notify.data); } catch (e) {}
+    try { sse(s.res, 'state', { ...st, tasks: tasksFor(c, s.role, s.nurseId) }); if (notify && (!notify.to || notify.to === s.role) && (!notify.nurseId || notify.nurseId === s.nurseId)) sse(s.res, 'notify', notify.data); } catch (e) {}
   }
   const toks = new Set(c.patients.map(p => p.ticket).concat(extraTokens || []));
   for (const t of toks) { const set = ticketStreams.get(t); if (set) for (const res of set) try { sse(res, 'ticket', ticketView(c, t)); } catch (e) {} }
@@ -265,20 +277,10 @@ function cleanTpl(b) {
   for (const [k, n] of [['clinic', 120], ['doctor', 120], ['spec', 120], ['phone', 60], ['address', 160]]) o[k] = b[k] == null ? null : str(b[k], n);
   o.logo = typeof b.logo === 'string' && b.logo.length <= 160000 && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(b.logo) ? b.logo : '';
   o.lang = ['ar', 'fr', 'en'].includes(b.lang) ? b.lang : 'ar';
-  o.logoPos = ['start', 'end', 'top'].includes(b.logoPos) ? b.logoPos : 'start';
-  // أسطر الترويسة: ترتيبها وما يظهر منها (null = الافتراضي). سطر النص الحر 'free' يحمل نصّه في t
-  o.rows = null;
-  if (Array.isArray(b.rows)) {
-    const seen = new Set(), rows = []; let free = 0;
-    for (const z of b.rows.slice(0, 16)) {
-      const k = z && z.k; if (!['clinic', 'doctor', 'spec', 'contact', 'phone', 'address', 'free'].includes(k) || rows.length >= 8) continue;
-      if (k === 'free') { if (free >= 4) continue; free++; rows.push({ k, t: str(z.t, 160) }); continue; }
-      if (seen.has(k)) continue; seen.add(k); rows.push({ k });
-    }
-    o.rows = seen.has('contact') ? rows.filter(r => r.k !== 'phone' && r.k !== 'address') : rows;   // contact يجمع الهاتف والعنوان فلا يتكرران
-  }
   return o;
 }
+/* لقطة ترويسة الوصفة وقت إصدارها: تبقى كما صدرت حتى لو تغيّر القالب لاحقاً (بلا الشعار) */
+const cleanHead = h => { if (!h || typeof h !== 'object') return null; const o = {}; for (const [k, n] of [['clinic', 120], ['doctor', 120], ['spec', 120], ['phone', 60], ['address', 160]]) o[k] = str(h[k], n); o.lang = ['ar', 'fr', 'en'].includes(h.lang) ? h.lang : 'ar'; return o; };
 const cleanDrug = z => { const r = Array.isArray(z) ? z : typeof z === 'string' ? [z] : (z && typeof z === 'object' ? [z.n || z.name, z.ar, z.b, z.f, z.c] : null); if (!r) return null; const n = str(r[0], 100); return n ? [n, str(r[1], 100), str(r[2], 400), str(r[3], 400), str(r[4], 80)] : null; };
 const cleanDrugs = a => (Array.isArray(a) ? a : []).slice(0, RX_MAX_DRUGS).map(cleanDrug).filter(Boolean);
 
@@ -338,7 +340,11 @@ function statsFor(c, d0, d1, tz) {
 
   /* العلاجات */
   const tm = new Map();
-  for (const r of rs) { const o = bump(tm, r.treatment || 'استشارة', () => ({ name: r.treatment || 'استشارة', visits: 0, billed: 0, paid: 0, debt: 0, dur: [] })); o.visits++; o.billed = r2(o.billed + dueOf(r)); o.paid = r2(o.paid + paidOf(r)); o.debt = r2(o.debt + remOf(r)); o.dur.push(r.durationMin || 0); }
+  for (const r of rs) {
+    /* زيارة بعدة علاجات: كل علاج يُحسب زيارة له، ويُوزَّع المستحق/المدفوع/المتبقي بنسبة سعر كل بند (بالتساوي إن لم توجد أسعار) */
+    const names = treatmentsOf(r), w = names.map(n => { const it = (r.items || []).find(x => x.name === n); return it ? +it.price || 0 : 0; }), ws = w.reduce((x, y) => x + y, 0);
+    names.forEach((n, i) => { const f = ws > 0 ? w[i] / ws : 1 / names.length, o = bump(tm, n, () => ({ name: n, visits: 0, billed: 0, paid: 0, debt: 0, dur: [] })); o.visits++; o.billed = r2(o.billed + dueOf(r) * f); o.paid = r2(o.paid + paidOf(r) * f); o.debt = r2(o.debt + remOf(r) * f); o.dur.push(r.durationMin || 0); });
+  }
   const treatments = [...tm.values()].map(o => ({ name: o.name, visits: o.visits, billed: o.billed, paid: o.paid, debt: o.debt, avgPrice: o.visits ? r2(o.billed / o.visits) : 0, avgDuration: avgOf(o.dur) })).sort((x, y) => y.visits - x.visits || y.billed - x.billed);
 
   /* الديموغرافيا */
@@ -477,7 +483,7 @@ async function api(req, res, url) {
 
   /* ---- ما بعد هذا يتطلب تسجيل دخول ---- */
   if (m === 'POST' && p === '/api/logout') { const a = authOf(req); delete db.sessions[a.key]; closeStreamsOf(a.key); save(); return send(res, 200, { ok: true }); }
-  if (m === 'GET' && p === '/api/state') { const a = authOf(req); return send(res, 200, { me: meOf(a), ...stateFor(a.clinic) }); }
+  if (m === 'GET' && p === '/api/state') { const a = authOf(req); return send(res, 200, { me: meOf(a), ...stateFor(a.clinic, a.role, a.nurse && a.nurse.id) }); }
   /* اشتراك الجهاز في إشعارات النظام (Web Push) — مرتبط بجلسة الدخول، ويُحذف عند الخروج */
   if (m === 'GET' && p === '/api/push/key') { authOf(req); return send(res, 200, { key: webpush.publicKey }); }
   if (m === 'POST' && p === '/api/push/subscribe') {
@@ -501,7 +507,7 @@ async function api(req, res, url) {
     const r = RT(c); if (r.streams.size >= 40) throw httpErr(429, 'rate_limited');
     res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store', Connection: 'keep-alive', 'X-Accel-Buffering': 'no' });
     res.write('retry: 3000\n\n');
-    const sub = { res, role: s.role, sessionKey: st.key }; r.streams.add(sub); sse(res, 'state', stateFor(c));
+    const sub = { res, role: s.role, nurseId: s.nurseId || null, sessionKey: st.key }; r.streams.add(sub); sse(res, 'state', stateFor(c, s.role, s.nurseId));
     req.on('close', () => r.streams.delete(sub));
     return;
   }
@@ -554,8 +560,8 @@ async function api(req, res, url) {
     if (act === 'finish' && m === 'POST') {
       const a = authOf(req, ['doctor']), c = a.clinic, pt = findPatient(c, pid), b = await readJSON(req);
       if (pt.status !== 'in') throw httpErr(409, 'not_waiting');
-      const t = now(), treatment = str(b.treatment, 200) || 'استشارة';
-      const teeth = cleanTeeth(b.teeth), price = num(b.price), entry = { ...pt, price, followUp: !!b.followUp, ...(teeth.length ? { teeth, tooth: teeth.join(' ') } : {}), status: 'done', treatment, notes: str(b.notes, 2000), ...(cleanRx(b.rx).length ? { rx: cleanRx(b.rx) } : {}), finishedAt: t, waitMin: Math.max(0, Math.round(((pt.startedAt || t) - pt.createdAt) / 6e4)), durationMin: Math.max(1, Math.round((t - (pt.startedAt || t)) / 6e4)) };
+      const t = now(), tl = cleanTreats(b.treatments), treatment = tl.length ? str(tl.join(' + '), 200) : (str(b.treatment, 200) || 'استشارة');
+      const teeth = cleanTeeth(b.teeth), price = num(b.price), entry = { ...pt, price, followUp: !!b.followUp, ...(teeth.length ? { teeth, tooth: teeth.join(' ') } : {}), status: 'done', treatment, ...(tl.length ? { treatments: tl, items: cleanItems(b.items, tl) } : {}), notes: str(b.notes, 2000), ...(cleanRx(b.rx).length ? { rx: cleanRx(b.rx), rxHead: cleanHead(b.rxHead) } : {}), finishedAt: t, waitMin: Math.max(0, Math.round(((pt.startedAt || t) - pt.createdAt) / 6e4)), durationMin: Math.max(1, Math.round((t - (pt.startedAt || t)) / 6e4)) };
       /* الدفع: يغطي سعر هذه الزيارة أولاً ثم الفائض يسدّد أقدم متبقٍ سابق للمريض نفسه */
       { let pay = b.paid === undefined ? (price || 0) : (num(b.paid) || 0); const cur = Math.min(pay, price || 0); pay = r2(pay - cur);
         entry.paid = cur; entry.payments = cur > 0 ? [{ t, amt: cur }] : [];
@@ -612,7 +618,7 @@ async function api(req, res, url) {
   if (m === 'GET' && p === '/api/account') {
     const a = authOf(req, ['doctor']), q = url.searchParams, k = patKey({ name: str(q.get('name') || '', 80), birthYear: parseInt(q.get('year')) });
     const rs = a.clinic.archive.filter(r => patKey(r) === k);
-    return send(res, 200, { due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)), records: rs.slice(0, 5).map(r => ({ id: r.id, treatment: r.treatment, teeth: r.teeth || [], tooth: r.tooth, finishedAt: r.finishedAt, price: r.price, paid: paidOf(r), remaining: remOf(r) })) });
+    return send(res, 200, { due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)), records: rs.slice(0, 5).map(r => ({ id: r.id, treatment: r.treatment, treatments: treatmentsOf(r), teeth: r.teeth || [], tooth: r.tooth, finishedAt: r.finishedAt, price: r.price, paid: paidOf(r), remaining: remOf(r) })) });
   }
   /* تسجيل دفعة على سجل في الأرشيف (طبيب فقط) */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})\/payment$/);
@@ -670,6 +676,7 @@ async function api(req, res, url) {
     const all = a.clinic.archive.filter(r => (!name || r.name.toLowerCase().includes(name)) && (!year || String(r.birthYear).includes(year)) && (!gender || r.gender === gender) && (!tooth || String(r.tooth).toLowerCase().includes(tooth)) && (!tr || (r.treatment || '').includes(tr)) && (!d0 || r.finishedAt >= d0) && (!d1 || r.finishedAt < d1));
     return send(res, 200, { total: all.length, sum: r2(all.reduce((x, r) => x + dueOf(r), 0)), paidSum: r2(all.reduce((x, r) => x + paidOf(r), 0)), debt: r2(all.reduce((x, r) => x + remOf(r), 0)), items: all.slice(off, off + lim).map(archiveView) });
   }
+  /* أرشيف الوصفات (طبيب فقط): كل سجل منتهٍ له وصفة، الأحدث أولاً */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})$/);
   if (m === 'DELETE' && mt) {
     const a = authOf(req, ['doctor']), c = a.clinic, i = c.archive.findIndex(z => z.id === mt[1]);
@@ -678,6 +685,27 @@ async function api(req, res, url) {
   }
 
   /* الممرضات (طبيب فقط) */
+  /* مهام الطبيب للممرضة */
+  if (p === '/api/tasks' && m === 'POST') {
+    const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req), text = str(b.text, 300); let to = null;
+    if (!text) throw httpErr(400, 'invalid_input');
+    if (b.to && b.to !== 'all') { const n = c.nurses.find(z => z.id === b.to); if (!n) throw httpErr(404, 'not_found'); to = n.id; }
+    c.tasks = c.tasks || []; pruneTasks(c); if (c.tasks.filter(k => !k.done).length >= 30) throw httpErr(429, 'limit');
+    const k = { id: rid(6), text, to, createdAt: now(), done: false }; c.tasks.unshift(k);
+    broadcast(c, { to: 'nurse', ...(to ? { nurseId: to } : {}), data: { type: 'task', text, pid: k.id } });
+    return send(res, 201, { ok: true, id: k.id });
+  }
+  { const tm = p.match(/^\/api\/tasks\/([a-f0-9]{12})(\/done)?$/);
+    if (tm && m === 'POST' && tm[2]) {
+      const a = authOf(req), c = a.clinic, k = (c.tasks || []).find(z => z.id === tm[1]);
+      if (!k || (a.role === 'nurse' && k.to && k.to !== a.nurse.id)) throw httpErr(404, 'not_found');
+      if (!k.done) { k.done = true; k.doneAt = now(); k.doneBy = a.role === 'doctor' ? c.doctor.name : a.nurse.name; broadcast(c, a.role === 'nurse' ? { to: 'doctor', data: { type: 'task_done', text: k.text, by: k.doneBy, pid: k.id } } : null); }
+      return send(res, 200, { ok: true });
+    }
+    if (tm && m === 'DELETE' && !tm[2]) {
+      const a = authOf(req, ['doctor']), c = a.clinic, i = (c.tasks || []).findIndex(z => z.id === tm[1]); if (i < 0) throw httpErr(404, 'not_found');
+      c.tasks.splice(i, 1); broadcast(c, null); return send(res, 200, { ok: true });
+    } }
   if (p === '/api/nurses' && m === 'GET') { const a = authOf(req, ['doctor']); return send(res, 200, a.clinic.nurses.map(n => ({ id: n.id, name: n.name, phone: n.phone }))); }
   if (p === '/api/nurses' && m === 'POST') {
     const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req), name = str(b.name, 60), phone = str(b.phone, 25), pw = typeof b.password === 'string' ? b.password : '';
@@ -698,7 +726,7 @@ async function api(req, res, url) {
   }
   if (mt && m === 'DELETE') {
     const a = authOf(req, ['doctor']), c = a.clinic, i = c.nurses.findIndex(z => z.id === mt[1]); if (i < 0) throw httpErr(404, 'not_found');
-    const [n] = c.nurses.splice(i, 1); for (const [k, s] of Object.entries(db.sessions)) if (s.nurseId === n.id) { delete db.sessions[k]; closeStreamsOf(k); }
+    const [n] = c.nurses.splice(i, 1); if (c.tasks) c.tasks = c.tasks.filter(k => k.to !== n.id); for (const [k, s] of Object.entries(db.sessions)) if (s.nurseId === n.id) { delete db.sessions[k]; closeStreamsOf(k); }
     save(); return send(res, 200, { ok: true });
   }
 
@@ -752,7 +780,8 @@ async function api(req, res, url) {
       for (const i of Array.isArray(r.images) ? r.images : []) { if (i && IMG_ID.test(i.id) && typeof imgs[i.id] === 'string') { const buf = Buffer.from(imgs[i.id], 'base64'); if (isJpeg(buf)) { out.images.push({ id: i.id }); out._w = (out._w || []).concat([[i.id, buf]]); } } }
       if (done) { out.price = num(r.price); out.paid = r.paid == null ? null : num(r.paid); out.followUp = !!r.followUp; out.payments = (Array.isArray(r.payments) ? r.payments : []).slice(0, 50).map(z => ({ t: +z.t || now(), amt: num(z && z.amt) || 0 })); }
       if (done) { const tt = cleanTeeth(r.teeth); if (tt.length) { out.teeth = tt; out.tooth = tt.join(' '); } }
-      if (done) { const rx = cleanRx(r.rx); if (rx.length) out.rx = rx; }
+      if (done) { const rx = cleanRx(r.rx); if (rx.length) { out.rx = rx; out.rxHead = cleanHead(r.rxHead); } }
+      if (done) { const tl = cleanTreats(r.treatments); if (tl.length) { out.treatments = tl; out.items = cleanItems(r.items, tl); } }
       if (done) Object.assign(out, { treatment: str(r.treatment, 200) || 'استشارة', notes: str(r.notes, 2000), finishedAt: +r.finishedAt || now(), waitMin: +r.waitMin || 0, durationMin: +r.durationMin || 0 });
       return out;
     };

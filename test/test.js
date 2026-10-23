@@ -111,6 +111,36 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     r = await J('PUT', '/api/prices', A, { currency: 'دج', list: { 'قلع': '1500.505', 'غير معروف': 5, 'عصب': -1, 'أخرى': 'abc' } }); ok(r.s === 200 && r.j.currency === 'دج' && r.j.list['قلع'].base === 1500.51 && Object.keys(r.j.list).length === 1, 'حفظ الأسعار مع تنقية القيم غير الصالحة');
     r = await J('GET', '/api/state', A); ok(r.j.me.prices.list['قلع'].base === 1500.51, 'الطبيب يرى قائمة الأسعار');
     r = await J('GET', '/api/state', N); ok(r.j.me.prices === undefined, 'الممرضة لا ترى الأسعار');
+    console.log('مهام الطبيب للممرضة (فقاعات)');
+    { const code = (await J('GET', '/api/state', A)).j.me.code;
+      await J('POST', '/api/nurses', A, { name: 'ممرضة ثانية', phone: '', password: 'nurse456' });
+      const N2 = (await J('POST', '/api/login/nurse', null, { code, name: 'ممرضة ثانية', password: 'nurse456' })).j.token, n2id = (await J('GET', '/api/nurses', A)).j.find(z => z.name === 'ممرضة ثانية').id;
+      let r = await J('POST', '/api/tasks', N, { text: 'x' }); ok(r.s === 403, 'الممرضة لا ترسل مهاماً');
+      r = await J('POST', '/api/tasks', A, { text: '   ' }); ok(r.s === 400, 'رفض مهمة فارغة');
+      r = await J('POST', '/api/tasks', A, { text: 'مهمة', to: 'ffffffffffff' }); ok(r.s === 404, 'رفض ممرضة غير موجودة');
+      const nBefore = nEv.length;
+      r = await J('POST', '/api/tasks', A, { text: 'جهّزي غرفة المعاينة', to: 'all' }); ok(r.s === 201 && r.j.id, 'الطبيب يرسل مهمة للجميع'); const tAll = r.j.id;
+      r = await J('POST', '/api/tasks', A, { text: 'مهمة خاصة بالثانية', to: n2id }); ok(r.s === 201, 'مهمة موجّهة لممرضة محددة'); const tOne = r.j.id;
+      await new Promise(z => setTimeout(z, 200));
+      ok(nEv.slice(nBefore).some(([e, d]) => e === 'notify' && d.type === 'task' && d.text === 'جهّزي غرفة المعاينة') && !nEv.slice(nBefore).some(([e, d]) => e === 'notify' && d.text === 'مهمة خاصة بالثانية'), 'البث اللحظي: الممرضة تستلم مهمتها فقط');
+      r = await J('GET', '/api/state', N); ok(r.j.tasks.length === 1 && r.j.tasks[0].text === 'جهّزي غرفة المعاينة' && !r.j.tasks[0].done, 'الممرضة ترى مهمتها فقط');
+      r = await J('GET', '/api/state', N2); ok(r.j.tasks.length === 2, 'الممرضة الثانية ترى المهمتين');
+      r = await J('GET', '/api/state', A); ok(r.j.tasks.length === 2, 'الطبيب يرى كل المهام');
+      r = await J('GET', '/api/state', B); ok(r.j.tasks.length === 0, 'عيادة أخرى لا ترى المهام');
+      r = await J('POST', `/api/tasks/${tOne}/done`, N); ok(r.s === 404, 'ممرضة لا تُنجز مهمة غير موجّهة لها');
+      r = await J('POST', `/api/tasks/${tAll}/done`, B); ok(r.s === 404, 'عيادة أخرى لا تُنجز مهامنا');
+      r = await J('DELETE', `/api/tasks/${tAll}`, N); ok(r.s === 403, 'الممرضة لا تحذف المهام');
+      const dBefore = events.length;
+      r = await J('POST', `/api/tasks/${tAll}/done`, N); ok(r.s === 200, 'الممرضة تُنجز المهمة');
+      await new Promise(z => setTimeout(z, 200));
+      ok(events.slice(dBefore).some(([e, d]) => e === 'notify' && d.type === 'task_done' && d.by), 'الطبيب يُبلَّغ بإنجاز المهمة');
+      r = await J('GET', '/api/state', N); ok(r.j.tasks.length === 0, 'المهمة المنجزة تختفي من فقاعات الممرضة');
+      r = await J('GET', '/api/state', N2); ok(r.j.tasks.length === 1 && r.j.tasks[0].id === tOne, 'وتختفي عند الممرضة الثانية أيضاً');
+      r = await J('GET', '/api/state', A); const dn = r.j.tasks.find(z => z.id === tAll); ok(dn && dn.done && !!dn.doneBy, 'الطبيب يرى من أنجزها');
+      r = await J('DELETE', `/api/tasks/${tOne}`, A); ok(r.s === 200, 'الطبيب يحذف مهمة معلّقة');
+      r = await J('GET', '/api/state', N2); ok(r.j.tasks.length === 0, 'المهمة المحذوفة تختفي من الفقاعات');
+      r = await J('POST', '/api/tasks', A, { text: 'z'.repeat(500) }); ok(r.s === 201 && (await J('GET', '/api/state', A)).j.tasks[0].text.length === 300, 'نص المهمة يُقصّ عند 300 حرف');  await J('DELETE', `/api/nurses/${n2id}`, A); for (const k of (await J('GET', '/api/state', A)).j.tasks) await J('DELETE', `/api/tasks/${k.id}`, A); }
+
     ac.abort(); acN.abort(); acT.abort();
 
     console.log('النسخ الاحتياطي والاستعادة والحذف');
@@ -173,9 +203,16 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('PUT', '/api/prices', D, { currency: 'دج', treatments: ['__proto__'], list: {} }); ok(r.s === 400, 'رفض اسم خطِر');
       r = await J('PUT', '/api/prices', D, { currency: 'دج', treatments: Array.from({ length: 31 }, (_, i) => 'علاج' + i), list: {} }); ok(r.s === 400, 'حدّ 30 علاجاً');
       r = await J('PUT', '/api/prices', D, { currency: '$', list: { 'قلع': 1200 } }); ok(r.s === 200 && r.j.treatments.length === 3 && r.j.list['قلع'].base === 1200, 'طلب بلا قائمة علاجات يُبقي القائمة الحالية');
+      r = await J('PUT', '/api/prices', D, { currency: '$', list: { 'قلع': { base: 1000, molar: 1500, wisdom: 2500 } } }); ok(r.s === 200 && r.j.list['قلع'].wisdom === 2500 && r.j.list['قلع'].molar === 1500, 'حفظ سعر ضرس العقل ضمن الأسعار');
       const tp = (await J('POST', '/api/patients', D, pat('مريض علاج'))).j; await J('POST', `/api/patients/${tp.id}/enter`, D);
       r = await J('POST', `/api/patients/${tp.id}/finish`, D, { treatment: 'حشوة تجميلية', price: 4000 }); ok(r.s === 200 && r.j.treatment === 'حشوة تجميلية', 'إنهاء المعاينة بعلاج مخصّص');
-      r = await J('GET', '/api/archive?treatment=' + encodeURIComponent('حشوة'), D); ok(r.j.items.length === 1, 'فلترة الأرشيف بالعلاج المخصّص'); }
+      r = await J('GET', '/api/archive?treatment=' + encodeURIComponent('حشوة'), D); ok(r.j.items.length === 1, 'فلترة الأرشيف بالعلاج المخصّص'); 
+      { const mp = (await J('POST', '/api/patients', D, pat('مريض متعدد'))).j; await J('POST', `/api/patients/${mp.id}/enter`, D);
+        r = await J('POST', `/api/patients/${mp.id}/finish`, D, { treatment: 'x', treatments: ['قلع', 'تنظيف الجير', 'قلع', '', 'حشوة تجميلية'], items: [{ name: 'قلع', price: 1200 }, { name: 'تنظيف الجير', price: 2500 }, { name: 'حشوة تجميلية', price: 4000 }], price: 7700, paid: 5000 });
+        ok(r.s === 200 && r.j.treatments.join('|') === 'قلع|تنظيف الجير|حشوة تجميلية' && r.j.treatment === 'قلع + تنظيف الجير + حشوة تجميلية' && r.j.price === 7700 && r.j.remaining === 2700 && r.j.items.length === 3, 'إنهاء المعاينة بعدة علاجات مع تنظيف التكرار وحفظ البنود');
+        r = await J('GET', '/api/archive?treatment=' + encodeURIComponent('تنظيف'), D); ok(r.j.items.some(z => z.name === 'مريض متعدد'), 'فلترة الأرشيف تجد الزيارة متعددة العلاجات');
+        r = await J('GET', '/api/stats?tz=0', D); const tt = r.j.treatments, sum = k => Math.round(tt.reduce((x, y) => x + y[k], 0) * 100) / 100, g = n => tt.find(z => z.name === n);
+        ok(g('تنظيف الجير') && g('قلع') && g('حشوة تجميلية') && Math.abs(g('حشوة تجميلية').billed - 8000) < 0.01 && Math.abs(g('تنظيف الجير').billed - 2500) < 0.01, 'الإحصائيات توزّع مستحق الزيارة المتعددة على علاجاتها بنسبة أسعارها'); } }
 
     console.log('إشعارات النظام (Web Push)');
     { /* عيادة جديدة نظيفة لهذا القسم */
@@ -271,10 +308,6 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('PUT', '/api/rx/template', RD, { clinic: ' عيادة الأمل ', doctor: null, spec: 'جراحة الأسنان', phone: '0550 00 00 00', address: 'x'.repeat(400), logo: 'data:image/png;base64,iVBORw0KGgo=', lang: 'fr' });
       ok(r.s === 200 && r.j.clinic === 'عيادة الأمل' && r.j.doctor === null && r.j.phone === '0550 00 00 00' && r.j.address.length === 160 && r.j.lang === 'fr' && r.j.logo.startsWith('data:image/png'), 'قالب الوصفة: حفظ وتقليم');
       r = await J('PUT', '/api/rx/template', RD, { logo: 'data:text/html;base64,PHNjcmlwdD4=', lang: 'zz', clinic: 5 }); ok(r.j.logo === '' && r.j.lang === 'ar', 'قالب الوصفة: يرفض شعاراً غير صورة ولغة غير معروفة');
-      r = await J('PUT', '/api/rx/template', RD, { logoPos: 'end', rows: [{ k: 'doctor' }, { k: 'doctor' }, { k: 'x' }, { k: 'free', t: ' ' + 'y'.repeat(300) }, { k: 'contact' }, { k: 'phone' }, { k: 'clinic' }] });
-      ok(r.j.logoPos === 'end' && r.j.rows.map(z => z.k).join() === 'doctor,free,contact,clinic' && r.j.rows[1].t.length === 160, 'قالب الوصفة: أسطر الترويسة (ترتيب، تنقية المكرر والمجهول، تقليم النص الحر) ومكان الشعار');
-      r = await J('PUT', '/api/rx/template', RD, { logoPos: 'zz', rows: 'x' }); ok(r.j.logoPos === 'start' && r.j.rows === null, 'قالب الوصفة: مكان شعار غير معروف/أسطر غير صالحة ← الافتراضي');
-      r = await J('PUT', '/api/rx/template', RD, { rows: [] }); ok(Array.isArray(r.j.rows) && r.j.rows.length === 0, 'قالب الوصفة: يمكن حذف كل أسطر الترويسة');
       r = await J('PUT', '/api/rx/template', RD, { clinic: 'عيادة الأمل', lang: 'en' }); r = await J('GET', '/api/rx', RD2); ok(r.j.template === null, 'عزل: قالب عيادة أخرى لم يتأثر');
       r = await J('PUT', '/api/rx/drugs', RD, { drugs: [['Foo', 'فو', 'Foobar, Foox', 'cp 10 mg; sirop', 'تجريبي'], { n: 'Bar', b: 'Barx', f: 'gél 5 mg' }, 'Baz', { name: '' }, 7, ['']] });
       ok(r.s === 200 && r.j.count === 3, 'استيراد أدوية: يُقبل الصالح فقط (3)');

@@ -28,10 +28,11 @@ const L = {
     // ديناميكية
     lbl_name: 'اسم المريض:', lbl_birth: 'سنة الازدياد:', lbl_gender: 'الجنس:', lbl_reason: 'سبب الزيارة:', lbl_tooth: 'السن (اختياري):', lbl_phone: 'رقم الهاتف (اختياري):',
     age_fmt: 'العمر: {n} سنة', age_none: 'العمر: --', years_short: 'سنة', doc_title: 'لوحة الطبيب 🔔', doc_sub: 'إشراف عام وعيادة مباشرة', nurse_title: 'شاشة الممرضة', nurse_welcome: 'الممرضة: {n}',
-    hero_doc: 'د. {n}', price_cat_base: 'عام', price_cat_front: 'أمامية', price_cat_pre: 'ضواحك', price_cat_molar: 'أضراس', prices_hint2: 'اترك «أمامية/ضواحك/أضراس» فارغة ليُطبَّق سعر «عام» مهما كان السن. وإن ملأتها يُحسب سعر كل سن بحسب نوعه ويُجمع (القواطع والأنياب = أمامية، الأضراس اللبنية = أضراس).', due_l: 'المستحق', paid_now: 'المدفوع الآن', pay_all: 'سداد كل المتبقي', pay_half: 'النصف', pay_zero: 'لا شيء', acct_title: '💼 حساب المريض', acct_prev: 'متبقٍّ من زيارات سابقة:', follow_l: 'حصة متابعة لعلاج سابق (بدون سعر جديد)', after_l: 'المتبقي بعد هذه الزيارة:', over_warn: '⚠️ المدفوع أكبر من المستحق والمتبقي السابق، ولن يُحتسب الفائض.', rem_l: 'متبقٍّ', paid_l: 'مدفوع', add_pay: '💵 دفعة', pay_prompt: 'مبلغ الدفعة (المتبقي: {r}):', t_paid: 'تم تسجيل الدفعة ✅', pays_l: 'الدفعات:', total_due: 'المستحق:', total_paid: 'المحصَّل:', total_debt: 'المتبقي:',  set_prices: '💰 قائمة الأسعار', prices_hint: 'سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.', currency_l: 'العملة (اختياري):', price_l: 'السعر', price_total: 'الإجمالي:', t_prices_saved: 'تم حفظ الأسعار ✅', teeth_title: '🦷 مخطط الأسنان (اختر السن المعالج)', teeth_perm: 'أسنان دائمة (بالغ)', teeth_prim: 'أسنان لبنية (طفل)', teeth_sel: 'المحدد:', teeth_none: 'لم يُحدَّد سن', teeth_clear: 'مسح', teeth_ur: 'علوي أيمن', teeth_ul: 'علوي أيسر', teeth_lr: 'سفلي أيمن', teeth_ll: 'سفلي أيسر', doc_sub2: '{c} — {n}', in_room: 'في المعاينة 🩺', enter: 'دخول', edit: 'تعديل', del: 'حذف', call: 'استدعاء 🩺', qr: 'QR', doctor_word: 'طبيب', ticket_no: 'تذكرة',
+    hero_doc: 'د. {n}', price_cat_base: 'عام', price_cat_front: 'أمامية', price_cat_pre: 'ضواحك', price_cat_molar: 'أضراس', price_cat_wisdom: 'ضرس العقل', prices_hint2: 'اترك «أمامية/ضواحك/أضراس/ضرس العقل» فارغة ليُطبَّق سعر «عام» مهما كان السن. وإن ملأتها يُحسب سعر كل سن بحسب نوعه ويُجمع (القواطع والأنياب = أمامية، الأضراس اللبنية = أضراس، الأسنان 18/28/38/48 = ضرس العقل، وإن تركتها فارغة يُطبَّق سعر «أضراس»).', due_l: 'المستحق', paid_now: 'المدفوع الآن', pay_all: 'سداد كل المتبقي', pay_half: 'النصف', pay_zero: 'لا شيء', acct_title: '💼 حساب المريض', acct_prev: 'متبقٍّ من زيارات سابقة:', follow_l: 'حصة متابعة لعلاج سابق (بدون سعر جديد)', after_l: 'المتبقي بعد هذه الزيارة:', over_warn: '⚠️ المدفوع أكبر من المستحق والمتبقي السابق، ولن يُحتسب الفائض.', rem_l: 'متبقٍّ', paid_l: 'مدفوع', add_pay: '💵 دفعة', pay_prompt: 'مبلغ الدفعة (المتبقي: {r}):', t_paid: 'تم تسجيل الدفعة ✅', pays_l: 'الدفعات:', total_due: 'المستحق:', total_paid: 'المحصَّل:', total_debt: 'المتبقي:',  set_prices: '💰 قائمة الأسعار', prices_hint: 'سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.', currency_l: 'العملة (اختياري):', price_l: 'السعر', price_total: 'الإجمالي:', t_prices_saved: 'تم حفظ الأسعار ✅', teeth_title: '🦷 مخطط الأسنان (اختر السن المعالج)', teeth_perm: 'أسنان دائمة (بالغ)', teeth_prim: 'أسنان لبنية (طفل)', teeth_sel: 'المحدد:', teeth_none: 'لم يُحدَّد سن', teeth_clear: 'مسح', teeth_ur: 'علوي أيمن', teeth_ul: 'علوي أيسر', teeth_lr: 'سفلي أيمن', teeth_ll: 'سفلي أيسر', doc_sub2: '{c} — {n}', in_room: 'في المعاينة 🩺', enter: 'دخول', edit: 'تعديل', del: 'حذف', call: 'استدعاء 🩺', qr: 'QR', doctor_word: 'طبيب', ticket_no: 'تذكرة',
     sex: 'الجنس', birth: 'سنة الميلاد', tooth: 'السن', empty_today: 'لا توجد سجلات اليوم', empty_wait: 'قاعة الانتظار فارغة', empty_room: 'لا يوجد مريض حالياً في غرفة الكشف.',
     consult_patient: '👤 المريض:', reason_l: '📌 السبب:', tooth_l: '🦷 رقم/مكان السن:', gender_l: '👤 الجنس:', birth_l: '📅 الميلاد:', phone_l: '📞 الهاتف:', wait_l: '⏳ وقت الانتظار:', not_set: 'غير مسجل',
-    xrays: '📷 صور الكشف / الأشعة المرفقة:', no_images: 'لم يتم إرفاق صور بعد.', cam_live: '📷 الكاميرا المباشرة', upload_gal: '📁 رفع من الاستوديو', pick_treat: 'اختر نوع العلاج المنجز للمريض:',
+    xrays: '📷 صور الكشف / الأشعة المرفقة:', no_images: 'لم يتم إرفاق صور بعد.', cam_live: '📷 الكاميرا المباشرة', upload_gal: '📁 رفع من الاستوديو', pick_treat: 'اختر العلاجات المنجزة للمريض:', pick_treat_multi: 'يمكنك تحديد أكثر من علاج، ويُجمع سعرها تلقائياً.', pick_treat_min: 'يجب أن يبقى علاج واحد على الأقل',
+    task_title: '📌 مهمة للممرضة', task_to_l: 'إرسال إلى:', task_all: 'كل الممرضات', task_ph: 'اكتب المهمة…', task_send: 'إرسال المهمة', task_sent: 'تم إرسال المهمة ✅', task_list_t: 'المهام المرسلة', task_empty: 'لا توجد مهام بعد', task_pending: 'بانتظار الممرضة', task_done_by: 'أنجزتها: {n}', task_to_n: 'إلى: {n}', task_ok: '✔ تمت المهمة', task_new: 'مهمة جديدة من الطبيب', task_finished: '✅ تمت المهمة', task_del: 'حذف', task_q1: 'تحضير الغرفة', task_q2: 'تعقيم الأدوات', task_q3: 'استدعاء المريض التالي', task_q4: 'تجهيز جهاز الأشعة', task_confirm_del: 'حذف هذه المهمة؟',
     t_ext: '🦷 قلع', t_endo: '🩺 عصب', t_cons: '📋 استشارة', t_pros: '💎 تركيب', t_white: '✨ تبييض', t_other: '📝 أخرى', notes_ph: 'ملاحظات / تشخيص (اختياري)...', finish: '✅ إنهاء المعاينة وحفظ السجل بالأرشيف',
     lt1: 'أقل من دقيقة', min_n: '{n} دقيقة', no_nurses: 'لا توجد ممرضات مسجلات حالياً', phone_short: 'الهاتف: {p}', no_results: 'لا توجد نتائج مطابقة', date_l: 'التاريخ:', reason_s: 'السبب', dur_l: 'مدة المعاينة', wait_s: 'الانتظار', notes_l: 'ملاحظات:',
     skip_msg: 'الممرضة تحاول إدخال المريض ({a}) بالرغم من وجود المريض ({b}) قبله في القائمة. هل تسمح بتخطي الدور؟',
@@ -71,10 +72,11 @@ const L = {
     export_data: 'Export backup 📥', import_data: 'Restore 📤', backup_hint: 'Includes patients, archive and images (not passwords).', wipe_data: 'Delete all patient data…', delete_account: 'Delete account permanently…',
     lbl_name: 'Patient name:', lbl_birth: 'Birth year:', lbl_gender: 'Gender:', lbl_reason: 'Reason for visit:', lbl_tooth: 'Tooth (optional):', lbl_phone: 'Phone (optional):',
     age_fmt: 'Age: {n}', age_none: 'Age: --', years_short: 'y', doc_title: 'Doctor panel 🔔', doc_sub: 'Supervision & direct clinic', nurse_title: 'Nurse screen', nurse_welcome: 'Nurse: {n}',
-    hero_doc: 'Dr. {n}', price_cat_base: 'General', price_cat_front: 'Front', price_cat_pre: 'Premolar', price_cat_molar: 'Molar', prices_hint2: 'Leave Front/Premolar/Molar empty to use the General price for any tooth. If filled, each tooth is priced by its type and summed (incisors & canines = Front, primary molars = Molar).', due_l: 'Amount due', paid_now: 'Paid now', pay_all: 'Pay all outstanding', pay_half: 'Half', pay_zero: 'None', acct_title: '💼 Patient account', acct_prev: 'Outstanding from earlier visits:', follow_l: 'Follow-up session of an earlier treatment (no new charge)', after_l: 'Outstanding after this visit:', over_warn: '⚠️ Paid exceeds what is due plus earlier balance; the excess is ignored.', rem_l: 'Outstanding', paid_l: 'Paid', add_pay: '💵 Payment', pay_prompt: 'Payment amount (outstanding: {r}):', t_paid: 'Payment recorded ✅', pays_l: 'Payments:', total_due: 'Due:', total_paid: 'Collected:', total_debt: 'Outstanding:',  set_prices: '💰 Price list', prices_hint: 'Price of each treatment. It appears in the consultation and can be changed per patient.', currency_l: 'Currency (optional):', price_l: 'Price', price_total: 'Total:', t_prices_saved: 'Prices saved ✅', teeth_title: '🦷 Tooth chart (select treated tooth)', teeth_perm: 'Permanent (adult)', teeth_prim: 'Primary (child)', teeth_sel: 'Selected:', teeth_none: 'No tooth selected', teeth_clear: 'Clear', teeth_ur: 'Upper right', teeth_ul: 'Upper left', teeth_lr: 'Lower right', teeth_ll: 'Lower left', doc_sub2: '{c} — {n}', in_room: 'In consultation 🩺', enter: 'Enter', edit: 'Edit', del: 'Delete', call: 'Call in 🩺', qr: 'QR', doctor_word: 'Doctor', ticket_no: 'Ticket',
+    hero_doc: 'Dr. {n}', price_cat_base: 'General', price_cat_front: 'Front', price_cat_pre: 'Premolar', price_cat_molar: 'Molar', price_cat_wisdom: 'Wisdom', prices_hint2: 'Leave Front/Premolar/Molar/Wisdom empty to use the General price for any tooth. If filled, each tooth is priced by its type and summed (incisors & canines = Front, primary molars = Molar, teeth 18/28/38/48 = Wisdom; if Wisdom is empty the Molar price applies).', due_l: 'Amount due', paid_now: 'Paid now', pay_all: 'Pay all outstanding', pay_half: 'Half', pay_zero: 'None', acct_title: '💼 Patient account', acct_prev: 'Outstanding from earlier visits:', follow_l: 'Follow-up session of an earlier treatment (no new charge)', after_l: 'Outstanding after this visit:', over_warn: '⚠️ Paid exceeds what is due plus earlier balance; the excess is ignored.', rem_l: 'Outstanding', paid_l: 'Paid', add_pay: '💵 Payment', pay_prompt: 'Payment amount (outstanding: {r}):', t_paid: 'Payment recorded ✅', pays_l: 'Payments:', total_due: 'Due:', total_paid: 'Collected:', total_debt: 'Outstanding:',  set_prices: '💰 Price list', prices_hint: 'Price of each treatment. It appears in the consultation and can be changed per patient.', currency_l: 'Currency (optional):', price_l: 'Price', price_total: 'Total:', t_prices_saved: 'Prices saved ✅', teeth_title: '🦷 Tooth chart (select treated tooth)', teeth_perm: 'Permanent (adult)', teeth_prim: 'Primary (child)', teeth_sel: 'Selected:', teeth_none: 'No tooth selected', teeth_clear: 'Clear', teeth_ur: 'Upper right', teeth_ul: 'Upper left', teeth_lr: 'Lower right', teeth_ll: 'Lower left', doc_sub2: '{c} — {n}', in_room: 'In consultation 🩺', enter: 'Enter', edit: 'Edit', del: 'Delete', call: 'Call in 🩺', qr: 'QR', doctor_word: 'Doctor', ticket_no: 'Ticket',
     sex: 'Gender', birth: 'Birth year', tooth: 'Tooth', empty_today: 'No records today', empty_wait: 'Waiting room is empty', empty_room: 'No patient in the consultation room.',
     consult_patient: '👤 Patient:', reason_l: '📌 Reason:', tooth_l: '🦷 Tooth:', gender_l: '👤 Gender:', birth_l: '📅 Born:', phone_l: '📞 Phone:', wait_l: '⏳ Waited:', not_set: 'Not set',
-    xrays: '📷 Attached photos / X-rays:', no_images: 'No images attached yet.', cam_live: '📷 Live camera', upload_gal: '📁 Upload from gallery', pick_treat: 'Select the treatment performed:',
+    xrays: '📷 Attached photos / X-rays:', no_images: 'No images attached yet.', cam_live: '📷 Live camera', upload_gal: '📁 Upload from gallery', pick_treat: 'Select the treatments performed:', pick_treat_multi: 'You can select more than one treatment; prices are added up automatically.', pick_treat_min: 'At least one treatment must stay selected',
+    task_title: '📌 Task for the nurse', task_to_l: 'Send to:', task_all: 'All nurses', task_ph: 'Write the task…', task_send: 'Send task', task_sent: 'Task sent ✅', task_list_t: 'Sent tasks', task_empty: 'No tasks yet', task_pending: 'Waiting for the nurse', task_done_by: 'Done by: {n}', task_to_n: 'To: {n}', task_ok: '✔ Task done', task_new: 'New task from the doctor', task_finished: '✅ Task completed', task_del: 'Delete', task_q1: 'Prepare the room', task_q2: 'Sterilize instruments', task_q3: 'Call the next patient', task_q4: 'Set up the X-ray unit', task_confirm_del: 'Delete this task?',
     t_ext: '🦷 Extraction', t_endo: '🩺 Root canal', t_cons: '📋 Consult', t_pros: '💎 Prosthetics', t_white: '✨ Whitening', t_other: '📝 Other', notes_ph: 'Notes / diagnosis (optional)...', finish: '✅ Finish consultation & archive record',
     lt1: 'under a minute', min_n: '{n} min', no_nurses: 'No nurses registered yet', phone_short: 'Phone: {p}', no_results: 'No matching records', date_l: 'Date:', reason_s: 'Reason', dur_l: 'Consultation', wait_s: 'Waited', notes_l: 'Notes:',
     skip_msg: 'The nurse wants to send in ({a}) although ({b}) is before them in the queue. Allow skipping?',
@@ -106,7 +108,7 @@ const jget = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSO
 const jset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
 const settings = Object.assign({ darkMode: false, theme: 'sky', lang: 'ar', sound: true, autoQr: true }, jget('cc_settings', {}));
-const S = { token: localStorage.getItem('cc_token') || '', me: null, patients: [], skipRequests: [], stamp: 0, es: null, retry: 0, treatment: 'قلع', archive: { items: [], total: 0 }, archOffset: 0, nurses: [], activePid: null, qrPid: null, installEvt: null, shownSkip: '', config: null, schedule: null, schedSig: '' };
+const S = { token: localStorage.getItem('cc_token') || '', me: null, patients: [], skipRequests: [], stamp: 0, es: null, retry: 0, treatment: 'قلع', treatments: [], archive: { items: [], total: 0 }, archOffset: 0, nurses: [], activePid: null, qrPid: null, installEvt: null, shownSkip: '', config: null, schedule: null, schedSig: '' };
 const YEAR = new Date().getFullYear();
 
 const t = (k, v) => { let s = (L[settings.lang] && L[settings.lang][k]) || L.ar[k] || k; if (v) for (const x in v) s = s.replace('{' + x + '}', v[x]); return s; };
@@ -208,7 +210,7 @@ async function logout() {
 }
 function forceLogout(silent) {
   if (S.es) { S.es.close(); S.es = null; }
-  S.token = ''; S.me = null; S.patients = []; setBadge(0); localStorage.removeItem('cc_token'); delete document.body.dataset.role; closeModals(); closeCamera();
+  S.token = ''; S.me = null; S.patients = []; S.tasks = []; S.tasksSeen = null; renderTasks(); setBadge(0); localStorage.removeItem('cc_token'); delete document.body.dataset.role; closeModals(); closeCamera();
   $('#skipQueueModal').classList.remove('active'); S.shownSkip = '';
   showScreen('authScreen'); setOnline(true);
   if (!silent) toast(t('e_unauthorized'), 'warning');
@@ -217,7 +219,7 @@ function forceLogout(silent) {
 /* ===================== المزامنة الفورية ===================== */
 function applyState(st, force) {
   if (!force && st.serverTime < S.stamp) return;
-  S.stamp = st.serverTime; S.patients = st.patients; S.skipRequests = st.skipRequests || []; if (st.schedule) S.schedule = st.schedule;
+  S.stamp = st.serverTime; S.patients = st.patients; S.tasks = st.tasks || []; S.skipRequests = st.skipRequests || []; if (st.schedule) S.schedule = st.schedule;
 }
 async function connect() {
   if (S.es) { S.es.close(); S.es = null; }
@@ -240,9 +242,11 @@ function onNotify(n) {
   if (!S.me) return;
   if (S.me.role === 'doctor') {
     if (n.type === 'add' && Date.now() - lastOwnAdd > 3000) { beep(800, 0.4); visualAlert(t('t_welcome_new'), t('t_added', { n: n.name })); sysNotify(t('app_title'), t('t_added', { n: n.name })); }
+    else if (n.type === 'task_done') { beep(900, 0.4); toast(t('task_finished') + ' ' + n.by + ': ' + n.text, 'success'); sysNotify(t('task_finished'), n.by + ': ' + n.text); }
     else if (n.type === 'enter') { docTab('consultation'); beep(700, 0.3); visualAlert(t('t_enter'), t('t_entered', { n: n.name })); }
   } else {
     if (n.type === 'finish') { beep(900, 0.5); visualAlert(t('t_done'), t('t_done_msg', { n: n.name }), true); sysNotify(t('t_done'), t('t_done_msg', { n: n.name })); }
+    else if (n.type === 'task') sysNotify(t('task_new'), n.text);
     else if (n.type === 'skip_denied') { beep(500, 0.3); toast(t('t_skip_denied', { n: n.name }), 'warning'); }
   }
 }
@@ -252,7 +256,7 @@ function renderAll() {
   if (!S.me) return;
   const waiting = S.patients.filter(p => p.status === 'waiting');
   $('#waitingCount').textContent = waiting.length; $('#nurseWaitingBadge').textContent = waiting.length; setBadge(waiting.length); syncSchedule(); updateRegGate();
-  if (S.me.role === 'nurse') renderNurseList(); else { renderDocWaiting(); renderConsultation(); renderSkip(); }
+  renderTasks(); if (S.me.role === 'nurse') renderNurseList(); else { renderDocWaiting(); renderConsultation(); renderSkip(); }
 }
 const busy = () => S.patients.some(p => p.status === 'in');
 function patientMeta(p) { return `${t('sex')}: ${esc(genderL(p.gender))} | ${t('birth')}: ${p.birthYear} (${p.age} ${t('years_short')}) | ${t('tooth')}: ${esc(p.tooth)}`; }
@@ -282,8 +286,8 @@ function renderConsultation() {
   const sig = a ? a.id + ':' + a.images.join(',') + ':' + settings.lang + ':' + a.reason : '';
   if (area.dataset.sig === sig) return;
   const samePid = area.dataset.pid === (a ? a.id : ''), notes = samePid && $('#consultNotes') ? $('#consultNotes').value : '';
-  if (!samePid) { S.treatment = (a && REASON_TREAT[a.reason]) || 'أخرى'; if (a) teethInit(a); moneyReset(); if (window.rxReset) rxReset(a); }
-  if (!treatList().includes(S.treatment)) S.treatment = treatList().includes('أخرى') ? 'أخرى' : treatList()[0];
+  if (!samePid) { S.treatments = [(a && REASON_TREAT[a.reason]) || 'أخرى']; if (a) teethInit(a); moneyReset(); if (window.rxReset) rxReset(a); }
+  S.treatments = S.treatments.filter(v => treatList().includes(v)); if (!S.treatments.length) S.treatments = [treatList().includes('أخرى') ? 'أخرى' : treatList()[0]];
   if (!a) { area.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);background:var(--surface-card);border-radius:16px">${t('empty_room')}</div>`; }
   else {
     const imgs = a.images.length ? a.images.map(id => `<div class="thumb-box"><img data-rec="${a.id}" data-img="${id}" data-act="lightbox" alt=""><button type="button" class="del-img" data-act="delImage" data-id="${a.id}" data-img="${id}">✕</button></div>`).join('') : `<span style="font-size:12px;color:var(--text-muted)">${t('no_images')}</span>`;
@@ -297,8 +301,8 @@ function renderConsultation() {
         <div class="patient-images-container">${imgs}</div>
         <div style="display:flex;gap:10px;margin-top:12px"><button type="button" class="btn-action btn-green" style="flex:1" data-act="openCamera" data-id="${a.id}">${t('cam_live')}</button><button type="button" class="btn-action btn-yellow" style="flex:1" data-act="pickFile" data-id="${a.id}">${t('upload_gal')}</button></div></div>
       ${teethHTML()}
-      <label style="font-size:13px;font-weight:600;color:var(--text-secondary)">${t('pick_treat')}</label>
-      <div class="treatment-grid">${treatList().map(v => `<div class="treatment-item ${v === S.treatment ? 'selected' : ''}" data-act="treat" data-v="${esc(v)}">${esc(treatLabel(v))}</div>`).join('')}</div>
+      <label style="font-size:13px;font-weight:600;color:var(--text-secondary)">${t('pick_treat')}</label><div class="hint" style="margin:2px 0 6px">${t('pick_treat_multi')}</div>
+      <div class="treatment-grid">${treatList().map(v => `<div class="treatment-item ${S.treatments.includes(v) ? 'selected' : ''}" role="checkbox" aria-checked="${S.treatments.includes(v)}" data-act="treat" data-v="${esc(v)}">${esc(treatLabel(v))}</div>`).join('')}</div>
       ${moneyHTML()}
       ${window.rxHTML ? rxHTML() : ''}
       <textarea id="consultNotes" maxlength="2000" placeholder="${esc(t('notes_ph'))}" style="height:80px;margin-bottom:15px"></textarea>
@@ -309,8 +313,39 @@ function renderConsultation() {
   }
   area.dataset.sig = sig; area.dataset.pid = a ? a.id : '';
 }
+/* ===== مهام الطبيب للممرضة (فقاعات) ===== */
+S.tasks = []; S.tasksSeen = null;
+const taskTime = ts => new Date(ts).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+function renderTasks() {
+  const box = $('#taskBubbles'), fab = $('#taskFabBadge'); if (!box) return;
+  const pending = (S.tasks || []).filter(k => !k.done);
+  if (!S.me) { box.innerHTML = ''; box.dataset.sig = ''; return; }
+  if (S.me.role === 'nurse') {
+    const list = pending.slice().sort((a, b) => a.createdAt - b.createdAt), sig = list.map(k => k.id).join(',') + settings.lang;
+    const fresh = S.tasksSeen ? list.filter(k => !S.tasksSeen.has(k.id)) : [];
+    if (fresh.length) { beep(880, 0.25); setTimeout(() => beep(1175, 0.3), 260); try { navigator.vibrate && navigator.vibrate([300, 120, 300]); } catch (e) {} }
+    S.tasksSeen = new Set(list.map(k => k.id).concat([...(S.tasksSeen || [])]));
+    if (box.dataset.sig === sig) return; box.dataset.sig = sig;
+    const doc = t('hero_doc', { n: S.me.doctorName || '' }), newIds = new Set(fresh.map(k => k.id));
+    box.innerHTML = list.map(k => `<div class="tbub${newIds.has(k.id) ? ' is-new' : ''}" role="alert"><div class="tbub-av">🩺</div><div class="tbub-body"><div class="tbub-from">${esc(doc)} · ${taskTime(k.createdAt)}</div><div class="tbub-text">${esc(k.text)}</div><button type="button" class="tbub-ok" data-act="taskDone" data-id="${k.id}">${t('task_ok')}</button></div></div>`).join('');
+    box.scrollTop = box.scrollHeight; return;
+  }
+  box.innerHTML = ''; box.dataset.sig = '';
+  if (fab) { fab.textContent = pending.length; fab.hidden = !pending.length; }
+  const ul = $('#taskList'); if (ul && $('#tasksModal.active')) renderTaskList();
+}
+function renderTaskList() {
+  const ul = $('#taskList'); if (!ul) return;
+  ul.innerHTML = (S.tasks || []).length ? S.tasks.map(k => `<li class="task-item${k.done ? ' done' : ''}"><div class="ti-main"><div class="ti-text">${esc(k.text)}</div><div class="ti-meta">${k.done ? '✅ ' + esc(t('task_done_by', { n: k.doneBy })) + ' · ' + taskTime(k.doneAt) : '⏳ ' + esc(t('task_pending'))} · ${esc(k.to ? t('task_to_n', { n: k.toName || '—' }) : t('task_all'))} · ${taskTime(k.createdAt)}</div></div><button type="button" class="btn-action btn-red" data-act="taskDel" data-id="${k.id}" title="${esc(t('task_del'))}" aria-label="${esc(t('task_del'))}">✕</button></li>`).join('') : `<li class="task-empty">${t('task_empty')}</li>`;
+}
+async function openTasks() {
+  const sel = $('#taskTo'), keep = sel.value;
+  $('#taskChips').innerHTML = [1, 2, 3, 4].map(i => `<button type="button" class="chip" data-act="taskQuick" data-k="task_q${i}">${esc(t('task_q' + i))}</button>`).join('');
+  sel.innerHTML = `<option value="all">${esc(t('task_all'))}</option>`; renderTaskList(); openModal('tasksModal');
+  try { const ns = await api('GET', '/api/nurses'); sel.innerHTML = `<option value="all">${esc(t('task_all'))}</option>` + ns.map(n => `<option value="${esc(n.id)}">${esc(n.name)}</option>`).join(''); if ([...sel.options].some(o => o.value === keep)) sel.value = keep; } catch (e) {}
+}
 /* ===== الأسعار والحساب المالي ===== */
-const CATS = ['base', 'front', 'pre', 'molar'];
+const CATS = ['base', 'front', 'pre', 'molar', 'wisdom'];
 /* قائمة العلاجات يعدّلها الطبيب من الإعدادات؛ الافتراضية تُترجَم، والمخصّصة تُعرض بأسمائها */
 const treatList = () => (S.me && S.me.prices && S.me.prices.treatments && S.me.prices.treatments.length) ? S.me.prices.treatments : TREATS.map(x => x[0]);
 const treatLabel = v => TREAT_I18N[v] ? t(TREAT_I18N[v]) : v;
@@ -322,13 +357,13 @@ function fillTreatFilter() {
 }
 const cur = () => (S.me && S.me.prices && S.me.prices.currency) || '';
 const money = v => v == null ? '' : Number(v).toLocaleString(settings.lang === 'en' ? 'en-US' : 'ar-u-nu-latn') + (cur() ? ' ' + cur() : '');
-const toothCat = n => { n = +n; const d = n % 10, q = Math.floor(n / 10); return d <= 3 ? 'front' : (q >= 5 ? 'molar' : d <= 5 ? 'pre' : 'molar'); };
+const toothCat = n => { n = +n; const d = n % 10, q = Math.floor(n / 10); if (d === 8 && q < 5) return 'wisdom'; return d <= 3 ? 'front' : (q >= 5 ? 'molar' : d <= 5 ? 'pre' : 'molar'); };
 /* سعر العلاج: إن وُجدت أسعار حسب نوع السن يُجمع سعر كل سن، وإلا السعر العام */
 function priceFor(tr, teeth) {
   const p = S.me && S.me.prices, e = p && p.list[tr]; if (!e) return { total: '', parts: [] };
-  const perTooth = ['front', 'pre', 'molar'].some(c => e[c] != null);
+  const perTooth = ['front', 'pre', 'molar', 'wisdom'].some(c => e[c] != null);
   if (!perTooth || !teeth.length) return { total: e.base != null ? e.base : '', parts: [] };
-  const parts = teeth.slice().sort().map(n => { const c = toothCat(n); return { n, c, v: e[c] != null ? e[c] : (e.base || 0) }; });
+  const parts = teeth.slice().sort().map(n => { const c = toothCat(n); return { n, c, v: e[c] != null ? e[c] : (c === 'wisdom' && e.molar != null ? e.molar : (e.base || 0)) }; });
   return { total: Math.round(parts.reduce((x, y) => x + y.v, 0) * 100) / 100, parts };
 }
 function treatRowHTML(v, vals) {
@@ -349,14 +384,20 @@ document.addEventListener('input', ev => { const f = ev.target.closest && ev.tar
 /* حالة المال في المعاينة */
 const prevBal = () => (S.account && S.account.balance) || 0;
 function moneyReset() { S.price = ''; S.paid = ''; S.priceDirty = false; S.paidDirty = false; S.followUp = false; S.account = null; }
+/* سعر عدة علاجات: مجموع سعر كل علاج مختار (كلٌّ يُسعَّر بحسب الأسنان المحددة) */
+function priceForMany(trs, teeth) {
+  const items = trs.map(n => { const r = priceFor(n, teeth); return { name: n, price: r.total === '' ? 0 : r.total, has: r.total !== '', parts: r.parts }; });
+  const any = items.some(i => i.has);
+  return { total: any ? Math.round(items.reduce((x, y) => x + y.price, 0) * 100) / 100 : '', items };
+}
 function recalc() {
-  const auto = S.followUp ? { total: 0, parts: [] } : priceFor(S.treatment, [...S.teeth]);
+  const auto = S.followUp ? { total: 0, items: [] } : priceForMany(S.treatments, [...S.teeth]); S.items = auto.items;
   if (!S.priceDirty) S.price = auto.total === '' ? '' : String(auto.total);
   const due = +S.price || 0;
   if (!S.paidDirty) S.paid = S.followUp ? (prevBal() ? String(prevBal()) : '') : (S.price === '' ? '' : String(due));
   const set = (id, v) => { const e = $(id); if (e && e !== document.activeElement) e.value = v; };
   set('#consultPrice', S.price); set('#consultPaid', S.paid);
-  const hint = $('#priceHint'); if (hint) hint.innerHTML = auto.parts.length && !S.priceDirty ? auto.parts.map(x => `<span>${x.n} <small>(${t('price_cat_' + x.c)})</small> ${money(x.v)}</span>`).join(' + ') : '';
+  const hint = $('#priceHint'); if (hint) hint.innerHTML = auto.items.length && !S.priceDirty && auto.items.some(i => i.has) ? auto.items.map(i => `<span class="ph-item"><b>${esc(treatLabel(i.name))}</b>${i.parts.length ? ` <small>(${i.parts.map(x => x.n + ' ' + t('price_cat_' + x.c)).join('، ')})</small>` : ''} ${money(i.price)}</span>`).join(' + ') + (auto.items.length > 1 ? ` <span class="ph-total">= <b>${money(auto.total)}</b></span>` : '') : '';
   const after = Math.round((prevBal() + due - (+S.paid || 0)) * 100) / 100, sum = $('#moneySum');
   if (sum) { const over = (+S.paid || 0) > due + prevBal(); sum.innerHTML = `${t('after_l')} <b style="color:${after > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'}">${money(Math.max(0, after))}</b>${over ? `<div style="color:var(--warning-warm);font-size:12px;margin-top:4px">${t('over_warn')}</div>` : ''}`; }
 }
@@ -524,7 +565,7 @@ function loadArchive(reset = true) {
 function renderArchive() {
   $('#archiveResultCount').textContent = S.archive.total; $('#archiveSum').innerHTML = S.archive.sum ? `${t('total_due')} <b>${money(S.archive.sum)}</b> · ${t('total_paid')} <b>${money(S.archive.paidSum)}</b>${S.archive.debt ? ` · ${t('total_debt')} <b style="color:var(--danger-soft,#e8607a)">${money(S.archive.debt)}</b>` : ''}` : '';
   const l = $('#archiveList');
-  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> <span class="badge">${esc(a.treatment)}</span>${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">💰 ${money(a.price)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">✔ ${t('paid_l')}</span>` : '')}${a.followUp ? ' <span class="badge">↻</span>' : ''}
+  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${(a.treatments || [a.treatment]).map(n => `<span class="badge">${esc(n)}</span>`).join(' ')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">💰 ${money(a.price)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">✔ ${t('paid_l')}</span>` : '')}${a.followUp ? ' <span class="badge">↻</span>' : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong></div>
     ${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(a, a) : ''}
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
@@ -546,7 +587,7 @@ async function showHistory(name, year) {
   const cur = r.current ? `<div class="hist-item cur"><div class="hi-date">${t('hist_cur')} · ${r.current.status === 'in' ? t('hist_in_st') : t('hist_wait_st')}</div>
       <div class="hi-line">${t('reason_s')}: ${esc(reasonL(r.current.reason))} | ${t('tooth')}: <strong>${esc(r.current.tooth || '---')}</strong> | ${t('date_l')} ${dt(r.current.createdAt)}</div>${imgs(r.current)}</div>` : '';
   const items = r.records.slice().reverse().map((x, i) => `<div class="hist-item"><div class="hi-date">${t('hist_visit_n', { n: r.records.length - i })} · ${dt(x.finishedAt)}${x.followUp ? ' · ↻' : ''}</div>
-      <div class="hi-line"><span class="badge">${esc(x.treatment)}</span> ${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ${t('reason_s')}: ${esc(reasonL(x.reason))}</div>
+      <div class="hi-line">${(x.treatments || [x.treatment]).map(n => `<span class="badge">${esc(n)}</span>`).join(' ')} ${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ${t('reason_s')}: ${esc(reasonL(x.reason))}</div>
       ${x.price != null ? `<div class="hi-line">💰 ${money(x.price)} · ${t('paid_l')} ${money(x.paid)}${x.remaining > 0 ? ` · <b style="color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(x.remaining)}</b>` : ''}</div>` : ''}
       ${x.payments && x.payments.length ? `<div class="hi-line">${t('pays_l')} ${x.payments.map(p => money(p.amt) + ' (' + new Date(p.t).toLocaleDateString(locale()) + ')').join(' · ')}</div>` : ''}
       ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}
@@ -697,6 +738,10 @@ const ACT = {
   authMode: el => authMode(el.dataset.mode), logout, closeAlert: el => el.parentElement.remove(),
   docTab: el => docTab(el.dataset.tab), nurseTab: el => nurseTab(el.dataset.tab),
   closeModal: closeModals,
+  openTasks,
+  taskQuick(el) { const ta = $('#taskText'); ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + ' ' : '') + t(el.dataset.k); ta.focus(); },
+  async taskDone(el) { el.disabled = true; const r = await run(() => api('POST', `/api/tasks/${el.dataset.id}/done`)); if (!r) { el.disabled = false; return; } S.tasks = S.tasks.filter(k => k.id !== el.dataset.id); renderTasks(); refresh(); },
+  async taskDel(el) { if (!confirm(t('task_confirm_del'))) return; if (await run(() => api('DELETE', `/api/tasks/${el.dataset.id}`))) { S.tasks = S.tasks.filter(k => k.id !== el.dataset.id); renderTasks(); renderTaskList(); } },
   patHistory: el => showHistory(el.dataset.name, el.dataset.year),
   openSet(el) {
     const m = el.dataset.m; if (m === 'set_clinicModal') { $$('.setClinicName').forEach(i => { i.value = S.me.clinicName; }); $$('.setDoctorName').forEach(i => { i.value = S.me.name; }); }
@@ -727,7 +772,7 @@ const ACT = {
   followUp(el) {
     S.followUp = el.checked; S.priceDirty = false; S.paidDirty = false;
     const r = el.checked && S.account && S.account.records.find(x => x.remaining > 0) || null;
-    if (r) { if (treatList().includes(r.treatment)) S.treatment = r.treatment; S.teeth = new Set(r.teeth || []); }
+    if (r) { const tl = (r.treatments || [r.treatment]).filter(x => treatList().includes(x)); if (tl.length) S.treatments = tl; S.teeth = new Set(r.teeth || []); }
     const c = $('#consultationArea'); c.dataset.sig = ''; renderAll();
   },
   payQuick(el) { const due = +S.price || 0, v = el.dataset.v; S.paid = v === 'all' ? String(Math.round((due + prevBal()) * 100) / 100) : v === 'half' ? String(Math.round(due * 50) / 100) : '0'; S.paidDirty = true; recalc(); },
@@ -735,9 +780,9 @@ const ACT = {
     const rem = +el.dataset.rem, v = prompt(t('pay_prompt', { r: money(rem) }), rem); if (v == null) return;
     if (await run(() => api('POST', `/api/archive/${el.dataset.id}/payment`, { amount: v }))) { toast(t('t_paid'), 'success'); loadArchive(true); }
   },
-  treat(el) { S.treatment = el.dataset.v; recalc(); $$('.treatment-item').forEach(x => x.classList.toggle('selected', x === el)); },
+  treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); recalc(); },
   async finish(el) {
-    const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { treatment: S.treatment, price: $('#consultPrice') ? $('#consultPrice').value : '', paid: $('#consultPaid') ? $('#consultPaid').value : '', followUp: S.followUp, teeth: [...S.teeth], notes: ($('#consultNotes') || {}).value || '', rx: window.rxLines ? rxLines() : [] })); if (!r) return; if (window.rxDone) rxDone();
+    const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { treatment: S.treatments.join(' + '), treatments: S.treatments, items: (S.items || []).map(i => ({ name: i.name, price: i.price })), price: $('#consultPrice') ? $('#consultPrice').value : '', paid: $('#consultPaid') ? $('#consultPaid').value : '', followUp: S.followUp, teeth: [...S.teeth], notes: ($('#consultNotes') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
   },
   copyCode: () => copyText(S.me.code || ''),
@@ -795,6 +840,9 @@ document.addEventListener('submit', async e => {
   if (kind === 'loginDoctor') {
     jset('cc_last', { u: $('#lUser').value.trim() });
     try { await afterLogin(await api('POST', '/api/login/doctor', { username: $('#lUser').value, password: $('#lPass').value }, { anon: true })); } catch (x) { authError(x); }
+  } else if (kind === 'sendTask') {
+    const text = $('#taskText').value.trim(); if (!text) return;
+    if (await run(() => api('POST', '/api/tasks', { text, to: $('#taskTo').value }))) { $('#taskText').value = ''; toast(t('task_sent'), 'success'); await refresh(); renderTaskList(); }
   } else if (kind === 'loginNurse') {
     jset('cc_last_n', { c: $('#nCode').value.trim(), n: $('#nName').value.trim() });
     try { await afterLogin(await api('POST', '/api/login/nurse', { code: $('#nCode').value, name: $('#nName').value, password: $('#nPass').value }, { anon: true })); } catch (x) { authError(x); }
@@ -830,7 +878,7 @@ document.addEventListener('submit', async e => {
     }
     if (!treatments.length) { toast(t('tr_last'), 'danger'); return; }
     const r = await run(() => api('PUT', '/api/prices', { currency: $('.priceCur', f).value, list, treatments }));
-    if (r) { S.me.prices = r; delete f.dataset.dirty; toast(t('t_prices_saved'), 'success'); if (!treatList().includes(S.treatment)) S.treatment = treatList()[0]; fillTreatFilter(); renderPriceForm(); recalc(); const c = $('#consultationArea'); if (c) c.dataset.sig = ''; renderAll(); closeModals(); }
+    if (r) { S.me.prices = r; delete f.dataset.dirty; toast(t('t_prices_saved'), 'success'); S.treatments = S.treatments.filter(v => treatList().includes(v)); if (!S.treatments.length) S.treatments = [treatList()[0]]; fillTreatFilter(); renderPriceForm(); recalc(); const c = $('#consultationArea'); if (c) c.dataset.sig = ''; renderAll(); closeModals(); }
   } else if (kind === 'schedule') {
     const days = $$('.schedDays input:checked', f).map(x => +x.value), enabled = $('.schedEnabled', f).checked;
     if (enabled && !days.length) { toast(t('e_invalid_input'), 'danger'); return; }
