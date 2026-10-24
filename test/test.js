@@ -338,7 +338,9 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       const old = { ...bk.j }; delete old.rxBasket; delete old.rxDrugs; await J('POST', '/api/restore', RD, old); r = await J('GET', '/api/rx', RD); ok(r.j.basket.length === 1, 'استعادة نسخة قديمة (بلا سلة) لا تمسح السلة الحالية'); }
 
     console.log('الملفات الثابتة والأمان');
-    for (const f of ['/', '/app.js', '/qr.js', '/style.css', '/sw.js', '/manifest.webmanifest', '/icons/icon-192.png', '/t/abc123abc123abc123abc123']) { const x = await fetch(base + f); ok(x.status === 200, 'GET ' + f); }
+    for (const f of ['/', '/app.js', '/qr.js', '/numpad.js', '/style.css', '/sw.js', '/manifest.webmanifest', '/icons/icon-192.png', '/t/abc123abc123abc123abc123']) { const x = await fetch(base + f); ok(x.status === 200, 'GET ' + f); }
+    { const idx = await (await fetch(base + '/')).text(), sw = await (await fetch(base + '/sw.js')).text();
+      ok(idx.includes('src="numpad.js"'), 'لوحة الأرقام مضمّنة في الصفحة'); ok(sw.includes("'/numpad.js'"), 'لوحة الأرقام ضمن ملفات التخزين المؤقت'); }
     let x = await fetch(base + '/..%2fserver.js'); ok(x.status !== 200, 'منع تجاوز المسار');
     x = await fetch(base + '/%2e%2e/server.js'); ok(x.status !== 200, 'منع تجاوز المسار 2');
     x = await fetch(base + '/data/db.json'); ok(x.status === 404, 'قاعدة البيانات غير مكشوفة');

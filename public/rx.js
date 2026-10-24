@@ -66,7 +66,7 @@ function rxSearch(q) {
     const score = (e.n.startsWith(nq) || e.a.startsWith(nq)) ? 0 : (nw.some(w => w.startsWith(w0)) || e.a.split(' ').some(w => w.startsWith(w0))) ? 1 : bw.some(w => w.startsWith(w0)) ? 2 : e.n.includes(w0) ? 3 : 4;
     out.push([score, e.n.length, e.r]);
   }
-  return out.sort((x, y) => x[0] - y[0] || x[1] - y[1]).slice(0, 30).map(x => x[2]);
+  return out.sort((x, y) => x[0] - y[0] || x[1] - y[1]).slice(0, 50).map(x => x[2]);
 }
 
 /* ---------- التحميل (السلة + الأدوية المستوردة) ---------- */
@@ -226,7 +226,7 @@ Object.assign(ACT, {
   rxCustom() { const q = ($('#rxSearch') || {}).value; if (q && q.trim()) { rxPush({ name: q.trim().slice(0, 120) }); } },
   rxCustomFav() { const q = ($('#rxSearch') || {}).value; if (q && q.trim()) rxToggleFav({ name: q.trim().slice(0, 120), form: '' }); },
   rxBasketAdd(el) { const b = RX.basket.find(x => x.id === el.dataset.id); if (b) rxPush(b); },
-  rxBasketDel(el) { const b = RX.basket.find(x => x.id === el.dataset.id); if (b && confirm(t('rx_del_basket'))) rxPutBasket(RX.basket.filter(x => x !== b), t('rx_fav_removed'), 'info'); },
+  async rxBasketDel(el) { const b = RX.basket.find(x => x.id === el.dataset.id); if (b && await appConfirm(t('rx_del_basket'))) rxPutBasket(RX.basket.filter(x => x !== b), t('rx_fav_removed'), 'info'); },
   rxDel(el) { RX.lines.splice(+el.dataset.i, 1); rxSave(); rxRenderList(); },
   rxUp(el) { const i = +el.dataset.i; if (i > 0) { [RX.lines[i - 1], RX.lines[i]] = [RX.lines[i], RX.lines[i - 1]]; rxSave(); rxRenderList(); } },
   rxDown(el) { const i = +el.dataset.i; if (i < RX.lines.length - 1) { [RX.lines[i + 1], RX.lines[i]] = [RX.lines[i], RX.lines[i + 1]]; rxSave(); rxRenderList(); } },
@@ -242,7 +242,7 @@ Object.assign(ACT, {
   rxLineNew() { if (RX.lines.length >= 25) return toast(t('rx_basket_full'), 'error'); RX.lines.push({ name: '', form: '', dose: '', freq: '', dur: '', note: '' }); rxSave(); rxRenderList(); const n = document.querySelector(`[data-rx=name][data-i="${RX.lines.length - 1}"]`); if (n) n.focus(); },
   rxLogoPick() { const f = $('#rxLogoFile'); if (f) f.click(); },
   rxLogoDel() { rxTplSet({ logo: '' }); rxRenderPaperTop(); },
-  rxTplReset() { if (!confirm(t('rxt_reset_c'))) return; RX.tpl = { clinic: null, doctor: null, spec: null, phone: null, address: null, logo: '', lang: rxTpl().lang }; RX.tplT = 1; rxTplFlush(); rxRenderPaperTop(); },
+  async rxTplReset() { if (!await appConfirm(t('rxt_reset_c'))) return; RX.tpl = { clinic: null, doctor: null, spec: null, phone: null, address: null, logo: '', lang: rxTpl().lang }; RX.tplT = 1; rxTplFlush(); rxRenderPaperTop(); },
   rxBEdit(el) { const b = RX.basket.find(x => x.id === el.dataset.id); if (!b) return; RX.editB = b.id; RX.bd = { name: b.name, form: b.form, dose: b.dose, freq: b.freq, dur: b.dur, note: b.note }; rxRenderBasket(); },
   rxBCancel() { RX.editB = null; RX.bd = {}; rxRenderBasket(); },
   async rxBSave() {
@@ -252,7 +252,7 @@ Object.assign(ACT, {
     const ok = await rxPutBasket(ex ? RX.basket.map(b => b === ex ? { ...it, id: ex.id } : b) : RX.basket.concat([it]), t('rx_fav_saved'));
     if (ok) { RX.editB = null; RX.bd = {}; rxRenderBasket(); }
   },
-  rxClear() { if (RX.lines.length && confirm(t('rx_clear_c'))) { RX.lines = []; rxSave(); rxRenderList(); } },
+  async rxClear() { if (RX.lines.length && await appConfirm(t('rx_clear_c'))) { RX.lines = []; rxSave(); rxRenderList(); } },
   rxPrint() { const a = RX.pat; rxPrintDoc(rxLines(), a ? { name: a.name, birthYear: a.birthYear } : { name: '' }, Date.now()); },
   rxPrintRec(el) { const g = RX.reg[el.dataset.id]; if (g) rxPrintDoc(g.rec.rx, { name: g.pat.name, birthYear: g.pat.birthYear }, g.rec.finishedAt, g.rec.rxHead); },
   rxView(el) { const g = RX.reg[el.dataset.id]; if (g) rxOpenView(g.rec, { name: g.pat.name, birthYear: g.pat.birthYear }); }
@@ -361,7 +361,13 @@ function rxMapObjs(objs) {
     else if (Array.isArray(z)) { n = String(z[0] || '').trim(); ar = String(z[1] || '').trim(); b = String(z[2] || '').trim(); f = String(z[3] || '').trim(); c = String(z[4] || '').trim(); }
     else if (z && typeof z === 'object') { n = pick(z, KEYS.n); b = pick(z, KEYS.b); const fo = pick(z, KEYS.f), dd = pick(z, KEYS.d); f = [fo, dd].filter(Boolean).join(' ').trim() || ''; c = pick(z, KEYS.c); ar = pick(z, KEYS.ar); if (!n) n = b; }
     if (!n) continue; const k = rxN(n); if (!k) continue;
-    const o = map.get(k) || { n, ar: '', b: new Set(), f: new Set(), c: '' }; if (ar && !o.ar) o.ar = ar; if (c && !o.c) o.c = c; if (b && rxN(b) !== k) b.split(/[,;|]/).map(x => x.trim()).filter(Boolean).forEach(x => o.b.add(x)); if (f) f.split(/\s*;\s*/).filter(Boolean).forEach(x => o.f.add(x)); map.set(k, o);
+    /* الاسم التجاري هو ما يُكتب في الوصفة: كل اسم تجاري يصبح بطاقة مستقلة (اسمها التجاري، وتحتها الاسم العلمي)؛ وبلا أسماء تجارية تبقى بطاقة الاسم العلمي */
+    const brands = b ? b.split(/[,;|]/).map(x => x.trim()).filter(x => x && rxN(x) && rxN(x) !== k) : [];
+    for (const bn of (brands.length ? brands : [null])) {
+      const key = bn ? rxN(bn) : k, o = map.get(key) || { n: bn || n, ar: '', b: new Set(), f: new Set(), c: '' };
+      if (ar && !o.ar) o.ar = ar; if (c && !o.c) o.c = c; if (bn) o.b.add(n);
+      if (f) f.split(/\s*;\s*/).filter(Boolean).forEach(x => o.f.add(x)); map.set(key, o);
+    }
   }
   const cut = (set, sep, max) => { let s = ''; for (const x of set) { const nx = s ? s + sep + x : x; if (nx.length > max) break; s = nx; } return s; };
   return [...map.values()].map(o => [o.n, o.ar, cut(o.b, ', ', 400), cut(o.f, '; ', 400), o.c]);
@@ -393,8 +399,9 @@ async function rxReadXlsx(buf) {
   const wb = await get('xl/workbook.xml'), rels = await get('xl/_rels/workbook.xml.rels'); let paths = [];
   if (wb && rels) { const rm = {}; for (const r of rxXml(rels).getElementsByTagName('Relationship')) rm[r.getAttribute('Id')] = r.getAttribute('Target'); for (const sh of rxXml(wb).getElementsByTagName('sheet')) { const id = sh.getAttribute('r:id') || sh.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id'), tg = rm[id]; if (tg) paths.push(/^\//.test(tg) ? tg.slice(1) : 'xl/' + tg.replace(/^\.\//, '')); } }
   if (!paths.length) paths = ['xl/worksheets/sheet1.xml'];
-  const sheets = [];
-  for (const pth of paths) {
+  const sheets = [], names = [];
+  if (wb) for (const sh of rxXml(wb).getElementsByTagName('sheet')) names.push(sh.getAttribute('name') || '');
+  for (const [pi, pth] of paths.entries()) {
     const xml = await get(pth); if (!xml) continue; const rows = [];
     for (const row of rxXml(xml).getElementsByTagName('row')) {
       const arr = [];
@@ -406,14 +413,14 @@ async function rxReadXlsx(buf) {
       }
       rows.push(Array.from(arr, x => x == null ? '' : x));
     }
-    sheets.push(rows);
+    sheets.push(rows); sheets.names = (sheets.names || []).concat(names[pi] || '');
   }
   return sheets;
 }
 async function rxReadList(file) {   // يُرجع قائمة الأدوية من أي صيغة مدعومة
   const buf = await file.arrayBuffer(), u8 = new Uint8Array(buf);
   if (u8[0] === 0xD0 && u8[1] === 0xCF) throw new Error('xls');      // Excel القديم .xls
-  if (u8[0] === 0x50 && u8[1] === 0x4B) { const sheets = await rxReadXlsx(buf); return rxMapObjs(sheets.flatMap(rxRowsToObjs)); }   // xlsx
+  if (u8[0] === 0x50 && u8[1] === 0x4B) { const sheets = await rxReadXlsx(buf), nm = sheets.names || []; return rxMapObjs(sheets.filter((_, i) => !/retrait|non.?renouv|withdrawn/i.test(nm[i] || '')).flatMap(rxRowsToObjs)); }   // نستثني ورقات «المسحوبة» و«غير المجدَّدة» }   // xlsx
   let text;
   if (u8[0] === 0xFF && u8[1] === 0xFE) text = new TextDecoder('utf-16le').decode(buf);
   else if (u8[0] === 0xFE && u8[1] === 0xFF) text = new TextDecoder('utf-16be').decode(buf);
@@ -422,15 +429,15 @@ async function rxReadList(file) {   // يُرجع قائمة الأدوية من
 }
 Object.assign(ACT, {
   drugsPick() { const f = $('#drugsFile'); if (f) { f.value = ''; f.click(); } },
-  async drugsClear() { if (!confirm(t('drugs_clear_c'))) return; const r = await run(() => api('DELETE', '/api/rx/drugs')); if (r) { RX.extra = []; RX.idx = null; rxDrugsInfo(); rxRenderResults(); toast(t('drugs_cleared'), 'info'); } }
+  async drugsClear() { if (!await appConfirm(t('drugs_clear_c'))) return; const r = await run(() => api('DELETE', '/api/rx/drugs')); if (r) { RX.extra = []; RX.idx = null; rxDrugsInfo(); rxRenderResults(); toast(t('drugs_cleared'), 'info'); } }
 });
 document.addEventListener('change', async e => {
   const el = e.target; if (!el || el.id !== 'drugsFile' || !el.files || !el.files[0]) return;
   const file = el.files[0]; if (file.size > 12e6) return toast(t('drugs_bad'), 'error');
   let list; try { list = await rxReadList(file); } catch (x) { return toast(t(x && x.message === 'xls' ? 'drugs_xls' : 'drugs_bad'), 'error'); }
   if (!list.length) return toast(t('drugs_bad'), 'error');
-  await rxLoad(true); const merged = rxMerge(RX.extra, list), cap = 4000, over = merged.length > cap, final = merged.slice(0, cap);
-  if (!confirm(t('drugs_confirm', { n: list.length }))) return;
+  await rxLoad(true); const merged = rxMerge(RX.extra, list), cap = 8000, over = merged.length > cap, final = merged.slice(0, cap);
+  if (!await appConfirm(t('drugs_confirm', { n: list.length }))) return;
   const r = await run(() => api('PUT', '/api/rx/drugs', { drugs: final })); if (!r) return;
   RX.extra = final; RX.idx = null; rxDrugsInfo(); rxRenderResults(); toast(t('drugs_done', { n: list.length }), 'success'); if (over) toast(t('drugs_trunc', { n: cap }), 'info');
 });

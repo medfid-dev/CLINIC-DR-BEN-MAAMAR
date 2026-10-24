@@ -112,6 +112,10 @@ const S = { token: localStorage.getItem('cc_token') || '', me: null, patients: [
 const YEAR = new Date().getFullYear();
 
 const t = (k, v) => { let s = (L[settings.lang] && L[settings.lang][k]) || L.ar[k] || k; if (v) for (const x in v) s = s.replace('{' + x + '}', v[x]); return s; };
+Object.assign(L.ar, { ae_title: 'تصحيح سجل الأرشيف ✏️', ae_name: 'الاسم', ae_year: 'سنة الميلاد', ae_phone: 'الهاتف', ae_treats: 'العلاجات (افصل بينها بـ +)', ae_price: 'السعر', ae_paid: 'المدفوع', ae_follow: 'زيارة متابعة', ae_hint: 'تغيير «المدفوع» يستبدل سجل الدفعات بدفعة واحدة بالمبلغ الجديد. الصور والوصفة لا تتغيّر.' });
+Object.assign(L.en, { ae_title: 'Correct archive record ✏️', ae_name: 'Name', ae_year: 'Birth year', ae_phone: 'Phone', ae_treats: 'Treatments (separate with +)', ae_price: 'Price', ae_paid: 'Paid', ae_follow: 'Follow-up visit', ae_hint: 'Changing "Paid" replaces the payment history with one payment of the new amount. Images and prescription are unchanged.' });
+Object.assign(L.ar, { dlg_ok: 'موافق', lock_ask: '🔒 هذا القسم محميّ. أدخل كلمة مرور الطبيب:', e_locked: 'محميّ بكلمة المرور', prot_title: '🔒 حماية الأرشيف والتعديلات', prot_on: 'الحماية مفعّلة — اضغط للإيقاف', prot_off: 'الحماية معطّلة — اضغط للتفعيل', prot_pw_on: 'أدخل كلمة مرور الطبيب لتفعيل الحماية:', prot_pw_off: 'أدخل كلمة مرور الطبيب لإيقاف الحماية:', prot_hint: 'عند التفعيل يطلب البرنامج كلمة مرور الطبيب لفتح الأرشيف أو سجل المريض أو تعديل السجلات وحذفها وتسجيل الدفعات وتصدير النسخ الاحتياطية. يبقى الفتح صالحاً 10 دقائق من آخر استعمال.' });
+Object.assign(L.en, { dlg_ok: 'OK', lock_ask: '🔒 This section is protected. Enter the doctor password:', e_locked: 'Password protected', prot_title: '🔒 Archive & edits protection', prot_on: 'Protection is ON — tap to turn off', prot_off: 'Protection is OFF — tap to turn on', prot_pw_on: 'Enter the doctor password to turn protection on:', prot_pw_off: 'Enter the doctor password to turn protection off:', prot_hint: 'When on, the app asks for the doctor password to open the archive or a patient history, edit or delete records, add payments or export backups. Unlock stays valid 10 minutes after last use.' });
 Object.assign(L.ar, { pay_ledger: '💵 سجل الدفعات', pay_for: 'عن زيارة' }); Object.assign(L.en, { pay_ledger: '💵 Payments ledger', pay_for: 'for visit' });
 const errMsg = e => t('e_' + ((e && e.code) || 'server_error')) || t('e_server_error');
 const genderL = g => (g === 'أنثى' ? t('female') : t('male'));
@@ -157,14 +161,33 @@ const fmtMin = m => (m < 1 ? t('lt1') : t('min_n', { n: m }));
 const waitText = ts => fmtMin(Math.floor((Date.now() - ts) / 60000));
 
 /* ===================== API ===================== */
+/* ===== نوافذ حوار داخل البرنامج (بديل confirm/prompt الخاصة بالمتصفح) ===== */
+function appDialog({ msg, input, def, pass }) {
+  return new Promise(res => {
+    const m = document.createElement('div'); m.className = 'modal-overlay active'; m.style.zIndex = 30000;
+    m.innerHTML = `<div class="modal-card" style="max-width:420px" role="dialog" aria-modal="true"><div style="white-space:pre-line;line-height:1.7;font-size:15px;margin-bottom:12px">${esc(msg)}</div>${input ? `<input class="app-dlg-in" type="${pass ? 'password' : 'text'}" value="${esc(def == null ? '' : def)}"${pass ? ' autocomplete="current-password"' : ''} style="width:100%;box-sizing:border-box;margin-bottom:12px">` : ''}<div style="display:flex;gap:10px"><button type="button" class="btn-primary" data-d="ok">${t('dlg_ok')}</button><button type="button" class="btn-action btn-red" style="width:35%" data-d="no">${t('cancel')}</button></div></div>`;
+    const inp = m.querySelector('input'), no = input ? null : false, val = () => input ? inp.value : true;
+    const done = v => { document.removeEventListener('keydown', key, true); m.remove(); res(v); };
+    const key = e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(no); } else if (e.key === 'Enter' && !(e.target && e.target.tagName === 'BUTTON')) { e.preventDefault(); e.stopPropagation(); done(val()); } };
+    m.addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('[data-d]'); if (b) done(b.dataset.d === 'ok' ? val() : no); else if (e.target === m) done(no); });
+    document.addEventListener('keydown', key, true); document.body.appendChild(m); const f = inp || m.querySelector('[data-d=ok]'); f.focus(); if (inp) inp.select();
+  });
+}
+const appConfirm = msg => appDialog({ msg });
+const appPrompt = (msg, def, pass) => appDialog({ msg, input: true, def, pass });
+
 async function api(method, path, body, opt = {}) {
-  const h = {}; if (S.token && !opt.anon) h.Authorization = 'Bearer ' + S.token;
+  const h = {}; if (S.token && !opt.anon) h.Authorization = 'Bearer ' + S.token; if (S.unlock) h['X-Unlock'] = S.unlock;
   let b; if (opt.raw) { h['Content-Type'] = 'image/jpeg'; b = opt.raw; } else if (opt.text) { h['Content-Type'] = 'application/json'; b = opt.text; } else if (body !== undefined) { h['Content-Type'] = 'application/json'; b = JSON.stringify(body); }
   let r; try { r = await fetch(path, { method, headers: h, body: b }); } catch (e) { throw Object.assign(new Error('network'), { code: 'network' }); }
   if (opt.blob && r.ok) return r.blob();
   let j = {}; try { j = await r.json(); } catch (e) {}
   if (!r.ok) {
     if (r.status === 401 && S.token && !opt.anon) forceLogout();
+    if (r.status === 423 && !opt.noUnlock) {   // محميّ بكلمة المرور: نطلبها داخل البرنامج ثم نعيد الطلب
+      S.unlock = ''; const pw = await appPrompt(t('lock_ask'), '', true);
+      if (pw) { try { const u = await api('POST', '/api/clinic/unlock', { password: pw }, { noUnlock: true }); S.unlock = u.token; return api(method, path, body, opt); } catch (e) { if (e.code === 'locked') throw e; throw e; } }
+    }
     throw Object.assign(new Error(j.error || 'error'), { code: j.error || 'server_error', status: r.status });
   }
   return j;
@@ -211,7 +234,7 @@ async function logout() {
 }
 function forceLogout(silent) {
   if (S.es) { S.es.close(); S.es = null; }
-  S.token = ''; S.me = null; S.patients = []; S.tasks = []; S.tasksSeen = null; renderTasks(); setBadge(0); localStorage.removeItem('cc_token'); delete document.body.dataset.role; closeModals(); closeCamera();
+  S.token = ''; S.unlock = ''; S.me = null; S.patients = []; S.tasks = []; S.tasksSeen = null; renderTasks(); setBadge(0); localStorage.removeItem('cc_token'); delete document.body.dataset.role; closeModals(); closeCamera();
   $('#skipQueueModal').classList.remove('active'); S.shownSkip = '';
   showScreen('authScreen'); setOnline(true);
   if (!silent) toast(t('e_unauthorized'), 'warning');
@@ -555,6 +578,7 @@ function archiveParams(off) {
   return q.toString();
 }
 let archTimer, archSeq = 0;
+function protectUI() { const b = $('#protBtn'); if (b && S.me) { b.textContent = (S.me.protect ? '🔒 ' : '🔓 ') + t(S.me.protect ? 'prot_on' : 'prot_off'); b.classList.toggle('btn-green', !!S.me.protect); } }
 function loadArchive(reset = true) {
   clearTimeout(archTimer);
   archTimer = setTimeout(async () => {
@@ -572,7 +596,7 @@ function renderArchive() {
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
     ${a.payments && a.payments.length ? `<div style="font-size:11px;color:var(--text-secondary);margin-top:6px">${t('pays_l')} ${a.payments.map(p => money(p.amt) + ' (' + new Date(p.t).toLocaleDateString(locale()) + ')').join(' · ')}</div>` : ''}
     <div style="font-size:11px;color:var(--text-muted);margin-top:6px">${t('date_l')} ${new Date(a.finishedAt).toLocaleString(locale(), { dateStyle: 'short', timeStyle: 'short' })} · ${t('wait_s')} ${fmtMin(a.waitMin)} · ${t('dur_l')} ${fmtMin(a.durationMin)}</div></div>
-    <div style="display:flex;flex-direction:column;gap:6px">${a.remaining > 0 ? `<button type="button" class="btn-action btn-green" data-act="addPayment" data-id="${a.id}" data-rem="${a.remaining}">${t('add_pay')}</button>` : ''}    <button type="button" class="btn-action btn-red" data-act="delArchive" data-id="${a.id}">${t('del')}</button></div></li>`).join('')
+    <div style="display:flex;flex-direction:column;gap:6px">${a.remaining > 0 ? `<button type="button" class="btn-action btn-green" data-act="addPayment" data-id="${a.id}" data-rem="${a.remaining}">${t('add_pay')}</button>` : ''}    <button type="button" class="btn-action btn-yellow" data-act="editArchive" data-id="${a.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delArchive" data-id="${a.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('no_results')}</li>`;
   $('#archiveMore').style.display = S.archive.items.length < S.archive.total ? '' : 'none';
   hydrate(l);
@@ -745,11 +769,12 @@ const ACT = {
   openTasks,
   taskQuick(el) { const ta = $('#taskText'); ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + ' ' : '') + t(el.dataset.k); ta.focus(); },
   async taskDone(el) { el.disabled = true; const r = await run(() => api('POST', `/api/tasks/${el.dataset.id}/done`)); if (!r) { el.disabled = false; return; } S.tasks = S.tasks.filter(k => k.id !== el.dataset.id); renderTasks(); refresh(); },
-  async taskDel(el) { if (!confirm(t('task_confirm_del'))) return; if (await run(() => api('DELETE', `/api/tasks/${el.dataset.id}`))) { S.tasks = S.tasks.filter(k => k.id !== el.dataset.id); renderTasks(); renderTaskList(); } },
+  async taskDel(el) { if (!await appConfirm(t('task_confirm_del'))) return; if (await run(() => api('DELETE', `/api/tasks/${el.dataset.id}`))) { S.tasks = S.tasks.filter(k => k.id !== el.dataset.id); renderTasks(); renderTaskList(); } },
   patHistory: el => showHistory(el.dataset.name, el.dataset.year),
   openSet(el) {
     const m = el.dataset.m; if (m === 'set_clinicModal') { $$('.setClinicName').forEach(i => { i.value = S.me.clinicName; }); $$('.setDoctorName').forEach(i => { i.value = S.me.name; }); }
     if (m === 'set_pricesModal') { const f = $('form[data-form=prices]'); delete f.dataset.dirty; renderPriceForm(); }
+    if (m === 'set_backupModal') protectUI();
     if (m === 'set_scheduleModal') { S.schedSig = ''; syncSchedule(); }
     openModal(m);
   }, closeLightbox: () => $('#lightboxModal').classList.remove('active'),
@@ -760,7 +785,7 @@ const ACT = {
   },
   async skipAllow() { const id = $('#skipQueueModal').dataset.pid; $('#skipQueueModal').classList.remove('active'); await run(() => api('POST', `/api/patients/${id}/skip`, { allow: true })); refresh(); },
   async skipDeny() { const id = $('#skipQueueModal').dataset.pid; $('#skipQueueModal').classList.remove('active'); await run(() => api('POST', `/api/patients/${id}/skip`, { allow: false })); refresh(); },
-  async delPatient(el) { if (!confirm(t('c_del_patient'))) return; if (await run(() => api('DELETE', `/api/patients/${el.dataset.id}`))) { toast(t('t_deleted'), 'info'); refresh(); } },
+  async delPatient(el) { if (!await appConfirm(t('c_del_patient'))) return; if (await run(() => api('DELETE', `/api/patients/${el.dataset.id}`))) { toast(t('t_deleted'), 'info'); refresh(); } },
   editPatient(el) {
     const p = S.patients.find(x => x.id === el.dataset.id); if (!p) return;
     $('#editPatientId').value = p.id; $('#peName').value = p.name; $('#peYear').value = p.birthYear; $('#peGender').value = p.gender; $('#peReason').value = p.reason;
@@ -781,7 +806,7 @@ const ACT = {
   },
   payQuick(el) { const due = +S.price || 0, v = el.dataset.v; S.paid = v === 'all' ? String(Math.round((due + prevBal()) * 100) / 100) : v === 'half' ? String(Math.round(due * 50) / 100) : '0'; S.paidDirty = true; recalc(); },
   async addPayment(el) {
-    const rem = +el.dataset.rem, v = prompt(t('pay_prompt', { r: money(rem) }), rem); if (v == null) return;
+    const rem = +el.dataset.rem, v = await appPrompt(t('pay_prompt', { r: money(rem) }), rem); if (v == null) return;
     if (await run(() => api('POST', `/api/archive/${el.dataset.id}/payment`, { amount: v }))) { toast(t('t_paid'), 'success'); loadArchive(true); }
   },
   treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); recalc(); },
@@ -790,9 +815,33 @@ const ACT = {
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
   },
   copyCode: () => copyText(S.me.code || ''),
-  async delNurse(el) { if (confirm(t('c_del_nurse')) && await run(() => api('DELETE', `/api/nurses/${el.dataset.id}`))) { toast(t('t_deleted'), 'info'); loadNurses(); } },
+  async delNurse(el) { if (await appConfirm(t('c_del_nurse')) && await run(() => api('DELETE', `/api/nurses/${el.dataset.id}`))) { toast(t('t_deleted'), 'info'); loadNurses(); } },
   editNurse(el) { const n = S.nurses.find(x => x.id === el.dataset.id); if (!n) return; $('#editNurseId').value = n.id; $('#editNurseName').value = n.name; $('#editNursePhone').value = n.phone || ''; $('#editNursePass').value = ''; openModal('editNurseModal'); },
-  async delArchive(el) { if (confirm(t('c_del_arch')) && await run(() => api('DELETE', `/api/archive/${el.dataset.id}`))) loadArchive(true); },
+  editArchive(el) {
+    const a = S.archive.items.find(z => z.id === el.dataset.id); if (!a) return;
+    let m = $('#archEditModal'); if (m) m.remove(); m = document.createElement('div'); m.id = 'archEditModal'; m.className = 'modal-overlay';
+    const f = (id, label, val, extra) => `<div class="form-group"><label>${esc(label)}</label><input id="ae${id}" value="${esc(val == null ? '' : val)}" ${extra || ''}></div>`;
+    m.innerHTML = `<div class="modal-card"><h3 style="margin-bottom:12px;font-size:16px">${t('ae_title')}</h3>
+      ${f('Name', t('ae_name'), a.name, 'maxlength="80"')}${f('Year', t('ae_year'), a.birthYear, 'type="number" min="1900" max="' + YEAR + '"')}
+      <div class="form-group"><label>${t('sex')}</label><select id="aeGender"><option value="ذكر"${a.gender !== 'أنثى' ? ' selected' : ''}>${t('male')}</option><option value="أنثى"${a.gender === 'أنثى' ? ' selected' : ''}>${t('female')}</option></select></div>
+      <div class="form-group"><label>${t('reason_s')}</label><select id="aeReason">${REASONS.map(r => `<option value="${esc(r[0])}"${a.reason === r[0] ? ' selected' : ''}>${esc(settings.lang === 'en' ? r[1] : r[0])}</option>`).join('')}</select></div>
+      ${f('Tooth', t('tooth'), a.tooth === 'غير محدد' ? '' : a.tooth, 'maxlength="20"')}${f('Phone', t('ae_phone'), a.phone || '', 'type="tel" maxlength="25"')}
+      ${f('Treats', t('ae_treats'), (a.treatments || [a.treatment]).join(' + '), 'maxlength="200"')}
+      <div class="form-group"><label>${t('notes_l')}</label><textarea id="aeNotes" rows="3" maxlength="2000">${esc(a.notes || '')}</textarea></div>
+      <div style="display:flex;gap:10px">${f('Price', t('ae_price'), a.price == null ? '' : a.price, 'type="number" min="0" step="any"')}${f('Paid', t('ae_paid'), a.paid, 'type="number" min="0" step="any"')}</div>
+      <label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" id="aeFollow"${a.followUp ? ' checked' : ''}> ${t('ae_follow')}</label>
+      <div class="hint" style="margin-top:6px">${t('ae_hint')}</div>
+      <div style="display:flex;gap:10px;margin-top:16px"><button type="button" class="btn-primary" data-act="editArchiveSave" data-id="${a.id}">${t('save')}</button><button type="button" class="btn-action btn-red" style="width:35%" data-act="closeModal">${t('cancel')}</button></div></div>`;
+    document.body.appendChild(m); m.classList.add('active');
+  },
+  async editArchiveSave(el) {
+    const name = $('#aeName').value.trim(), y = parseInt($('#aeYear').value);
+    if (!name || !(y >= 1900 && y <= YEAR)) return toast(t('bad_year', { y: YEAR }), 'warning');
+    const body = { name, birthYear: y, gender: $('#aeGender').value, reason: $('#aeReason').value, tooth: $('#aeTooth').value.trim(), phone: $('#aePhone').value.trim(),
+      treatments: $('#aeTreats').value.split(/\s*[+،,]\s*/).map(x => x.trim()).filter(Boolean), notes: $('#aeNotes').value, price: $('#aePrice').value, paid: $('#aePaid').value === '' ? 0 : $('#aePaid').value, followUp: $('#aeFollow').checked };
+    if (await run(() => api('PUT', `/api/archive/${el.dataset.id}`, body))) { const m = $('#archEditModal'); if (m) m.remove(); toast(t('t_saved'), 'success'); loadArchive(true); }
+  },
+  async delArchive(el) { if (await appConfirm(t('c_del_arch')) && await run(() => api('DELETE', `/api/archive/${el.dataset.id}`))) loadArchive(true); },
   archiveMore: () => loadArchive(false),
   archiveRange: el => {
     const iso = d => d.toLocaleDateString('en-CA'), now = new Date(), r = el.dataset.r;
@@ -815,12 +864,17 @@ const ACT = {
   importData() {
     const i = document.createElement('input'); i.type = 'file'; i.accept = '.json,application/json';
     i.onchange = async () => {
-      const f = i.files[0]; if (!f || !confirm(t('c_restore'))) return;
+      const f = i.files[0]; if (!f || !await appConfirm(t('c_restore'))) return;
       const r = await run(async () => api('POST', '/api/restore', undefined, { text: await f.text() })); if (r) { toast(t('restored', { p: r.patients, a: r.archive }), 'success'); refresh(); loadArchive(true); }
     }; i.click();
   },
-  async wipeData() { const pw = prompt(t('c_wipe')); if (!pw) return; if (await run(() => api('POST', '/api/clinic/wipe', { password: pw }))) { toast(t('t_deleted'), 'info'); refresh(); loadArchive(true); } },
-  async deleteAccount() { const pw = prompt(t('c_delacc')); if (!pw) return; if (await run(() => api('POST', '/api/clinic/wipe', { password: pw, account: true }))) forceLogout(true); }
+  async toggleProtect() {
+    const on = !(S.me && S.me.protect), pw = await appPrompt(t(on ? 'prot_pw_on' : 'prot_pw_off'), '', true); if (!pw) return;
+    const r = await run(() => api('POST', '/api/clinic/protect', { password: pw, on })); if (!r) return;
+    S.me.protect = !!r.protect; S.unlock = ''; protectUI(); toast(t('t_saved'), 'success');
+  },
+  async wipeData() { const pw = await appPrompt(t('c_wipe'), '', true); if (!pw) return; if (await run(() => api('POST', '/api/clinic/wipe', { password: pw }))) { toast(t('t_deleted'), 'info'); refresh(); loadArchive(true); } },
+  async deleteAccount() { const pw = await appPrompt(t('c_delacc'), '', true); if (!pw) return; if (await run(() => api('POST', '/api/clinic/wipe', { password: pw, account: true }))) forceLogout(true); }
 };
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el) return;

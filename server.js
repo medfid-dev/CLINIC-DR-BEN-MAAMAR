@@ -260,7 +260,7 @@ function serveStatic(req, res, pathname) {
 
 /* ---------- المصادقة ---------- */
 /* ---------- الوصفات الطبية: سلة الأدوية المفضلة وقاعدة أدوية العيادة المستوردة ---------- */
-const RX_MAX_LINES = 25, RX_MAX_BASKET = 100, RX_MAX_DRUGS = 4000;
+const RX_MAX_LINES = 25, RX_MAX_BASKET = 100, RX_MAX_DRUGS = 8000;
 const cleanRxLine = z => { if (!z || typeof z !== 'object') return null; const name = str(z.name, 120); return name ? { name, form: str(z.form, 160), dose: str(z.dose, 80), freq: str(z.freq, 80), dur: str(z.dur, 80), note: str(z.note, 200) } : null; };
 const cleanRx = a => (Array.isArray(a) ? a : []).slice(0, RX_MAX_LINES).map(cleanRxLine).filter(Boolean);
 function cleanBasket(a) {
@@ -430,6 +430,15 @@ function statsFor(c, d0, d1, tz) {
     teeth: { perTooth, cats, jaw, side, dentition, total: toothTotal, none: noTooth }, timing, patients, rx, registrars, debt, today, overall };
 }
 
+/* حماية الأرشيف والتعديلات: إن فعّلها الطبيب لا يُسمح بالوصول إلا برمز فتح مؤقّت يُنال بكلمة المرور (يُحفظ في الذاكرة فقط) */
+const unlocks = new Map(), UNLOCK_MS = 10 * 60e3;
+function needUnlock(req, c) {
+  if (!c.protect) return;
+  const tok = String(req.headers['x-unlock'] || ''), u = tok && unlocks.get(sha(tok));
+  if (!u || u.cid !== c.id || u.exp < now()) throw httpErr(423, 'locked');
+  u.exp = now() + UNLOCK_MS;
+}
+setInterval(() => { for (const [k, u] of unlocks) if (u.exp < now()) unlocks.delete(k); }, 6e4).unref();
 function authOf(req, roles) {
   const h = req.headers.authorization || '';
   const tok = h.startsWith('Bearer ') ? h.slice(7) : '';
@@ -449,7 +458,7 @@ async function openSession(role, clinic, nurse) {
 }
 function meOf(ctx) {
   const c = ctx.clinic;
-  return { role: ctx.role, name: ctx.role === 'doctor' ? c.doctor.name : ctx.nurse.name, clinicName: c.name, doctorName: c.doctor.name, prices: ctx.role === 'doctor' ? pricesOf(c) : undefined, code: ctx.role === 'doctor' ? c.code : undefined, publicUrl: PUBLIC_URL || undefined };
+  return { role: ctx.role, name: ctx.role === 'doctor' ? c.doctor.name : ctx.nurse.name, clinicName: c.name, doctorName: c.doctor.name, prices: ctx.role === 'doctor' ? pricesOf(c) : undefined, code: ctx.role === 'doctor' ? c.code : undefined, publicUrl: PUBLIC_URL || undefined, protect: ctx.role === 'doctor' ? !!c.protect : undefined };
 }
 function enterRoom(c, p) { p.status = 'in'; p.startedAt = now(); RT(c).skip.delete(p.id); }
 function findPatient(c, id) { const p = c.patients.find(x => x.id === id); if (!p) throw httpErr(404, 'not_found'); return p; }
@@ -615,6 +624,7 @@ async function api(req, res, url) {
     const a = authOf(req, ['doctor']), c = a.clinic;
     const rec = c.patients.find(z => z.id === mt[1]) || c.archive.find(z => z.id === mt[1]);
     if (!rec || !(rec.images || []).some(z => z.id === mt[2])) throw httpErr(404, 'not_found');
+    if (c.archive.includes(rec)) needUnlock(req, c);
     return serveFile(req, res, imgPath(c, mt[2]), { 'Cache-Control': 'private, max-age=3600', 'Content-Type': 'image/jpeg' });
   }
 
@@ -627,7 +637,7 @@ async function api(req, res, url) {
 
   /* سجل المريض الكامل: كل زياراته من الأولى إلى الأخيرة + زيارته الحالية إن وُجدت (طبيب فقط) */
   if (m === 'GET' && p === '/api/history') {
-    const a = authOf(req, ['doctor']), q = url.searchParams, year = parseInt(q.get('year'));
+    const a = authOf(req, ['doctor']); needUnlock(req, a.clinic); const q = url.searchParams, year = parseInt(q.get('year'));
     if (!Number.isInteger(year)) throw httpErr(400, 'invalid_input');
     const k = patKey({ name: str(q.get('name') || '', 80), birthYear: year });
     const rs = a.clinic.archive.filter(r => patKey(r) === k).sort((x, y) => (x.finishedAt || 0) - (y.finishedAt || 0)).slice(-300);
@@ -649,7 +659,7 @@ async function api(req, res, url) {
   /* تسجيل دفعة على سجل في الأرشيف (طبيب فقط) */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})\/payment$/);
   if (m === 'POST' && mt) {
-    const a = authOf(req, ['doctor']), rec = a.clinic.archive.find(z => z.id === mt[1]); if (!rec) throw httpErr(404, 'not_found');
+    const a = authOf(req, ['doctor']); needUnlock(req, a.clinic); const rec = a.clinic.archive.find(z => z.id === mt[1]); if (!rec) throw httpErr(404, 'not_found');
     const b = await readJSON(req), amt = num(b.amount); if (!amt || amt <= 0) throw httpErr(400, 'invalid_input');
     const x = Math.min(amt, remOf(rec)); if (x <= 0) throw httpErr(409, 'nothing_due');
     rec.paid = r2(paidOf(rec) + x); (rec.payments = rec.payments || []).push({ t: now(), amt: x }); save(); return send(res, 200, archiveView(rec));
@@ -693,7 +703,7 @@ async function api(req, res, url) {
 
   /* الأرشيف (طبيب فقط) */
   if (m === 'GET' && p === '/api/archive') {
-    const a = authOf(req, ['doctor']), q = url.searchParams, name = str(q.get('name') || '', 80).toLowerCase(), year = str(q.get('year') || '', 4), gender = str(q.get('gender') || '', 4), tooth = str(q.get('tooth') || '', 20).toLowerCase(), tr = str(q.get('treatment') || '', 40), dFrom = str(q.get('from') || '', 10), dTo = str(q.get('to') || '', 10);
+    const a = authOf(req, ['doctor']); needUnlock(req, a.clinic); const q = url.searchParams, name = str(q.get('name') || '', 80).toLowerCase(), year = str(q.get('year') || '', 4), gender = str(q.get('gender') || '', 4), tooth = str(q.get('tooth') || '', 20).toLowerCase(), tr = str(q.get('treatment') || '', 40), dFrom = str(q.get('from') || '', 10), dTo = str(q.get('to') || '', 10);
     const tz = Math.max(-840, Math.min(840, +q.get('tz') || 0)), isDay = v => /^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(v + 'T00:00:00Z'));
     const dayStart = v => Date.parse(v + 'T00:00:00Z') + tz * 6e4;  // بداية اليوم بتوقيت جهاز الطبيب
     let d0 = isDay(dFrom) ? dayStart(dFrom) : 0, d1 = isDay(dTo) ? dayStart(dTo) + 864e5 : 0;
@@ -704,8 +714,20 @@ async function api(req, res, url) {
   }
   /* أرشيف الوصفات (طبيب فقط): كل سجل منتهٍ له وصفة، الأحدث أولاً */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})$/);
+  if (m === 'PUT' && mt) {   // تصحيح سجل محفوظ في الأرشيف (طبيب فقط)
+    const a = authOf(req, ['doctor']); needUnlock(req, a.clinic); const rec = a.clinic.archive.find(z => z.id === mt[1]); if (!rec) throw httpErr(404, 'not_found');
+    const b = await readJSON(req), v = validatePatient(b); if (!v) throw httpErr(400, 'invalid_input');
+    const price = b.price === null || b.price === '' || b.price === undefined ? null : num(b.price), paid = num(b.paid);
+    if ((price != null && price < 0) || (paid != null && paid < 0)) throw httpErr(400, 'invalid_input');
+    const tl = cleanTreats(b.treatments), oldPaid = paidOf(rec);
+    Object.assign(rec, v, { notes: str(b.notes, 2000), followUp: !!b.followUp, price });
+    if (tl.length) { rec.treatments = tl; rec.treatment = str(tl.join(' + '), 200); rec.items = cleanItems(rec.items, tl); }
+    const np = r2(Math.min(paid == null ? oldPaid : paid, price || 0));
+    if (np !== oldPaid || rec.paid == null) { rec.paid = np; if (np !== oldPaid) rec.payments = np > 0 ? [{ t: (paysOf(rec)[0] || {}).t || rec.finishedAt, amt: np }] : []; }
+    save(); return send(res, 200, archiveView(rec));
+  }
   if (m === 'DELETE' && mt) {
-    const a = authOf(req, ['doctor']), c = a.clinic, i = c.archive.findIndex(z => z.id === mt[1]);
+    const a = authOf(req, ['doctor']), c = a.clinic; needUnlock(req, c); const i = c.archive.findIndex(z => z.id === mt[1]);
     if (i < 0) throw httpErr(404, 'not_found');
     const [rec] = c.archive.splice(i, 1); rmImages(c, rec); idx.ticket.delete(rec.ticket); save(); return send(res, 200, { ok: true });
   }
@@ -772,6 +794,18 @@ async function api(req, res, url) {
     for (const [k, s] of Object.entries(db.sessions)) if (s.clinicId === a.clinic.id && k !== a.key) { delete db.sessions[k]; closeStreamsOf(k); }
     save(); return send(res, 200, { ok: true });
   }
+  if (m === 'POST' && p === '/api/clinic/unlock') {
+    const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req); rate('pw:' + c.id, 10, 6e5);
+    if (!(await checkPw(b.password || '', c.doctor))) throw httpErr(401, 'bad_credentials');
+    const token = crypto.randomBytes(24).toString('hex'); unlocks.set(sha(token), { cid: c.id, exp: now() + UNLOCK_MS });
+    return send(res, 200, { token });
+  }
+  if (m === 'POST' && p === '/api/clinic/protect') {
+    const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req); rate('pw:' + c.id, 10, 6e5);
+    if (!(await checkPw(b.password || '', c.doctor))) throw httpErr(401, 'bad_credentials');
+    c.protect = !!b.on; for (const [k, u] of unlocks) if (u.cid === c.id) unlocks.delete(k);
+    save(); return send(res, 200, { protect: c.protect });
+  }
   if (m === 'POST' && p === '/api/clinic/wipe') {
     const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req); rate('pw:' + c.id, 10, 6e5);
     if (!(await checkPw(b.password || '', c.doctor))) throw httpErr(401, 'bad_credentials');
@@ -787,14 +821,14 @@ async function api(req, res, url) {
 
   /* نسخ احتياطي واستعادة (طبيب فقط) */
   if (m === 'GET' && p === '/api/backup') {
-    const a = authOf(req, ['doctor']), c = a.clinic, images = {};
+    const a = authOf(req, ['doctor']), c = a.clinic, images = {}; needUnlock(req, c);
     for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
     const body = JSON.stringify({ app: 'calm-clinic', version: 2, exportedAt: now(), clinicName: c.name, patients: c.patients, archive: c.archive, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
   }
   if (m === 'POST' && p === '/api/restore') {
-    const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req, 150e6);
+    const a = authOf(req, ['doctor']), c = a.clinic; needUnlock(req, c); const b = await readJSON(req, 150e6);
     if (b.app !== 'calm-clinic' || !Array.isArray(b.patients) || !Array.isArray(b.archive)) throw httpErr(400, 'invalid_input');
     const used = new Set(), imgs = b.images && typeof b.images === 'object' ? b.images : {};
     const clean = (r, done) => {

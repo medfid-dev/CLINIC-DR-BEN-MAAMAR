@@ -629,3 +629,39 @@ body[data-role=doctor] #taskFab{display:flex}
 .hist-pays ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
 .hist-pays li{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-size:13px;border-bottom:1px dashed rgba(128,128,150,.25);padding-bottom:4px}
 .hist-pays li b{color:var(--success-soft,#2e8b57)}.hist-pays li small{flex-basis:100%;opacity:.7;font-size:11px}
+.rxl-ct{background:rgba(79,70,229,.07);border-style:dashed}
+.rxl-open-big{font-weight:700}
+
+/* ===== لوحة الأرقام البارزة (numpad.js) ===== */
+#numpad{position:fixed;inset-inline:0;bottom:0;margin-inline:auto;width:min(100%,520px);z-index:35000;background:var(--surface-card);
+border-radius:24px 24px 0 0;border-top:4px solid var(--orange);box-shadow:0 -14px 44px -10px rgba(20,15,70,.6);
+padding:10px 12px calc(12px + env(safe-area-inset-bottom));transform:translateY(110%);visibility:hidden;
+transition:transform .22s ease,visibility 0s .22s;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+#numpad.on{transform:none;visibility:visible;transition:transform .22s ease,visibility 0s}
+.np-head{display:flex;flex-direction:column;align-items:center;gap:0;min-height:68px;padding:0 6px 8px;overflow:hidden}
+.np-lbl{max-width:100%;font-size:13px;line-height:1.5;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:20px}
+.np-val{display:block;max-width:100%;font-size:34px;font-weight:600;line-height:1.25;letter-spacing:.5px;color:var(--text-primary);
+font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-val.np-ph{color:var(--text-muted);font-weight:400}
+.np-val.np-no{animation:npshake .28s linear}
+@keyframes npshake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.np-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.np-k{height:clamp(46px,7.6dvh,64px);border:0;border-radius:14px;background:var(--surface-sunk);color:var(--text-primary);
+font-size:26px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;box-shadow:inset 0 0 0 1px var(--border-calm),0 2px 0 var(--border-calm);
+-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .06s,background .1s}
+@media (hover:hover){.np-k:hover{background:color-mix(in srgb,var(--primary-sage) 10%,var(--surface-sunk))}}
+.np-k:active,.np-k.hit{transform:scale(.95);background:color-mix(in srgb,var(--primary-sage) 24%,var(--surface-sunk))}
+.np-k.z{font-size:23px;color:var(--orange);background:color-mix(in srgb,var(--orange) 14%,var(--surface-sunk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--orange) 45%,transparent),0 2px 0 var(--border-calm)}
+.np-k.z:active,.np-k.z.hit{background:color-mix(in srgb,var(--orange) 32%,var(--surface-sunk))}
+.np-k.fn{font-size:19px;color:var(--primary-sage);background:var(--primary-soft)}
+.np-k.fn:active,.np-k.fn.hit{background:color-mix(in srgb,var(--primary-sage) 30%,transparent)}
+.np-k.ok{font-size:19px;background:var(--accent-mint);color:#fff;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.np-k.ok:active,.np-k.ok.hit{background:color-mix(in srgb,var(--accent-mint) 80%,#000)}
+.np-k.np-off{visibility:hidden}
+/* لا تغطّي اللوحة الحقل: تُفسح الصفحة والحوارات لها مكاناً */
+body.np-open .screen.active{padding-bottom:calc(var(--np-h,330px) + 28px)}
+body.np-open .modal-overlay.active{padding-bottom:var(--np-h,330px)}
+body.np-open .modal-overlay.active .modal-card{max-height:calc(100dvh - var(--np-h,330px) - 16px)!important}
+@media (max-height:520px){.np-k{height:40px;font-size:21px}.np-head{min-height:52px;padding-bottom:4px}.np-val{font-size:26px}}
+@media (prefers-reduced-motion:reduce){#numpad,#numpad.on{transition:none}.np-val.np-no{animation:none}}
+@media print{#numpad{display:none!important}}

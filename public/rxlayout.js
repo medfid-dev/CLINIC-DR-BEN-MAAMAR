@@ -5,14 +5,14 @@
    إن لم يُحفظ تخطيط يبقى التخطيط الكلاسيكي كما هو. يعتمد على rx.js وapp.js. */
 
 Object.assign(L.ar, {
-  rxl_btn: 'تخصيص تخطيط الوصفة', rxl_title: '🎨 مصمّم تخطيط الوصفة', rxl_paper: 'الورقة', rxl_w: 'العرض (مم)', rxl_h: 'الارتفاع (مم)', rxl_swap: 'تبديل الاتجاه ↔',
+  rxl_btn: 'تعديل التخطيط', rxl_title: '🎨 مصمّم تخطيط الوصفة', rxl_paper: 'الورقة', rxl_w: 'العرض (مم)', rxl_h: 'الارتفاع (مم)', rxl_swap: 'تبديل الاتجاه ↔',
   rxl_grid: 'خطوة التحريك', rxl_nogrid: 'حرّة', rxl_zoom: 'التكبير', rxl_font: 'نوع الخط', rxl_ff_def: 'الافتراضي', rxl_ff_serif: 'مزخرف (Serif)', rxl_ff_sans: 'بسيط', rxl_ff_mono: 'ثابت العرض',
   rxl_blocks: 'العناصر', rxl_show: 'إظهار العنصر', rxl_x: 'X — من اليسار (مم)', rxl_y: 'Y — من الأعلى (مم)', rxl_bw: 'العرض (مم)', rxl_bh: 'الارتفاع (مم)', rxl_fs: 'حجم الخط (pt)',
   rxl_bold: 'عريض', rxl_it: 'مائل', rxl_col: 'اللون', rxl_th: 'السماكة (مم)', rxl_ds: 'متقطّع', rxl_txt: 'النص', rxl_lh: 'تباعد الأسطر', rxl_gap: 'المسافة بين الأدوية (مم)', rxl_num: 'ترقيم الأدوية',
   rxl_addt: '＋ نص حر', rxl_addr: '＋ خط', rxl_remove: 'إزالة هذا العنصر', rxl_reset: 'استعادة التخطيط الافتراضي', rxl_classic: 'العودة للتخطيط الكلاسيكي', rxl_classic_c: 'حذف التخطيط المخصّص والعودة للتخطيط الكلاسيكي؟',
   rxl_save: 'حفظ التخطيط', rxl_cancel: 'إغلاق بلا حفظ', rxl_test: '🖨️ طباعة تجريبية', rxl_saved: 'حُفظ تخطيط الوصفة', rxl_reset_c: 'استعادة المواضع والأحجام الافتراضية؟',
   rxl_hint: 'اسحب أي عنصر لتحريكه، واسحب المربع الصغير في زاويته لتغيير عرضه. الأسهم تحرّك بدقة (Shift = ×5).', rxl_sample: 'اسم المريض', rxl_cust: 'نص جديد', rxl_close_c: 'إغلاق بدون حفظ التغييرات؟',
-  rxl_al_l: 'يسار', rxl_al_c: 'وسط', rxl_al_r: 'يمين', rxl_al: 'المحاذاة', rxl_none: 'اختر عنصراً من الورقة أو من القائمة',
+  rxl_al_l: 'يسار', rxl_al_c: 'وسط', rxl_al_r: 'يمين', rxl_al: 'المحاذاة', rxl_none: 'اختر عنصراً من الورقة أو من القائمة', rxl_content: 'محتوى النص', rxl_logo_pick: 'اختيار شعار', rxl_logo_rm: 'إزالة الشعار', rxl_logo_bad: 'تعذّر قراءة الصورة',
   rxlb_logo: 'الشعار', rxlb_clinic: 'اسم العيادة', rxlb_doctor: 'اسم الطبيب', rxlb_spec: 'التخصص', rxlb_contact: 'الهاتف والعنوان', rxlb_date: 'التاريخ', rxlb_patient: 'اسم المريض', rxlb_age: 'العمر',
   rxlb_title: 'عنوان الوصفة ℞', rxlb_list: 'قائمة الأدوية', rxlb_sign: 'التوقيع والختم', rxlb_rule1: 'خط 1', rxlb_rule2: 'خط 2', rxlb_rule3: 'خط 3',
   rxlb_t1: 'نص حر 1', rxlb_t2: 'نص حر 2', rxlb_t3: 'نص حر 3', rxlb_t4: 'نص حر 4', rxlb_t5: 'نص حر 5', rxlb_t6: 'نص حر 6'
@@ -25,7 +25,7 @@ Object.assign(L.en, {
   rxl_addt: '＋ Free text', rxl_addr: '＋ Line', rxl_remove: 'Remove this element', rxl_reset: 'Restore default layout', rxl_classic: 'Back to classic layout', rxl_classic_c: 'Delete the custom layout and go back to the classic one?',
   rxl_save: 'Save layout', rxl_cancel: 'Close without saving', rxl_test: '🖨️ Test print', rxl_saved: 'Prescription layout saved', rxl_reset_c: 'Restore default positions and sizes?',
   rxl_hint: 'Drag any element to move it; drag the small square at its corner to resize its width. Arrow keys nudge precisely (Shift = ×5).', rxl_sample: 'Patient name', rxl_cust: 'New text', rxl_close_c: 'Close without saving changes?',
-  rxl_al_l: 'Left', rxl_al_c: 'Center', rxl_al_r: 'Right', rxl_al: 'Alignment', rxl_none: 'Pick an element on the page or in the list',
+  rxl_al_l: 'Left', rxl_al_c: 'Center', rxl_al_r: 'Right', rxl_al: 'Alignment', rxl_none: 'Pick an element on the page or in the list', rxl_content: 'Text content', rxl_logo_pick: 'Choose logo', rxl_logo_rm: 'Remove logo', rxl_logo_bad: 'Could not read the image',
   rxlb_logo: 'Logo', rxlb_clinic: 'Clinic name', rxlb_doctor: 'Doctor name', rxlb_spec: 'Specialty', rxlb_contact: 'Phone & address', rxlb_date: 'Date', rxlb_patient: 'Patient name', rxlb_age: 'Age',
   rxlb_title: 'Prescription title ℞', rxlb_list: 'Drug list', rxlb_sign: 'Signature & stamp', rxlb_rule1: 'Line 1', rxlb_rule2: 'Line 2', rxlb_rule3: 'Line 3',
   rxlb_t1: 'Free text 1', rxlb_t2: 'Free text 2', rxlb_t3: 'Free text 3', rxlb_t4: 'Free text 4', rxlb_t5: 'Free text 5', rxlb_t6: 'Free text 6'
@@ -134,16 +134,18 @@ rxPrintDoc = function (lines, pat, ts, head, layOverride) {
   window.addEventListener('afterprint', done); setTimeout(() => window.print(), 60);
 };
 rxModalHTML = function () {
-  return _rxModalHTML().replace('<button type="button" class="btn-action" data-act="rxTplReset">', `<button type="button" class="btn-action btn-green" data-act="rxlOpen">🎨 ${esc(t('rxl_btn'))}</button><button type="button" class="btn-action" data-act="rxTplReset">`);
+  const big = `<button type="button" class="btn-action btn-green rxl-open-big" data-act="rxlOpen">🎨 ${esc(t('rxl_btn'))}</button>`;
+  return _rxModalHTML().replace('<div class="rx-actions">', '<div class="rx-actions">' + big).replace('<button type="button" class="btn-action" data-act="rxTplReset">', `<button type="button" class="btn-action btn-green" data-act="rxlOpen">🎨 ${esc(t('rxl_btn'))}</button><button type="button" class="btn-action" data-act="rxTplReset">`);
 };
 
 /* ---------- المصمّم ---------- */
 const rxlSnap = v => { const g = RXL.lay.grid; return g ? Math.round(v / g) * g : rxlNum(v); };
 const rxlFit = () => Math.max(0.3, Math.min(1.5, ((window.innerWidth > 900 ? window.innerWidth - 420 : window.innerWidth - 40)) / (RXL.lay.w * RXL_PXMM)));
 function rxlSampleLines() { const l = typeof rxLines === 'function' ? rxLines() : []; return l && l.length ? l : [{ name: 'Amoxicilline 1g', form: 'cp', dose: '1 cp', freq: '3 fois/jour', dur: '7 jours', note: '' }, { name: 'Paracétamol 500mg', form: '', dose: '1 cp', freq: 'si douleur', dur: '3 jours', note: '' }]; }
+function rxlT() { const h = RXL.head || {}, T = rxTpl(Object.assign(rxHeadSnap(), h)); if ('logo' in h) T.logo = h.logo; return T; }
 function rxlStageHTML() {
   const lay = RXL.lay, k = RXL.k, u = RXL_PXMM * k;
-  return `<div class="rxl-wrap" style="width:${Math.ceil(lay.w * u)}px;height:${Math.ceil(lay.h * u)}px"><div class="rxl-scale" style="transform:scale(${k});--k:${k}">${rxlRender(lay, rxTpl(), RX.lines && RX.lines.length ? RX.lines : [], RX.pat, Date.now(), { design: true })}</div></div>`;
+  return `<div class="rxl-wrap" style="width:${Math.ceil(lay.w * u)}px;height:${Math.ceil(lay.h * u)}px"><div class="rxl-scale" style="transform:scale(${k});--k:${k}">${rxlRender(lay, rxlT(), RX.lines && RX.lines.length ? RX.lines : [], RX.pat, Date.now(), { design: true })}</div></div>`;
 }
 function rxlDraw() { const s = $('#rxlStage'); if (!s) return; const sx = s.scrollLeft, sy = s.scrollTop; s.innerHTML = rxlStageHTML(); s.scrollLeft = sx; s.scrollTop = sy; }
 function rxlBlk() { return RXL.lay.blocks[RXL.sel]; }
@@ -156,10 +158,16 @@ function rxlPanel() {
     <div class="rxl-row">${num('pw', t('rxl_w'), lay.w, 1, 50)}${num('ph', t('rxl_h'), lay.h, 1, 50)}</div>
     <div class="rxl-row"><label class="rxl-f"><span>${esc(t('rxl_grid'))}</span><select data-rl="grid">${[[0, t('rxl_nogrid')], [1, '1 mm'], [2, '2 mm'], [5, '5 mm']].map(g => `<option value="${g[0]}"${lay.grid === g[0] ? ' selected' : ''}>${g[1]}</option>`).join('')}</select></label>
     <label class="rxl-f"><span>${esc(t('rxl_font'))}</span><select data-rl="ff">${[['', t('rxl_ff_def')], ['serif', t('rxl_ff_serif')], ['sans', t('rxl_ff_sans')], ['mono', t('rxl_ff_mono')]].map(g => `<option value="${g[0]}"${lay.ff === g[0] ? ' selected' : ''}>${g[1]}</option>`).join('')}</select></label></div>
+    <label class="rxl-f"><span>🌐 ${esc(t('rxt_lang'))}</span><select data-rh="lang">${Object.keys(RXP_NAMES).map(k => `<option value="${k}"${rxlT().lang === k ? ' selected' : ''}>${RXP_NAMES[k]}</option>`).join('')}</select></label>
     <label class="rxl-f"><span>${esc(t('rxl_zoom'))}</span><input type="range" data-rl="zoom" min="0.3" max="1.5" step="0.05" value="${RXL.k}"></label></div>
     <div class="rxl-sec"><b>${esc(t('rxl_blocks'))}</b><div class="rxl-chips">${RXL_IDS.filter(x => !/^(t\d|rule3)$/.test(x) || rxlMerge(lay, RXL.dir)[x].vis || x === id).map(x => `<button type="button" class="rxl-chip${x === id ? ' on' : ''}${rxlMerge(lay, RXL.dir)[x].vis ? '' : ' off'}" data-act="rxlSel" data-id="${x}">${esc(rxlName(x))}</button>`).join('')}</div>
     <div class="rxl-row"><button type="button" class="btn-action" data-act="rxlAdd" data-k="t">${esc(t('rxl_addt'))}</button><button type="button" class="btn-action" data-act="rxlAdd" data-k="r">${esc(t('rxl_addr'))}</button></div></div>`;
-  h += `<div class="rxl-sec rxl-selsec"><b>${esc(rxlName(id))}</b>${chk('vis', t('rxl_show'), b.vis)}
+  const T = rxlT(), tin = (k, label) => `<label class="rxl-f"><span>${esc(label)}</span><input type="text" data-rh="${k}" maxlength="${k === 'address' ? 160 : k === 'phone' ? 60 : 120}" value="${esc(T[k])}"></label>`;
+  let ct = '';
+  if (id === 'clinic') ct = tin('clinic', t('rxt_clinic')); else if (id === 'doctor') ct = tin('doctor', t('rxt_doctor')); else if (id === 'spec') ct = tin('spec', t('rxt_spec'));
+  else if (id === 'contact') ct = tin('phone', t('rxt_phone')) + tin('address', t('rxt_addr'));
+  else if (id === 'logo') ct = `<div class="rxl-row"><button type="button" class="btn-action btn-green" data-act="rxlLogoPick">＋ ${esc(t('rxl_logo_pick'))}</button>${T.logo ? `<button type="button" class="btn-action btn-red" data-act="rxlLogoDel">${esc(t('rxl_logo_rm'))}</button>` : ''}</div><input type="file" id="rxlLogoFile" accept="image/*" hidden>`;
+  h += `<div class="rxl-sec rxl-selsec"><b>${esc(rxlName(id))}</b>${ct ? `<div class="rxl-sec rxl-ct"><b>${esc(t('rxl_content'))}</b>${ct}</div>` : ''}${chk('vis', t('rxl_show'), b.vis)}
     <div class="rxl-row">${num('x', t('rxl_x'), rxlNum(b.x), 0.5)}${num('y', t('rxl_y'), rxlNum(b.y), 0.5)}</div><div class="rxl-row">${num('w', t('rxl_bw'), rxlNum(b.w), 0.5, 3)}${kind === 'img' ? num('h', t('rxl_bh'), rxlNum(b.h || 24), 0.5, 3) : ''}</div>`;
   if (kind === 'rule') h += `<div class="rxl-row">${num('th', t('rxl_th'), b.th || 0.5, 0.1, 0.1)}${chk('ds', t('rxl_ds'), b.ds)}</div><label class="rxl-f"><span>${esc(t('rxl_col'))}</span><input type="color" data-rl="col" value="${b.col || '#000000'}"></label>`;
   else if (kind !== 'img') {
@@ -176,7 +184,7 @@ function rxlPanel() {
 }
 function rxlOpen() {
   const T = rxTpl(), cur = (RX.tpl || {}).lay;
-  RXL.dir = T.L.dir; RXL.lay = cur ? JSON.parse(JSON.stringify(cur)) : rxlNew(210, 297, RXL.dir); RXL.sel = 'clinic'; RXL.k = Math.round(rxlFit() * 20) / 20; RXL.dirty = false;
+  RXL.head = {}; RXL.dir = T.L.dir; RXL.lay = cur ? JSON.parse(JSON.stringify(cur)) : rxlNew(210, 297, RXL.dir); RXL.sel = 'clinic'; RXL.k = Math.round(rxlFit() * 20) / 20; RXL.dirty = false;
   let m = $('#rxlModal'); if (m) m.remove();
   m = document.createElement('div'); m.id = 'rxlModal'; m.className = 'modal-overlay active';
   m.innerHTML = `<div class="modal-card rxl-card"><div class="rxl-head"><h4>${esc(t('rxl_title'))}</h4><span class="rxl-hb"><button type="button" class="btn-action" data-act="rxlTest">${esc(t('rxl_test'))}</button><button type="button" class="btn-action btn-green" data-act="rxlSave">${esc(t('rxl_save'))}</button><button type="button" class="btn-action btn-red" data-act="rxlClose">${esc(t('rxl_cancel'))}</button></span></div>
@@ -210,6 +218,13 @@ function rxlResize(w, h) {
 document.addEventListener('input', e => { const el = e.target; if (el && el.dataset && el.dataset.rl && $('#rxlModal') && el.type !== 'checkbox' && el.tagName !== 'SELECT') rxlInput(el); });
 document.addEventListener('change', e => { const el = e.target; if (el && el.dataset && el.dataset.rl && $('#rxlModal') && (el.type === 'checkbox' || el.tagName === 'SELECT')) rxlInput(el); });
 
+document.addEventListener('input', e => { const el = e.target; if (el && el.dataset && el.dataset.rh && el.type === 'text' && $('#rxlModal')) { RXL.head[el.dataset.rh] = el.value; RXL.dirty = true; rxlDraw(); } });
+document.addEventListener('change', async e => {
+  const el = e.target; if (!el || !$('#rxlModal')) return;
+  if (el.dataset && el.dataset.rh === 'lang') { RXL.head.lang = el.value; RXL.dir = RXP_L[el.value].dir; RXL.dirty = true; rxlDraw(); rxlPanel(); }
+  else if (el.id === 'rxlLogoFile' && el.files && el.files[0]) { try { RXL.head.logo = await rxLogoFromFile(el.files[0]); RXL.dirty = true; rxlDraw(); rxlPanel(); } catch (x) { toast(t('rxl_logo_bad'), 'error'); } el.value = ''; }
+});
+
 /* السحب وتغيير العرض */
 document.addEventListener('pointerdown', e => {
   const m = $('#rxlModal'); if (!m || !e.target.closest) return; const el = e.target.closest('.rb'); if (!el || !m.contains(el)) return;
@@ -232,7 +247,12 @@ document.addEventListener('keydown', e => {
   e.preventDefault(); const b = rxlRaw(), mg = rxlMerge(RXL.lay, RXL.dir)[RXL.sel]; b.x = rxlNum(mg.x + mv[0]); b.y = rxlNum(mg.y + mv[1]); RXL.dirty = true; rxlDraw(); rxlSyncXY();
 });
 
-async function rxlSaveNow(lay) { rxTplSet({ lay }); await rxTplFlush(); }
+async function rxlSaveNow(lay) {
+  const h = RXL.head || {}, cur = rxTpl().lang;
+  if (h.lang && h.lang !== cur) { RX.lines = (RX.lines || []).map(l => rxTrLine(l, h.lang)); if (typeof rxSave === 'function') rxSave(); }
+  rxTplSet(Object.assign({}, h, { lay })); await rxTplFlush();
+  if ($('#rxPaperTop')) { rxRenderPaperTop(); const lg = $('#rxLang'); if (lg) lg.value = rxTpl().lang; if (h.lang && typeof rxRenderList === 'function') { rxRenderList(); if (typeof rxFillLists === 'function') rxFillLists(); } }
+}
 Object.assign(ACT, {
   rxlOpen() { rxlOpen(); },
   rxlSel(el) { rxlSelect(el.dataset.id); },
@@ -245,9 +265,15 @@ Object.assign(ACT, {
     RXL.sel = id; const b = rxlRaw(); b.vis = 1; b.x = mg[id].x; b.y = rxlNum(RXL.lay.h / 2); if (id !== 'rule3') b.txt = t('rxl_cust'); RXL.dirty = true; rxlDraw(); rxlPanel();
   },
   rxlRemove() { rxlRaw().vis = 0; RXL.dirty = true; RXL.sel = 'clinic'; rxlDraw(); rxlPanel(); },
-  rxlReset() { if (!confirm(t('rxl_reset_c'))) return; RXL.lay = rxlNew(RXL.lay.w, RXL.lay.h, RXL.dir); RXL.dirty = true; rxlDraw(); rxlPanel(); },
-  async rxlClassic() { if (!confirm(t('rxl_classic_c'))) return; await rxlSaveNow(null); const m = $('#rxlModal'); if (m) m.remove(); const r = $('#rxPaperTop'); if (r) rxRenderPaperTop(); toast(t('rxl_saved'), 'success'); },
+  async rxlReset() { if (!await appConfirm(t('rxl_reset_c'))) return; RXL.lay = rxlNew(RXL.lay.w, RXL.lay.h, RXL.dir); RXL.dirty = true; rxlDraw(); rxlPanel(); },
+  async rxlClassic() { if (!await appConfirm(t('rxl_classic_c'))) return; await rxlSaveNow(null); const m = $('#rxlModal'); if (m) m.remove(); const r = $('#rxPaperTop'); if (r) rxRenderPaperTop(); toast(t('rxl_saved'), 'success'); },
   async rxlSave() { await rxlSaveNow(JSON.parse(JSON.stringify(RXL.lay))); const m = $('#rxlModal'); if (m) m.remove(); toast(t('rxl_saved'), 'success'); },
-  rxlClose() { if (RXL.dirty && !confirm(t('rxl_close_c'))) return; const m = $('#rxlModal'); if (m) m.remove(); },
-  rxlTest() { const a = RX.pat; rxPrintDoc(rxlSampleLines(), a ? { name: a.name, birthYear: a.birthYear } : { name: t('rxl_sample') }, Date.now(), null, JSON.parse(JSON.stringify(RXL.lay))); }
+  async rxlClose() { if (RXL.dirty && !await appConfirm(t('rxl_close_c'))) return; const m = $('#rxlModal'); if (m) m.remove(); },
+  rxlLogoPick() { const f = $('#rxlLogoFile'); if (f) f.click(); },
+  rxlLogoDel() { RXL.head.logo = ''; RXL.dirty = true; rxlDraw(); rxlPanel(); },
+  rxlTest() {
+    const a = RX.pat, old = RX.tpl, h = RXL.head || {};
+    if ('logo' in h) RX.tpl = Object.assign({}, old || {}, { logo: h.logo });
+    try { rxPrintDoc(rxlSampleLines(), a ? { name: a.name, birthYear: a.birthYear } : { name: t('rxl_sample') }, Date.now(), Object.assign(rxHeadSnap(), h), JSON.parse(JSON.stringify(RXL.lay))); } finally { RX.tpl = old; }
+  }
 });
