@@ -116,7 +116,10 @@ Object.assign(L.ar, { ae_title: 'تصحيح سجل الأرشيف ✏️', ae_na
 Object.assign(L.en, { ae_title: 'Correct archive record ✏️', ae_name: 'Name', ae_year: 'Birth year', ae_phone: 'Phone', ae_treats: 'Treatments (separate with +)', ae_price: 'Price', ae_paid: 'Paid', ae_follow: 'Follow-up visit', ae_hint: 'Changing "Paid" replaces the payment history with one payment of the new amount. Images and prescription are unchanged.' });
 Object.assign(L.ar, { dlg_ok: 'موافق', lock_ask: '🔒 هذا القسم محميّ. أدخل كلمة مرور الطبيب:', e_locked: 'محميّ بكلمة المرور', prot_title: '🔒 حماية الأرشيف والتعديلات', prot_on: 'الحماية مفعّلة — اضغط للإيقاف', prot_off: 'الحماية معطّلة — اضغط للتفعيل', prot_pw_on: 'أدخل كلمة مرور الطبيب لتفعيل الحماية:', prot_pw_off: 'أدخل كلمة مرور الطبيب لإيقاف الحماية:', prot_hint: 'عند التفعيل يطلب البرنامج كلمة مرور الطبيب لفتح الأرشيف أو سجل المريض أو تعديل السجلات وحذفها وتسجيل الدفعات وتصدير النسخ الاحتياطية. يبقى الفتح صالحاً 10 دقائق من آخر استعمال.' });
 Object.assign(L.en, { dlg_ok: 'OK', lock_ask: '🔒 This section is protected. Enter the doctor password:', e_locked: 'Password protected', prot_title: '🔒 Archive & edits protection', prot_on: 'Protection is ON — tap to turn off', prot_off: 'Protection is OFF — tap to turn on', prot_pw_on: 'Enter the doctor password to turn protection on:', prot_pw_off: 'Enter the doctor password to turn protection off:', prot_hint: 'When on, the app asks for the doctor password to open the archive or a patient history, edit or delete records, add payments or export backups. Unlock stays valid 10 minutes after last use.' });
-Object.assign(L.ar, { pay_ledger: '💵 سجل الدفعات', pay_for: 'عن زيارة' }); Object.assign(L.en, { pay_ledger: '💵 Payments ledger', pay_for: 'for visit' });
+Object.assign(L.ar, { pay_ledger: '💵 سجل الدفعات', pay_for: 'عن الحصة', pay_same: 'في نفس الحصة', pay_in_visit: 'في الحصة {n} ({d})', pay_later: 'لاحقاً من الأرشيف', pay_cash: 'دفعة نقدية', pay_wallet: 'من الوعاء', pay_dep: 'إيداع في الوعاء', pay_out: 'استرجاع نقدي من الوعاء', pay_dep_in: 'أثناء الحصة {n} ({d})', pay_dep_manual: 'إيداع مباشر',
+  wal_title: 'وعاء المريض', wal_bal: 'الرصيد:', wal_use: 'اقتطاع من الوعاء', wal_dep: '➕ إيداع', wal_out: '↩ استرجاع', wal_dep_q: 'مبلغ الإيداع في وعاء المريض:', wal_out_q: 'المبلغ المسترجع نقداً للمريض:', wal_saved: 'تم تحديث الوعاء ✅', wal_excess: 'الفائض {x} يُودَع في وعاء المريض', wal_after: 'رصيد الوعاء بعد الحصة:', pay_from_wal_q: 'سداد الدفعة من وعاء المريض (الرصيد {w})؟\nموافق = من الوعاء · إلغاء = نقداً', e_wallet_empty: 'لا يوجد رصيد في الوعاء', e_wallet_short: 'المبلغ أكبر من رصيد الوعاء', hist_wallet: 'الوعاء' });
+Object.assign(L.en, { pay_ledger: '💵 Payments ledger', pay_for: 'for session', pay_same: 'same session', pay_in_visit: 'in session {n} ({d})', pay_later: 'later, from archive', pay_cash: 'Cash payment', pay_wallet: 'From wallet', pay_dep: 'Wallet deposit', pay_out: 'Cash refund from wallet', pay_dep_in: 'during session {n} ({d})', pay_dep_manual: 'direct deposit',
+  wal_title: 'Patient wallet', wal_bal: 'Balance:', wal_use: 'Deduct from wallet', wal_dep: '➕ Deposit', wal_out: '↩ Refund', wal_dep_q: 'Amount to deposit in the patient wallet:', wal_out_q: 'Amount refunded in cash to the patient:', wal_saved: 'Wallet updated ✅', wal_excess: 'The excess {x} goes to the patient wallet', wal_after: 'Wallet balance after this session:', pay_from_wal_q: 'Pay from the patient wallet (balance {w})?\nOK = wallet · Cancel = cash', e_wallet_empty: 'The wallet is empty', e_wallet_short: 'Amount exceeds the wallet balance', hist_wallet: 'Wallet' });
 const errMsg = e => t('e_' + ((e && e.code) || 'server_error')) || t('e_server_error');
 const genderL = g => (g === 'أنثى' ? t('female') : t('male'));
 const reasonL = r => { const f = REASONS.find(x => x[0] === r); return f ? (settings.lang === 'en' ? f[1] : f[0]) : r; };
@@ -407,7 +410,10 @@ function renderPriceForm() {
 document.addEventListener('input', ev => { const f = ev.target.closest && ev.target.closest('form[data-form=prices]'); if (f) f.dataset.dirty = '1'; });
 /* حالة المال في المعاينة */
 const prevBal = () => (S.account && S.account.balance) || 0;
-function moneyReset() { S.price = ''; S.paid = ''; S.priceDirty = false; S.paidDirty = false; S.followUp = false; S.account = null; }
+const wBal = () => (S.account && S.account.wallet) || 0, r2c = v => Math.round(v * 100) / 100;
+/* المقتطع من الوعاء فعلاً: لا يزيد عن الرصيد ولا عن (سعر الحصة + المتبقي السابق) */
+const wUse = () => Math.max(0, Math.min(+S.wallet || 0, wBal(), r2c((+S.price || 0) + prevBal())));
+function moneyReset() { S.price = ''; S.paid = ''; S.wallet = ''; S.walletDirty = false; S.priceDirty = false; S.paidDirty = false; S.followUp = false; S.account = null; }
 /* سعر عدة علاجات: مجموع سعر كل علاج مختار (كلٌّ يُسعَّر بحسب الأسنان المحددة) */
 function priceForMany(trs, teeth) {
   const items = trs.map(n => { const r = priceFor(n, teeth); return { name: n, price: r.total === '' ? 0 : r.total, has: r.total !== '', parts: r.parts }; });
@@ -418,19 +424,24 @@ function recalc() {
   const auto = S.followUp ? { total: 0, items: [] } : priceForMany(S.treatments, [...S.teeth]); S.items = auto.items;
   if (!S.priceDirty) S.price = auto.total === '' ? '' : String(auto.total);
   const due = +S.price || 0;
-  if (!S.paidDirty) S.paid = S.followUp ? (prevBal() ? String(prevBal()) : '') : (S.price === '' ? '' : String(due));
+  if (!S.walletDirty) { const d = wBal() > 0 ? Math.min(wBal(), S.followUp ? prevBal() : due) : 0; S.wallet = d > 0 ? String(r2c(d)) : ''; }
+  const w = wUse();
+  if (!S.paidDirty) S.paid = S.followUp ? (prevBal() ? String(r2c(Math.max(0, prevBal() - w))) : '') : (S.price === '' ? '' : String(r2c(Math.max(0, due - w))));
   const set = (id, v) => { const e = $(id); if (e && e !== document.activeElement) e.value = v; };
-  set('#consultPrice', S.price); set('#consultPaid', S.paid);
+  set('#consultPrice', S.price); set('#consultPaid', S.paid); set('#consultWallet', S.wallet);
   const hint = $('#priceHint'); if (hint) hint.innerHTML = auto.items.length && !S.priceDirty && auto.items.some(i => i.has) ? auto.items.map(i => `<span class="ph-item"><b>${esc(treatLabel(i.name))}</b>${i.parts.length ? ` <small>(${i.parts.map(x => x.n + ' ' + t('price_cat_' + x.c)).join('، ')})</small>` : ''} ${money(i.price)}</span>`).join(' + ') + (auto.items.length > 1 ? ` <span class="ph-total">= <b>${money(auto.total)}</b></span>` : '') : '';
-  const after = Math.round((prevBal() + due - (+S.paid || 0)) * 100) / 100, sum = $('#moneySum');
-  if (sum) { const over = (+S.paid || 0) > due + prevBal(); sum.innerHTML = `${t('after_l')} <b style="color:${after > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'}">${money(Math.max(0, after))}</b>${over ? `<div style="color:var(--warning-warm);font-size:12px;margin-top:4px">${t('over_warn')}</div>` : ''}`; }
+  const tot = r2c((+S.paid || 0) + w), after = r2c(prevBal() + due - tot), excess = Math.max(0, r2c(tot - due - prevBal())), sum = $('#moneySum');
+  if (sum) sum.innerHTML = `${t('after_l')} <b style="color:${after > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'}">${money(Math.max(0, after))}</b>${excess > 0 ? `<div style="color:var(--warning-warm);font-size:12px;margin-top:4px">🏺 ${t('wal_excess', { x: money(excess) })}</div>` : ''}${S.account && (wBal() > 0 || excess > 0) ? `<div style="font-size:12px;margin-top:4px;color:var(--text-secondary)">${t('wal_after')} <b>${money(r2c(wBal() - w + excess))}</b></div>` : ''}`;
 }
 function moneyHTML() {
   const ac = S.account, has = ac && ac.records && ac.records.length;
   const acct = has ? `<div class="acct-box"><div class="acct-head"><strong>${t('acct_title')}</strong>${ac.balance > 0 ? `<span class="acct-debt">${t('acct_prev')} <b>${money(ac.balance)}</b></span>` : ''}</div>
     ${ac.records.filter(r => r.remaining > 0).map(r => `<div class="acct-row"><span>${esc(r.treatment)}${r.tooth ? ' · ' + esc(r.tooth) : ''} · ${new Date(r.finishedAt).toLocaleDateString(locale())}</span><span>${t('paid_l')} ${money(r.paid)} / ${money(r.price)}</span></div>`).join('')}
     <label class="acct-follow"><input type="checkbox" data-act="followUp" ${S.followUp ? 'checked' : ''} style="width:auto"> ${t('follow_l')}</label></div>` : '';
-  return acct + `<div class="money-box">
+  const wal = S.account ? `<div class="wallet-box"><div class="acct-head"><strong>🏺 ${t('wal_title')}</strong><span>${t('wal_bal')} <b>${money(wBal())}</b></span></div>
+    ${wBal() > 0 ? `<div class="money-row"><label>${t('wal_use')}</label><input type="number" id="consultWallet" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(S.wallet))}" data-input="wallet"></div>` : ''}
+    <button type="button" class="btn-action btn-green" data-act="walDeposit" data-name="${esc(S.account.key.name)}" data-year="${S.account.key.year}" data-ctx="room">${t('wal_dep')}</button></div>` : '';
+  return acct + wal + `<div class="money-box">
     <div class="money-row"><label>${t('due_l')}${cur() ? ' (' + esc(cur()) + ')' : ''}</label><input type="number" id="consultPrice" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(S.price))}" data-input="price"></div>
     <div id="priceHint" class="price-hint"></div>
     <div class="money-row"><label>${t('paid_now')}</label><input type="number" id="consultPaid" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(S.paid))}" data-input="paid"></div>
@@ -438,7 +449,7 @@ function moneyHTML() {
     <div id="moneySum" class="money-sum"></div></div>`;
 }
 async function loadAccount(a) {
-  try { const r = await api('GET', `/api/account?name=${encodeURIComponent(a.name)}&year=${a.birthYear}`); if (!S.me || $('#consultationArea').dataset.pid !== a.id) return; S.account = r; recalc(); if (r.records.length) { const c = $('#consultationArea'); c.dataset.sig = ''; renderAll(); } } catch (e) {}
+  try { const r = await api('GET', `/api/account?name=${encodeURIComponent(a.name)}&year=${a.birthYear}`); if (!S.me || $('#consultationArea').dataset.pid !== a.id) return; r.key = { name: a.name, year: a.birthYear }; S.account = r; if (!S.walletDirty) S.wallet = ''; recalc(); const c = $('#consultationArea'); c.dataset.sig = ''; renderAll(); } catch (e) {}
 }
 /* ===== مخطط الأسنان (FDI) ===== */
 const TEETH = { adult: { up: [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28], lo: [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38] }, child: { up: [55,54,53,52,51,61,62,63,64,65], lo: [85,84,83,82,81,71,72,73,74,75] } };
@@ -590,17 +601,29 @@ function loadArchive(reset = true) {
 function renderArchive() {
   $('#archiveResultCount').textContent = S.archive.total; $('#archiveSum').innerHTML = S.archive.sum ? `${t('total_due')} <b>${money(S.archive.sum)}</b> · ${t('total_paid')} <b>${money(S.archive.paidSum)}</b>${S.archive.debt ? ` · ${t('total_debt')} <b style="color:var(--danger-soft,#e8607a)">${money(S.archive.debt)}</b>` : ''}` : '';
   const l = $('#archiveList');
-  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${(a.treatments || [a.treatment]).map(n => `<span class="badge">${esc(n)}</span>`).join(' ')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">💰 ${money(a.price)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">✔ ${t('paid_l')}</span>` : '')}${a.followUp ? ' <span class="badge">↻</span>' : ''}
+  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${(a.treatments || [a.treatment]).map(n => `<span class="badge">${esc(n)}</span>`).join(' ')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">💰 ${money(a.price)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">✔ ${t('paid_l')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">🏺 ${money(a.wallet)}</span>` : ''}${a.followUp ? ' <span class="badge">↻</span>' : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong></div>
     ${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(a, a) : ''}
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
-    ${a.payments && a.payments.length ? `<div style="font-size:11px;color:var(--text-secondary);margin-top:6px">${t('pays_l')} ${a.payments.map(p => money(p.amt) + ' (' + new Date(p.t).toLocaleDateString(locale()) + ')').join(' · ')}</div>` : ''}
+    ${a.payments && a.payments.length ? `<div style="margin-top:6px">${payChips(a.payments, a.id)}</div>` : ''}
     <div style="font-size:11px;color:var(--text-muted);margin-top:6px">${t('date_l')} ${new Date(a.finishedAt).toLocaleString(locale(), { dateStyle: 'short', timeStyle: 'short' })} · ${t('wait_s')} ${fmtMin(a.waitMin)} · ${t('dur_l')} ${fmtMin(a.durationMin)}</div></div>
-    <div style="display:flex;flex-direction:column;gap:6px">${a.remaining > 0 ? `<button type="button" class="btn-action btn-green" data-act="addPayment" data-id="${a.id}" data-rem="${a.remaining}">${t('add_pay')}</button>` : ''}    <button type="button" class="btn-action btn-yellow" data-act="editArchive" data-id="${a.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delArchive" data-id="${a.id}">${t('del')}</button></div></li>`).join('')
+    <div style="display:flex;flex-direction:column;gap:6px">${a.remaining > 0 ? `<button type="button" class="btn-action btn-green" data-act="addPayment" data-id="${a.id}" data-rem="${a.remaining}" data-wallet="${a.wallet || 0}">${t('add_pay')}</button>` : ''}    <button type="button" class="btn-action btn-yellow" data-act="editArchive" data-id="${a.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delArchive" data-id="${a.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('no_results')}</li>`;
   $('#archiveMore').style.display = S.archive.items.length < S.archive.total ? '' : 'none';
   hydrate(l);
 }
+/* وعاء المريض: إيداع أو استرجاع نقدي ثم تحديث الشاشة المفتوحة */
+async function walMove(el, op) {
+  const v = await appPrompt(t(op === 'out' ? 'wal_out_q' : 'wal_dep_q'), ''); if (v == null) return;
+  const n = parseFloat(String(v).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(',', '.'));
+  if (!await run(() => api('POST', '/api/wallet', { name: el.dataset.name, year: el.dataset.year, amount: n, op }))) return;
+  toast(t('wal_saved'), 'success');
+  if (el.dataset.ctx === 'hist') showHistory(el.dataset.name, el.dataset.year); else { const a = S.patients.find(p => p.status === 'in'); if (a) loadAccount(a); }
+}
+/* أين دُفعت الدفعة؟ (رقم الحصة التي دُفعت فيها) */
+const dShort = v => v ? new Date(v).toLocaleDateString(locale(), { dateStyle: 'medium' }) : '—', tShort = v => v ? new Date(v).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '';
+const payWhere = (p, recId) => p.vid && p.vid === recId ? t('pay_same') : p.vn ? t('pay_in_visit', { n: p.vn, d: dShort(p.vat) }) : t('pay_later');
+const payChips = (ps, recId) => `<div class="pay-chips">${ps.map(p => `<span class="pay-chip${p.m === 'w' ? ' w' : ''}">${p.m === 'w' ? '🏺' : '💵'} <b>${money(p.amt)}</b> · ${dShort(p.t)} ${tShort(p.t)} · ${payWhere(p, recId)}</span>`).join('')}</div>`;
 /* سجل المريض الكامل: من أول زيارة إلى آخرها */
 async function showHistory(name, year) {
   const body = $('#historyBody'); body.innerHTML = `<div class="hint" style="text-align:center;padding:20px">…</div>`; openModal('historyModal');
@@ -614,16 +637,25 @@ async function showHistory(name, year) {
   const items = r.records.slice().reverse().map((x, i) => `<div class="hist-item"><div class="hi-date">${t('hist_visit_n', { n: r.records.length - i })} · ${dt(x.finishedAt)}${x.followUp ? ' · ↻' : ''}</div>
       <div class="hi-line">${(x.treatments || [x.treatment]).map(n => `<span class="badge">${esc(n)}</span>`).join(' ')} ${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ${t('reason_s')}: ${esc(reasonL(x.reason))}</div>
       ${x.price != null ? `<div class="hi-line">💰 ${money(x.price)} · ${t('paid_l')} ${money(x.paid)}${x.remaining > 0 ? ` · <b style="color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(x.remaining)}</b>` : ''}</div>` : ''}
-      ${x.payments && x.payments.length ? `<div class="hi-line">${t('pays_l')} ${x.payments.map(p => money(p.amt) + ' (' + new Date(p.t).toLocaleDateString(locale()) + ')').join(' · ')}</div>` : ''}
+      ${x.payments && x.payments.length ? `<div class="hi-line">${t('pays_l')}${payChips(x.payments, x.id)}</div>` : ''}
       ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}
       <div class="hi-line" style="font-size:11px">${t('wait_s')} ${fmtMin(x.waitMin)} · ${t('dur_l')} ${fmtMin(x.durationMin)}</div></div>`).join('');
-  const pays = r.records.flatMap(x => (x.payments || []).map(p => ({ t: p.t, amt: p.amt, v: x.finishedAt, n: (x.treatments || [x.treatment]).join(' + ') }))).sort((p, q) => q.t - p.t);
-  const ledger = pays.length ? `<div class="hist-pays"><b>${t('pay_ledger')} (${pays.length})</b><ul>${pays.map(p => `<li><span>${dt(p.t)}</span><b>${money(p.amt)}</b><small>${t('pay_for')} ${dd(p.v)} · ${esc(p.n)}</small></li>`).join('')}</ul></div>` : '';
+  const vis = new Map(r.records.map((x, i) => [x.id, { n: i + 1, at: x.finishedAt }]));
+  const pays = r.records.flatMap((x, i) => (x.payments || []).map(p => ({ k: p.m === 'w' ? 'w' : 'c', t: p.t, amt: p.amt, p, rec: x, n: i + 1 })))
+    .concat((r.wallet ? r.wallet.log : []).filter(e => e.k === 'dep' || e.k === 'out').map(e => ({ k: e.k, t: e.t, amt: e.amt, vid: e.vid })))
+    .sort((p, q) => q.t - p.t);
+  const ledger = pays.length ? `<div class="hist-pays"><b>${t('pay_ledger')} (${pays.length})</b><ul>${pays.map(p => {
+    const lab = { c: '💵 ' + t('pay_cash'), w: '🏺 ' + t('pay_wallet'), dep: '➕ ' + t('pay_dep'), out: '↩ ' + t('pay_out') }[p.k];
+    const sub = p.rec ? `${t('pay_for')} ${p.n} (${dShort(p.rec.finishedAt)}) · ${esc(p.rec.treatments ? p.rec.treatments.join(' + ') : p.rec.treatment)}<br>${payWhere(p.p, p.rec.id)}`
+      : (p.vid && vis.get(p.vid) ? t('pay_dep_in', { n: vis.get(p.vid).n, d: dShort(vis.get(p.vid).at) }) : t('pay_dep_manual'));
+    return `<li class="pl-${p.k}"><span class="pl-when">${dt(p.t)}</span><b>${p.k === 'out' ? '−' : ''}${money(p.amt)}</b><span class="pl-kind">${lab}</span><small>${sub}</small></li>`; }).join('')}</ul></div>` : '';
+  const walBox = `<div class="hist-wallet"><div><b>🏺 ${t('wal_title')}</b> <span class="hw-bal">${money(r.wallet ? r.wallet.bal : 0)}</span></div>
+    <div class="hw-btns"><button type="button" class="btn-action btn-green" data-act="walDeposit" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_dep')}</button>${r.wallet && r.wallet.bal > 0 ? `<button type="button" class="btn-action btn-yellow" data-act="walOut" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_out')}</button>` : ''}</div></div>`;
   body.innerHTML = `<div class="hist-sum"><div class="hs-name">${esc(r.name)}</div>
       <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div>
       <div class="hist-stats"><div>${t('hist_visits')}<b>${r.visits}</b></div><div>${t('hist_first')}<b>${dd(r.firstVisit)}</b></div><div>${t('hist_last')}<b>${dd(r.lastVisit)}</b></div>
       ${r.due ? `<div>${t('total_due')}<b>${money(r.due)}</b></div><div>${t('total_paid')}<b>${money(r.paid)}</b></div>` : ''}${r.balance ? `<div>${t('total_debt')}<b style="color:var(--danger-soft,#e8607a)">${money(r.balance)}</b></div>` : ''}</div></div>
-    ${ledger}
+    ${walBox}${ledger}
     <div class="hist-tl">${cur}${items || (cur ? '' : `<div class="hint">${t('hist_none')}</div>`)}</div>`;
   hydrate(body);
 }
@@ -804,14 +836,17 @@ const ACT = {
     if (r) { const tl = (r.treatments || [r.treatment]).filter(x => treatList().includes(x)); if (tl.length) S.treatments = tl; S.teeth = new Set(r.teeth || []); }
     const c = $('#consultationArea'); c.dataset.sig = ''; renderAll();
   },
-  payQuick(el) { const due = +S.price || 0, v = el.dataset.v; S.paid = v === 'all' ? String(Math.round((due + prevBal()) * 100) / 100) : v === 'half' ? String(Math.round(due * 50) / 100) : '0'; S.paidDirty = true; recalc(); },
+  payQuick(el) { const due = +S.price || 0, v = el.dataset.v, w = wUse(); S.paid = v === 'all' ? String(r2c(Math.max(0, due + prevBal() - w))) : v === 'half' ? String(r2c(Math.max(0, due - w) / 2)) : '0'; S.paidDirty = true; recalc(); },
   async addPayment(el) {
-    const rem = +el.dataset.rem, v = await appPrompt(t('pay_prompt', { r: money(rem) }), rem); if (v == null) return;
-    if (await run(() => api('POST', `/api/archive/${el.dataset.id}/payment`, { amount: v }))) { toast(t('t_paid'), 'success'); loadArchive(true); }
+    const rem = +el.dataset.rem, wal = +el.dataset.wallet || 0, v = await appPrompt(t('pay_prompt', { r: money(rem) }), rem); if (v == null) return;
+    const fromW = wal > 0 && await appConfirm(t('pay_from_wal_q', { w: money(wal) }));
+    if (await run(() => api('POST', `/api/archive/${el.dataset.id}/payment`, { amount: v, wallet: fromW }))) { toast(t('t_paid'), 'success'); loadArchive(true); }
   },
+  async walDeposit(el) { return walMove(el, 'dep'); },
+  async walOut(el) { return walMove(el, 'out'); },
   treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); recalc(); },
   async finish(el) {
-    const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { treatment: S.treatments.join(' + '), treatments: S.treatments, items: (S.items || []).map(i => ({ name: i.name, price: i.price })), price: $('#consultPrice') ? $('#consultPrice').value : '', paid: $('#consultPaid') ? $('#consultPaid').value : '', followUp: S.followUp, teeth: [...S.teeth], notes: ($('#consultNotes') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
+    const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { treatment: S.treatments.join(' + '), treatments: S.treatments, items: (S.items || []).map(i => ({ name: i.name, price: i.price })), price: $('#consultPrice') ? $('#consultPrice').value : '', paid: $('#consultPaid') ? $('#consultPaid').value : '', wallet: wUse(), followUp: S.followUp, teeth: [...S.teeth], notes: ($('#consultNotes') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
   },
   copyCode: () => copyText(S.me.code || ''),
@@ -886,6 +921,7 @@ document.addEventListener('input', e => {
   else if (el.dataset.input === 'archive') loadArchive(true);
   else if (el.dataset.input === 'price') { S.price = el.value; S.priceDirty = true; recalc(); }
   else if (el.dataset.input === 'paid') { S.paid = el.value; S.paidDirty = true; recalc(); }
+  else if (el.dataset.input === 'wallet') { S.wallet = el.value; S.walletDirty = true; recalc(); }
 });
 document.addEventListener('change', e => {
   const el = e.target, c = el.dataset.change;
@@ -947,7 +983,7 @@ document.addEventListener('submit', async e => {
   }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModals(); $('#lightboxModal').classList.remove('active'); } });
-document.addEventListener('click', e => { if (e.target.classList && e.target.classList.contains('modal-overlay') && e.target.id !== 'skipQueueModal' && !(e.target.querySelector('form[data-dirty]') || e.target.querySelector('form[data-form=prices][data-dirty]'))) closeModals(); });
+/* النوافذ لا تُغلق بالنقر على الخلفية إطلاقاً (كانت تختفي فجأة أثناء الكتابة): تُغلق بأزرار «إلغاء/×/حفظ» أو بمفتاح Esc فقط. */
 
 /* ===================== التثبيت وبدء التشغيل ===================== */
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; updateInstallUI(); });

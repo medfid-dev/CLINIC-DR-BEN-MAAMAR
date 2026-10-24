@@ -96,7 +96,7 @@ function rxDone() { RX.lines = []; rxCloseModal(); rxSummary(); try { localStora
 /* ---------- ترويسة الوصفة ولغتها (تُحفظ على الخادم لكل عيادة) ---------- */
 const RXP_L = {
   ar: { dir: 'rtl', loc: 'ar-u-nu-latn', date: 'التاريخ', patient: 'المريض', age: 'العمر', years: 'سنة', title: 'وصفة طبية', sign: 'التوقيع والختم', dr: 'د. ', phone: 'هاتف' },
-  fr: { dir: 'ltr', loc: 'fr-FR', date: 'Date', patient: 'Patient', age: 'Âge', years: 'ans', title: 'Ordonnance', sign: 'Signature et cachet', dr: 'Dr ', phone: 'Tél' },
+  fr: { dir: 'ltr', loc: 'fr-FR', date: 'Date', patient: 'Nom', age: 'Âge', years: 'ans', title: 'Ordonnance', sign: 'Signature et cachet', dr: 'Dr ', phone: 'Tél' },
   en: { dir: 'ltr', loc: 'en-GB', date: 'Date', patient: 'Patient', age: 'Age', years: 'y/o', title: 'Prescription', sign: 'Signature & stamp', dr: 'Dr. ', phone: 'Tel' }
 };
 const RXP_NAMES = { ar: 'العربية', fr: 'Français', en: 'English' };

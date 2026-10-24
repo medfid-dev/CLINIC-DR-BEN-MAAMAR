@@ -193,6 +193,44 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('POST', `/api/archive/${rec.id}/payment`, B, { amount: 10 }); ok(r.s === 409, 'لا دفعة على سجل مسدَّد');
       r = await J('GET', '/api/archive?name=' + encodeURIComponent('مريض مالي'), B); ok(r.j.sum === 5000 && r.j.paidSum === 5000 && r.j.debt === 0, 'إجماليات الأرشيف: مستحق/محصَّل/متبقٍ'); }
 
+    console.log('وعاء المريض وسجل الدفعات');
+    { const NM = 'مريض الوعاء', YR = 1991, q = encodeURIComponent(NM);
+      const fin = async body => { const p0 = (await J('POST', '/api/patients', B, pat(NM, { birthYear: YR }))).j; await J('POST', `/api/patients/${p0.id}/enter`, B); const r = await J('POST', `/api/patients/${p0.id}/finish`, B, { treatment: 'علاج عصب', teeth: ['16'], ...body }); return { id: p0.id, r }; };
+      const wal = async () => (await J('GET', `/api/account?name=${q}&year=${YR}`, B)).j.wallet;
+      let r = await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 3000 }); ok(r.s === 200 && r.j.bal === 3000 && r.j.log.length === 1, 'إيداع 3000 في الوعاء');
+      r = await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: -5 }); ok(r.s === 400, 'إيداع غير صالح مرفوض');
+      r = await J('POST', '/api/wallet', N, { name: NM, year: YR, amount: 10 }); ok(r.s === 401 || r.s === 403, 'الوعاء للطبيب فقط');
+      ok(await wal() === 3000, 'الحساب يعرض رصيد الوعاء');
+      /* حصة أولى: علاج 5000 يُسدَّد 3000 من الوعاء + 1000 نقداً */
+      const v1 = await fin({ price: 5000, paid: 1000, wallet: 3000 }); ok(v1.r.s === 200 && v1.r.j.paid === 4000 && v1.r.j.remaining === 1000, 'الحصة الأولى: 3000 من الوعاء + 1000 نقداً');
+      const pw = v1.r.j.payments.find(p => p.m === 'w'), pc = v1.r.j.payments.find(p => !p.m);
+      ok(pw && pw.amt === 3000 && pw.vid === v1.id && pw.vn === 1 && pc && pc.amt === 1000, 'كل دفعة تحمل الحصة التي دُفعت فيها ونوعها (وعاء/نقد)');
+      ok(await wal() === 0, 'الوعاء بعد الاقتطاع = 0');
+      /* حصة ثانية (متابعة): دفع 1000 نقداً يسدّد باقي الحصة الأولى ويُسجَّل أنه دُفع في الحصة 2 */
+      const v2 = await fin({ price: 0, paid: 1500, followUp: true }); ok(v2.r.s === 200 && v2.r.j.paid === 0, 'حصة المتابعة بلا سعر');
+      r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); const h = r.j, a1 = h.records.find(z => z.id === v1.id);
+      ok(h.balance === 0 && a1.remaining === 0 && a1.n === 1, 'السجل الأول سُدّد بالكامل');
+      const late = a1.payments.find(p => p.vid === v2.id); ok(late && late.amt === 1000 && late.vn === 2 && late.vat, 'الدفعة المتأخرة تُنسب للحصة 2');
+      ok(h.wallet.bal === 500 && h.wallet.log.some(e => e.k === 'dep' && e.amt === 500 && e.vid === v2.id), 'الفائض النقدي (500) أُودع في الوعاء');
+      /* دين جديد يُسدَّد من الوعاء مباشرة من الأرشيف */
+      const v3 = await fin({ price: 2000, paid: 0 }); ok(v3.r.j.remaining === 2000, 'حصة ثالثة غير مدفوعة');
+      r = await J('POST', `/api/archive/${v3.id}/payment`, B, { amount: 9999, wallet: true }); ok(r.s === 200 && r.j.paid === 500 && r.j.payments[0].m === 'w' && r.j.payments[0].vid === null, 'دفعة من الوعاء تُقصّ عند رصيده');
+      ok(await wal() === 0, 'الوعاء فرغ'); r = await J('POST', `/api/archive/${v3.id}/payment`, B, { amount: 10, wallet: true }); ok(r.s === 409, 'لا دفعة من وعاء فارغ');
+      /* الإحصائيات: المقتطع من الوعاء لا يُحسب مرتين */
+      const bk = (await J('GET', '/api/backup', B)).j; let exp = 0;
+      for (const rec of bk.archive) for (const p of rec.payments || []) if (p.m !== 'w') exp += p.amt;
+      for (const w of Object.values(bk.wallets)) for (const e of w.log) exp += e.k === 'dep' ? e.amt : e.k === 'out' ? -e.amt : 0;
+      r = await J('GET', '/api/stats?tz=0', B); ok(Math.abs(r.j.summary.collected - exp) < 0.01, 'المحصَّل = نقد الحصص + إيداعات الوعاء (دون اقتطاعاته)');
+      /* النسخ الاحتياطي يحفظ الوعاء */
+      await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 700 });
+      const bk2 = (await J('GET', '/api/backup', B)).j; ok(Object.values(bk2.wallets).some(w => w.bal === 700), 'النسخة الاحتياطية تشمل الوعاء');
+      r = await J('POST', '/api/restore', B, bk2); ok(r.s === 200 && await wal() === 700, 'الاستعادة تعيد الوعاء');
+      r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); ok(r.j.records.some(z => z.payments.some(p => p.m === 'w' && p.vn)), 'الاستعادة تحفظ نوع الدفعة ورقم الحصة');
+      /* استرجاع نقدي + حذف سجل دُفع من الوعاء يعيد المبلغ */
+      r = await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 5000, op: 'out' }); ok(r.s === 409, 'لا استرجاع أكثر من الرصيد');
+      r = await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 200, op: 'out' }); ok(r.s === 200 && r.j.bal === 500, 'استرجاع نقدي 200');
+      r = await J('DELETE', `/api/archive/${v3.id}`, B); ok(r.s === 200 && await wal() === 1000, 'حذف سجل دُفع من الوعاء يعيد 500 إليه'); }
+
     console.log('إدارة العلاجات والأسعار');
     { const D = (await J('POST', '/api/register', null, { clinicName: 'عيادة علاج', doctorName: 'د. ع', username: 'treatdoc', password: 'password7' })).j.token;
       r = await J('GET', '/api/state', D); ok(r.j.me.prices.treatments.length === 6 && r.j.me.prices.treatments[0] === 'قلع', 'القائمة الافتراضية 6 علاجات');
@@ -316,7 +354,7 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       ok(r.s === 200 && r.j.count === 3, 'استيراد أدوية: يُقبل الصالح فقط (3)');
       r = await J('GET', '/api/rx', RD); ok(r.j.drugs.length === 3 && r.j.drugs[0].length === 5 && r.j.drugs[1][0] === 'Bar' && r.j.drugs[1][2] === 'Barx' && r.j.drugs[2][0] === 'Baz', 'قاعدة الأدوية المستوردة تُحفظ بصيغة موحّدة');
       r = await J('GET', '/api/rx', RD2); ok(r.j.drugs.length === 0, 'عزل: قاعدة العيادة الأخرى لم تتأثر');
-      r = await J('PUT', '/api/rx/drugs', RD, { drugs: Array.from({ length: 4500 }, (_, i) => ['D' + i, '', '', '', '']) }); ok(r.s === 200 && r.j.count === 4000, 'استيراد أدوية: حدّ 4000');
+      r = await J('PUT', '/api/rx/drugs', RD, { drugs: Array.from({ length: 9000 }, (_, i) => ['D' + i, '', '', '', '']) }); ok(r.s === 200 && r.j.count === 8000, 'استيراد أدوية: حدّ 8000');
       r = await J('DELETE', '/api/rx/drugs', RD); ok(r.s === 200 && r.j.count === 0 && (await J('GET', '/api/rx', RD)).j.drugs.length === 0, 'حذف الأدوية المستوردة');
 
       const finishRx = async (name, rx, extra) => { const p0 = (await J('POST', '/api/patients', RD, pat(name, extra))).j; await J('POST', `/api/patients/${p0.id}/enter`, RD); return await J('POST', `/api/patients/${p0.id}/finish`, RD, { treatment: 'قلع', teeth: ['16'], price: 1000, paid: 1000, notes: '', rx }); };

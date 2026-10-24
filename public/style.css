@@ -665,3 +665,18 @@ body.np-open .modal-overlay.active .modal-card{max-height:calc(100dvh - var(--np
 @media (max-height:520px){.np-k{height:40px;font-size:21px}.np-head{min-height:52px;padding-bottom:4px}.np-val{font-size:26px}}
 @media (prefers-reduced-motion:reduce){#numpad,#numpad.on{transition:none}.np-val.np-no{animation:none}}
 @media print{#numpad{display:none!important}}
+
+/* وعاء المريض وسجل الدفعات */
+.wallet-box,.hist-wallet{background:var(--surface-sunk);border:1px solid color-mix(in srgb,#3b82c4 40%,var(--border-calm));border-radius:14px;padding:12px 14px;margin-bottom:14px}
+.wallet-box .acct-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}
+.wallet-box .btn-action{margin-top:4px}
+.hist-wallet{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+.hist-wallet .hw-bal{font-weight:700;font-size:17px;color:#3b82c4;margin-inline-start:6px}
+.hist-wallet .hw-btns{display:flex;gap:8px}
+.pay-chips{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.pay-chip{display:inline-block;font-size:12px;padding:4px 10px;border-radius:10px;background:color-mix(in srgb,#2e9e6b 12%,transparent);color:var(--text-primary)}
+.pay-chip.w{background:color-mix(in srgb,#3b82c4 14%,transparent)}
+.hist-pays li{display:grid;grid-template-columns:1fr auto;gap:2px 12px}
+.hist-pays li .pl-when{font-size:12px;opacity:.75}.hist-pays li .pl-kind{font-size:12px;grid-column:1}
+.hist-pays li b{grid-row:1;grid-column:2}.hist-pays li small{grid-column:1/-1;line-height:1.6}
+.hist-pays li.pl-w b{color:#3b82c4}.hist-pays li.pl-dep b{color:#3b82c4}.hist-pays li.pl-out b{color:var(--danger-soft,#e8607a)}

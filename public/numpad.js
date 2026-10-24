@@ -3,6 +3,7 @@
    (type=number / type=tel / inputmode=numeric|decimal|tel) سواء كان في الصفحة أو في حوار، حتى لو وُلِّد لاحقاً.
    المفاتيح: 0-9 ، «00» ، «000» ، فاصلة عشرية (للحقول التي تقبل الكسور) ، «+» (للهاتف) ، حذف (ضغط مطوّل يكرّر) ، مسح ، تم.
    تمنع لوحة مفاتيح الجهاز عبر inputmode="none" وتعيد القيمة الأصلية عند الإغلاق. الكتابة بلوحة المفاتيح الفعلية تبقى تعمل.
+   لا تعمل على الهواتف (شاشة لمس صغيرة): هناك تُترك لوحة أرقام الهاتف الأصلية. تعمل على الحاسوب واللوحيات.
    لإعفاء حقل: أضف data-nonumpad إليه أو إلى أي عنصر يحتويه. */
 (function () {
   if (window.__numpad) return; window.__numpad = true;
@@ -19,7 +20,16 @@
 
   /* ---------- أهلية الحقل ---------- */
   const SEL = 'input[type=number],input[type=tel],input[inputmode=numeric],input[inputmode=decimal],input[inputmode=tel]';
-  const ok = i => !!i && i.tagName === 'INPUT' && !i.disabled && !i.readOnly && !(i.closest && i.closest('[data-nonumpad]')) && (i.matches(SEL) || i.hasAttribute('data-np-im'));
+  // اللوحة للحاسوب فقط: جهاز بمؤشر دقيق (فأرة/لوحة لمس) ويدعم التمرير فوق العناصر، وليس هاتفاً ولا لوحياً.
+  // نستبعد بثلاث إشارات مستقلة حتى لا يفلت هاتف بوضع «نسخة الكمبيوتر» أو شاشة كبيرة: وكيل المستخدم، وuserAgentData.mobile، وشاشة اللمس الأساسية.
+  const isPhone = () => { try {
+    const ua = navigator.userAgent || '', uad = navigator.userAgentData;
+    if (uad && uad.mobile) return true;
+    if (/Android|iPhone|iPad|iPod|Mobile|Silk|Kindle|Tablet/i.test(ua)) return true;
+    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true;   // آيباد بوضع سطح المكتب
+    return !(matchMedia('(pointer:fine)').matches && matchMedia('(hover:hover)').matches);
+  } catch (e) { return true; } };
+  const ok = i => !isPhone() && !!i && i.tagName === 'INPUT' && !i.disabled && !i.readOnly && !(i.closest && i.closest('[data-nonumpad]')) && (i.matches(SEL) || i.hasAttribute('data-np-im'));
   const imOf = i => (i.hasAttribute('data-np-im') ? i.getAttribute('data-np-im') : (i.getAttribute('inputmode') || ''));
   const hook = i => { if (!i.hasAttribute('data-np-im')) i.setAttribute('data-np-im', i.getAttribute('inputmode') || ''); i.setAttribute('inputmode', 'none'); };
   const unhook = i => {
@@ -31,7 +41,7 @@
   const setVal = (i, v) => { const d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value'); if (d && d.set) d.set.call(i, v); else i.value = v; };
 
   /* ---------- الحالة ---------- */
-  let el = null, cfg = null, buf = '', dirty = false, busy = false, rep = 0, watch = 0, pad = null, lbl = null, val = null, xk = null;
+  let lastAct = 0, idle = 0, el = null, cfg = null, buf = '', dirty = false, busy = false, rep = 0, watch = 0, pad = null, lbl = null, val = null, xk = null;
 
   function config(i) {
     const im = imOf(i), type = i.type, step = i.getAttribute('step');
@@ -116,6 +126,8 @@
 
   function press(k) {
     if (!el) return;
+    lastAct = Date.now(); clearTimeout(idle);
+    if (D.activeElement !== el && el.isConnected) { try { el.focus({ preventScroll: true }); } catch (e) {} }   // أعد التركيز إن فُقد عرَضاً
     if (k === 'done') return finish();
     if (k === 'back') buf = buf.slice(0, -1);
     else if (k === 'clear') buf = '';
@@ -177,7 +189,14 @@
     D.body.classList.add('np-open'); pad.classList.add('on');
     setH(); setTimeout(reveal, 30); setTimeout(reveal, 280);
     clearInterval(watch);
-    watch = setInterval(() => { if (!el || !el.isConnected || !el.getClientRects().length) close(); }, 500);   // الحقل اختفى (إغلاق حوار/إعادة رسم)
+    watch = setInterval(() => {
+      if (!el) return;
+      if (!el.isConnected) {   // أُعيد رسم النموذج أثناء الكتابة: انتقل إلى الحقل الجديد بنفس المعرّف بدل إغلاق اللوحة
+        const n = el.id && D.getElementById(el.id);
+        if (n && ok(n) && n.getClientRects().length) { const a = D.activeElement; open(n); if (!a || a === D.body) { try { n.focus({ preventScroll: true }); } catch (e) {} } }
+        else close();
+      } else if (!el.getClientRects().length) close();   // الحقل اختفى (إغلاق حوار)
+    }, 250);
   }
 
   function release() {
@@ -188,7 +207,7 @@
   }
 
   function close() {
-    release(); stopRep(); clearInterval(watch); watch = 0;
+    release(); stopRep(); clearInterval(watch); watch = 0; clearTimeout(idle);
     if (pad) pad.classList.remove('on');
     D.body.classList.remove('np-open'); root.style.removeProperty('--np-h');
   }
@@ -198,14 +217,30 @@
   /* ---------- ربط الأحداث (تفويض عام) ---------- */
   // قبل أن يمنح المتصفح التركيز نضبط inputmode كي لا تظهر لوحة الجهاز أصلاً
   D.addEventListener('pointerdown', e => { const i = e.target; if (ok(i)) hook(i); }, true);
-  D.addEventListener('focusin', e => { const i = e.target; if (ok(i) && i !== el) open(i); }, true);
+  D.addEventListener('focusin', e => {
+    const i = e.target;
+    if (ok(i) && i !== el) { clearTimeout(idle); open(i); return; }
+    // الهاتف: بلا لوحتنا، لكن نضمن أن يعرض الجهاز لوحة أرقام (لا لوحة الحروف) في حقول type=number
+    if (isPhone() && i && i.tagName === 'INPUT' && i.type === 'number' && !i.hasAttribute('inputmode')) {
+      const st = i.getAttribute('step'); i.setAttribute('inputmode', st && (st === 'any' || !/^\d+$/.test(st)) ? 'decimal' : 'numeric');
+    }
+  }, true);
+  // لا تُغلق اللوحة بسبب فقدان تركيز عابر؛ تُغلق بفعل متعمّد فقط: نقرة خارجها، أو الانتقال لعنصر آخر (Tab)، أو تم/Esc
   D.addEventListener('focusout', e => {
     if (e.target !== el) return;
     setTimeout(() => {
+      if (!el) return;
       const a = D.activeElement;
-      if (a && (ok(a) || (pad && pad.contains(a)))) return;   // انتقل إلى حقل رقمي آخر (يتولّاه focusin) أو إلى اللوحة
-      close();
+      if (a === el || (a && (ok(a) || (pad && pad.contains(a))))) return;   // ما زال هو، أو حقل رقمي آخر (يتولّاه focusin)، أو اللوحة
+      if (a && a !== D.body && a !== root) return close();                  // انتقل التركيز إلى عنصر آخر عمداً
+      clearTimeout(idle);                                                    // تركيز ضائع (body): نُمهله 2.5 ثانية بلا نشاط
+      idle = setTimeout(() => { if (el && D.activeElement !== el && Date.now() - lastAct > 2400) close(); }, 2500);
     }, 0);
+  }, true);
+  D.addEventListener('pointerdown', e => {
+    const t = e.target;
+    if (!el || !pad || !t.closest || pad.contains(t) || ok(t) || t.closest('label')) return;
+    close();                                                                 // نقرة خارج اللوحة والحقول
   }, true);
   // حقل ما زال مركّزاً بعد إغلاق اللوحة بـ Esc: النقر عليه يعيد فتحها
   D.addEventListener('click', e => { const i = e.target; if (!el && ok(i) && D.activeElement === i) open(i); }, true);

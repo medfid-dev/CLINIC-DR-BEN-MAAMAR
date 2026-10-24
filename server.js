@@ -119,8 +119,42 @@ const ageOf = p => THIS_YEAR() - p.birthYear;
 function patientView(p) {
   return { id: p.id, ticket: p.ticket, ticketNo: p.ticketNo, name: p.name, birthYear: p.birthYear, age: ageOf(p), gender: p.gender, reason: p.reason, tooth: p.tooth, phone: p.phone, status: p.status, createdAt: p.createdAt, startedAt: p.startedAt || null, images: (p.images || []).map(i => i.id) };
 }
-function archiveView(a) {
-  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, treatments: treatmentsOf(a), items: a.items || [], price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: paysOf(a), followUp: !!a.followUp, teeth: a.teeth || [], notes: a.notes || '', rx: a.rx || [], rxHead: a.rxHead || null, createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
+/* الوعاء: رصيد مسبق لكل مريض. wallets[patKey] = { bal, log:[{t, amt, k: dep|use|back|out, vid?}] }
+   dep = إيداع (مال داخل) · use = اقتطاع لسداد علاج · back = إرجاع اقتطاع ملغى · out = استرجاع نقدي للمريض */
+const WK = new Set(['dep', 'use', 'back', 'out']);
+const walletOf = (c, k, mk) => { const w = c.wallets && Object.prototype.hasOwnProperty.call(c.wallets, k) ? c.wallets[k] : null; if (w || !mk) return w; if (!c.wallets) c.wallets = {}; return (c.wallets[k] = { bal: 0, log: [] }); };
+const wbal = (c, k) => { const w = walletOf(c, k); return w ? w.bal : 0; };
+function wMove(c, k, kind, amt, t, extra) {
+  if (!(amt > 0)) return; const w = walletOf(c, k, true);
+  w.bal = r2(Math.max(0, w.bal + (kind === 'dep' || kind === 'back' ? amt : -amt))); w.log.push({ t, amt: r2(amt), k: kind, ...(extra || {}) });
+  if (w.log.length > 1000) w.log.splice(0, w.log.length - 1000);
+}
+const walletView = (c, k) => { const w = walletOf(c, k); return { bal: w ? w.bal : 0, log: w ? w.log.slice(-200) : [] }; };
+/* يوزّع مبلغاً على متبقي السجل first ثم أقدم متبقٍ للمريض نفسه؛ يعيد ما لم يُستهلك */
+function allocPay(c, k, first, amt, t, vid, m) {
+  const order = [first].concat(c.archive.slice().reverse().filter(o => o !== first && patKey(o) === k));   // الأرشيف الأحدث أولاً ← نعكسه: الأقدم أولاً
+  for (const o of order) { if (amt <= 0) break; const rem = remOf(o); if (rem <= 0) continue; const x = Math.min(rem, amt); o.paid = r2(paidOf(o) + x); (o.payments = o.payments || []).push({ t, amt: x, vid, ...(m ? { m } : {}) }); amt = r2(amt - x); }
+  return amt;
+}
+/* ما دُفع من الوعاء لسجل ما يرجع إليه عند حذف السجل أو استبدال دفعاته */
+function unwallet(c, k, rec, t) { const w = (rec.payments || []).reduce((x, p) => x + (p.m === 'w' ? (+p.amt || 0) : 0), 0); wMove(c, k, 'back', r2(w), t, { rid: rec.id }); }
+/* رقم الحصة لكل سجل (حسب المريض) وربط الدفعات القديمة بالحصة التي دُفعت فيها */
+function visitInfo(c) {
+  const g = new Map(), n = new Map(), byT = new Map();
+  for (const r of c.archive) { if (!r.finishedAt) continue; const k = patKey(r); let l = g.get(k); if (!l) g.set(k, l = []); l.push(r); }
+  for (const l of g.values()) { l.sort((x, y) => x.finishedAt - y.finishedAt); l.forEach((r, i) => { n.set(r.id, { n: i + 1, at: r.finishedAt }); byT.set(patKey(r) + '|' + r.finishedAt, r.id); }); }
+  return { n, byT };
+}
+function paysView(a, x) {
+  return paysOf(a).map(p => {
+    if (!x) return p;
+    const vid = p.vid === undefined ? (x.info.byT.get(patKey(a) + '|' + p.t) || null) : p.vid, v = vid && x.info.n.get(vid);
+    return { t: p.t, amt: p.amt, ...(p.m ? { m: p.m } : {}), vid, ...(v ? { vn: v.n, vat: v.at } : {}) };
+  });
+}
+function archiveView(a, x) {
+  const me = x && x.info.n.get(a.id);
+  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, treatments: treatmentsOf(a), items: a.items || [], price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: paysView(a, x), ...(x ? { n: me ? me.n : null, wallet: wbal(x.c, patKey(a)) } : {}), followUp: !!a.followUp, teeth: a.teeth || [], notes: a.notes || '', rx: a.rx || [], rxHead: a.rxHead || null, createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
 }
 function nextTicketNo(c) {
   const d = new Date().toLocaleDateString('en-CA');
@@ -336,7 +370,10 @@ function statsFor(c, d0, d1, tz) {
   const arch = c.archive.filter(r => r.finishedAt);
   const inR = r => (!d0 || r.finishedAt >= d0) && (!d1 || r.finishedAt < d1);
   const rs = arch.filter(inR);
-  const cashIn = (a0, a1) => r2(arch.reduce((x, r) => x + paysOf(r).reduce((y, p) => y + ((!a0 || p.t >= a0) && (!a1 || p.t < a1) ? (+p.amt || 0) : 0), 0), 0));
+  /* المحصَّل نقداً: دفعات الحصص (ما عدا المقتطع من الوعاء لأنه حُسب عند إيداعه) + إيداعات الوعاء − المسترجع نقداً */
+  const wlogs = Object.values(c.wallets || {}).flatMap(w => w.log || []).filter(e => e.k === 'dep' || e.k === 'out');
+  const inT = (t, a0, a1) => (!a0 || t >= a0) && (!a1 || t < a1);
+  const cashIn = (a0, a1) => r2(arch.reduce((x, r) => x + paysOf(r).reduce((y, p) => y + (p.m !== 'w' && inT(p.t, a0, a1) ? (+p.amt || 0) : 0), 0), 0) + wlogs.reduce((x, e) => x + (inT(e.t, a0, a1) ? (e.k === 'dep' ? e.amt : -e.amt) : 0), 0));
   const mk = (list, a0, a1) => {
     const priced = list.filter(r => (r.price || 0) > 0);
     return { visits: list.length, patients: new Set(list.map(patKey)).size, billed: sumOf(list, dueOf), collected: cashIn(a0, a1), outstanding: sumOf(list, remOf),
@@ -356,7 +393,8 @@ function statsFor(c, d0, d1, tz) {
   }
   const bk = k => bump(buckets, k, () => ({ k, visits: 0, billed: 0, collected: 0 }));
   for (const r of rs) { const b = bk(keyOf(r.finishedAt)); b.visits++; b.billed = r2(b.billed + dueOf(r)); }
-  for (const r of arch) for (const p of paysOf(r)) if ((!d0 || p.t >= d0) && (!d1 || p.t < d1)) { const b = bk(keyOf(p.t)); b.collected = r2(b.collected + (+p.amt || 0)); }
+  for (const r of arch) for (const p of paysOf(r)) if (p.m !== 'w' && inT(p.t, d0, d1)) { const b = bk(keyOf(p.t)); b.collected = r2(b.collected + (+p.amt || 0)); }
+  for (const e of wlogs) if (inT(e.t, d0, d1)) { const b = bk(keyOf(e.t)); b.collected = r2(b.collected + (e.k === 'dep' ? e.amt : -e.amt)); }
   const series = [...buckets.values()].sort((x, y) => x.k < y.k ? -1 : 1);
 
   /* الأوقات: خريطة حرارية (يوم × ساعة وصول) وأيام الأسبوع */
@@ -597,13 +635,17 @@ async function api(req, res, url) {
       if (pt.status !== 'in') throw httpErr(409, 'not_waiting');
       const t = now(), tl = cleanTreats(b.treatments), treatment = tl.length ? str(tl.join(' + '), 200) : (str(b.treatment, 200) || 'استشارة');
       const teeth = cleanTeeth(b.teeth), price = num(b.price), entry = { ...pt, price, followUp: !!b.followUp, ...(teeth.length ? { teeth, tooth: teeth.join(' ') } : {}), status: 'done', treatment, ...(tl.length ? { treatments: tl, items: cleanItems(b.items, tl) } : {}), notes: str(b.notes, 2000), ...(cleanRx(b.rx).length ? { rx: cleanRx(b.rx), rxHead: cleanHead(b.rxHead) } : {}), finishedAt: t, waitMin: Math.max(0, Math.round(((pt.startedAt || t) - pt.createdAt) / 6e4)), durationMin: Math.max(1, Math.round((t - (pt.startedAt || t)) / 6e4)) };
-      /* الدفع: يغطي سعر هذه الزيارة أولاً ثم الفائض يسدّد أقدم متبقٍ سابق للمريض نفسه */
-      { let pay = b.paid === undefined ? (price || 0) : (num(b.paid) || 0); const cur = Math.min(pay, price || 0); pay = r2(pay - cur);
-        entry.paid = cur; entry.payments = cur > 0 ? [{ t, amt: cur }] : [];
-        if (pay > 0) { const k = patKey(pt); for (let i = c.archive.length - 1; i >= 0 && pay > 0; i--) { const o = c.archive[i]; if (patKey(o) !== k) continue; const rem = remOf(o); if (rem <= 0) continue; const x = Math.min(rem, pay); o.paid = r2(paidOf(o) + x); (o.payments = o.payments || []).push({ t, amt: x }); pay = r2(pay - x); } } }
+      /* الدفع: (1) الاقتطاع من وعاء المريض إن طُلب (2) المدفوع نقداً. كلاهما يغطي سعر هذه الحصة أولاً ثم أقدم متبقٍ سابق؛
+         وأي فائض نقدي يُودَع في وعاء المريض. كل دفعة تحمل رقم الحصة التي دُفعت فيها (vid) و m:'w' إن كانت من الوعاء */
+      { const k = patKey(pt); entry.paid = 0; entry.payments = [];
+        const need = r2((price || 0) + c.archive.reduce((x, o) => x + (patKey(o) === k ? remOf(o) : 0), 0));
+        const w = Math.max(0, Math.min(num(b.wallet) || 0, wbal(c, k), need));
+        const cash = Math.max(0, b.paid === undefined ? Math.max(0, (price || 0) - w) : (num(b.paid) || 0));
+        if (w > 0) { const left = allocPay(c, k, entry, w, t, entry.id, 'w'); wMove(c, k, 'use', r2(w - left), t, { vid: entry.id }); }
+        const extra = allocPay(c, k, entry, cash, t, entry.id); if (extra > 0) wMove(c, k, 'dep', extra, t, { vid: entry.id }); }
       c.patients = c.patients.filter(z => z !== pt); c.archive.unshift(entry);
       broadcast(c, { to: 'nurse', exclude: a.key, data: { type: 'finish', name: pt.name } }, [pt.ticket]);
-      return send(res, 200, archiveView(entry));
+      return send(res, 200, archiveView(entry, { c, info: visitInfo(c) }));
     }
     if (act === 'images' && !imgId && m === 'POST') {
       const a = authOf(req, ['doctor']), c = a.clinic, pt = findPatient(c, pid);
@@ -640,6 +682,7 @@ async function api(req, res, url) {
     const a = authOf(req, ['doctor']); needUnlock(req, a.clinic); const q = url.searchParams, year = parseInt(q.get('year'));
     if (!Number.isInteger(year)) throw httpErr(400, 'invalid_input');
     const k = patKey({ name: str(q.get('name') || '', 80), birthYear: year });
+    const X = { c: a.clinic, info: visitInfo(a.clinic) };
     const rs = a.clinic.archive.filter(r => patKey(r) === k).sort((x, y) => (x.finishedAt || 0) - (y.finishedAt || 0)).slice(-300);
     const cur = a.clinic.patients.find(z => patKey(z) === k);
     const first = rs[0] || cur, last = rs[rs.length - 1];
@@ -647,22 +690,32 @@ async function api(req, res, url) {
       name: first ? first.name : '', birthYear: year, gender: first ? first.gender : '', phone: (cur && cur.phone) || (last && last.phone) || (first && first.phone) || '',
       firstVisit: first ? (first.createdAt || first.finishedAt) : null, lastVisit: last ? last.finishedAt : null,
       visits: rs.length, due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)),
-      current: cur ? patientView(cur) : null, records: rs.map(archiveView)
+      wallet: walletView(a.clinic, k), current: cur ? patientView(cur) : null, records: rs.map(r => archiveView(r, X))
     });
   }
   /* حساب مريض: المستحق والمدفوع والمتبقي (طبيب فقط) */
   if (m === 'GET' && p === '/api/account') {
     const a = authOf(req, ['doctor']), q = url.searchParams, k = patKey({ name: str(q.get('name') || '', 80), birthYear: parseInt(q.get('year')) });
     const rs = a.clinic.archive.filter(r => patKey(r) === k);
-    return send(res, 200, { due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)), records: rs.slice(0, 5).map(r => ({ id: r.id, treatment: r.treatment, treatments: treatmentsOf(r), teeth: r.teeth || [], tooth: r.tooth, finishedAt: r.finishedAt, price: r.price, paid: paidOf(r), remaining: remOf(r) })) });
+    return send(res, 200, { wallet: wbal(a.clinic, k), due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)), records: rs.slice(0, 5).map(r => ({ id: r.id, treatment: r.treatment, treatments: treatmentsOf(r), teeth: r.teeth || [], tooth: r.tooth, finishedAt: r.finishedAt, price: r.price, paid: paidOf(r), remaining: remOf(r) })) });
   }
   /* تسجيل دفعة على سجل في الأرشيف (طبيب فقط) */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})\/payment$/);
   if (m === 'POST' && mt) {
     const a = authOf(req, ['doctor']); needUnlock(req, a.clinic); const rec = a.clinic.archive.find(z => z.id === mt[1]); if (!rec) throw httpErr(404, 'not_found');
-    const b = await readJSON(req), amt = num(b.amount); if (!amt || amt <= 0) throw httpErr(400, 'invalid_input');
-    const x = Math.min(amt, remOf(rec)); if (x <= 0) throw httpErr(409, 'nothing_due');
-    rec.paid = r2(paidOf(rec) + x); (rec.payments = rec.payments || []).push({ t: now(), amt: x }); save(); return send(res, 200, archiveView(rec));
+    const b = await readJSON(req), amt = num(b.amount), c = a.clinic, k = patKey(rec); if (!amt || amt <= 0) throw httpErr(400, 'invalid_input');
+    const fromW = !!b.wallet, x = Math.min(amt, remOf(rec), fromW ? wbal(c, k) : Infinity); if (x <= 0) throw httpErr(409, fromW && remOf(rec) > 0 ? 'wallet_empty' : 'nothing_due');
+    const t = now(); rec.paid = r2(paidOf(rec) + x); (rec.payments = rec.payments || []).push({ t, amt: x, vid: null, ...(fromW ? { m: 'w' } : {}) });
+    if (fromW) wMove(c, k, 'use', x, t, { rid: rec.id });
+    save(); return send(res, 200, archiveView(rec));
+  }
+  /* وعاء المريض: إيداع مسبق أو استرجاع نقدي (طبيب فقط) */
+  if (m === 'POST' && p === '/api/wallet') {
+    const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req), amt = num(b.amount), name = str(b.name, 80).trim(), year = parseInt(b.year);
+    if (!name || !Number.isInteger(year) || !amt || amt <= 0) throw httpErr(400, 'invalid_input');
+    const k = patKey({ name, birthYear: year }), out = b.op === 'out';
+    if (out) { needUnlock(req, c); if (amt > wbal(c, k)) throw httpErr(409, 'wallet_short'); }
+    wMove(c, k, out ? 'out' : 'dep', amt, now(), {}); save(); return send(res, 200, walletView(c, k));
   }
 
   /* اقتراحات أسماء المرضى السابقين عند التسجيل (طبيب وممرضة): الاسم والميلاد والجنس والهاتف فقط */
@@ -709,8 +762,9 @@ async function api(req, res, url) {
     let d0 = isDay(dFrom) ? dayStart(dFrom) : 0, d1 = isDay(dTo) ? dayStart(dTo) + 864e5 : 0;
     if (d0 && d1 && d0 >= d1) { const x = isDay(dTo) ? dayStart(dTo) : 0; d0 = x; d1 = dayStart(dFrom) + 864e5; }  // عُكس الترتيب
     const off = Math.max(0, +q.get('offset') || 0), lim = Math.min(100, Math.max(1, +q.get('limit') || 30));
+    const X = { c: a.clinic, info: visitInfo(a.clinic) };
     const all = a.clinic.archive.filter(r => (!name || r.name.toLowerCase().includes(name)) && (!year || String(r.birthYear).includes(year)) && (!gender || r.gender === gender) && (!tooth || String(r.tooth).toLowerCase().includes(tooth)) && (!tr || (r.treatment || '').includes(tr)) && (!d0 || r.finishedAt >= d0) && (!d1 || r.finishedAt < d1));
-    return send(res, 200, { total: all.length, sum: r2(all.reduce((x, r) => x + dueOf(r), 0)), paidSum: r2(all.reduce((x, r) => x + paidOf(r), 0)), debt: r2(all.reduce((x, r) => x + remOf(r), 0)), items: all.slice(off, off + lim).map(archiveView) });
+    return send(res, 200, { total: all.length, sum: r2(all.reduce((x, r) => x + dueOf(r), 0)), paidSum: r2(all.reduce((x, r) => x + paidOf(r), 0)), debt: r2(all.reduce((x, r) => x + remOf(r), 0)), items: all.slice(off, off + lim).map(r => archiveView(r, X)) });
   }
   /* أرشيف الوصفات (طبيب فقط): كل سجل منتهٍ له وصفة، الأحدث أولاً */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})$/);
@@ -719,17 +773,17 @@ async function api(req, res, url) {
     const b = await readJSON(req), v = validatePatient(b); if (!v) throw httpErr(400, 'invalid_input');
     const price = b.price === null || b.price === '' || b.price === undefined ? null : num(b.price), paid = num(b.paid);
     if ((price != null && price < 0) || (paid != null && paid < 0)) throw httpErr(400, 'invalid_input');
-    const tl = cleanTreats(b.treatments), oldPaid = paidOf(rec);
+    const tl = cleanTreats(b.treatments), oldPaid = paidOf(rec), oldKey = patKey(rec);
     Object.assign(rec, v, { notes: str(b.notes, 2000), followUp: !!b.followUp, price });
     if (tl.length) { rec.treatments = tl; rec.treatment = str(tl.join(' + '), 200); rec.items = cleanItems(rec.items, tl); }
     const np = r2(Math.min(paid == null ? oldPaid : paid, price || 0));
-    if (np !== oldPaid || rec.paid == null) { rec.paid = np; if (np !== oldPaid) rec.payments = np > 0 ? [{ t: (paysOf(rec)[0] || {}).t || rec.finishedAt, amt: np }] : []; }
+    if (np !== oldPaid || rec.paid == null) { rec.paid = np; if (np !== oldPaid) { unwallet(a.clinic, oldKey, rec, now()); rec.payments = np > 0 ? [{ t: (paysOf(rec)[0] || {}).t || rec.finishedAt, amt: np, vid: rec.id }] : []; } }
     save(); return send(res, 200, archiveView(rec));
   }
   if (m === 'DELETE' && mt) {
     const a = authOf(req, ['doctor']), c = a.clinic; needUnlock(req, c); const i = c.archive.findIndex(z => z.id === mt[1]);
     if (i < 0) throw httpErr(404, 'not_found');
-    const [rec] = c.archive.splice(i, 1); rmImages(c, rec); idx.ticket.delete(rec.ticket); save(); return send(res, 200, { ok: true });
+    const [rec] = c.archive.splice(i, 1); unwallet(c, patKey(rec), rec, now()); rmImages(c, rec); idx.ticket.delete(rec.ticket); save(); return send(res, 200, { ok: true });
   }
 
   /* الممرضات (طبيب فقط) */
@@ -811,7 +865,7 @@ async function api(req, res, url) {
     if (!(await checkPw(b.password || '', c.doctor))) throw httpErr(401, 'bad_credentials');
     for (const pt of c.patients.concat(c.archive)) idx.ticket.delete(pt.ticket);
     const toks = c.patients.map(z => z.ticket);
-    c.patients = []; c.archive = []; fs.rm(path.join(DATA_DIR, 'img', c.id), { recursive: true, force: true }, () => {});
+    c.patients = []; c.archive = []; c.wallets = {}; fs.rm(path.join(DATA_DIR, 'img', c.id), { recursive: true, force: true }, () => {});
     if (b.account) {
       for (const [k, s] of Object.entries(db.sessions)) if (s.clinicId === c.id) { delete db.sessions[k]; closeStreamsOf(k); }
       idx.user.delete(c.doctor.username); idx.code.delete(c.code); delete db.clinics[c.id]; delete rt[c.id]; save();
@@ -823,7 +877,7 @@ async function api(req, res, url) {
   if (m === 'GET' && p === '/api/backup') {
     const a = authOf(req, ['doctor']), c = a.clinic, images = {}; needUnlock(req, c);
     for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
-    const body = JSON.stringify({ app: 'calm-clinic', version: 2, exportedAt: now(), clinicName: c.name, patients: c.patients, archive: c.archive, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], images });
+    const body = JSON.stringify({ app: 'calm-clinic', version: 2, exportedAt: now(), clinicName: c.name, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
   }
@@ -838,7 +892,7 @@ async function api(req, res, url) {
       used.add(ticket);
       const out = { id: REC_ID.test(r.id) ? r.id : rid(6), ticket, ticketNo: Math.max(1, parseInt(r.ticketNo) || 1), ...v, status: done ? 'done' : (r.status === 'in' ? 'in' : 'waiting'), createdAt: +r.createdAt || now(), startedAt: +r.startedAt || null, images: [] };
       for (const i of Array.isArray(r.images) ? r.images : []) { if (i && IMG_ID.test(i.id) && typeof imgs[i.id] === 'string') { const buf = Buffer.from(imgs[i.id], 'base64'); if (isJpeg(buf)) { out.images.push({ id: i.id }); out._w = (out._w || []).concat([[i.id, buf]]); } } }
-      if (done) { out.price = num(r.price); out.paid = r.paid == null ? null : num(r.paid); out.followUp = !!r.followUp; out.payments = (Array.isArray(r.payments) ? r.payments : []).slice(0, 50).map(z => ({ t: +z.t || now(), amt: num(z && z.amt) || 0 })); }
+      if (done) { out.price = num(r.price); out.paid = r.paid == null ? null : num(r.paid); out.followUp = !!r.followUp; out.payments = (Array.isArray(r.payments) ? r.payments : []).slice(0, 50).map(z => ({ t: +z.t || now(), amt: num(z && z.amt) || 0, ...(z && z.vid === null ? { vid: null } : (z && REC_ID.test(String(z.vid)) ? { vid: z.vid } : {})), ...(z && z.m === 'w' ? { m: 'w' } : {}) })); }
       if (done) { const tt = cleanTeeth(r.teeth); if (tt.length) { out.teeth = tt; out.tooth = tt.join(' '); } }
       if (done) { const rx = cleanRx(r.rx); if (rx.length) { out.rx = rx; out.rxHead = cleanHead(r.rxHead); } }
       if (done) { const tl = cleanTreats(r.treatments); if (tl.length) { out.treatments = tl; out.items = cleanItems(r.items, tl); } }
@@ -851,6 +905,11 @@ async function api(req, res, url) {
     fs.rmSync(path.join(DATA_DIR, 'img', c.id), { recursive: true, force: true }); fs.mkdirSync(path.join(DATA_DIR, 'img', c.id), { recursive: true });
     for (const r of P.concat(A)) { for (const [id, buf] of r._w || []) fs.writeFileSync(imgPath(c, id), buf); delete r._w; idx.ticket.set(r.ticket, c.id); }
     if (Array.isArray(b.rxBasket)) c.rxBasket = cleanBasket(b.rxBasket); if (Array.isArray(b.rxDrugs)) c.rxDrugs = cleanDrugs(b.rxDrugs);
+    const W = {}; if (b.wallets && typeof b.wallets === 'object') for (const [k, w] of Object.entries(b.wallets).slice(0, 50000)) {
+      if (typeof k !== 'string' || k.length > 120 || !w || typeof w !== 'object') continue;
+      W[k] = { bal: Math.max(0, num(w.bal) || 0), log: (Array.isArray(w.log) ? w.log : []).slice(-1000).filter(e => e && WK.has(e.k)).map(e => ({ t: +e.t || now(), amt: Math.max(0, num(e.amt) || 0), k: e.k, ...(REC_ID.test(String(e.vid)) ? { vid: e.vid } : {}) })) };
+    }
+    c.wallets = W;
     c.patients = P; c.archive = A; RT(c).skip.clear(); broadcast(c); return send(res, 200, { patients: P.length, archive: A.length });
   }
   throw httpErr(404, 'not_found');
