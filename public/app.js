@@ -112,6 +112,7 @@ const S = { token: localStorage.getItem('cc_token') || '', me: null, patients: [
 const YEAR = new Date().getFullYear();
 
 const t = (k, v) => { let s = (L[settings.lang] && L[settings.lang][k]) || L.ar[k] || k; if (v) for (const x in v) s = s.replace('{' + x + '}', v[x]); return s; };
+Object.assign(L.ar, { pay_ledger: '💵 سجل الدفعات', pay_for: 'عن زيارة' }); Object.assign(L.en, { pay_ledger: '💵 Payments ledger', pay_for: 'for visit' });
 const errMsg = e => t('e_' + ((e && e.code) || 'server_error')) || t('e_server_error');
 const genderL = g => (g === 'أنثى' ? t('female') : t('male'));
 const reasonL = r => { const f = REASONS.find(x => x[0] === r); return f ? (settings.lang === 'en' ? f[1] : f[0]) : r; };
@@ -292,7 +293,7 @@ function renderConsultation() {
   else {
     const imgs = a.images.length ? a.images.map(id => `<div class="thumb-box"><img data-rec="${a.id}" data-img="${id}" data-act="lightbox" alt=""><button type="button" class="del-img" data-act="delImage" data-id="${a.id}" data-img="${id}">✕</button></div>`).join('') : `<span style="font-size:12px;color:var(--text-muted)">${t('no_images')}</span>`;
     area.innerHTML = `<div class="consultation-card"><div class="patient-highlight-box">
-      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:20px;font-weight:600">${t('consult_patient')} ${esc(a.name)}</div><span style="background:var(--orange);padding:4px 14px;border-radius:20px;font-weight:600;font-size:13px">${t('ticket_no')} ${a.ticketNo}</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:20px;font-weight:600">${t('consult_patient')} ${esc(a.name)}</div><span style="display:flex;gap:8px;align-items:center"><button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${a.id}">✏️ ${t('edit')}</button><span style="background:var(--orange);padding:4px 14px;border-radius:20px;font-weight:600;font-size:13px">${t('ticket_no')} ${a.ticketNo}</span></span></div>
       <div style="margin-top:10px;padding:10px 14px;border-radius:12px;background:var(--surface-card);border-inline-start:5px solid var(--orange);font-size:15px">${t('reason_l')} <strong style="font-size:17px">${esc(reasonL(a.reason))}</strong></div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;font-size:13px">
         <div>${t('tooth_l')} <strong>${esc(a.tooth)}</strong></div><div>${t('gender_l')} <strong>${esc(genderL(a.gender))}</strong></div>
@@ -592,10 +593,13 @@ async function showHistory(name, year) {
       ${x.payments && x.payments.length ? `<div class="hi-line">${t('pays_l')} ${x.payments.map(p => money(p.amt) + ' (' + new Date(p.t).toLocaleDateString(locale()) + ')').join(' · ')}</div>` : ''}
       ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}
       <div class="hi-line" style="font-size:11px">${t('wait_s')} ${fmtMin(x.waitMin)} · ${t('dur_l')} ${fmtMin(x.durationMin)}</div></div>`).join('');
+  const pays = r.records.flatMap(x => (x.payments || []).map(p => ({ t: p.t, amt: p.amt, v: x.finishedAt, n: (x.treatments || [x.treatment]).join(' + ') }))).sort((p, q) => q.t - p.t);
+  const ledger = pays.length ? `<div class="hist-pays"><b>${t('pay_ledger')} (${pays.length})</b><ul>${pays.map(p => `<li><span>${dt(p.t)}</span><b>${money(p.amt)}</b><small>${t('pay_for')} ${dd(p.v)} · ${esc(p.n)}</small></li>`).join('')}</ul></div>` : '';
   body.innerHTML = `<div class="hist-sum"><div class="hs-name">${esc(r.name)}</div>
       <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div>
       <div class="hist-stats"><div>${t('hist_visits')}<b>${r.visits}</b></div><div>${t('hist_first')}<b>${dd(r.firstVisit)}</b></div><div>${t('hist_last')}<b>${dd(r.lastVisit)}</b></div>
       ${r.due ? `<div>${t('total_due')}<b>${money(r.due)}</b></div><div>${t('total_paid')}<b>${money(r.paid)}</b></div>` : ''}${r.balance ? `<div>${t('total_debt')}<b style="color:var(--danger-soft,#e8607a)">${money(r.balance)}</b></div>` : ''}</div></div>
+    ${ledger}
     <div class="hist-tl">${cur}${items || (cur ? '' : `<div class="hint">${t('hist_none')}</div>`)}</div>`;
   hydrate(body);
 }

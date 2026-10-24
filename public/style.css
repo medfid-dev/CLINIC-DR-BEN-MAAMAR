@@ -571,3 +571,61 @@ body[data-role=doctor] #taskFab{display:flex}
 .ti-text{font-size:14px;font-weight:600;white-space:pre-wrap;overflow-wrap:anywhere}
 .ti-meta{font-size:11px;color:var(--text-secondary);margin-top:3px}
 .task-empty{text-align:center;color:var(--text-muted);font-size:13px;padding:10px}
+
+/* ===== مصمّم تخطيط الوصفة ===== */
+.rxl{position:relative;background:#fff;color:#000;box-sizing:border-box;direction:ltr;line-height:1.35;font-family:inherit}
+.rxl .rb{position:absolute;box-sizing:border-box;overflow-wrap:anywhere;margin:0}
+.rxl-dz .rb{outline:1px dashed rgba(79,70,229,.35);cursor:move;touch-action:none;min-height:3mm;user-select:none}
+.rxl-dz .rb.sel{outline:2px solid #4f46e5;background:rgba(79,70,229,.06)}
+.rxl-dz .rs{position:absolute;right:calc(-6px / var(--k,1));bottom:calc(-6px / var(--k,1));width:calc(12px / var(--k,1));height:calc(12px / var(--k,1));background:#4f46e5;cursor:nwse-resize;display:none;border-radius:2px}
+.rxl-dz .rb.sel .rs{display:block}
+.rxl-ph{opacity:.35;font-style:italic}.rxl-logoph{width:100%;height:100%;border:1px dashed #999;color:#999;display:flex;align-items:center;justify-content:center;font:12px sans-serif}
+.rxl-card{width:min(1280px,98vw);height:min(96vh,900px);max-width:98vw;display:flex;flex-direction:column;padding:12px;gap:8px;overflow:hidden}
+.rxl-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.rxl-head h4{margin:0}.rxl-hb{display:flex;gap:6px;flex-wrap:wrap}
+.rxl-body{flex:1;min-height:0;display:flex;gap:10px}
+.rxl-stage{flex:1;min-width:0;overflow:auto;background:#d9dbe3;border-radius:10px;padding:14px;direction:ltr}
+.rxl-wrap{position:relative;margin:0 auto;box-shadow:0 2px 14px rgba(0,0,0,.3);background:#fff}.rxl-scale{transform-origin:0 0;position:absolute;left:0;top:0}
+.rxl-panel{width:300px;flex:none;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-inline-end:2px}
+.rxl-sec{border:1px solid rgba(128,128,150,.35);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.rxl-row{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap}.rxl-row>*{flex:1;min-width:80px}
+.rxl-f{display:flex;flex-direction:column;gap:2px;font-size:12px}.rxl-f input,.rxl-f select,.rxl-f textarea,.rxl-sec select{width:100%;box-sizing:border-box}
+.rxl-chk{display:flex;gap:6px;align-items:center;font-size:13px}
+.rxl-chips{display:flex;flex-wrap:wrap;gap:4px}.rxl-chip{border:1px solid rgba(128,128,150,.5);background:transparent;color:inherit;border-radius:14px;padding:3px 9px;font-size:12px;cursor:pointer}
+.rxl-chip.on{background:#4f46e5;color:#fff;border-color:#4f46e5}.rxl-chip.off{opacity:.5;text-decoration:line-through}
+.rxl-tg.on{outline:2px solid #4f46e5}.rxl-fsrow{align-items:flex-end}.rxl-fsrow>.btn-action{flex:none;min-width:44px}
+.rxl-foot{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:800px){.rxl-body{flex-direction:column}.rxl-panel{width:auto;max-height:45%}.rxl-card{height:98vh}}
+@media print{
+  body.print-rxl #rxPrint .rxl{margin:0;zoom:1}
+  body.print-rxl #rxPrint .rb{outline:none}
+}
+.rxv-paper .rxl{margin:0 auto;box-shadow:0 0 6px rgba(0,0,0,.25)}
+
+/* ===== شاشة الافتتاح بالشعار ===== */
+#splash{position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow:hidden;transition:opacity .6s ease,transform .6s ease,visibility .6s}
+#splash.out{opacity:0;visibility:hidden;transform:scale(1.06);pointer-events:none}
+.sp-glow{position:absolute;width:140vmax;height:140vmax;left:50%;top:50%;margin:-70vmax 0 0 -70vmax;background:radial-gradient(circle,rgba(46,42,110,.10) 0,rgba(46,42,110,.05) 12%,rgba(255,255,255,0) 30%);animation:spGlow 3.2s ease-in-out infinite}
+.sp-logo{position:relative;width:min(320px,74vw);aspect-ratio:760/713}
+.sp-logo img{mix-blend-mode:multiply;position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none}
+.sp-emb{clip-path:inset(0 0 23% 0);transform-origin:50% 42%;animation:spEmb 1.1s cubic-bezier(.2,.9,.3,1.15) both,spBreath 2.6s 1.2s ease-in-out infinite}
+.sp-txt{clip-path:inset(77% 0 0 0);animation:spTxt .8s .6s cubic-bezier(.2,.8,.3,1) both}
+.sp-shine{position:absolute;inset:0;overflow:hidden;mix-blend-mode:overlay;pointer-events:none}
+.sp-shine::after{content:"";position:absolute;top:-10%;bottom:-10%;width:34%;left:-50%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.95),transparent);transform:skewX(-14deg);animation:spShine 1.2s 1.15s ease-in-out both}
+.sp-name{font-size:18px;font-weight:600;color:#2E2A6E;letter-spacing:.5px;animation:spUp .7s 1.1s ease-out both}
+.sp-bar{width:150px;height:4px;border-radius:4px;background:rgba(46,42,110,.12);overflow:hidden;animation:spUp .6s 1.2s ease-out both}
+.sp-bar i{display:block;height:100%;width:45%;border-radius:4px;background:linear-gradient(90deg,#6A55F0,#2E2A6E);animation:spBar 1.25s ease-in-out infinite}
+@keyframes spEmb{from{opacity:0;transform:scale(.55) translateY(14px);filter:blur(10px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes spBreath{50%{transform:scale(1.025)}}
+@keyframes spTxt{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes spShine{from{left:-50%}to{left:120%}}
+@keyframes spUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes spBar{0%{transform:translateX(120%)}100%{transform:translateX(-260%)}}
+@keyframes spGlow{50%{transform:scale(1.08);opacity:.75}}
+@media (prefers-reduced-motion:reduce){#splash *,#splash *::after{animation-duration:.01s!important;animation-delay:0s!important;animation-iteration-count:1!important}}
+.auth-logo{width:156px;height:146px;border-radius:28px;padding:8px;box-sizing:border-box}
+.auth-logo img{width:100%;height:100%;object-fit:contain;display:block}
+
+.hist-pays{margin:10px 0;padding:10px 12px;border-radius:12px;background:var(--surface-sunk,rgba(128,128,150,.1))}
+.hist-pays ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+.hist-pays li{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-size:13px;border-bottom:1px dashed rgba(128,128,150,.25);padding-bottom:4px}
+.hist-pays li b{color:var(--success-soft,#2e8b57)}.hist-pays li small{flex-basis:100%;opacity:.7;font-size:11px}

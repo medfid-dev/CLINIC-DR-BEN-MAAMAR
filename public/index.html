@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#2E2A6E">
 <meta name="robots" content="noindex">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="preload" as="image" href="icons/logo.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-180.png">
@@ -19,6 +20,9 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="light-mode">
+<div id="splash" aria-hidden="true"><div class="sp-glow"></div>
+  <div class="sp-logo"><img class="sp-emb" src="icons/logo.png" alt=""><img class="sp-txt" src="icons/logo.png" alt=""><span class="sp-shine"></span></div>
+  <div class="sp-name">عيادتي الذكية</div><div class="sp-bar"><i></i></div></div>
 <div id="netBar" data-i18n="offline_bar">غير متصل بالخادم — جارٍ إعادة الاتصال…</div>
 <div id="toast-container"></div>
 <div id="visual-alert-container"></div>
@@ -117,7 +121,7 @@
 <div id="authScreen" class="screen active">
   <div class="auth-container">
     <div class="auth-header">
-      <div class="auth-logo">🦷</div>
+      <div class="auth-logo"><img src="icons/logo.png" alt="Dental Clinic Dr Ben Maamar"></div>
       <h2 style="margin-bottom:4px;font-size:24px" data-i18n="app_title">عيادتي الذكية</h2>
       <p style="font-size:13px" data-i18n="app_sub">إدارة الانتظار والمعاينة — متزامنة بين الأجهزة</p>
     </div>
@@ -420,10 +424,12 @@
 
 <div class="print-slip" id="printSlip"></div>
 
+<script src="splash.js"></script>
 <script src="qr.js"></script>
 <script src="app.js"></script>
 <script src="stats.js"></script>
 <script src="drugs.js"></script>
 <script src="rx.js"></script>
+<script src="rxlayout.js"></script>
 </body>
 </html>

@@ -19,3 +19,5 @@ main{width:100%;max-width:420px;text-align:center}
 .conn{font-size:12px;color:var(--warn);min-height:18px;margin-top:12px}
 .priv{font-size:12px;color:var(--mut);margin-top:14px}
 .lang{margin-top:14px;background:none;border:1px solid var(--mut);color:var(--mut);border-radius:999px;padding:6px 16px;font:inherit;font-size:12px}
+
+.tlogo{display:block;width:84px;height:84px;margin:0 auto 10px;border-radius:20px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.15)}

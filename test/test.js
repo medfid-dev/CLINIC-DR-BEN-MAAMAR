@@ -91,8 +91,11 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     ok(nEv.some(e => e[1].type === 'finish'), 'الممرضة تُبلَّغ بانتهاء المعاينة');
     r = await J('GET', `/api/ticket/${p1.ticket}`); ok(r.j.state === 'done', 'تذكرة المنتهي: done');
     r = await J('POST', `/api/patients/${p2.id}/enter`, N); ok(r.s === 200, 'الثاني يدخل بعد الإنهاء');
+    r = await J('PUT', `/api/patients/${p2.id}`, N, { name: 'ممنوع', birthYear: 1990 }); ok(r.s === 409, 'الممرضة لا تعدّل بيانات من في المعاينة');
+    r = await J('PUT', `/api/patients/${p2.id}`, A, { name: 'اسم معدّل', birthYear: 1991, gender: 'أنثى', phone: '0555123456', reason: 'استشارة وطوارئ' }); ok(r.s === 200 && r.j.name === 'اسم معدّل' && r.j.gender === 'أنثى' && r.j.phone === '0555123456', 'الطبيب يعدّل بيانات المريض أثناء المعاينة');
     r = await J('GET', `/api/ticket/${t2}`); ok(r.j.state === 'in', 'تذكرة 2: دورك الآن');
     r = await J('GET', '/api/archive?name=مريض1', A); ok(r.j.total === 1 && r.j.items[0].images.length === 1, 'البحث في الأرشيف');
+    ok(r.j.items[0].payments.length === 1 && r.j.items[0].payments[0].amt === 2000, 'الدفعة تظهر في سجل الأرشيف');
     { const iso = d => d.toLocaleDateString('en-CA'), tz = new Date().getTimezoneOffset(), n = new Date(), y = new Date(n.getTime() - 864e5), f = new Date(n.getTime() + 864e5), q = (a, b) => `/api/archive?from=${a}&to=${b}&tz=${tz}`;
       r = await J('GET', q(iso(n), iso(n)), A); ok(r.j.total === 1, 'فلتر اليوم يشمل سجل اليوم');
       r = await J('GET', q(iso(y), iso(y)), A); ok(r.j.total === 0, 'فلتر أمس لا يشمل سجل اليوم');

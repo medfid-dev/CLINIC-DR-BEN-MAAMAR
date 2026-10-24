@@ -120,7 +120,7 @@ function patientView(p) {
   return { id: p.id, ticket: p.ticket, ticketNo: p.ticketNo, name: p.name, birthYear: p.birthYear, age: ageOf(p), gender: p.gender, reason: p.reason, tooth: p.tooth, phone: p.phone, status: p.status, createdAt: p.createdAt, startedAt: p.startedAt || null, images: (p.images || []).map(i => i.id) };
 }
 function archiveView(a) {
-  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, treatments: treatmentsOf(a), items: a.items || [], price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: a.payments || [], followUp: !!a.followUp, teeth: a.teeth || [], notes: a.notes || '', rx: a.rx || [], rxHead: a.rxHead || null, createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
+  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, treatments: treatmentsOf(a), items: a.items || [], price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: paysOf(a), followUp: !!a.followUp, teeth: a.teeth || [], notes: a.notes || '', rx: a.rx || [], rxHead: a.rxHead || null, createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
 }
 function nextTicketNo(c) {
   const d = new Date().toLocaleDateString('en-CA');
@@ -277,6 +277,32 @@ function cleanTpl(b) {
   for (const [k, n] of [['clinic', 120], ['doctor', 120], ['spec', 120], ['phone', 60], ['address', 160]]) o[k] = b[k] == null ? null : str(b[k], n);
   o.logo = typeof b.logo === 'string' && b.logo.length <= 160000 && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(b.logo) ? b.logo : '';
   o.lang = ['ar', 'fr', 'en'].includes(b.lang) ? b.lang : 'ar';
+  const lay = cleanLay(b.lay); if (lay) o.lay = lay;
+  return o;
+}
+/* تخطيط الوصفة المخصّص (مواضع بالمليمتر وأحجام الخطوط). null = التخطيط الافتراضي */
+const RX_BLOCKS = ['logo', 'clinic', 'doctor', 'spec', 'contact', 'date', 'patient', 'age', 'title', 'list', 'sign', 'rule1', 'rule2', 'rule3', 't1', 't2', 't3', 't4', 't5', 't6'];
+function cleanLay(l) {
+  if (!l || typeof l !== 'object' || !l.blocks || typeof l.blocks !== 'object') return null;
+  const n = (v, lo, hi, d) => { v = Number(v); return Number.isFinite(v) ? Math.min(hi, Math.max(lo, Math.round(v * 100) / 100)) : d; };
+  const o = { w: n(l.w, 50, 450, 210), h: n(l.h, 50, 450, 297), grid: [0, 1, 2, 5].includes(Number(l.grid)) ? Number(l.grid) : 1, ff: ['', 'serif', 'sans', 'mono'].includes(l.ff) ? l.ff : '', blocks: {} };
+  for (const id of RX_BLOCKS) {
+    const b = l.blocks[id]; if (!b || typeof b !== 'object') continue;
+    const r = { x: n(b.x, -50, 450, 10), y: n(b.y, -50, 450, 10), w: n(b.w, 3, 450, 60), vis: b.vis === false || b.vis === 0 ? 0 : 1 };
+    if (b.fs != null) r.fs = n(b.fs, 5, 120, 12);
+    if (b.h != null) r.h = n(b.h, 3, 450, 20);
+    if (b.th != null) r.th = n(b.th, 0.1, 10, 0.5);
+    if (b.lh != null) r.lh = n(b.lh, 1, 3, 1.5);
+    if (b.gap != null) r.gap = n(b.gap, 0, 40, 4);
+    if (b.b) r.b = 1;
+    if (b.i) r.i = 1;
+    if (b.ds) r.ds = 1;
+    if (b.num === 0 || b.num === false) r.num = 0;
+    if (['left', 'center', 'right'].includes(b.al)) r.al = b.al;
+    if (typeof b.col === 'string' && /^#[0-9a-fA-F]{6}$/.test(b.col)) r.col = b.col;
+    if (typeof b.txt === 'string') r.txt = str(b.txt, 400);
+    o.blocks[id] = r;
+  }
   return o;
 }
 /* لقطة ترويسة الوصفة وقت إصدارها: تبقى كما صدرت حتى لو تغيّر القالب لاحقاً (بلا الشعار) */
@@ -528,7 +554,7 @@ async function api(req, res, url) {
     const [, pid, act, imgId] = mt;
     if (!act && m === 'PUT') {
       const a = authOf(req), c = a.clinic, pt = findPatient(c, pid), v = validatePatient(await readJSON(req));
-      if (!v) throw httpErr(400, 'invalid_input'); if (pt.status !== 'waiting') throw httpErr(409, 'not_waiting');
+      if (!v) throw httpErr(400, 'invalid_input'); if (pt.status === 'in' ? a.role !== 'doctor' : pt.status !== 'waiting') throw httpErr(409, 'not_waiting');   // الطبيب يعدّل بيانات من في المعاينة أيضاً
       Object.assign(pt, v); broadcast(c); return send(res, 200, patientView(pt));
     }
     if (!act && m === 'DELETE') {
