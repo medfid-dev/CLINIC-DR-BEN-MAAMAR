@@ -165,10 +165,10 @@ const waitText = ts => fmtMin(Math.floor((Date.now() - ts) / 60000));
 
 /* ===================== API ===================== */
 /* ===== نوافذ حوار داخل البرنامج (بديل confirm/prompt الخاصة بالمتصفح) ===== */
-function appDialog({ msg, input, def, pass }) {
+function appDialog({ msg, input, def, pass, num }) {
   return new Promise(res => {
     const m = document.createElement('div'); m.className = 'modal-overlay active'; m.style.zIndex = 30000;
-    m.innerHTML = `<div class="modal-card" style="max-width:420px" role="dialog" aria-modal="true"><div style="white-space:pre-line;line-height:1.7;font-size:15px;margin-bottom:12px">${esc(msg)}</div>${input ? `<input class="app-dlg-in" type="${pass ? 'password' : 'text'}" value="${esc(def == null ? '' : def)}"${pass ? ' autocomplete="current-password"' : ''} style="width:100%;box-sizing:border-box;margin-bottom:12px">` : ''}<div style="display:flex;gap:10px"><button type="button" class="btn-primary" data-d="ok">${t('dlg_ok')}</button><button type="button" class="btn-action btn-red" style="width:35%" data-d="no">${t('cancel')}</button></div></div>`;
+    m.innerHTML = `<div class="modal-card" style="max-width:420px" role="dialog" aria-modal="true"><div style="white-space:pre-line;line-height:1.7;font-size:15px;margin-bottom:12px">${esc(msg)}</div>${input ? `<input class="app-dlg-in" type="${pass ? 'password' : num ? 'number' : 'text'}"${num ? ` step="any" min="0" inputmode="decimal" aria-label="${esc(msg)}"` : ''} value="${esc(def == null ? '' : def)}"${pass ? ' autocomplete="current-password"' : ''} style="width:100%;box-sizing:border-box;margin-bottom:12px">` : ''}<div style="display:flex;gap:10px"><button type="button" class="btn-primary" data-d="ok">${t('dlg_ok')}</button><button type="button" class="btn-action btn-red" style="width:35%" data-d="no">${t('cancel')}</button></div></div>`;
     const inp = m.querySelector('input'), no = input ? null : false, val = () => input ? inp.value : true;
     const done = v => { document.removeEventListener('keydown', key, true); m.remove(); res(v); };
     const key = e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(no); } else if (e.key === 'Enter' && !(e.target && e.target.tagName === 'BUTTON')) { e.preventDefault(); e.stopPropagation(); done(val()); } };
@@ -177,7 +177,7 @@ function appDialog({ msg, input, def, pass }) {
   });
 }
 const appConfirm = msg => appDialog({ msg });
-const appPrompt = (msg, def, pass) => appDialog({ msg, input: true, def, pass });
+const appPrompt = (msg, def, pass, num) => appDialog({ msg, input: true, def, pass, num });
 
 async function api(method, path, body, opt = {}) {
   const h = {}; if (S.token && !opt.anon) h.Authorization = 'Bearer ' + S.token; if (S.unlock) h['X-Unlock'] = S.unlock;
@@ -614,7 +614,7 @@ function renderArchive() {
 }
 /* وعاء المريض: إيداع أو استرجاع نقدي ثم تحديث الشاشة المفتوحة */
 async function walMove(el, op) {
-  const v = await appPrompt(t(op === 'out' ? 'wal_out_q' : 'wal_dep_q'), ''); if (v == null) return;
+  const v = await appPrompt(t(op === 'out' ? 'wal_out_q' : 'wal_dep_q'), '', false, true); if (v == null) return;
   const n = parseFloat(String(v).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(',', '.'));
   if (!await run(() => api('POST', '/api/wallet', { name: el.dataset.name, year: el.dataset.year, amount: n, op }))) return;
   toast(t('wal_saved'), 'success');
@@ -838,7 +838,7 @@ const ACT = {
   },
   payQuick(el) { const due = +S.price || 0, v = el.dataset.v, w = wUse(); S.paid = v === 'all' ? String(r2c(Math.max(0, due + prevBal() - w))) : v === 'half' ? String(r2c(Math.max(0, due - w) / 2)) : '0'; S.paidDirty = true; recalc(); },
   async addPayment(el) {
-    const rem = +el.dataset.rem, wal = +el.dataset.wallet || 0, v = await appPrompt(t('pay_prompt', { r: money(rem) }), rem); if (v == null) return;
+    const rem = +el.dataset.rem, wal = +el.dataset.wallet || 0, v = await appPrompt(t('pay_prompt', { r: money(rem) }), rem, false, true); if (v == null) return;
     const fromW = wal > 0 && await appConfirm(t('pay_from_wal_q', { w: money(wal) }));
     if (await run(() => api('POST', `/api/archive/${el.dataset.id}/payment`, { amount: v, wallet: fromW }))) { toast(t('t_paid'), 'success'); loadArchive(true); }
   },
