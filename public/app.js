@@ -1039,7 +1039,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window
   ['doctorScreen', 'nurseScreen'].forEach(id => {
     const sc = document.getElementById(id), hero = sc && sc.querySelector('.hero'); if (!hero) return;
     let last = 0, acc = 0, tick = false;
-    const show = () => { hero.classList.remove('hide'); sc.classList.remove('hero-gone'); };
+    const show = () => { if (hero.classList.contains('hide')) hero.classList.remove('hide'); if (sc.classList.contains('hero-gone')) sc.classList.remove('hero-gone'); };   // بدون تعديل فارغ: classList.remove على صنف غير موجود يُطلق MutationObserver فيدور في حلقة لا نهائية
     sc.addEventListener('scroll', () => {
       if (tick) return; tick = true;
       requestAnimationFrame(() => {
