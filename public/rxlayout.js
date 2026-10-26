@@ -5,7 +5,7 @@
    إن لم يُحفظ تخطيط يبقى التخطيط الكلاسيكي كما هو. يعتمد على rx.js وapp.js. */
 
 Object.assign(L.ar, {
-  rxl_btn: 'تعديل التخطيط', rxl_title: '🎨 مصمّم تخطيط الوصفة', rxl_paper: 'الورقة', rxl_w: 'العرض (مم)', rxl_h: 'الارتفاع (مم)', rxl_swap: 'تبديل الاتجاه ↔',
+  rxl_prev: 'معاينة الوصفة بالتخطيط المحفوظ', rxl_print_go: 'متابعة الطباعة', rxl_print_tip: '🖨️ حجم الصفحة {s}. في نافذة الطباعة اختر «حجم الورق» = {n} (وإن لم يظهر فاضبطه في خصائص الطابعة)', rxl_btn: 'تعديل التخطيط', rxl_title: '🎨 مصمّم تخطيط الوصفة', rxl_paper: 'الورقة', rxl_w: 'العرض (مم)', rxl_h: 'الارتفاع (مم)', rxl_swap: 'تبديل الاتجاه ↔',
   rxl_grid: 'خطوة التحريك', rxl_nogrid: 'حرّة', rxl_zoom: 'التكبير', rxl_font: 'نوع الخط', rxl_ff_def: 'الافتراضي', rxl_ff_serif: 'مزخرف (Serif)', rxl_ff_sans: 'بسيط', rxl_ff_mono: 'ثابت العرض',
   rxl_blocks: 'العناصر', rxl_show: 'إظهار العنصر', rxl_x: 'X — من اليسار (مم)', rxl_y: 'Y — من الأعلى (مم)', rxl_bw: 'العرض (مم)', rxl_bh: 'الارتفاع (مم)', rxl_fs: 'حجم الخط (pt)',
   rxl_bold: 'عريض', rxl_it: 'مائل', rxl_col: 'اللون', rxl_th: 'السماكة (مم)', rxl_ds: 'متقطّع', rxl_txt: 'النص', rxl_lh: 'تباعد الأسطر', rxl_gap: 'المسافة بين الأدوية (مم)', rxl_num: 'ترقيم الأدوية',
@@ -18,7 +18,7 @@ Object.assign(L.ar, {
   rxlb_t1: 'نص حر 1', rxlb_t2: 'نص حر 2', rxlb_t3: 'نص حر 3', rxlb_t4: 'نص حر 4', rxlb_t5: 'نص حر 5', rxlb_t6: 'نص حر 6'
 });
 Object.assign(L.en, {
-  rxl_btn: 'Customize prescription layout', rxl_title: '🎨 Prescription layout designer', rxl_paper: 'Paper', rxl_w: 'Width (mm)', rxl_h: 'Height (mm)', rxl_swap: 'Swap orientation ↔',
+  rxl_prev: 'Preview with your saved layout', rxl_print_go: 'Continue to print', rxl_print_tip: '🖨️ Page size {s}. In the print dialog set "Paper size" = {n} (or set it in the printer preferences)', rxl_btn: 'Customize prescription layout', rxl_title: '🎨 Prescription layout designer', rxl_paper: 'Paper', rxl_w: 'Width (mm)', rxl_h: 'Height (mm)', rxl_swap: 'Swap orientation ↔',
   rxl_grid: 'Move step', rxl_nogrid: 'Free', rxl_zoom: 'Zoom', rxl_font: 'Font family', rxl_ff_def: 'Default', rxl_ff_serif: 'Serif', rxl_ff_sans: 'Sans', rxl_ff_mono: 'Monospace',
   rxl_blocks: 'Elements', rxl_show: 'Show element', rxl_x: 'X — from left (mm)', rxl_y: 'Y — from top (mm)', rxl_bw: 'Width (mm)', rxl_bh: 'Height (mm)', rxl_fs: 'Font size (pt)',
   rxl_bold: 'Bold', rxl_it: 'Italic', rxl_col: 'Color', rxl_th: 'Thickness (mm)', rxl_ds: 'Dashed', rxl_txt: 'Text', rxl_lh: 'Line spacing', rxl_gap: 'Gap between drugs (mm)', rxl_num: 'Number the drugs',
@@ -128,15 +128,38 @@ rxPrintDoc = function (lines, pat, ts, head, layOverride) {
   if (!lines || !lines.length) return toast(t('rx_empty'), 'info');
   let box = $('#rxPrint'); if (!box) { box = document.createElement('div'); box.id = 'rxPrint'; document.body.appendChild(box); }
   box.innerHTML = rxlRender(lay, T, lines, pat, ts);
-  let st = $('#rxPageSt'); if (st) st.remove(); st = document.createElement('style'); st.id = 'rxPageSt'; st.textContent = `@page{size:${lay.w}mm ${lay.h}mm;margin:0}`; document.head.appendChild(st);
+  let st = $('#rxPageSt'); if (st) st.remove(); st = document.createElement('style'); st.id = 'rxPageSt'; st.textContent = `@page{size:${lay.w}mm ${lay.h}mm;margin:0}@media print{html,body{width:${lay.w}mm!important;height:${lay.h}mm!important;margin:0!important;padding:0!important;overflow:hidden!important}}`; document.head.appendChild(st);
   document.body.classList.add('print-rx', 'print-rxl');
   const done = () => { document.body.classList.remove('print-rx', 'print-rxl'); const s = $('#rxPageSt'); if (s) s.remove(); window.removeEventListener('afterprint', done); };
-  window.addEventListener('afterprint', done); setTimeout(() => window.print(), 60);
+  window.addEventListener('afterprint', done);
+  /* تنبيه حجم الورق قبل الطباعة (مرة لكل حجم): المتصفح يطلب الحجم من الطابعة لكن اختيار الورق الفعلي يتم في نافذة الطباعة/تعريف الطابعة */
+  const nm = Object.keys(RXL_PAPERS).find(k => Math.abs(RXL_PAPERS[k][0] - lay.w) < 1 && Math.abs(RXL_PAPERS[k][1] - lay.h) < 1) || '', sz = `${lay.w}×${lay.h} mm`, key = 'cc_rx_tip_' + sz;
+  let seen = false; try { seen = !!localStorage.getItem(key); } catch (e) {}
+  const go = () => setTimeout(() => window.print(), 60);
+  if (seen || (nm === 'A4')) return go();
+  appDialog({ msg: t('rxl_print_tip', { s: sz, n: nm === 'LETTER' ? 'Letter' : (nm || sz) }), okL: t('rxl_print_go') }).then(v => { if (!v) return done(); try { localStorage.setItem(key, '1'); } catch (e) {} go(); });
 };
 rxModalHTML = function () {
   const big = `<button type="button" class="btn-action btn-green rxl-open-big" data-act="rxlOpen">🎨 ${esc(t('rxl_btn'))}</button>`;
-  return _rxModalHTML().replace('<div class="rx-actions">', '<div class="rx-actions">' + big).replace('<button type="button" class="btn-action" data-act="rxTplReset">', `<button type="button" class="btn-action btn-green" data-act="rxlOpen">🎨 ${esc(t('rxl_btn'))}</button><button type="button" class="btn-action" data-act="rxTplReset">`);
+  return _rxModalHTML().replace(/<button[^>]*data-act="rxTplReset">[^<]*<\/button>/g, '').replace('<div class="rx-actions">', '<div class="rx-actions">' + big).replace('<button type="button" class="btn-action" data-act="rxTplReset">', `<button type="button" class="btn-action btn-green" data-act="rxlOpen">🎨 ${esc(t('rxl_btn'))}</button><button type="button" class="btn-action" data-act="rxTplReset">`);
 };
+
+
+/* ---------- معاينة الوصفة الأولية تعكس التخطيط المحفوظ (بدل الترويسة الثابتة) ---------- */
+const _rxPaperTopHTML = rxPaperTopHTML, _rxRenderPaperTop = rxRenderPaperTop, _rxRenderList = rxRenderList;
+function rxlPrevInner(T) { return rxlRender(T.lay, T, typeof rxLines === 'function' ? rxLines() : [], { name: (RX.pat || {}).name, birthYear: (RX.pat || {}).birthYear }, Date.now(), {}); }
+function rxlPrevFit() {
+  const box = $('#rxLayPrev .rxl-prev-box'), r = box && box.firstElementChild, T = rxTpl(); if (!r || !T.lay) return;
+  const w = box.clientWidth; if (!w) { requestAnimationFrame(rxlPrevFit); return; }
+  r.style.zoom = Math.min(1, (w - 2) / (T.lay.w * RXL_PXMM)).toFixed(3);
+}
+function rxlPrevUpdate() { const box = $('#rxLayPrev .rxl-prev-box'), T = rxTpl(); if (!box || !T.lay) return; box.innerHTML = rxlPrevInner(T); rxlPrevFit(); }
+rxPaperTopHTML = function () {
+  const T = rxTpl(); if (!T.lay) return _rxPaperTopHTML();
+  return `<details class="rxl-prev" id="rxLayPrev" open><summary>👁 ${esc(t('rxl_prev'))}</summary><div class="rxl-prev-box">${rxlPrevInner(T)}</div></details>`;
+};
+rxRenderPaperTop = function () { _rxRenderPaperTop(); const T = rxTpl(), p = $('#rxPaper'); if (p) p.classList.toggle('has-lay', !!T.lay); rxlPrevFit(); };
+rxRenderList = function () { const r = _rxRenderList.apply(this, arguments); rxlPrevUpdate(); return r; };
 
 /* ---------- المصمّم ---------- */
 const rxlSnap = v => { const g = RXL.lay.grid; return g ? Math.round(v / g) * g : rxlNum(v); };
@@ -189,7 +212,7 @@ function rxlOpen() {
   m = document.createElement('div'); m.id = 'rxlModal'; m.className = 'modal-overlay active';
   m.innerHTML = `<div class="modal-card rxl-card"><div class="rxl-head"><h4>${esc(t('rxl_title'))}</h4><span class="rxl-hb"><button type="button" class="btn-action" data-act="rxlTest">${esc(t('rxl_test'))}</button><button type="button" class="btn-action btn-green" data-act="rxlSave">${esc(t('rxl_save'))}</button><button type="button" class="btn-action btn-red" data-act="rxlClose">${esc(t('rxl_cancel'))}</button></span></div>
     <div class="rxl-body"><div class="rxl-stage" id="rxlStage">${rxlStageHTML()}</div><div class="rxl-panel" id="rxlPanel"></div></div>
-    <div class="rxl-foot"><button type="button" class="btn-action" data-act="rxlReset">${esc(t('rxl_reset'))}</button><button type="button" class="btn-action" data-act="rxlClassic">${esc(t('rxl_classic'))}</button></div></div>`;
+    <div class="rxl-foot"><button type="button" class="btn-action" data-act="rxlReset">${esc(t('rxl_reset'))}</button><button type="button" class="btn-action" data-act="rxlHeadReset">${esc(t('rxt_reset'))}</button><button type="button" class="btn-action" data-act="rxlClassic">${esc(t('rxl_classic'))}</button></div></div>`;
   document.body.appendChild(m); rxlPanel();
 }
 function rxlSelect(id) { RXL.sel = id; document.querySelectorAll('#rxlStage .rb').forEach(e => e.classList.toggle('sel', e.dataset.b === id)); rxlPanel(); }
@@ -270,6 +293,7 @@ Object.assign(ACT, {
   async rxlSave() { await rxlSaveNow(JSON.parse(JSON.stringify(RXL.lay))); const m = $('#rxlModal'); if (m) m.remove(); toast(t('rxl_saved'), 'success'); },
   async rxlClose() { if (RXL.dirty && !await appConfirm(t('rxl_close_c'))) return; const m = $('#rxlModal'); if (m) m.remove(); },
   rxlLogoPick() { const f = $('#rxlLogoFile'); if (f) f.click(); },
+  async rxlHeadReset() { if (!await appConfirm(t('rxt_reset_c'))) return; RXL.head = { clinic: null, doctor: null, spec: null, phone: null, address: null, logo: '' }; RXL.dirty = true; rxlDraw(); rxlPanel(); },
   rxlLogoDel() { RXL.head.logo = ''; RXL.dirty = true; rxlDraw(); rxlPanel(); },
   rxlTest() {
     const a = RX.pat, old = RX.tpl, h = RXL.head || {};
@@ -277,3 +301,6 @@ Object.assign(ACT, {
     try { rxPrintDoc(rxlSampleLines(), a ? { name: a.name, birthYear: a.birthYear } : { name: t('rxl_sample') }, Date.now(), Object.assign(rxHeadSnap(), h), JSON.parse(JSON.stringify(RXL.lay))); } finally { RX.tpl = old; }
   }
 });
+
+/* تحديث المعاينة عند تعديل حقول الأدوية (مؤجَّل لتفادي البطء) */
+(function () { let tm = 0; document.addEventListener('input', e => { if (!e.target.closest || !e.target.closest('#rxBox') || !$('#rxLayPrev')) return; clearTimeout(tm); tm = setTimeout(rxlPrevUpdate, 350); }); })();

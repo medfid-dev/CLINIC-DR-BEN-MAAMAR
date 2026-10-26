@@ -129,12 +129,15 @@ function rxLogoFromFile(file) {
     const url = URL.createObjectURL(file), im = new Image();
     im.onload = () => {
       URL.revokeObjectURL(url);
-      for (const max of [240, 160, 100]) {
+      /* نحافظ على الشفافية (PNG) قدر الإمكان: نصغّر الحجم تدريجياً قبل اللجوء إلى JPEG، لأن JPEG يلغي الشفافية ويُظهر خلفية حول الشعار */
+      const draw = (max, jpg) => {
         const k = Math.min(1, max / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k));
         const g = c.getContext('2d'); g.drawImage(im, 0, 0, c.width, c.height);
-        let d = c.toDataURL('image/png'); if (d.length > 150000) { g.globalCompositeOperation = 'destination-over'; g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); d = c.toDataURL('image/jpeg', .85); }
-        if (d.length <= 150000) return ok(d);
-      }
+        if (jpg) { g.globalCompositeOperation = 'destination-over'; g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); return c.toDataURL('image/jpeg', .85); }
+        return c.toDataURL('image/png');
+      };
+      for (const max of [240, 200, 160, 128, 100, 80, 64]) { const d = draw(max, false); if (d.length <= 150000) return ok(d); }
+      for (const max of [240, 160, 100]) { const d = draw(max, true); if (d.length <= 150000) return ok(d); }
       no(new Error('big'));
     };
     im.onerror = () => { URL.revokeObjectURL(url); no(new Error('bad')); };

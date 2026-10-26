@@ -20,7 +20,7 @@ const L = {
     archive_title: 'أرشيف السجلات الطبية 📁', search_name: '🔍 بحث باسم المريض...', search_year: '📅 سنة الميلاد...', search_tooth: '🦷 رقم/مكان السن...',
     all_genders: 'جميع الأجناس', male: 'ذكر', female: 'أنثى', all_treat: 'جميع العلاجات', today: 'اليوم', yesterday: 'أمس', this_week: 'هذا الأسبوع', from_l: 'من', to_l: 'إلى', clear_day: 'مسح ✖', tr_ext: 'قلع', tr_endo: 'علاج عصب', tr_cons: 'استشارة', tr_pros: 'تركيب', tr_white: 'تبييض', tr_other: 'أخرى',
     match_results: 'النتائج المطابقة:', load_more: 'عرض المزيد', waiting_rem: '👥 المرضى المتبقون في الانتظار:', today_patients: 'قائمة مرضى اليوم',
-    settings_title: 'إعدادات التطبيق ⚙️', set_manage: 'إدارة العيادة', hist_title: '📋 سجل المريض', hist_first: 'أول زيارة', hist_last: 'آخر زيارة', hist_visits: 'عدد الزيارات', hist_none: 'لا توجد زيارات منتهية مسجّلة لهذا المريض بعد.', hist_cur: 'الزيارة الحالية', hist_wait_st: 'ينتظر', hist_in_st: 'في المعاينة', hist_load_fail: 'تعذّر تحميل السجل', hist_visit_n: 'زيارة {n}', set_appearance: 'المظهر والألوان', dark_mode: 'الوضع الداكن', theme_color: 'لون العيادة', set_lang: 'اللغة', app_lang: 'لغة التطبيق',
+    settings_title: 'إعدادات التطبيق ⚙️', set_manage: 'إدارة العيادة', teeth_map: '🦷 مخطط أسنان المريض', teeth_map_ext: 'مقلوع', teeth_map_trt: 'تمّ علاجه', teeth_map_none: 'لا توجد أسنان مسجّلة بعد', hist_title: '📋 سجل المريض', hist_first: 'أول زيارة', hist_last: 'آخر زيارة', hist_visits: 'عدد الزيارات', hist_none: 'لا توجد زيارات منتهية مسجّلة لهذا المريض بعد.', hist_cur: 'الزيارة الحالية', hist_wait_st: 'ينتظر', hist_in_st: 'في المعاينة', hist_load_fail: 'تعذّر تحميل السجل', hist_visit_n: 'زيارة {n}', set_appearance: 'المظهر والألوان', dark_mode: 'الوضع الداكن', theme_color: 'لون العيادة', set_lang: 'اللغة', app_lang: 'لغة التطبيق',
     set_sound: 'التنبيهات', sound_alerts: 'التنبيهات الصوتية', auto_qr: 'إظهار QR بعد تسجيل المريض', sys_notif: 'إشعارات النظام', sys_notif_sub: 'تصلك التنبيهات حتى لو كان التطبيق مغلقاً أو الشاشة مقفلة', enable: 'تفعيل',
     install_app: 'تثبيت التطبيق', install_sub: 'يُفتح كتطبيق مستقل على الجوال أو الحاسوب', install: 'تثبيت', set_clinic: 'بيانات العيادة', chg_pass: 'تغيير كلمة المرور',
     old_pass: 'كلمة المرور الحالية', new_pass: 'كلمة المرور الجديدة (8 أحرف فأكثر)', change: 'تغيير', chg_pass_hint: 'ستُغلق جلسات باقي الأجهزة.', set_backup: 'النسخ الاحتياطي', set_schedule: 'تسجيل الممرضة للمرضى', sched_enable: 'تقييد وقت التسجيل', sched_enable_sub: 'عند الإيقاف تسجّل الممرضة في أي وقت', sched_days: 'الأيام المسموحة:', sched_from: 'من الساعة:', sched_to: 'إلى الساعة:', sched_hint: 'خارج هذه الأيام والأوقات لا تستطيع الممرضة تسجيل مرضى جدد، أما أنت فتسجّل في أي وقت.', days_full: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'], reg_closed: '⏰ التسجيل مغلق حالياً. أوقات التسجيل: {d} من {a} إلى {b}', e_registration_closed: 'التسجيل مغلق خارج الأوقات التي حدّدها الطبيب', t_sched_saved: 'تم حفظ أوقات التسجيل',
@@ -65,7 +65,7 @@ const L = {
     archive_title: 'Medical records archive 📁', search_name: '🔍 Search by name...', search_year: '📅 Birth year...', search_tooth: '🦷 Tooth / location...',
     all_genders: 'All genders', male: 'Male', female: 'Female', all_treat: 'All treatments', today: 'Today', yesterday: 'Yesterday', this_week: 'This week', from_l: 'From', to_l: 'To', clear_day: 'Clear ✖', tr_ext: 'Extraction', tr_endo: 'Root canal', tr_cons: 'Consultation', tr_pros: 'Prosthetics', tr_white: 'Whitening', tr_other: 'Other',
     match_results: 'Matching records:', load_more: 'Load more', waiting_rem: '👥 Patients waiting:', today_patients: "Today's patients",
-    settings_title: 'App settings ⚙️', set_manage: 'Clinic management', hist_title: '📋 Patient record', hist_first: 'First visit', hist_last: 'Last visit', hist_visits: 'Visits', hist_none: 'No completed visits recorded for this patient yet.', hist_cur: 'Current visit', hist_wait_st: 'Waiting', hist_in_st: 'In consultation', hist_load_fail: 'Could not load the record', hist_visit_n: 'Visit {n}', set_appearance: 'Appearance', dark_mode: 'Dark mode', theme_color: 'Theme color', set_lang: 'Language', app_lang: 'Interface language',
+    settings_title: 'App settings ⚙️', set_manage: 'Clinic management', teeth_map: '🦷 Patient dental chart', teeth_map_ext: 'Extracted', teeth_map_trt: 'Treated', teeth_map_none: 'No teeth recorded yet', hist_title: '📋 Patient record', hist_first: 'First visit', hist_last: 'Last visit', hist_visits: 'Visits', hist_none: 'No completed visits recorded for this patient yet.', hist_cur: 'Current visit', hist_wait_st: 'Waiting', hist_in_st: 'In consultation', hist_load_fail: 'Could not load the record', hist_visit_n: 'Visit {n}', set_appearance: 'Appearance', dark_mode: 'Dark mode', theme_color: 'Theme color', set_lang: 'Language', app_lang: 'Interface language',
     set_sound: 'Notifications', sound_alerts: 'Sound alerts', auto_qr: 'Show QR after registering a patient', sys_notif: 'System notifications', sys_notif_sub: 'Alerts reach you even when the app is closed or the screen is locked', enable: 'Enable',
     install_app: 'Install app', install_sub: 'Opens as a standalone app on phone or computer', install: 'Install', set_clinic: 'Clinic info', chg_pass: 'Change password',
     old_pass: 'Current password', new_pass: 'New password (8+ chars)', change: 'Change', chg_pass_hint: 'Other devices will be signed out.', set_backup: 'Backup', set_schedule: 'Nurse patient registration', sched_enable: 'Restrict registration times', sched_enable_sub: 'When off, nurses can register at any time', sched_days: 'Allowed days:', sched_from: 'From:', sched_to: 'To:', sched_hint: 'Outside these days and times nurses cannot register new patients. You can always register.', days_full: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], reg_closed: '⏰ Registration is closed right now. Hours: {d}, {a} to {b}', e_registration_closed: 'Registration is closed outside the hours set by the doctor', t_sched_saved: 'Registration hours saved',
@@ -642,6 +642,29 @@ const dShort = v => v ? new Date(v).toLocaleDateString(locale(), { dateStyle: 'm
 const payWhere = (p, recId) => p.vid && p.vid === recId ? t('pay_same') : p.vn ? t('pay_in_visit', { n: p.vn, d: dShort(p.vat) }) : t('pay_later');
 const payLbl = p => p.m === 'w' ? t('pay_cut_wal') : t('pay_cash');
 const payChips = (ps, recId) => `<div class="pay-chips">${ps.map(p => `<span class="pay-chip${p.m === 'w' ? ' w' : ''}"><b class="${p.m === 'w' ? 'wal-tag' : 'cash-tag'}">${payLbl(p)}</b>: <b>${money(p.amt)}</b> · ${dShort(p.t)} ${tShort(p.t)} · ${payWhere(p, recId)}</span>`).join('')}</div>`;
+
+/* مخطط أسنان المريض في سجله: الأحمر = مقلوع، الأخضر = معالَج (من الحصص المسجّلة؛ الأحدث يحسم، والمقلوع نهائي) */
+const NEUTRAL_TR = /استشارة|تبييض|أخرى|consult|whiten|other/i, EXT_TR = /قلع|extract/i;
+function teethStatus(records) {
+  const st = new Map();
+  records.forEach(x => {
+    const tl = x.treatments || String(x.treatment || '').split(' + '), teeth = (x.teeth || []).filter(n => ALL_TEETH.has(String(n)));
+    if (!teeth.length) return;
+    const ext = tl.some(n => EXT_TR.test(n)), trt = tl.some(n => !EXT_TR.test(n) && !NEUTRAL_TR.test(n));
+    if (!ext && !trt) return;
+    const kind = ext ? 'ext' : 'trt', label = tl.join(' + ') + ' · ' + new Date(x.finishedAt).toLocaleDateString(locale(), { dateStyle: 'medium' });
+    teeth.forEach(n => { const o = st.get(String(n)); if (o && o.kind === 'ext') return; st.set(String(n), { kind, label }); });
+  });
+  return st;
+}
+function teethMapHTML(records) {
+  const st = teethStatus(records), has = set => set.up.concat(set.lo).some(n => st.has(String(n)));
+  if (!st.size) return '';
+  const btn = n => { const o = st.get(String(n)); return `<span class="tooth-btn ro${n % 10 >= 6 && n < 50 ? ' molar' : ''}${o ? ' ' + o.kind : ''}"${o ? ` title="${esc(o.label)}"` : ''}>${n}</span>`; };
+  const half = arr => `<div class="arch-half">${arr.slice(0, arr.length / 2).map(btn).join('')}</div><div class="arch-half">${arr.slice(arr.length / 2).map(btn).join('')}</div>`;
+  const chart = set => `<div class="teeth-chart"><div class="arch">${half(set.up)}</div><div class="arch-sep"></div><div class="arch">${half(set.lo)}</div></div>`;
+  return `<div class="hist-teeth"><div class="ht-head"><b>${t('teeth_map')}</b><span class="ht-leg"><i class="ext"></i>${t('teeth_map_ext')}<i class="trt"></i>${t('teeth_map_trt')}</span></div>${chart(TEETH.adult)}${has(TEETH.child) ? chart(TEETH.child) : ''}</div>`;
+}
 /* سجل المريض الكامل: من أول زيارة إلى آخرها */
 async function showHistory(name, year) {
   const body = $('#historyBody'); body.innerHTML = `<div class="hint" style="text-align:center;padding:20px">…</div>`; openModal('historyModal');
@@ -678,6 +701,7 @@ async function showHistory(name, year) {
       <div class="hist-stats"><div>${t('hist_visits')}<b>${r.visits}</b></div><div>${t('hist_first')}<b>${dd(r.firstVisit)}</b></div><div>${t('hist_last')}<b>${dd(r.lastVisit)}</b></div>
       ${r.due ? `<div>${t('total_due')}<b>${money(r.due)}</b></div><div>${t('total_paid')}<b>${money(r.paid)}</b></div>` : ''}${r.balance ? `<div>${t('total_debt')}<b style="color:var(--danger-soft,#e8607a)">${money(r.balance)}</b></div>` : ''}</div></div>
     ${walBox}
+    ${teethMapHTML(r.records)}
     <div class="hist-tl">${cur}${items || (cur ? '' : `<div class="hint">${t('hist_none')}</div>`)}</div>`;
   hydrate(body);
 }
