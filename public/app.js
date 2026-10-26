@@ -28,7 +28,7 @@ const L = {
     // ديناميكية
     lbl_name: 'اسم المريض:', lbl_birth: 'سنة الازدياد:', lbl_gender: 'الجنس:', lbl_reason: 'سبب الزيارة:', lbl_tooth: 'السن (اختياري):', lbl_phone: 'رقم الهاتف (اختياري):',
     age_fmt: 'العمر: {n} سنة', age_none: 'العمر: --', years_short: 'سنة', doc_title: 'لوحة الطبيب 🔔', doc_sub: 'إشراف عام وعيادة مباشرة', nurse_title: 'شاشة الممرضة', nurse_welcome: 'الممرضة: {n}',
-    hero_doc: 'د. {n}', price_cat_base: 'عام', price_cat_front: 'أمامية', price_cat_pre: 'ضواحك', price_cat_molar: 'أضراس', price_cat_wisdom: 'ضرس العقل', prices_hint2: 'اترك «أمامية/ضواحك/أضراس/ضرس العقل» فارغة ليُطبَّق سعر «عام» مهما كان السن. وإن ملأتها يُحسب سعر كل سن بحسب نوعه ويُجمع (القواطع والأنياب = أمامية، الأضراس اللبنية = أضراس، الأسنان 18/28/38/48 = ضرس العقل، وإن تركتها فارغة يُطبَّق سعر «أضراس»).', due_l: 'المستحق', paid_now: 'المدفوع الآن', pay_all: 'سداد كل المتبقي', pay_half: 'النصف', pay_zero: 'لا شيء', acct_title: '💼 حساب المريض', acct_prev: 'متبقٍّ من زيارات سابقة:', follow_l: 'حصة متابعة لعلاج سابق (بدون سعر جديد)', after_l: 'المتبقي بعد هذه الزيارة:', over_warn: '⚠️ المدفوع أكبر من المستحق والمتبقي السابق، ولن يُحتسب الفائض.', rem_l: 'متبقٍّ', paid_l: 'مدفوع', add_pay: '💵 دفعة', pay_prompt: 'مبلغ الدفعة (المتبقي: {r}):', t_paid: 'تم تسجيل الدفعة ✅', pays_l: 'الدفعات:', total_due: 'المستحق:', total_paid: 'المحصَّل:', total_debt: 'المتبقي:',  set_prices: '💰 قائمة الأسعار', prices_hint: 'سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.', currency_l: 'العملة (اختياري):', price_l: 'السعر', price_total: 'الإجمالي:', t_prices_saved: 'تم حفظ الأسعار ✅', teeth_title: '🦷 مخطط الأسنان (اختر السن المعالج)', teeth_perm: 'أسنان دائمة (بالغ)', teeth_prim: 'أسنان لبنية (طفل)', teeth_sel: 'المحدد:', teeth_none: 'لم يُحدَّد سن', teeth_clear: 'مسح', teeth_ur: 'علوي أيمن', teeth_ul: 'علوي أيسر', teeth_lr: 'سفلي أيمن', teeth_ll: 'سفلي أيسر', doc_sub2: '{c} — {n}', in_room: 'في المعاينة 🩺', enter: 'دخول', edit: 'تعديل', del: 'حذف', call: 'استدعاء 🩺', qr: 'QR', doctor_word: 'طبيب', ticket_no: 'تذكرة',
+    hero_doc: 'د. {n}', price_cat_base: 'عام', price_cat_front: 'أمامية', price_cat_pre: 'ضواحك', price_cat_molar: 'أضراس', price_cat_wisdom: 'ضرس العقل', prices_hint2: 'اترك «أمامية/ضواحك/أضراس/ضرس العقل» فارغة ليُطبَّق سعر «عام» مهما كان السن. وإن ملأتها يُحسب سعر كل سن بحسب نوعه ويُجمع (القواطع والأنياب = أمامية، الأضراس اللبنية = أضراس، الأسنان 18/28/38/48 = ضرس العقل، وإن تركتها فارغة يُطبَّق سعر «أضراس»).', due_l: 'المستحق', paid_now: 'المدفوع الآن', pay_all: 'سداد كل المتبقي', pay_half: 'النصف', pay_zero: 'لا شيء', acct_title: '💼 حساب المريض', acct_prev: 'متبقٍّ من زيارات سابقة:', follow_l: 'حصة متابعة لعلاج سابق (بدون سعر جديد)', after_l: 'المتبقي بعد هذه الزيارة:', over_warn: '⚠️ المدفوع أكبر من المستحق والمتبقي السابق، ولن يُحتسب الفائض.', rem_l: 'متبقٍّ', paid_l: 'مدفوع', add_pay: 'إضافة دفعة', pay_prompt: 'مبلغ الدفعة (المتبقي: {r}):\nأي زيادة تسدّد ديوناً أخرى للمريض ثم تُودَع في وعائه.', t_paid: 'تم تسجيل الدفعة ✅', pays_l: 'الدفعات:', total_due: 'المستحق:', total_paid: 'المحصَّل:', total_debt: 'المتبقي:',  set_prices: '💰 قائمة الأسعار', prices_hint: 'سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.', currency_l: 'العملة (اختياري):', price_l: 'السعر', price_total: 'الإجمالي:', t_prices_saved: 'تم حفظ الأسعار ✅', teeth_title: '🦷 مخطط الأسنان (اختر السن المعالج)', teeth_perm: 'أسنان دائمة (بالغ)', teeth_prim: 'أسنان لبنية (طفل)', teeth_sel: 'المحدد:', teeth_none: 'لم يُحدَّد سن', teeth_clear: 'مسح', teeth_ur: 'علوي أيمن', teeth_ul: 'علوي أيسر', teeth_lr: 'سفلي أيمن', teeth_ll: 'سفلي أيسر', doc_sub2: '{c} — {n}', in_room: 'في المعاينة 🩺', enter: 'دخول', edit: 'تعديل', del: 'حذف', call: 'استدعاء 🩺', qr: 'QR', doctor_word: 'طبيب', ticket_no: 'تذكرة',
     sex: 'الجنس', birth: 'سنة الميلاد', tooth: 'السن', empty_today: 'لا توجد سجلات اليوم', empty_wait: 'قاعة الانتظار فارغة', empty_room: 'لا يوجد مريض حالياً في غرفة الكشف.',
     consult_patient: '👤 المريض:', reason_l: '📌 السبب:', tooth_l: '🦷 رقم/مكان السن:', gender_l: '👤 الجنس:', birth_l: '📅 الميلاد:', phone_l: '📞 الهاتف:', wait_l: '⏳ وقت الانتظار:', not_set: 'غير مسجل',
     xrays: '📷 صور الكشف / الأشعة المرفقة:', no_images: 'لم يتم إرفاق صور بعد.', cam_live: '📷 الكاميرا المباشرة', upload_gal: '📁 رفع من الاستوديو', pick_treat: 'اختر العلاجات المنجزة للمريض:', pick_treat_multi: 'يمكنك تحديد أكثر من علاج، ويُجمع سعرها تلقائياً.', pick_treat_min: 'يجب أن يبقى علاج واحد على الأقل',
@@ -45,7 +45,7 @@ const L = {
     cam_not_ready: 'الكاميرا غير جاهزة بعد', pass_mismatch: 'كلمتا المرور غير متطابقتين', bad_year: 'تحقق من اسم المريض وسنة الازدياد (1900 – {y})', notif_on: 'تم تفعيل الإشعارات', notif_denied: 'الإشعارات محظورة من إعدادات المتصفح', push_on: '✅ مفعّلة على هذا الجهاز', push_off: '⚠️ غير مفعّلة — اضغط «تفعيل» لتصلك التنبيهات والتطبيق مغلق', push_blocked: '⛔ محظورة — فعّلها من إعدادات الموقع في المتصفح/النظام', push_ios: 'ℹ️ على آيفون: أضف التطبيق إلى الشاشة الرئيسية (مشاركة ← إضافة إلى الشاشة الرئيسية) ثم افتحه وفعّل التنبيهات', push_unsupported: 'ℹ️ هذا المتصفح لا يدعم إشعارات النظام', push_fail: 'تعذّر تفعيل الإشعارات، حاول مجدداً', install_done: '✅ التطبيق مثبّت ويعمل كتطبيق مستقل', install_ready: 'اضغط «تثبيت» ليُضاف إلى شاشتك الرئيسية ويفتح كتطبيق مستقل', install_ios: 'على آيفون/آيباد: اضغط زر المشاركة في سفاري ثم «إضافة إلى الشاشة الرئيسية»', install_manual: 'من قائمة المتصفح ⋮ اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». (يتطلب اتصال HTTPS)', tr_add: '＋ إضافة علاج', tr_name_ph: 'اسم العلاج', tr_hint: 'أضف علاجاتك أو عدّل أسماءها وأسعارها أو احذفها. تظهر هذه القائمة في واجهة المعاينة. السجلات القديمة في الأرشيف لا تتغيّر.', tr_last: 'يجب أن يبقى علاج واحد على الأقل', e_duplicate: 'اسم علاج مكرر', tr_empty_name: 'اكتب اسماً لكل علاج', tr_up: 'أعلى', tr_down: 'أسفل', tr_del: 'حذف',
     qr_title: 'تذكرة {n} — {name}', slip_title: 'تابع دورك من هاتفك', slip_sub: 'امسح الرمز لمعرفة عدد المنتظرين قبلك. لا تظهر لك بيانات أي مريض آخر.',
     e_bad_credentials: 'بيانات الدخول غير صحيحة', e_rate_limited: 'محاولات كثيرة، أعد المحاولة بعد قليل', e_exists: 'الاسم مستخدم مسبقاً', e_invalid_input: 'تحقق من البيانات المدخلة', e_forbidden: 'غير مسموح لك بهذا الإجراء',
-    e_unauthorized: 'انتهت الجلسة، سجّل الدخول من جديد', e_reg_closed: 'التسجيل مغلق على هذا الخادم', e_bad_code: 'رمز التسجيل غير صحيح', e_busy: 'الطبيب مشغول حالياً بمعاينة مريض آخر.', e_not_found: 'العنصر غير موجود (ربما حُذف)',
+    e_unauthorized: 'انتهت الجلسة، سجّل الدخول من جديد', e_reg_closed: 'التسجيل مغلق على هذا الخادم', e_pending: 'حسابك بانتظار موافقة مالك التطبيق. سيُفعَّل بعد القبول.', e_suspended: 'هذا الحساب موقوف. تواصل مع مالك التطبيق.', e_too_many_pending: 'عدد طلبات التسجيل المعلّقة كبير، حاول لاحقاً', reg_pending: 'تم استلام طلبك ✅ حسابك بانتظار موافقة مالك التطبيق، ثم تستطيع الدخول.', e_bad_code: 'رمز التسجيل غير صحيح', e_busy: 'الطبيب مشغول حالياً بمعاينة مريض آخر.', e_not_found: 'العنصر غير موجود (ربما حُذف)',
     e_not_waiting: 'حالة المريض تغيّرت', e_limit: 'تم بلوغ الحد الأقصى', e_too_large: 'الملف كبير جداً', e_network: 'تعذّر الاتصال بالخادم', e_server_error: 'خطأ في الخادم'
   },
   en: {
@@ -72,7 +72,7 @@ const L = {
     export_data: 'Export backup 📥', import_data: 'Restore 📤', backup_hint: 'Includes patients, archive and images (not passwords).', wipe_data: 'Delete all patient data…', delete_account: 'Delete account permanently…',
     lbl_name: 'Patient name:', lbl_birth: 'Birth year:', lbl_gender: 'Gender:', lbl_reason: 'Reason for visit:', lbl_tooth: 'Tooth (optional):', lbl_phone: 'Phone (optional):',
     age_fmt: 'Age: {n}', age_none: 'Age: --', years_short: 'y', doc_title: 'Doctor panel 🔔', doc_sub: 'Supervision & direct clinic', nurse_title: 'Nurse screen', nurse_welcome: 'Nurse: {n}',
-    hero_doc: 'Dr. {n}', price_cat_base: 'General', price_cat_front: 'Front', price_cat_pre: 'Premolar', price_cat_molar: 'Molar', price_cat_wisdom: 'Wisdom', prices_hint2: 'Leave Front/Premolar/Molar/Wisdom empty to use the General price for any tooth. If filled, each tooth is priced by its type and summed (incisors & canines = Front, primary molars = Molar, teeth 18/28/38/48 = Wisdom; if Wisdom is empty the Molar price applies).', due_l: 'Amount due', paid_now: 'Paid now', pay_all: 'Pay all outstanding', pay_half: 'Half', pay_zero: 'None', acct_title: '💼 Patient account', acct_prev: 'Outstanding from earlier visits:', follow_l: 'Follow-up session of an earlier treatment (no new charge)', after_l: 'Outstanding after this visit:', over_warn: '⚠️ Paid exceeds what is due plus earlier balance; the excess is ignored.', rem_l: 'Outstanding', paid_l: 'Paid', add_pay: '💵 Payment', pay_prompt: 'Payment amount (outstanding: {r}):', t_paid: 'Payment recorded ✅', pays_l: 'Payments:', total_due: 'Due:', total_paid: 'Collected:', total_debt: 'Outstanding:',  set_prices: '💰 Price list', prices_hint: 'Price of each treatment. It appears in the consultation and can be changed per patient.', currency_l: 'Currency (optional):', price_l: 'Price', price_total: 'Total:', t_prices_saved: 'Prices saved ✅', teeth_title: '🦷 Tooth chart (select treated tooth)', teeth_perm: 'Permanent (adult)', teeth_prim: 'Primary (child)', teeth_sel: 'Selected:', teeth_none: 'No tooth selected', teeth_clear: 'Clear', teeth_ur: 'Upper right', teeth_ul: 'Upper left', teeth_lr: 'Lower right', teeth_ll: 'Lower left', doc_sub2: '{c} — {n}', in_room: 'In consultation 🩺', enter: 'Enter', edit: 'Edit', del: 'Delete', call: 'Call in 🩺', qr: 'QR', doctor_word: 'Doctor', ticket_no: 'Ticket',
+    hero_doc: 'Dr. {n}', price_cat_base: 'General', price_cat_front: 'Front', price_cat_pre: 'Premolar', price_cat_molar: 'Molar', price_cat_wisdom: 'Wisdom', prices_hint2: 'Leave Front/Premolar/Molar/Wisdom empty to use the General price for any tooth. If filled, each tooth is priced by its type and summed (incisors & canines = Front, primary molars = Molar, teeth 18/28/38/48 = Wisdom; if Wisdom is empty the Molar price applies).', due_l: 'Amount due', paid_now: 'Paid now', pay_all: 'Pay all outstanding', pay_half: 'Half', pay_zero: 'None', acct_title: '💼 Patient account', acct_prev: 'Outstanding from earlier visits:', follow_l: 'Follow-up session of an earlier treatment (no new charge)', after_l: 'Outstanding after this visit:', over_warn: '⚠️ Paid exceeds what is due plus earlier balance; the excess is ignored.', rem_l: 'Outstanding', paid_l: 'Paid', add_pay: 'Add payment', pay_prompt: 'Payment amount (outstanding: {r}):\nAny excess pays the patient\'s other debts, then goes to the wallet.', t_paid: 'Payment recorded ✅', pays_l: 'Payments:', total_due: 'Due:', total_paid: 'Collected:', total_debt: 'Outstanding:',  set_prices: '💰 Price list', prices_hint: 'Price of each treatment. It appears in the consultation and can be changed per patient.', currency_l: 'Currency (optional):', price_l: 'Price', price_total: 'Total:', t_prices_saved: 'Prices saved ✅', teeth_title: '🦷 Tooth chart (select treated tooth)', teeth_perm: 'Permanent (adult)', teeth_prim: 'Primary (child)', teeth_sel: 'Selected:', teeth_none: 'No tooth selected', teeth_clear: 'Clear', teeth_ur: 'Upper right', teeth_ul: 'Upper left', teeth_lr: 'Lower right', teeth_ll: 'Lower left', doc_sub2: '{c} — {n}', in_room: 'In consultation 🩺', enter: 'Enter', edit: 'Edit', del: 'Delete', call: 'Call in 🩺', qr: 'QR', doctor_word: 'Doctor', ticket_no: 'Ticket',
     sex: 'Gender', birth: 'Birth year', tooth: 'Tooth', empty_today: 'No records today', empty_wait: 'Waiting room is empty', empty_room: 'No patient in the consultation room.',
     consult_patient: '👤 Patient:', reason_l: '📌 Reason:', tooth_l: '🦷 Tooth:', gender_l: '👤 Gender:', birth_l: '📅 Born:', phone_l: '📞 Phone:', wait_l: '⏳ Waited:', not_set: 'Not set',
     xrays: '📷 Attached photos / X-rays:', no_images: 'No images attached yet.', cam_live: '📷 Live camera', upload_gal: '📁 Upload from gallery', pick_treat: 'Select the treatments performed:', pick_treat_multi: 'You can select more than one treatment; prices are added up automatically.', pick_treat_min: 'At least one treatment must stay selected',
@@ -88,7 +88,7 @@ const L = {
     cam_not_ready: 'Camera not ready yet', pass_mismatch: 'Passwords do not match', bad_year: 'Check patient name and birth year (1900 – {y})', notif_on: 'Notifications enabled', notif_denied: 'Notifications are blocked in browser settings', push_on: '✅ Enabled on this device', push_off: '⚠️ Not enabled — tap “Enable” to receive alerts while the app is closed', push_blocked: '⛔ Blocked — allow notifications in the site/system settings', push_ios: 'ℹ️ On iPhone: add the app to the Home Screen (Share → Add to Home Screen), open it, then enable alerts', push_unsupported: 'ℹ️ This browser does not support system notifications', push_fail: 'Could not enable notifications, please retry', install_done: '✅ The app is installed and runs standalone', install_ready: 'Tap “Install” to add it to your home screen and open it as a standalone app', install_ios: 'On iPhone/iPad: tap Share in Safari, then “Add to Home Screen”', install_manual: 'From the browser menu ⋮ choose “Install app” or “Add to Home screen”. (Requires HTTPS)', tr_add: '＋ Add treatment', tr_name_ph: 'Treatment name', tr_hint: 'Add your treatments, or edit their names and prices, or delete them. This list appears in the consultation screen. Existing archive records are not changed.', tr_last: 'At least one treatment must remain', e_duplicate: 'Duplicate treatment name', tr_empty_name: 'Enter a name for every treatment', tr_up: 'Up', tr_down: 'Down', tr_del: 'Delete',
     qr_title: 'Ticket {n} — {name}', slip_title: 'Follow your turn on your phone', slip_sub: "Scan the code to see how many people are ahead of you. You can't see any other patient's data.",
     e_bad_credentials: 'Incorrect login details', e_rate_limited: 'Too many attempts, try again shortly', e_exists: 'Name already in use', e_invalid_input: 'Please check the entered data', e_forbidden: 'You are not allowed to do this',
-    e_unauthorized: 'Session expired, please sign in again', e_reg_closed: 'Registration is closed on this server', e_bad_code: 'Wrong registration code', e_busy: 'The doctor is busy with another patient.', e_not_found: 'Item not found (maybe deleted)',
+    e_unauthorized: 'Session expired, please sign in again', e_reg_closed: 'Registration is closed on this server', e_pending: 'Your account is waiting for the app owner\'s approval.', e_suspended: 'This account is suspended. Contact the app owner.', e_too_many_pending: 'Too many pending requests, try later', reg_pending: 'Request received ✅ Your account is waiting for the app owner\'s approval, then you can sign in.', e_bad_code: 'Wrong registration code', e_busy: 'The doctor is busy with another patient.', e_not_found: 'Item not found (maybe deleted)',
     e_not_waiting: 'Patient status changed', e_limit: 'Limit reached', e_too_large: 'File too large', e_network: 'Cannot reach the server', e_server_error: 'Server error'
   }
 };
@@ -116,10 +116,10 @@ Object.assign(L.ar, { ae_title: 'تصحيح سجل الأرشيف ✏️', ae_na
 Object.assign(L.en, { ae_title: 'Correct archive record ✏️', ae_name: 'Name', ae_year: 'Birth year', ae_phone: 'Phone', ae_treats: 'Treatments (separate with +)', ae_price: 'Price', ae_paid: 'Paid', ae_follow: 'Follow-up visit', ae_hint: 'Changing "Paid" replaces the payment history with one payment of the new amount. Images and prescription are unchanged.' });
 Object.assign(L.ar, { dlg_ok: 'موافق', lock_ask: '🔒 هذا القسم محميّ. أدخل كلمة مرور الطبيب:', e_locked: 'محميّ بكلمة المرور', prot_title: '🔒 حماية الأرشيف والتعديلات', prot_on: 'الحماية مفعّلة — اضغط للإيقاف', prot_off: 'الحماية معطّلة — اضغط للتفعيل', prot_pw_on: 'أدخل كلمة مرور الطبيب لتفعيل الحماية:', prot_pw_off: 'أدخل كلمة مرور الطبيب لإيقاف الحماية:', prot_hint: 'عند التفعيل يطلب البرنامج كلمة مرور الطبيب لفتح الأرشيف أو سجل المريض أو تعديل السجلات وحذفها وتسجيل الدفعات وتصدير النسخ الاحتياطية. يبقى الفتح صالحاً 10 دقائق من آخر استعمال.' });
 Object.assign(L.en, { dlg_ok: 'OK', lock_ask: '🔒 This section is protected. Enter the doctor password:', e_locked: 'Password protected', prot_title: '🔒 Archive & edits protection', prot_on: 'Protection is ON — tap to turn off', prot_off: 'Protection is OFF — tap to turn on', prot_pw_on: 'Enter the doctor password to turn protection on:', prot_pw_off: 'Enter the doctor password to turn protection off:', prot_hint: 'When on, the app asks for the doctor password to open the archive or a patient history, edit or delete records, add payments or export backups. Unlock stays valid 10 minutes after last use.' });
-Object.assign(L.ar, { pay_ledger: '💵 سجل الدفعات', pay_for: 'عن الحصة', pay_same: 'في نفس الحصة', pay_in_visit: 'في الحصة {n} ({d})', pay_later: 'لاحقاً من الأرشيف', pay_cash: 'دفعة نقدية', pay_wallet: 'من الوعاء', pay_dep: 'إيداع في الوعاء', pay_out: 'استرجاع نقدي من الوعاء', pay_dep_in: 'أثناء الحصة {n} ({d})', pay_dep_manual: 'إيداع مباشر',
-  wal_title: 'وعاء المريض', wal_bal: 'الرصيد:', wal_use: 'اقتطاع من الوعاء', wal_dep: '➕ إيداع', wal_out: '↩ استرجاع', wal_dep_q: 'مبلغ الإيداع في وعاء المريض:', wal_out_q: 'المبلغ المسترجع نقداً للمريض:', wal_saved: 'تم تحديث الوعاء ✅', wal_excess: 'الفائض {x} يُودَع في وعاء المريض', wal_after: 'رصيد الوعاء بعد الحصة:', pay_from_wal_q: 'سداد الدفعة من وعاء المريض (الرصيد {w})؟\nموافق = من الوعاء · إلغاء = نقداً', e_wallet_empty: 'لا يوجد رصيد في الوعاء', e_wallet_short: 'المبلغ أكبر من رصيد الوعاء', hist_wallet: 'الوعاء' });
-Object.assign(L.en, { pay_ledger: '💵 Payments ledger', pay_for: 'for session', pay_same: 'same session', pay_in_visit: 'in session {n} ({d})', pay_later: 'later, from archive', pay_cash: 'Cash payment', pay_wallet: 'From wallet', pay_dep: 'Wallet deposit', pay_out: 'Cash refund from wallet', pay_dep_in: 'during session {n} ({d})', pay_dep_manual: 'direct deposit',
-  wal_title: 'Patient wallet', wal_bal: 'Balance:', wal_use: 'Deduct from wallet', wal_dep: '➕ Deposit', wal_out: '↩ Refund', wal_dep_q: 'Amount to deposit in the patient wallet:', wal_out_q: 'Amount refunded in cash to the patient:', wal_saved: 'Wallet updated ✅', wal_excess: 'The excess {x} goes to the patient wallet', wal_after: 'Wallet balance after this session:', pay_from_wal_q: 'Pay from the patient wallet (balance {w})?\nOK = wallet · Cancel = cash', e_wallet_empty: 'The wallet is empty', e_wallet_short: 'Amount exceeds the wallet balance', hist_wallet: 'Wallet' });
+Object.assign(L.ar, { debt_note: 'تنبيه: على هذا المريض متبقٍّ غير مدفوع قدره {x}', pay_recv: 'سدّد دَين الحصة {n} ({tr})', wal_chk: 'الدفع من الوعاء', rc_price: 'سعر هذه الحصة', rc_wallet: 'من الوعاء', rc_cash: 'نقداً', rc_left: 'المتبقي من هذه الحصة', rc_to_debt: 'الزيادة تسدّد دَيناً سابقاً', rc_to_wal: 'الزيادة تُودَع في الوعاء', rc_all_debt: 'مجموع ديون المريض بعد الحصة', pay_src_q: 'سداد {a} — من أين؟', pay_ledger: '💵 سجل الدفعات', pay_for: 'عن الحصة', pay_same: 'في نفس الحصة', pay_in_visit: 'في الحصة {n} ({d})', pay_later: 'لاحقاً من الأرشيف', pay_cash: 'دفعة نقدية', pay_wallet: 'من الوعاء', pay_cut_wal: 'اقتُطع من الوعاء', snd_test: 'تجربة النغمات', snd_names: ['مريض جديد', 'دخول المعاينة', 'انتهاء المعاينة', 'مهمة جديدة', 'إنجاز مهمة', 'طلب تخطي', 'رفض الطلب', 'حان دور المريض'], paid_full: 'مدفوع بالكامل', follow_b: 'حصة متابعة', wal_bal_b: 'رصيد الوعاء', treat_l: 'العلاج:', pay_dep: 'إيداع في الوعاء', pay_out: 'استرجاع نقدي من الوعاء', pay_dep_in: 'أثناء الحصة {n} ({d})', pay_dep_manual: 'إيداع مباشر',
+  wal_title: 'وعاء المريض', wal_bal: 'الرصيد:', wal_use: 'اقتطاع من الوعاء', wal_dep: 'إيداع في الوعاء', wal_out: 'استرجاع نقدي', wal_dep_q: 'مبلغ الإيداع في وعاء المريض:', wal_out_q: 'المبلغ المسترجع نقداً للمريض:', wal_saved: 'تم تحديث الوعاء ✅', wal_excess: 'الفائض {x} يُودَع في وعاء المريض', wal_after: 'رصيد الوعاء بعد الحصة:', pay_from_wal_q: 'سداد الدفعة من وعاء المريض (الرصيد {w})؟\nموافق = من الوعاء · إلغاء = نقداً', e_wallet_empty: 'لا يوجد رصيد في الوعاء', e_wallet_short: 'المبلغ أكبر من رصيد الوعاء', hist_wallet: 'الوعاء' });
+Object.assign(L.en, { debt_note: 'Note: this patient has an unpaid balance of {x}', pay_recv: 'paid the debt of session {n} ({tr})', wal_chk: 'Pay from wallet', rc_price: 'This session price', rc_wallet: 'From wallet', rc_cash: 'Cash', rc_left: 'Left for this session', rc_to_debt: 'Excess pays an earlier debt', rc_to_wal: 'Excess goes to wallet', rc_all_debt: 'Total patient debt after', pay_src_q: 'Pay {a} — from where?', pay_ledger: '💵 Payments ledger', pay_for: 'for session', pay_same: 'same session', pay_in_visit: 'in session {n} ({d})', pay_later: 'later, from archive', pay_cash: 'Cash payment', pay_wallet: 'From wallet', pay_cut_wal: 'Deducted from wallet', snd_test: 'Preview sounds', snd_names: ['New patient', 'Patient entered', 'Consultation finished', 'New task', 'Task done', 'Skip request', 'Request denied', 'Patient turn'], paid_full: 'Fully paid', follow_b: 'Follow-up session', wal_bal_b: 'Wallet balance', treat_l: 'Treatment:', pay_dep: 'Wallet deposit', pay_out: 'Cash refund from wallet', pay_dep_in: 'during session {n} ({d})', pay_dep_manual: 'direct deposit',
+  wal_title: 'Patient wallet', wal_bal: 'Balance:', wal_use: 'Deduct from wallet', wal_dep: 'Deposit to wallet', wal_out: 'Cash refund', wal_dep_q: 'Amount to deposit in the patient wallet:', wal_out_q: 'Amount refunded in cash to the patient:', wal_saved: 'Wallet updated ✅', wal_excess: 'The excess {x} goes to the patient wallet', wal_after: 'Wallet balance after this session:', pay_from_wal_q: 'Pay from the patient wallet (balance {w})?\nOK = wallet · Cancel = cash', e_wallet_empty: 'The wallet is empty', e_wallet_short: 'Amount exceeds the wallet balance', hist_wallet: 'Wallet' });
 const errMsg = e => t('e_' + ((e && e.code) || 'server_error')) || t('e_server_error');
 const genderL = g => (g === 'أنثى' ? t('female') : t('male'));
 const reasonL = r => { const f = REASONS.find(x => x[0] === r); return f ? (settings.lang === 'en' ? f[1] : f[0]) : r; };
@@ -131,17 +131,10 @@ function toast(msg, type = 'info') {
   el.className = 'toast toast-' + type; el.textContent = msg; c.appendChild(el); setTimeout(() => el.remove(), 3200);
 }
 let audioCtx = null;
-function unlockAudio() { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) {} }
+function unlockAudio() { try { window.UISound && UISound.unlock(); } catch (e) {} }
 document.addEventListener('click', unlockAudio, { passive: true });
-function beep(freq = 650, dur = 0.35) {
-  if (!settings.sound) return;
-  try {
-    unlockAudio(); if (!audioCtx) return;
-    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type = 'sine'; o.frequency.value = freq; g.gain.value = 0.3; o.connect(g); g.connect(audioCtx.destination);
-    o.start(); o.stop(audioCtx.currentTime + dur);
-  } catch (e) {}
-}
+/* نغمات الواجهة: انظر sounds.js (name: add | enter | finish | task | taskdone | skip | denied | turn) */
+function chime(name) { if (!settings.sound) return; try { window.UISound && UISound.play(name); } catch (e) {} }
 let alertTimer;
 function visualAlert(title, text, ok) {
   const c = $('#visual-alert-container');
@@ -165,14 +158,14 @@ const waitText = ts => fmtMin(Math.floor((Date.now() - ts) / 60000));
 
 /* ===================== API ===================== */
 /* ===== نوافذ حوار داخل البرنامج (بديل confirm/prompt الخاصة بالمتصفح) ===== */
-function appDialog({ msg, input, def, pass, num }) {
+function appDialog({ msg, input, def, pass, num, okL, noL, cancelL }) {
   return new Promise(res => {
     const m = document.createElement('div'); m.className = 'modal-overlay active'; m.style.zIndex = 30000;
-    m.innerHTML = `<div class="modal-card" style="max-width:420px" role="dialog" aria-modal="true"><div style="white-space:pre-line;line-height:1.7;font-size:15px;margin-bottom:12px">${esc(msg)}</div>${input ? `<input class="app-dlg-in" type="${pass ? 'password' : num ? 'number' : 'text'}"${num ? ` step="any" min="0" inputmode="decimal" aria-label="${esc(msg)}"` : ''} value="${esc(def == null ? '' : def)}"${pass ? ' autocomplete="current-password"' : ''} style="width:100%;box-sizing:border-box;margin-bottom:12px">` : ''}<div style="display:flex;gap:10px"><button type="button" class="btn-primary" data-d="ok">${t('dlg_ok')}</button><button type="button" class="btn-action btn-red" style="width:35%" data-d="no">${t('cancel')}</button></div></div>`;
-    const inp = m.querySelector('input'), no = input ? null : false, val = () => input ? inp.value : true;
+    m.innerHTML = `<div class="modal-card" style="max-width:420px" role="dialog" aria-modal="true"><div style="white-space:pre-line;line-height:1.7;font-size:15px;margin-bottom:12px">${esc(msg)}</div>${input ? `<input class="app-dlg-in" type="${pass ? 'password' : num ? 'number' : 'text'}"${num ? ` step="any" min="0" inputmode="decimal" aria-label="${esc(msg)}"` : ''} value="${esc(def == null ? '' : def)}"${pass ? ' autocomplete="current-password"' : ''} style="width:100%;box-sizing:border-box;margin-bottom:12px">` : ''}<div style="display:flex;gap:10px"><button type="button" class="btn-primary" data-d="ok">${esc(okL || t('dlg_ok'))}</button>${cancelL ? `<button type="button" class="btn-primary btn-green" data-d="no">${esc(noL)}</button><button type="button" class="btn-action btn-red" style="width:30%" data-d="cx">${t('cancel')}</button>` : `<button type="button" class="btn-action btn-red" style="width:35%" data-d="no">${esc(noL || t('cancel'))}</button>`}</div></div>`;
+    const inp = m.querySelector('input'), no = input || cancelL ? null : false, val = () => input ? inp.value : true;
     const done = v => { document.removeEventListener('keydown', key, true); m.remove(); res(v); };
     const key = e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(no); } else if (e.key === 'Enter' && !(e.target && e.target.tagName === 'BUTTON')) { e.preventDefault(); e.stopPropagation(); done(val()); } };
-    m.addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('[data-d]'); if (b) done(b.dataset.d === 'ok' ? val() : no); else if (e.target === m) done(no); });
+    m.addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('[data-d]'); if (b) done(b.dataset.d === 'ok' ? val() : b.dataset.d === 'no' && cancelL ? false : no); else if (e.target === m) done(no); });
     document.addEventListener('keydown', key, true); document.body.appendChild(m); const f = inp || m.querySelector('[data-d=ok]'); f.focus(); if (inp) inp.select();
   });
 }
@@ -203,9 +196,9 @@ function authMode(mode) {
   $('#formDoctor').style.display = mode === 'doctor' ? 'block' : 'none';
   $('#formNurse').style.display = mode === 'nurse' ? 'block' : 'none';
   $('#formRegister').style.display = mode === 'register' ? 'block' : 'none';
-  $('#authErr').textContent = '';
+  $('#authErr').textContent = ''; $('#authErr').classList.remove('ok');
 }
-function authError(e) { $('#authErr').textContent = errMsg(e); }
+function authError(e) { const x = $('#authErr'); x.classList.remove('ok'); x.textContent = errMsg(e); }
 async function afterLogin(r) {
   S.token = r.token; localStorage.setItem('cc_token', r.token);
   $$('input[type=password]').forEach(i => { i.value = ''; });
@@ -254,7 +247,7 @@ async function connect() {
   let tk; try { tk = (await api('POST', '/api/stream-ticket')).ticket; } catch (e) { if (e.code === 'unauthorized') return; setOnline(false); return retryConnect(); }
   const es = new EventSource('/api/stream?ticket=' + encodeURIComponent(tk)); S.es = es;
   es.onopen = () => { S.retry = 0; setOnline(true); };
-  es.addEventListener('state', ev => { applyState(JSON.parse(ev.data)); renderAll(); });
+  es.addEventListener('state', ev => { applyState(JSON.parse(ev.data)); renderSoon(); });
   es.addEventListener('notify', ev => onNotify(JSON.parse(ev.data)));
   es.onerror = () => { es.close(); if (S.es === es) S.es = null; setOnline(false); retryConnect(); };
 }
@@ -268,17 +261,19 @@ let lastOwnAdd = 0;
 function onNotify(n) {
   if (!S.me) return;
   if (S.me.role === 'doctor') {
-    if (n.type === 'add' && Date.now() - lastOwnAdd > 3000) { beep(800, 0.4); visualAlert(t('t_welcome_new'), t('t_added', { n: n.name })); sysNotify(t('app_title'), t('t_added', { n: n.name })); }
-    else if (n.type === 'task_done') { beep(900, 0.4); toast(t('task_finished') + ' ' + n.by + ': ' + n.text, 'success'); sysNotify(t('task_finished'), n.by + ': ' + n.text); }
-    else if (n.type === 'enter') { docTab('consultation'); beep(700, 0.3); visualAlert(t('t_enter'), t('t_entered', { n: n.name })); }
+    if (n.type === 'add' && Date.now() - lastOwnAdd > 3000) { chime('add'); visualAlert(t('t_welcome_new'), t('t_added', { n: n.name })); sysNotify(t('app_title'), t('t_added', { n: n.name })); }
+    else if (n.type === 'task_done') { chime('taskdone'); toast(t('task_finished') + ' ' + n.by + ': ' + n.text, 'success'); sysNotify(t('task_finished'), n.by + ': ' + n.text); }
+    else if (n.type === 'enter') { docTab('consultation'); chime('enter'); visualAlert(t('t_enter'), t('t_entered', { n: n.name })); }
   } else {
-    if (n.type === 'finish') { beep(900, 0.5); visualAlert(t('t_done'), t('t_done_msg', { n: n.name }), true); sysNotify(t('t_done'), t('t_done_msg', { n: n.name })); }
+    if (n.type === 'finish') { chime('finish'); visualAlert(t('t_done'), t('t_done_msg', { n: n.name }), true); sysNotify(t('t_done'), t('t_done_msg', { n: n.name })); }
     else if (n.type === 'task') sysNotify(t('task_new'), n.text);
-    else if (n.type === 'skip_denied') { beep(500, 0.3); toast(t('t_skip_denied', { n: n.name }), 'warning'); }
+    else if (n.type === 'skip_denied') { chime('denied'); toast(t('t_skip_denied', { n: n.name }), 'warning'); }
   }
 }
 
 /* ===================== العرض ===================== */
+let rsT = 0;
+function renderSoon() { if (rsT) return; rsT = requestAnimationFrame(() => { rsT = 0; renderAll(); }); }
 function renderAll() {
   if (!S.me) return;
   const waiting = S.patients.filter(p => p.status === 'waiting');
@@ -301,11 +296,24 @@ function renderNurseList() {
 }
 function renderDocWaiting() {
   const w = S.patients.filter(p => p.status === 'waiting'), list = $('#docWaitingList'); let r = 1;
-  list.innerHTML = w.length ? w.map(p => `<li class="patient-card" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> <span class="badge">${esc(reasonL(p.reason))}</span>
+  const html = w.length ? w.map(p => `<li class="patient-card${p.debt > 0 ? ' has-debt' : p.wallet > 0 ? ' has-wallet' : ''}" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> <span class="badge">${esc(reasonL(p.reason))}</span>${p.debt > 0 ? ` <span class="badge debt-badge">⚠️ ${t('rem_l')} ${money(p.debt)}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div></div>
     <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button><button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
     <button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('empty_wait')}</li>`;
+  if (list._h !== html) { list._h = html; list.innerHTML = html; }
+}
+/* شريط اسم المريض الثابت: يظهر فقط بعد أن يغيب صندوق المريض عن الشاشة بالتمرير */
+let consIO = null;
+function consStickInit(area) {
+  if (consIO) { consIO.disconnect(); consIO = null; }
+  const card = area.querySelector('.consultation-card'), box = area.querySelector('.patient-highlight-box'), scr = area.closest('.screen');
+  if (!card || !box || !scr || !window.IntersectionObserver) return;
+  const hero = scr.querySelector('.hero'), setH = () => { if (hero) scr.style.setProperty('--hero-h', hero.offsetHeight + 'px'); };
+  setH(); if (!scr._consRz) { scr._consRz = true; window.addEventListener('resize', setH); }
+  const h = hero ? hero.offsetHeight : 64;
+  consIO = new IntersectionObserver(([e]) => card.classList.toggle('cons-scrolled', !e.isIntersecting && e.boundingClientRect.top < h), { root: scr, rootMargin: `-${h}px 0px 0px 0px`, threshold: 0 });
+  consIO.observe(box);
 }
 function renderConsultation() {
   const area = $('#consultationArea'), a = S.patients.find(p => p.status === 'in');
@@ -318,8 +326,9 @@ function renderConsultation() {
   if (!a) { area.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);background:var(--surface-card);border-radius:16px">${t('empty_room')}</div>`; }
   else {
     const imgs = a.images.length ? a.images.map(id => `<div class="thumb-box"><img data-rec="${a.id}" data-img="${id}" data-act="lightbox" alt=""><button type="button" class="del-img" data-act="delImage" data-id="${a.id}" data-img="${id}">✕</button></div>`).join('') : `<span style="font-size:12px;color:var(--text-muted)">${t('no_images')}</span>`;
-    area.innerHTML = `<div class="consultation-card"><div class="patient-highlight-box">
-      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:20px;font-weight:600">${t('consult_patient')} ${esc(a.name)}</div><span style="display:flex;gap:8px;align-items:center"><button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${a.id}">✏️ ${t('edit')}</button><span style="background:var(--orange);padding:4px 14px;border-radius:20px;font-weight:600;font-size:13px">${t('ticket_no')} ${a.ticketNo}</span></span></div>
+    const owed = Math.max(a.debt || 0, prevBal());
+    area.innerHTML = `<div class="consultation-card"><div class="cons-stick" aria-hidden="true"><div class="cons-stick-in">👤 ${esc(a.name)}</div></div>${owed > 0 ? `<div class="debt-alert">⚠️ ${t('debt_note', { x: money(owed) })}</div>` : ''}<div class="patient-highlight-box${owed > 0 ? ' has-debt' : (a.wallet > 0 || wBal() > 0) ? ' has-wallet' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:20px;font-weight:600">${t('consult_patient')} ${esc(a.name)}</div><span style="display:flex;gap:8px;align-items:center"><button type="button" class="btn-action btn-green" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}">${t('hist_title')}</button><button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${a.id}">✏️ ${t('edit')}</button><span style="background:var(--orange);padding:4px 14px;border-radius:20px;font-weight:600;font-size:13px">${t('ticket_no')} ${a.ticketNo}</span></span></div>
       <div style="margin-top:10px;padding:10px 14px;border-radius:12px;background:var(--surface-card);border-inline-start:5px solid var(--orange);font-size:15px">${t('reason_l')} <strong style="font-size:17px">${esc(reasonL(a.reason))}</strong></div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;font-size:13px">
         <div>${t('tooth_l')} <strong>${esc(a.tooth)}</strong></div><div>${t('gender_l')} <strong>${esc(genderL(a.gender))}</strong></div>
@@ -336,7 +345,7 @@ function renderConsultation() {
       <button type="button" class="btn-primary btn-green" data-act="finish" data-id="${a.id}" style="padding:16px;font-size:16px">${t('finish')}</button></div>`;
     if (notes) $('#consultNotes').value = notes;
     recalc(); if (!samePid) loadAccount(a);
-    hydrate(area); if (window.rxMount) rxMount(a);
+    hydrate(area); if (window.rxMount) rxMount(a); consStickInit(area);
   }
   area.dataset.sig = sig; area.dataset.pid = a ? a.id : '';
 }
@@ -350,7 +359,7 @@ function renderTasks() {
   if (S.me.role === 'nurse') {
     const list = pending.slice().sort((a, b) => a.createdAt - b.createdAt), sig = list.map(k => k.id).join(',') + settings.lang;
     const fresh = S.tasksSeen ? list.filter(k => !S.tasksSeen.has(k.id)) : [];
-    if (fresh.length) { beep(880, 0.25); setTimeout(() => beep(1175, 0.3), 260); try { navigator.vibrate && navigator.vibrate([300, 120, 300]); } catch (e) {} }
+    if (fresh.length) { chime('task'); try { navigator.vibrate && navigator.vibrate([300, 120, 300]); } catch (e) {} }
     S.tasksSeen = new Set(list.map(k => k.id).concat([...(S.tasksSeen || [])]));
     if (box.dataset.sig === sig) return; box.dataset.sig = sig;
     const doc = t('hero_doc', { n: S.me.doctorName || '' }), newIds = new Set(fresh.map(k => k.id));
@@ -411,27 +420,35 @@ document.addEventListener('input', ev => { const f = ev.target.closest && ev.tar
 /* حالة المال في المعاينة */
 const prevBal = () => (S.account && S.account.balance) || 0;
 const wBal = () => (S.account && S.account.wallet) || 0, r2c = v => Math.round(v * 100) / 100;
-/* المقتطع من الوعاء فعلاً: لا يزيد عن الرصيد ولا عن (سعر الحصة + المتبقي السابق) */
-const wUse = () => Math.max(0, Math.min(+S.wallet || 0, wBal(), r2c((+S.price || 0) + prevBal())));
-function moneyReset() { S.price = ''; S.paid = ''; S.wallet = ''; S.walletDirty = false; S.priceDirty = false; S.paidDirty = false; S.followUp = false; S.account = null; }
+/* الوعاء: مربع اختيار واحد. إن فُعِّل يُخصم min(الرصيد، المطلوب في هذه الحصة) والباقي نقداً */
+const wTarget = () => S.followUp ? prevBal() : (+S.price || 0);
+const wUse = () => S.useWal && wBal() > 0 ? Math.max(0, Math.min(wBal(), wTarget())) : 0;
+function moneyReset() { S.price = ''; S.paid = ''; S.useWal = true; S.priceDirty = false; S.paidDirty = false; S.followUp = false; S.account = null; }
 /* سعر عدة علاجات: مجموع سعر كل علاج مختار (كلٌّ يُسعَّر بحسب الأسنان المحددة) */
 function priceForMany(trs, teeth) {
   const items = trs.map(n => { const r = priceFor(n, teeth); return { name: n, price: r.total === '' ? 0 : r.total, has: r.total !== '', parts: r.parts }; });
   const any = items.some(i => i.has);
   return { total: any ? Math.round(items.reduce((x, y) => x + y.price, 0) * 100) / 100 : '', items };
 }
+/* إن مُسحت خانة المستحق يدوياً ثم غُيّر العلاج أو السن، يعود الحساب التلقائي ليملأها */
+const repriceIfEmpty = () => { if (S.priceDirty && String(S.price).trim() === '') S.priceDirty = false; };
 function recalc() {
   const auto = S.followUp ? { total: 0, items: [] } : priceForMany(S.treatments, [...S.teeth]); S.items = auto.items;
   if (!S.priceDirty) S.price = auto.total === '' ? '' : String(auto.total);
   const due = +S.price || 0;
-  if (!S.walletDirty) { const d = wBal() > 0 ? Math.min(wBal(), S.followUp ? prevBal() : due) : 0; S.wallet = d > 0 ? String(r2c(d)) : ''; }
   const w = wUse();
   if (!S.paidDirty) S.paid = S.followUp ? (prevBal() ? String(r2c(Math.max(0, prevBal() - w))) : '') : (S.price === '' ? '' : String(r2c(Math.max(0, due - w))));
   const set = (id, v) => { const e = $(id); if (e && e !== document.activeElement) e.value = v; };
-  set('#consultPrice', S.price); set('#consultPaid', S.paid); set('#consultWallet', S.wallet);
+  set('#consultPrice', S.price); set('#consultPaid', S.paid);
+  const wl = $('#walLine'); if (wl) wl.textContent = S.useWal ? '− ' + money(w) : '';
   const hint = $('#priceHint'); if (hint) hint.innerHTML = auto.items.length && !S.priceDirty && auto.items.some(i => i.has) ? auto.items.map(i => `<span class="ph-item"><b>${esc(treatLabel(i.name))}</b>${i.parts.length ? ` <small>(${i.parts.map(x => x.n + ' ' + t('price_cat_' + x.c)).join('، ')})</small>` : ''} ${money(i.price)}</span>`).join(' + ') + (auto.items.length > 1 ? ` <span class="ph-total">= <b>${money(auto.total)}</b></span>` : '') : '';
-  const tot = r2c((+S.paid || 0) + w), after = r2c(prevBal() + due - tot), excess = Math.max(0, r2c(tot - due - prevBal())), sum = $('#moneySum');
-  if (sum) sum.innerHTML = `${t('after_l')} <b style="color:${after > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'}">${money(Math.max(0, after))}</b>${excess > 0 ? `<div style="color:var(--warning-warm);font-size:12px;margin-top:4px">🏺 ${t('wal_excess', { x: money(excess) })}</div>` : ''}${S.account && (wBal() > 0 || excess > 0) ? `<div style="font-size:12px;margin-top:4px;color:var(--text-secondary)">${t('wal_after')} <b>${money(r2c(wBal() - w + excess))}</b></div>` : ''}`;
+  const cash = +S.paid || 0, tot = r2c(cash + w), after = Math.max(0, r2c(prevBal() + due - tot)), over = Math.max(0, r2c(tot - due)), toDebt = Math.min(over, prevBal()), toWal = r2c(Math.max(0, over - prevBal())), left = Math.max(0, r2c(due - tot)), sum = $('#moneySum');
+  const ln = (l, v, cls) => `<div class="rc-row${cls ? ' ' + cls : ''}"><span>${l}</span><b>${v}</b></div>`;
+  if (sum) sum.innerHTML = ln(t('rc_price'), money(due)) + (w > 0 ? ln('🏺 ' + t('rc_wallet'), '− ' + money(w), 'rc-w') : '') + (cash > 0 ? ln('💵 ' + t('rc_cash'), '− ' + money(cash)) : '')
+    + ln(t('rc_left'), money(left), left > 0 ? 'rc-bad rc-total' : 'rc-ok rc-total')
+    + (toDebt > 0 ? ln(t('rc_to_debt'), money(toDebt), 'rc-note') : '') + (toWal > 0 ? ln('🏺 ' + t('rc_to_wal'), '+ ' + money(toWal), 'rc-note') : '')
+    + (prevBal() > 0 ? ln(t('rc_all_debt'), money(after), after > 0 ? 'rc-bad' : 'rc-ok') : '')
+    + (S.account && (wBal() > 0 || toWal > 0) ? ln(t('wal_after'), money(r2c(wBal() - w + toWal)), 'rc-note') : '');
 }
 function moneyHTML() {
   const ac = S.account, has = ac && ac.records && ac.records.length;
@@ -439,17 +456,17 @@ function moneyHTML() {
     ${ac.records.filter(r => r.remaining > 0).map(r => `<div class="acct-row"><span>${esc(r.treatment)}${r.tooth ? ' · ' + esc(r.tooth) : ''} · ${new Date(r.finishedAt).toLocaleDateString(locale())}</span><span>${t('paid_l')} ${money(r.paid)} / ${money(r.price)}</span></div>`).join('')}
     <label class="acct-follow"><input type="checkbox" data-act="followUp" ${S.followUp ? 'checked' : ''} style="width:auto"> ${t('follow_l')}</label></div>` : '';
   const wal = S.account ? `<div class="wallet-box"><div class="acct-head"><strong>🏺 ${t('wal_title')}</strong><span>${t('wal_bal')} <b>${money(wBal())}</b></span></div>
-    ${wBal() > 0 ? `<div class="money-row"><label>${t('wal_use')}</label><input type="number" id="consultWallet" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(S.wallet))}" data-input="wallet"></div>` : ''}
+    ${wBal() > 0 ? `<label class="acct-follow"><input type="checkbox" data-act="useWal" ${S.useWal ? 'checked' : ''} style="width:auto"> ${t('wal_chk')} <b id="walLine"></b></label>` : ''}
     <button type="button" class="btn-action btn-green" data-act="walDeposit" data-name="${esc(S.account.key.name)}" data-year="${S.account.key.year}" data-ctx="room">${t('wal_dep')}</button></div>` : '';
   return acct + wal + `<div class="money-box">
     <div class="money-row"><label>${t('due_l')}${cur() ? ' (' + esc(cur()) + ')' : ''}</label><input type="number" id="consultPrice" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(S.price))}" data-input="price"></div>
     <div id="priceHint" class="price-hint"></div>
-    <div class="money-row"><label>${t('paid_now')}</label><input type="number" id="consultPaid" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(S.paid))}" data-input="paid"></div>
+    <div class="money-row"><label>💵 ${t('paid_now')}</label><input type="number" id="consultPaid" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(S.paid))}" data-input="paid"></div>
     <div class="money-quick"><button type="button" data-act="payQuick" data-v="all">${t('pay_all')}</button><button type="button" data-act="payQuick" data-v="half">${t('pay_half')}</button><button type="button" data-act="payQuick" data-v="zero">${t('pay_zero')}</button></div>
     <div id="moneySum" class="money-sum"></div></div>`;
 }
 async function loadAccount(a) {
-  try { const r = await api('GET', `/api/account?name=${encodeURIComponent(a.name)}&year=${a.birthYear}`); if (!S.me || $('#consultationArea').dataset.pid !== a.id) return; r.key = { name: a.name, year: a.birthYear }; S.account = r; if (!S.walletDirty) S.wallet = ''; recalc(); const c = $('#consultationArea'); c.dataset.sig = ''; renderAll(); } catch (e) {}
+  try { const r = await api('GET', `/api/account?name=${encodeURIComponent(a.name)}&year=${a.birthYear}`); if (!S.me || $('#consultationArea').dataset.pid !== a.id) return; r.key = { name: a.name, year: a.birthYear }; S.account = r; recalc(); const c = $('#consultationArea'); c.dataset.sig = ''; renderAll(); } catch (e) {}
 }
 /* ===== مخطط الأسنان (FDI) ===== */
 const TEETH = { adult: { up: [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28], lo: [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38] }, child: { up: [55,54,53,52,51,61,62,63,64,65], lo: [85,84,83,82,81,71,72,73,74,75] } };
@@ -469,7 +486,7 @@ function renderSkip() {
   if (!r) { m.classList.remove('active'); S.shownSkip = ''; return; }
   $('#skipQueueMessage').textContent = t('skip_msg', { a: r.name, b: r.firstName });
   m.dataset.pid = r.id;
-  if (S.shownSkip !== r.id) { S.shownSkip = r.id; beep(950, 0.5); sysNotify(t('skip_title'), t('skip_msg', { a: r.name, b: r.firstName })); }
+  if (S.shownSkip !== r.id) { S.shownSkip = r.id; chime('skip'); sysNotify(t('skip_title'), t('skip_msg', { a: r.name, b: r.firstName })); }
   m.classList.add('active');
 }
 setInterval(() => $$('[data-wait]').forEach(el => { el.textContent = waitText(+el.dataset.wait); }), 30000);
@@ -601,7 +618,7 @@ function loadArchive(reset = true) {
 function renderArchive() {
   $('#archiveResultCount').textContent = S.archive.total; $('#archiveSum').innerHTML = S.archive.sum ? `${t('total_due')} <b>${money(S.archive.sum)}</b> · ${t('total_paid')} <b>${money(S.archive.paidSum)}</b>${S.archive.debt ? ` · ${t('total_debt')} <b style="color:var(--danger-soft,#e8607a)">${money(S.archive.debt)}</b>` : ''}` : '';
   const l = $('#archiveList');
-  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${(a.treatments || [a.treatment]).map(n => `<span class="badge">${esc(n)}</span>`).join(' ')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">💰 ${money(a.price)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">✔ ${t('paid_l')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">🏺 ${money(a.wallet)}</span>` : ''}${a.followUp ? ' <span class="badge">↻</span>' : ''}
+  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card${a.remaining > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${(a.treatments || [a.treatment]).map(n => `<span class="badge">${esc(n)}</span>`).join(' ')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(a.price)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}${a.followUp ? ` <span class="badge">${t('follow_b')}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong></div>
     ${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(a, a) : ''}
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
@@ -623,7 +640,8 @@ async function walMove(el, op) {
 /* أين دُفعت الدفعة؟ (رقم الحصة التي دُفعت فيها) */
 const dShort = v => v ? new Date(v).toLocaleDateString(locale(), { dateStyle: 'medium' }) : '—', tShort = v => v ? new Date(v).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '';
 const payWhere = (p, recId) => p.vid && p.vid === recId ? t('pay_same') : p.vn ? t('pay_in_visit', { n: p.vn, d: dShort(p.vat) }) : t('pay_later');
-const payChips = (ps, recId) => `<div class="pay-chips">${ps.map(p => `<span class="pay-chip${p.m === 'w' ? ' w' : ''}">${p.m === 'w' ? '🏺' : '💵'} <b>${money(p.amt)}</b> · ${dShort(p.t)} ${tShort(p.t)} · ${payWhere(p, recId)}</span>`).join('')}</div>`;
+const payLbl = p => p.m === 'w' ? t('pay_cut_wal') : t('pay_cash');
+const payChips = (ps, recId) => `<div class="pay-chips">${ps.map(p => `<span class="pay-chip${p.m === 'w' ? ' w' : ''}"><b class="${p.m === 'w' ? 'wal-tag' : 'cash-tag'}">${payLbl(p)}</b>: <b>${money(p.amt)}</b> · ${dShort(p.t)} ${tShort(p.t)} · ${payWhere(p, recId)}</span>`).join('')}</div>`;
 /* سجل المريض الكامل: من أول زيارة إلى آخرها */
 async function showHistory(name, year) {
   const body = $('#historyBody'); body.innerHTML = `<div class="hint" style="text-align:center;padding:20px">…</div>`; openModal('historyModal');
@@ -634,28 +652,32 @@ async function showHistory(name, year) {
   const imgs = x => x.images && x.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${x.images.map(i => `<img data-rec="${x.id}" data-img="${i}" data-act="lightbox" style="width:48px;height:48px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-card)" alt="">`).join('')}</div>` : '';
   const cur = r.current ? `<div class="hist-item cur"><div class="hi-date">${t('hist_cur')} · ${r.current.status === 'in' ? t('hist_in_st') : t('hist_wait_st')}</div>
       <div class="hi-line">${t('reason_s')}: ${esc(reasonL(r.current.reason))} | ${t('tooth')}: <strong>${esc(r.current.tooth || '---')}</strong> | ${t('date_l')} ${dt(r.current.createdAt)}</div>${imgs(r.current)}</div>` : '';
-  const items = r.records.slice().reverse().map((x, i) => `<div class="hist-item"><div class="hi-date">${t('hist_visit_n', { n: r.records.length - i })} · ${dt(x.finishedAt)}${x.followUp ? ' · ↻' : ''}</div>
-      <div class="hi-line">${(x.treatments || [x.treatment]).map(n => `<span class="badge">${esc(n)}</span>`).join(' ')} ${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ${t('reason_s')}: ${esc(reasonL(x.reason))}</div>
-      ${x.price != null ? `<div class="hi-line">💰 ${money(x.price)} · ${t('paid_l')} ${money(x.paid)}${x.remaining > 0 ? ` · <b style="color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(x.remaining)}</b>` : ''}</div>` : ''}
-      ${x.payments && x.payments.length ? `<div class="hi-line">${t('pays_l')}${payChips(x.payments, x.id)}</div>` : ''}
-      ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}
-      <div class="hi-line" style="font-size:11px">${t('wait_s')} ${fmtMin(x.waitMin)} · ${t('dur_l')} ${fmtMin(x.durationMin)}</div></div>`).join('');
   const vis = new Map(r.records.map((x, i) => [x.id, { n: i + 1, at: x.finishedAt }]));
-  const pays = r.records.flatMap((x, i) => (x.payments || []).map(p => ({ k: p.m === 'w' ? 'w' : 'c', t: p.t, amt: p.amt, p, rec: x, n: i + 1 })))
-    .concat((r.wallet ? r.wallet.log : []).filter(e => e.k === 'dep' || e.k === 'out').map(e => ({ k: e.k, t: e.t, amt: e.amt, vid: e.vid })))
-    .sort((p, q) => q.t - p.t);
-  const ledger = pays.length ? `<div class="hist-pays"><b>${t('pay_ledger')} (${pays.length})</b><ul>${pays.map(p => {
-    const lab = { c: '💵 ' + t('pay_cash'), w: '🏺 ' + t('pay_wallet'), dep: '➕ ' + t('pay_dep'), out: '↩ ' + t('pay_out') }[p.k];
-    const sub = p.rec ? `${t('pay_for')} ${p.n} (${dShort(p.rec.finishedAt)}) · ${esc(p.rec.treatments ? p.rec.treatments.join(' + ') : p.rec.treatment)}<br>${payWhere(p.p, p.rec.id)}`
-      : (p.vid && vis.get(p.vid) ? t('pay_dep_in', { n: vis.get(p.vid).n, d: dShort(vis.get(p.vid).at) }) : t('pay_dep_manual'));
-    return `<li class="pl-${p.k}"><span class="pl-when">${dt(p.t)}</span><b>${p.k === 'out' ? '−' : ''}${money(p.amt)}</b><span class="pl-kind">${lab}</span><small>${sub}</small></li>`; }).join('')}</ul></div>` : '';
-  const walBox = `<div class="hist-wallet"><div><b>🏺 ${t('wal_title')}</b> <span class="hw-bal">${money(r.wallet ? r.wallet.bal : 0)}</span></div>
+  const wlog = (r.wallet ? r.wallet.log : []).filter(e => e.k === 'dep' || e.k === 'out');
+  const trName = x => esc(x.treatments ? x.treatments.join(' + ') : x.treatment);
+  /* خط زمني واحد: كل حصة (العلاج بارز) ومعها مدفوعاتها، وبينها حركات الوعاء المستقلة */
+  const visitHTML = (x, n) => {
+    const own = x.payments && x.payments.length ? payChips(x.payments, x.id) : '';
+    const recv = r.records.flatMap((y, j) => y.id !== x.id ? (y.payments || []).filter(q => q.vid === x.id).map(q => `<span class="pay-chip${q.m === 'w' ? ' w' : ''}"><b class="${q.m === 'w' ? 'wal-tag' : 'cash-tag'}">${payLbl(q)}</b>: <b>${money(q.amt)}</b> · ${t('pay_recv', { n: j + 1, tr: trName(y) })}</span>`) : []);
+    const dep = wlog.filter(e => e.vid === x.id).map(e => `<span class="pay-chip dep"><b class="wal-tag">${t('pay_dep')}</b>: <b>${money(e.amt)}</b></span>`);
+    const extra = recv.concat(dep).join('');
+    return `<div class="hist-item"><div class="hi-date">${t('hist_visit_n', { n })} · ${dt(x.finishedAt)}${x.followUp ? ' · ' + t('follow_b') : ''}</div>
+      <div class="hi-treat">${t('treat_l')} ${(x.treatments || [x.treatment]).map(n => `<span class="hi-tbadge">${esc(n)}</span>`).join(' ')}</div>
+      <div class="hi-line">${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ${t('reason_s')}: ${esc(reasonL(x.reason))}</div>
+      ${x.price != null ? `<div class="hi-line hi-money">${t('due_l')} ${money(x.price)} · ${t('paid_l')} ${money(x.paid)}${x.remaining > 0 ? ` · <b style="color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(x.remaining)}</b>` : ` · <b style="color:var(--success,#2e9e6b)">${t('paid_full')}</b>`}</div>` : ''}
+      ${own || extra ? `<div class="hi-line">${t('pays_l')}${own}${extra ? `<div class="pay-chips">${extra}</div>` : ''}</div>` : ''}
+      ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}
+      <div class="hi-line" style="font-size:11px">${t('wait_s')} ${fmtMin(x.waitMin)} · ${t('dur_l')} ${fmtMin(x.durationMin)}</div></div>`;
+  };
+  const walOnly = e => `<div class="hist-item hi-wal"><div class="hi-date">${dt(e.t)}</div><div class="hi-line hi-money">${e.k === 'out' ? t('pay_out') : t('pay_dep')}: ${e.k === 'out' ? '−' : ''}<b>${money(e.amt)}</b> · ${t('pay_dep_manual')}</div></div>`;
+  const items = r.records.map((x, i) => ({ t: x.finishedAt, h: visitHTML(x, i + 1) })).concat(wlog.filter(e => !vis.has(e.vid)).map(e => ({ t: e.t, h: walOnly(e) }))).sort((p, q) => q.t - p.t).map(z => z.h).join('');
+  const walBox = `<div class="hist-wallet"><div><b>${t('wal_title')}</b> <span class="hw-bal">${money(r.wallet ? r.wallet.bal : 0)}</span></div>
     <div class="hw-btns"><button type="button" class="btn-action btn-green" data-act="walDeposit" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_dep')}</button>${r.wallet && r.wallet.bal > 0 ? `<button type="button" class="btn-action btn-yellow" data-act="walOut" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_out')}</button>` : ''}</div></div>`;
   body.innerHTML = `<div class="hist-sum"><div class="hs-name">${esc(r.name)}</div>
       <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div>
       <div class="hist-stats"><div>${t('hist_visits')}<b>${r.visits}</b></div><div>${t('hist_first')}<b>${dd(r.firstVisit)}</b></div><div>${t('hist_last')}<b>${dd(r.lastVisit)}</b></div>
       ${r.due ? `<div>${t('total_due')}<b>${money(r.due)}</b></div><div>${t('total_paid')}<b>${money(r.paid)}</b></div>` : ''}${r.balance ? `<div>${t('total_debt')}<b style="color:var(--danger-soft,#e8607a)">${money(r.balance)}</b></div>` : ''}</div></div>
-    ${walBox}${ledger}
+    ${walBox}
     <div class="hist-tl">${cur}${items || (cur ? '' : `<div class="hint">${t('hist_none')}</div>`)}</div>`;
   hydrate(body);
 }
@@ -723,13 +745,17 @@ function setHero() {
   $('#' + pre + 'HeaderTitle').textContent = S.me.clinicName;
   $('#' + pre + (doc ? 'Subtitle' : 'UserWelcome')).textContent = doc ? t('hero_doc', { n: S.me.name }) : t('nurse_welcome', { n: S.me.name }) + (S.me.doctorName ? ' · ' + t('hero_doc', { n: S.me.doctorName }) : '');
 }
+let clkFmt = null, clkLoc = '', clkMin = '', clkEls = null;
 function tickClock() {
+  if (document.hidden) return;
   const d = new Date(), loc = settings.lang === 'en' ? 'en-GB' : 'ar-u-nu-latn';
-  const hm = d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit', hour12: false }), s = String(d.getSeconds()).padStart(2, '0');
-  const date = d.toLocaleDateString(loc, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  $$('.clk').forEach(c => { $('.clk-hm', c).textContent = hm; $('.clk-s', c).textContent = s; $('.clk-date', c).textContent = date; });
+  if (loc !== clkLoc) { clkLoc = loc; clkMin = ''; clkFmt = { t: new Intl.DateTimeFormat(loc, { hour: '2-digit', minute: '2-digit', hour12: false }), d: new Intl.DateTimeFormat(loc, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) }; clkEls = null; }
+  if (!clkEls || !clkEls.length || !clkEls[0].c.isConnected) clkEls = $$('.clk').map(c => ({ c, hm: $('.clk-hm', c), s: $('.clk-s', c), d: $('.clk-date', c) }));
+  const s = String(d.getSeconds()).padStart(2, '0'), min = d.getMinutes() + ':' + d.getHours();
+  if (min !== clkMin) { clkMin = min; const hm = clkFmt.t.format(d), date = clkFmt.d.format(d); clkEls.forEach(o => { o.hm.textContent = hm; o.d.textContent = date; }); }
+  clkEls.forEach(o => { o.s.textContent = s; });
 }
-setInterval(tickClock, 1000); tickClock();
+setInterval(tickClock, 1000); tickClock(); document.addEventListener('visibilitychange', () => { clkMin = ''; tickClock(); });
 function applySettings() {
   document.body.classList.toggle('light-mode', !settings.darkMode);
   document.body.classList.remove('theme-mint', 'theme-purple', 'theme-rose'); if (settings.theme !== 'sky') document.body.classList.add('theme-' + settings.theme);
@@ -810,7 +836,7 @@ const ACT = {
     if (m === 'set_scheduleModal') { S.schedSig = ''; syncSchedule(); }
     openModal(m);
   }, closeLightbox: () => $('#lightboxModal').classList.remove('active'),
-  lightbox: async el => { try { $('#lightboxImg').src = await imgBlobUrl(el.dataset.rec, el.dataset.img); $('#lightboxModal').classList.add('active'); } catch (e) {} },
+  lightbox: async el => { try { LB.rec = el.dataset.rec; LB.img = el.dataset.img; $('#lightboxImg').src = await imgBlobUrl(el.dataset.rec, el.dataset.img); lbReset(); $('#lightboxModal').classList.add('active'); } catch (e) {} },
   async enter(el) {
     const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/enter`)); if (!r) return;
     if (r.skipRequested) toast(t('t_skip_sent'), 'info'); await refresh();
@@ -827,24 +853,26 @@ const ACT = {
   qrShare: () => { const p = S.patients.find(x => x.id === S.qrPid); if (p && navigator.share) navigator.share({ title: S.me.clinicName, url: ticketUrl(p) }).catch(() => {}); },
   openCamera: el => openCamera(el.dataset.id), pickFile: el => pickFile(el.dataset.id), snap, closeCamera,
   async delImage(el) { if (await run(() => api('DELETE', `/api/patients/${el.dataset.id}/images/${el.dataset.img}`))) refresh(); },
-  tooth(el) { const n = el.dataset.n; if (S.teeth.has(n)) S.teeth.delete(n); else S.teeth.add(n); el.classList.toggle('on', S.teeth.has(n)); $('#teethSum').innerHTML = teethSumText(); recalc(); },
+  tooth(el) { const n = el.dataset.n; if (S.teeth.has(n)) S.teeth.delete(n); else S.teeth.add(n); el.classList.toggle('on', S.teeth.has(n)); $('#teethSum').innerHTML = teethSumText(); repriceIfEmpty(); recalc(); },
   teethSet(el) { S.teethSet = el.dataset.v; const box = el.closest('.teeth-box'); box.outerHTML = teethHTML(); },
-  teethClear() { S.teeth.clear(); $$('.tooth-btn.on').forEach(x => x.classList.remove('on')); $('#teethSum').innerHTML = teethSumText(); recalc(); },
+  soundTest(el) { const k = UISound.names, i = (S.sndI = ((S.sndI == null ? -1 : S.sndI) + 1) % k.length); UISound.play(k[i]); toast((i + 1) + '/' + k.length + ' · ' + (t('snd_names')[i] || k[i]), 'success'); },
+  teethClear() { S.teeth.clear(); $$('.tooth-btn.on').forEach(x => x.classList.remove('on')); $('#teethSum').innerHTML = teethSumText(); repriceIfEmpty(); recalc(); },
   followUp(el) {
     S.followUp = el.checked; S.priceDirty = false; S.paidDirty = false;
     const r = el.checked && S.account && S.account.records.find(x => x.remaining > 0) || null;
     if (r) { const tl = (r.treatments || [r.treatment]).filter(x => treatList().includes(x)); if (tl.length) S.treatments = tl; S.teeth = new Set(r.teeth || []); }
     const c = $('#consultationArea'); c.dataset.sig = ''; renderAll();
   },
+  useWal(el) { S.useWal = el.checked; S.paidDirty = false; recalc(); },
   payQuick(el) { const due = +S.price || 0, v = el.dataset.v, w = wUse(); S.paid = v === 'all' ? String(r2c(Math.max(0, due + prevBal() - w))) : v === 'half' ? String(r2c(Math.max(0, due - w) / 2)) : '0'; S.paidDirty = true; recalc(); },
   async addPayment(el) {
     const rem = +el.dataset.rem, wal = +el.dataset.wallet || 0, v = await appPrompt(t('pay_prompt', { r: money(rem) }), rem, false, true); if (v == null) return;
-    const fromW = wal > 0 && await appConfirm(t('pay_from_wal_q', { w: money(wal) }));
+    const fromW = wal > 0 ? await appDialog({ msg: t('pay_src_q', { a: money(Math.min(+v, rem)) }), okL: '🏺 ' + t('pay_wallet') + ' (' + money(wal) + ')', noL: '💵 ' + t('pay_cash'), cancelL: 1 }) : false; if (fromW === null) return;
     if (await run(() => api('POST', `/api/archive/${el.dataset.id}/payment`, { amount: v, wallet: fromW }))) { toast(t('t_paid'), 'success'); loadArchive(true); }
   },
   async walDeposit(el) { return walMove(el, 'dep'); },
   async walOut(el) { return walMove(el, 'out'); },
-  treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); recalc(); },
+  treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); repriceIfEmpty(); recalc(); },
   async finish(el) {
     const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { treatment: S.treatments.join(' + '), treatments: S.treatments, items: (S.items || []).map(i => ({ name: i.name, price: i.price })), price: $('#consultPrice') ? $('#consultPrice').value : '', paid: $('#consultPaid') ? $('#consultPaid').value : '', wallet: wUse(), followUp: S.followUp, teeth: [...S.teeth], notes: ($('#consultNotes') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
@@ -921,7 +949,6 @@ document.addEventListener('input', e => {
   else if (el.dataset.input === 'archive') loadArchive(true);
   else if (el.dataset.input === 'price') { S.price = el.value; S.priceDirty = true; recalc(); }
   else if (el.dataset.input === 'paid') { S.paid = el.value; S.paidDirty = true; recalc(); }
-  else if (el.dataset.input === 'wallet') { S.wallet = el.value; S.walletDirty = true; recalc(); }
 });
 document.addEventListener('change', e => {
   const el = e.target, c = el.dataset.change;
@@ -942,7 +969,11 @@ document.addEventListener('submit', async e => {
     try { await afterLogin(await api('POST', '/api/login/nurse', { code: $('#nCode').value, name: $('#nName').value, password: $('#nPass').value }, { anon: true })); } catch (x) { authError(x); }
   } else if (kind === 'register') {
     if ($('#rPass').value !== $('#rPass2').value) return void ($('#authErr').textContent = t('pass_mismatch'));
-    try { await afterLogin(await api('POST', '/api/register', { clinicName: $('#rClinic').value, doctorName: $('#rDoctor').value, username: $('#rUser').value, password: $('#rPass').value, registrationCode: $('#rCode').value }, { anon: true })); } catch (x) { authError(x); }
+    try {
+      const rr = await api('POST', '/api/register', { clinicName: $('#rClinic').value, doctorName: $('#rDoctor').value, username: $('#rUser').value, password: $('#rPass').value, registrationCode: $('#rCode').value }, { anon: true });
+      if (rr && rr.pending) { $$('input[type=password]').forEach(i => { i.value = ''; }); authMode('doctor'); $('#lUser').value = $('#rUser').value; const ae = $('#authErr'); ae.textContent = t('reg_pending'); ae.classList.add('ok'); }
+      else await afterLogin(rr);
+    } catch (x) { authError(x); }
   } else if (kind === 'addPatient') {
     const pre = f.dataset.pre, v = readPatient(pre); if (!v) return;
     lastOwnAdd = Date.now();
@@ -1008,7 +1039,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window
   ['doctorScreen', 'nurseScreen'].forEach(id => {
     const sc = document.getElementById(id), hero = sc && sc.querySelector('.hero'); if (!hero) return;
     let last = 0, acc = 0, tick = false;
-    const show = () => hero.classList.remove('hide');
+    const show = () => { hero.classList.remove('hide'); sc.classList.remove('hero-gone'); };
     sc.addEventListener('scroll', () => {
       if (tick) return; tick = true;
       requestAnimationFrame(() => {
@@ -1017,11 +1048,50 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window
         if (y <= 24) { acc = 0; return show(); }
         if (sc.scrollHeight - sc.clientHeight < 160) return show();   // محتوى قصير: لا داعي للإخفاء
         if ((d > 0) !== (acc > 0)) acc = 0; acc += d;       // تجميع الاتجاه لتجاهل الاهتزازات الصغيرة
-        if (acc > 12 && y > 80) hero.classList.add('hide'); else if (acc < -8) show();
+        if (acc > 12 && y > 80) { hero.classList.add('hide'); sc.classList.add('hero-gone'); } else if (acc < -8) show();
       });
     }, { passive: true });
     mq.addEventListener && mq.addEventListener('change', show);
     new MutationObserver(show).observe(sc, { attributes: true, attributeFilter: ['class'] });   // عند فتح/إغلاق الشاشة
   });
   window.showHero = () => document.querySelectorAll('#doctorScreen>.hero,#nurseScreen>.hero').forEach(h => h.classList.remove('hide'));
+})();
+
+/* منع تغيير قيمة حقل الأرقام بعجلة الماوس (السكرول) */
+document.addEventListener('wheel', ev => { const a = document.activeElement; if (a && a.tagName === 'INPUT' && a.type === 'number' && ev.target === a) a.blur(); }, { passive: true, capture: true });
+
+/* معاينة الصور: تكبير (عجلة/قرص/نقرتان) + سحب + تدوير */
+const LB = { z: 1, x: 0, y: 0, r: 0, rec: '', img: '', busy: false };
+function lbApply() { const sv = $('#lbSave'); if (sv) sv.hidden = ((LB.r % 360) + 360) % 360 === 0; $('#lightboxImg').style.transform = `translate(${LB.x}px,${LB.y}px) rotate(${LB.r}deg) scale(${LB.z})`; }
+async function lbSaveRot() {
+  if (LB.busy) return; const deg = ((LB.r % 360) + 360) % 360; if (!deg || !LB.rec) return; LB.busy = true;
+  const sv = $('#lbSave'); sv.disabled = true;
+  try {
+    const im = $('#lightboxImg'), w = im.naturalWidth, h = im.naturalHeight, sw = deg === 90 || deg === 270, cv = document.createElement('canvas');
+    cv.width = sw ? h : w; cv.height = sw ? w : h; const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height);
+    cx.translate(cv.width / 2, cv.height / 2); cx.rotate(deg * Math.PI / 180); cx.drawImage(im, -w / 2, -h / 2);
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.92)); if (!blob) throw new Error('canvas');
+    await api('PUT', `/api/records/${LB.rec}/images/${LB.img}`, undefined, { raw: blob });
+    const k = LB.rec + '/' + LB.img, old = blobCache.get(k); blobCache.delete(k); if (old) old.then(u => setTimeout(() => URL.revokeObjectURL(u), 3000)).catch(() => {});
+    const u = URL.createObjectURL(blob); blobCache.set(k, Promise.resolve(u));
+    $$(`img[data-rec="${LB.rec}"][data-img="${LB.img}"]`).forEach(e => { e.src = u; }); im.src = u; lbReset();
+    toast(settings.lang === 'en' ? 'Rotated image saved ✅' : 'تم حفظ الصورة بعد التدوير ✅', 'success');
+  } catch (e) { if (e && e.code !== 'unauthorized' && e.code !== 'locked') toast(errMsg(e), 'danger'); }
+  finally { LB.busy = false; sv.disabled = false; }
+}
+function lbReset() { LB.z = 1; LB.x = 0; LB.y = 0; LB.r = 0; lbApply(); }
+function lbZoom(f) { LB.z = Math.min(8, Math.max(0.3, LB.z * f)); if (LB.z <= 1.02 && LB.z >= 0.98) { LB.z = 1; LB.x = LB.y = 0; } lbApply(); }
+(function lbInit() {
+  const m = $('#lightboxModal'), st = $('#lbStage'), pts = new Map(); let pd = 0, moved = false, lastTap = 0;
+  m.addEventListener('click', e => { if (e.target === m) { m.classList.remove('active'); return; } const b = e.target.closest('[data-lb]'); if (!b) return; const k = b.dataset.lb;
+    if (k === 'in') lbZoom(1.4); else if (k === 'out') lbZoom(1 / 1.4); else if (k === 'rl') { LB.r -= 90; lbApply(); } else if (k === 'rr') { LB.r += 90; lbApply(); } else if (k === 'save') lbSaveRot(); else lbReset(); });
+  st.addEventListener('wheel', e => { e.preventDefault(); lbZoom(e.deltaY < 0 ? 1.15 : 1 / 1.15); }, { passive: false });
+  let downImg = false;
+  st.addEventListener('pointerdown', e => { downImg = e.target.id === 'lightboxImg'; st.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); moved = false; if (pts.size === 2) { const [p, q] = [...pts.values()]; pd = Math.hypot(p[0] - q[0], p[1] - q[1]); } });
+  st.addEventListener('pointermove', e => { const o = pts.get(e.pointerId); if (!o) return; const n = [e.clientX, e.clientY];
+    if (pts.size === 2) { pts.set(e.pointerId, n); const [p, q] = [...pts.values()], d = Math.hypot(p[0] - q[0], p[1] - q[1]); if (pd) lbZoom(d / pd); pd = d; moved = true; }
+    else if (pts.size === 1) { const dx = n[0] - o[0], dy = n[1] - o[1]; if (Math.abs(dx) + Math.abs(dy) > 0) { if (LB.z > 1 || moved) { LB.x += dx; LB.y += dy; lbApply(); } if (Math.abs(dx) + Math.abs(dy) > 2) moved = true; } pts.set(e.pointerId, n); } });
+  const up = e => { pts.delete(e.pointerId); pd = 0; if (!pts.size && !moved && e.type === 'pointerup' && !downImg) { m.classList.remove('active'); return; } if (!pts.size && !moved && e.type === 'pointerup' && downImg) { const t = Date.now(); if (t - lastTap < 300) { LB.z > 1 ? lbReset() : (LB.z = 2.5, lbApply()); lastTap = 0; } else lastTap = t; } };
+  st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+  document.addEventListener('keydown', e => { if (!m.classList.contains('active')) return; if (e.key === '+' || e.key === '=') lbZoom(1.4); else if (e.key === '-') lbZoom(1 / 1.4); else if (e.key.toLowerCase() === 'r') { LB.r += 90; lbApply(); } });
 })();

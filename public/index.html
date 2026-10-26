@@ -45,7 +45,8 @@
 </div>
 <input type="file" id="globalImageInput" accept="image/*" multiple style="display:none">
 
-<div id="lightboxModal" data-act="closeLightbox"><img id="lightboxImg" src="" alt=""></div>
+<div id="lightboxModal"><div id="lbStage"><img id="lightboxImg" src="" alt="" draggable="false"></div>
+<div id="lbBar" dir="ltr"><button type="button" data-lb="out" aria-label="−">−</button><button type="button" data-lb="in" aria-label="+">＋</button><button type="button" data-lb="rl" aria-label="⟲">⟲</button><button type="button" data-lb="rr" aria-label="⟳">⟳</button><button type="button" data-lb="reset" aria-label="1:1">⤢</button><button type="button" data-lb="save" id="lbSave" hidden>💾</button><button type="button" data-act="closeLightbox" aria-label="✕">✕</button></div></div>
 
 <!-- تخطي الدور -->
 <div id="skipQueueModal" class="modal-overlay">
@@ -313,6 +314,8 @@
     <h5 style="margin-bottom:12px;color:var(--primary-sage)" data-i18n="set_sound">التنبيهات</h5>
     <div class="settings-item"><div><strong data-i18n="sound_alerts">التنبيهات الصوتية</strong></div>
       <label class="toggle-switch"><input type="checkbox" class="soundToggle" data-change="sound"><span class="slider"></span></label></div>
+    <div class="settings-item"><div><strong data-i18n="snd_test">تجربة النغمات</strong></div>
+      <button type="button" class="btn-action btn-green" data-act="soundTest" data-i18n="snd_test">تجربة النغمات</button></div>
     <div class="settings-item"><div><strong data-i18n="auto_qr">إظهار QR بعد تسجيل المريض</strong></div>
       <label class="toggle-switch"><input type="checkbox" class="autoQrToggle" data-change="autoQr"><span class="slider"></span></label></div>
     <div class="settings-item"><div><strong data-i18n="sys_notif">إشعارات النظام</strong><div class="hint" data-i18n="sys_notif_sub">تصلك التنبيهات حتى لو كان التطبيق مغلقاً أو الشاشة مقفلة</div><div class="hint" id="pushStatus" style="font-weight:600"></div></div>
@@ -427,6 +430,7 @@
 
 <script src="splash.js"></script>
 <script src="qr.js"></script>
+<script src="sounds.js"></script>
 <script src="app.js"></script>
 <script src="stats.js"></script>
 <script src="drugs.js"></script>

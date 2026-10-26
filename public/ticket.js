@@ -31,7 +31,7 @@
   }
   function alertChange(d) {
     var turn = d.state === 'in' && prevState !== 'in', closer = d.state === 'waiting' && prevAhead !== null && d.ahead < prevAhead && d.ahead <= 1;
-    if (turn || closer) { try { navigator.vibrate && navigator.vibrate(turn ? [300, 150, 300, 150, 300] : [200]); } catch (e) {} if (turn) { try { var c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(); o.connect(c.destination); o.frequency.value = 880; o.start(); o.stop(c.currentTime + 0.4); } catch (e) {} } }
+    if (turn || closer) { try { navigator.vibrate && navigator.vibrate(turn ? [300, 150, 300, 150, 300] : [200]); } catch (e) {} if (turn) { try { window.UISound && UISound.play('turn'); } catch (e) {} } }
     prevState = d.state; prevAhead = d.state === 'waiting' ? d.ahead : null;
   }
   function apply(d) { if (data && d.updated < data.updated) return; alertChange(d); data = d; render(); }
@@ -41,6 +41,7 @@
     es.addEventListener('ticket', function (e) { retry = 0; $('conn').textContent = ''; apply(JSON.parse(e.data)); });
     es.onerror = function () { es.close(); es = null; $('conn').textContent = tr('conn'); retry = Math.min(retry + 1, 8); setTimeout(function () { poll(); connect(); }, Math.min(15000, 1000 * retry)); };
   }
+  ['click', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, function () { try { window.UISound && UISound.unlock(); } catch (e) {} }, { passive: true }); });   // المتصفح يشترط لمسة قبل تشغيل الصوت
   $('langBtn').addEventListener('click', function () { lang = lang === 'ar' ? 'en' : 'ar'; try { localStorage.setItem('tk_lang', lang); } catch (e) {} render(); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) { poll(); if (!es) connect(); } });
   render(); poll(); connect();

@@ -5,7 +5,7 @@ const port = 4100 + Math.floor(Math.random() * 500), base = `http://127.0.0.1:${
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-'));
 const pushPort = port + 1000, pushes = [];   // خادم دفع وهمي يلتقط الرسائل المشفّرة
 const mock = require('http').createServer((req, res) => { const ch = []; req.on('data', c => ch.push(c)); req.on('end', () => { pushes.push({ url: req.url, headers: req.headers, body: Buffer.concat(ch) }); res.writeHead(req.url.startsWith('/gone') ? 410 : 201); res.end(); }); }).listen(pushPort, '127.0.0.1');
-const srv = spawn(process.execPath, [path.join(__dirname, '..', 'server.js')], { env: { ...process.env, PORT: port, DATA_DIR: dir, PUSH_EXTRA_HOSTS: `127.0.0.1:${pushPort}` }, stdio: 'inherit' });
+const srv = spawn(process.execPath, [path.join(__dirname, '..', 'server.js')], { env: { ...process.env, PORT: port, DATA_DIR: dir, PUSH_EXTRA_HOSTS: `127.0.0.1:${pushPort}`, OWNER_PASSWORD: 'owner-pass-123', REQUIRE_APPROVAL: 'false', REG_RATE_MAX: '1000' }, stdio: 'inherit' });
 const crypto = require('crypto');
 /* فكّ تشفير RFC 8291 كما يفعل المتصفح، للتحقق من صحة التنسيق */
 function decryptPush(body, ecdh, auth) {
@@ -231,6 +231,16 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 200, op: 'out' }); ok(r.s === 200 && r.j.bal === 500, 'استرجاع نقدي 200');
       r = await J('DELETE', `/api/archive/${v3.id}`, B); ok(r.s === 200 && await wal() === 1000, 'حذف سجل دُفع من الوعاء يعيد 500 إليه'); }
 
+    console.log('علم المتبقي على المريض');
+    { const A = B;   /* عيادة أ حُذفت أعلاه؛ نستعمل عيادة ب (حد التسجيل 10/ساعة) */
+      const dcode = (await J('GET', '/api/state', A)).j.me.code; await J('POST', '/api/nurses', A, { name: 'ممرضة د', phone: '2', password: 'nurse888' });
+      const N = (await J('POST', '/api/login/nurse', null, { code: dcode, name: 'ممرضة د', password: 'nurse888' })).j.token;
+      const NM = 'مريض مدين', YR = 1985, mk = async () => (await J('POST', '/api/patients', A, pat(NM, { birthYear: YR }))).j;
+      const p0 = await mk(); await J('POST', `/api/patients/${p0.id}/enter`, A); await J('POST', `/api/patients/${p0.id}/finish`, A, { treatment: 'حشوة', price: 1000, paid: 400 });
+      const p1 = await mk();
+      r = await J('GET', '/api/state', A); ok(r.j.patients.find(z => z.id === p1.id).debt === 600, 'الطبيب يرى متبقي المريض في الطابور');
+      r = await J('GET', '/api/state', N); ok(r.j.patients.every(z => z.debt === undefined), 'الممرضة لا ترى أي مبالغ'); }
+
     console.log('إدارة العلاجات والأسعار');
     { const D = (await J('POST', '/api/register', null, { clinicName: 'عيادة علاج', doctorName: 'د. ع', username: 'treatdoc', password: 'password7' })).j.token;
       r = await J('GET', '/api/state', D); ok(r.j.me.prices.treatments.length === 6 && r.j.me.prices.treatments[0] === 'قلع', 'القائمة الافتراضية 6 علاجات');
@@ -374,6 +384,51 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('GET', '/api/rx', RD); ok(r.j.basket.length === 1 && r.j.basket[0].name === 'Ibuprofène' && r.j.drugs.length === 1, 'الاستعادة تعيد السلة وقاعدة الأدوية');
       r = await J('GET', '/api/archive?limit=50', RD); ok(r.j.items.find(x => x.name === 'مريض وصفة').rx.length === 3, 'الاستعادة تحفظ وصفات الأرشيف');
       const old = { ...bk.j }; delete old.rxBasket; delete old.rxDrugs; await J('POST', '/api/restore', RD, old); r = await J('GET', '/api/rx', RD); ok(r.j.basket.length === 1, 'استعادة نسخة قديمة (بلا سلة) لا تمسح السلة الحالية'); }
+
+    console.log('مالك التطبيق: الموافقة على الحسابات ومراقبتها');
+    { let r = await J('POST', '/api/owner/login', null, { password: 'wrong' }); ok(r.s === 401, 'كلمة مرور مالك خاطئة تُرفض');
+      r = await J('GET', '/api/owner/clinics'); ok(r.s === 401, 'قائمة الحسابات تتطلب دخول المالك');
+      r = await J('GET', '/api/owner/clinics', 'bogus'); ok(r.s === 401, 'رمز مالك مزيّف مرفوض');
+      const ownerLogin = await J('POST', '/api/owner/login', null, { password: 'owner-pass-123' }); ok(ownerLogin.s === 200 && ownerLogin.j.token, 'دخول المالك'); const O = ownerLogin.j.token;
+      const docTok = (await J('POST', '/api/login/doctor', null, { username: 'sara', password: 'password2' })).j.token;
+      r = await J('GET', '/api/owner/clinics', docTok); ok(r.s === 401, 'رمز طبيب لا يفتح لوحة المالك');
+      r = await J('GET', '/api/owner/clinics', O); ok(r.s === 200 && r.j.clinics.length > 3 && r.j.clinics.every(c => c.status === 'active'), 'المالك يرى كل الحسابات والقديمة فعّالة');
+      ok(r.j.clinics.every(c => !('patientsData' in c) && !c.password && !c.hash && !c.salt), 'القائمة لا تكشف كلمات مرور ولا بيانات مرضى');
+      ok(r.j.clinics.some(c => c.nurses >= 1 && c.code && c.name && c.doctor && c.lastLoginAt), 'عدّادات العيادة ورمزها وآخر دخول ظاهرة للمالك');
+      r = await J('POST', '/api/owner/settings', O, { requireApproval: true }); ok(r.s === 200 && r.j.approval === true, 'تفعيل اشتراط الموافقة');
+      r = await J('GET', '/api/config'); ok(r.j.approval === true, 'الإعدادات العامة تعلن اشتراط الموافقة');
+      r = await J('POST', '/api/register', null, { clinicName: 'عيادة معلّقة', doctorName: 'د. معلّق', username: 'pend1', password: 'password1' });
+      ok(r.s === 202 && r.j.pending && !r.j.token, 'التسجيل الجديد يبقى معلّقاً بلا جلسة');
+      r = await J('POST', '/api/login/doctor', null, { username: 'pend1', password: 'password1' }); ok(r.s === 403 && r.j.error === 'pending', 'الدخول مرفوض قبل الموافقة');
+      r = await J('POST', '/api/login/doctor', null, { username: 'pend1', password: 'bad-password' }); ok(r.s === 401, 'كلمة مرور خاطئة لا تكشف حالة الحساب');
+      r = await J('POST', '/api/register', null, { clinicName: 'x', doctorName: 'y', username: 'pend1', password: 'password1' }); ok(r.s === 409, 'اسم المستخدم المعلّق محجوز');
+      r = await J('GET', '/api/owner/clinics', O); const pend = r.j.clinics.find(c => c.username === 'pend1');
+      ok(pend && pend.status === 'pending' && r.j.clinics[0].username === 'pend1', 'الطلب المعلّق يظهر للمالك أولاً');
+      r = await J('POST', `/api/owner/clinics/${pend.id}/suspend`, O); ok(r.s === 409, 'لا يُوقَف حساب معلّق');
+      r = await J('POST', `/api/owner/clinics/${pend.id}/approve`, O); ok(r.s === 200 && r.j.status === 'active', 'قبول الحساب');
+      r = await J('POST', '/api/login/doctor', null, { username: 'pend1', password: 'password1' }); ok(r.s === 200 && r.j.token, 'الدخول ينجح بعد الموافقة'); const PT = r.j.token;
+      const pcode = (await J('GET', '/api/state', PT)).j.me.code;
+      await J('POST', '/api/nurses', PT, { name: 'ممرضة م', phone: '0661', password: 'nurse123' });
+      r = await J('POST', '/api/login/nurse', null, { code: pcode, name: 'ممرضة م', password: 'nurse123' }); ok(r.s === 200, 'الممرضة تدخل بعد الموافقة'); const PN = r.j.token;
+      r = await J('POST', `/api/owner/clinics/${pend.id}/suspend`, O); ok(r.s === 200 && r.j.status === 'suspended', 'إيقاف الحساب');
+      r = await J('GET', '/api/state', PT); ok(r.s === 401 || r.s === 403, 'جلسة الطبيب تُقطع فوراً عند الإيقاف');
+      r = await J('GET', '/api/state', PN); ok(r.s === 401 || r.s === 403, 'جلسة الممرضة تُقطع فوراً عند الإيقاف');
+      r = await J('POST', '/api/login/doctor', null, { username: 'pend1', password: 'password1' }); ok(r.s === 403 && r.j.error === 'suspended', 'الطبيب الموقوف لا يدخل');
+      r = await J('POST', '/api/login/nurse', null, { code: pcode, name: 'ممرضة م', password: 'nurse123' }); ok(r.s === 403, 'الممرضة في عيادة موقوفة لا تدخل');
+      r = await J('POST', `/api/owner/clinics/${pend.id}/activate`, O); ok(r.s === 200 && r.j.status === 'active', 'إعادة التفعيل');
+      r = await J('POST', '/api/login/doctor', null, { username: 'pend1', password: 'password1' }); ok(r.s === 200, 'يدخل بعد إعادة التفعيل وبياناته محفوظة');
+      r = await J('GET', '/api/state', docTok); ok(r.s === 200, 'حسابات الآخرين لم تتأثر');
+      r = await J('POST', '/api/register', null, { clinicName: 'للرفض', doctorName: 'د. ر', username: 'rej1', password: 'password1' }); ok(r.s === 202, 'طلب جديد للرفض');
+      const rej = (await J('GET', '/api/owner/clinics', O)).j.clinics.find(c => c.username === 'rej1');
+      r = await J('DELETE', `/api/owner/clinics/${rej.id}`, O); ok(r.s === 200, 'رفض الطلب وحذفه');
+      r = await J('POST', '/api/login/doctor', null, { username: 'rej1', password: 'password1' }); ok(r.s === 401, 'المحذوف لا يدخل');
+      r = await J('POST', '/api/register', null, { clinicName: 'جديد', doctorName: 'د. ج', username: 'rej1', password: 'password1' }); ok(r.s === 202, 'يمكن إعادة استخدام اسم المستخدم بعد الحذف');
+      r = await J('DELETE', '/api/owner/clinics/ffffffffffffffff', O); ok(r.s === 404, 'حذف حساب غير موجود');
+      r = await J('POST', '/api/owner/settings', O, { requireApproval: false }); r = await J('POST', '/api/register', null, { clinicName: 'مفتوح', doctorName: 'د. م', username: 'open1', password: 'password1' });
+      ok(r.s === 201 && r.j.token, 'عند إيقاف الاشتراط يعود التسجيل الفوري');
+      r = await J('POST', '/api/owner/logout', O); r = await J('GET', '/api/owner/clinics', O); ok(r.s === 401, 'خروج المالك يُبطل رمزه');
+      const pg = await fetch(base + '/owner'); ok(pg.status === 200 && (await pg.text()).includes('owner.js') && /noindex/.test(pg.headers.get('x-robots-tag') || ''), 'صفحة /owner تُخدَّم وغير مفهرسة');
+    }
 
     console.log('الملفات الثابتة والأمان');
     for (const f of ['/', '/app.js', '/qr.js', '/numpad.js', '/style.css', '/sw.js', '/manifest.webmanifest', '/icons/icon-192.png', '/t/abc123abc123abc123abc123']) { const x = await fetch(base + f); ok(x.status === 200, 'GET ' + f); }

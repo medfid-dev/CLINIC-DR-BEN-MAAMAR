@@ -34,7 +34,7 @@ function flush() {
   const tmp = DB_FILE + '.tmp';
   try {
     fs.writeFileSync(tmp, JSON.stringify(db));
-    try { fs.copyFileSync(DB_FILE, DB_FILE + '.bak'); } catch (e) {}
+    if (Date.now() - (flush.bakAt || 0) > 6e4) { flush.bakAt = Date.now(); try { fs.copyFileSync(DB_FILE, DB_FILE + '.bak'); } catch (e) {} }
     fs.renameSync(tmp, DB_FILE);
   } catch (e) { console.error('فشل حفظ قاعدة البيانات:', e.message); }
 }
@@ -50,6 +50,7 @@ function reindex() {
   }
 }
 reindex();
+db.settings = db.settings && typeof db.settings === 'object' ? db.settings : {};
 const now = () => Date.now();
 for (const [k, s] of Object.entries(db.sessions)) if (s.exp < now()) delete db.sessions[k];
 
@@ -196,7 +197,9 @@ function tasksFor(c, role, nurseId) {
 function stateFor(c, role, nurseId) {
   const r = RT(c), t = now();
   for (const [k, v] of r.skip) if (v.ts < t - 6e5 || !c.patients.some(p => p.id === k && p.status === 'waiting')) r.skip.delete(k);
-  return { patients: c.patients.map(patientView), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), tasks: role ? tasksFor(c, role, nurseId) : [] };
+  /* المتبقي على المريض (للطبيب فقط؛ الممرضة لا ترى أي مبالغ) */
+  let owe = null; if (role === 'doctor' && c.patients.length) { owe = new Map(); for (const o of c.archive) { const d = remOf(o); if (d > 0) owe.set(patKey(o), r2((owe.get(patKey(o)) || 0) + d)); } }
+  return { patients: c.patients.map(p => { const v = patientView(p), d = owe && owe.get(patKey(p)); const w = role === 'doctor' ? wbal(c, patKey(p)) : 0; return { ...v, ...(d ? { debt: d } : {}), ...(w > 0 ? { wallet: w } : {}) }; }), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), tasks: role ? tasksFor(c, role, nurseId) : [] };
 }
 function ticketView(c, token) {
   const i = c.patients.findIndex(p => p.ticket === token);
@@ -483,6 +486,7 @@ function authOf(req, roles) {
   const key = tok ? sha(tok) : '', s = key && db.sessions[key];
   if (!s || s.exp < now()) throw httpErr(401, 'unauthorized');
   const clinic = db.clinics[s.clinicId]; if (!clinic) throw httpErr(401, 'unauthorized');
+  if (statusOf(clinic) !== 'active') throw httpErr(403, statusOf(clinic));
   let nurse = null;
   if (s.role === 'nurse') { nurse = clinic.nurses.find(n => n.id === s.nurseId); if (!nurse) { delete db.sessions[key]; throw httpErr(401, 'unauthorized'); } }
   if (roles && !roles.includes(s.role)) throw httpErr(403, 'forbidden');
@@ -491,7 +495,7 @@ function authOf(req, roles) {
 async function openSession(role, clinic, nurse) {
   const token = b64u(32);
   db.sessions[sha(token)] = { role, clinicId: clinic.id, nurseId: nurse ? nurse.id : null, exp: now() + SESSION_MS };
-  save();
+  clinic.lastLoginAt = now(); save();
   return { token, role, name: role === 'doctor' ? clinic.doctor.name : nurse.name, clinicName: clinic.name };
 }
 function meOf(ctx) {
@@ -505,23 +509,65 @@ const imgPath = (c, id) => path.join(DATA_DIR, 'img', c.id, id + '.jpg');
 const isJpeg = b => b.length > 4 && b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF;
 function rmImages(c, rec) { for (const i of rec.images || []) fs.unlink(imgPath(c, i.id), () => {}); }
 
+/* ---------- مالك التطبيق: الموافقة على الحسابات الجديدة ومراقبة كل الحسابات ----------
+   كلمة مرور المالك: المتغيّر OWNER_PASSWORD، وإن لم يُضبط تُولَّد عشوائياً عند أول تشغيل وتُطبع في الطرفية
+   وتُحفظ في DATA_DIR/OWNER_PASSWORD.txt (احذف الملف بعد حفظها). الصفحة: /owner
+   حالة العيادة c.status: 'pending' بانتظار الموافقة · 'suspended' موقوفة · غير موجودة/'active' فعّالة (الحسابات القديمة). */
+const OWNER_ENV = process.env.OWNER_PASSWORD || '';
+let ownerRec = null;
+(async function initOwner() {
+  try {
+    if (OWNER_ENV) { ownerRec = await hashPw(OWNER_ENV); if (db.owner) { delete db.owner; save(); } return; }
+    if (db.owner && db.owner.hash) { ownerRec = db.owner; return; }
+    const pw = b64u(12); db.owner = await hashPw(pw); ownerRec = db.owner; flush();
+    try { fs.writeFileSync(path.join(DATA_DIR, 'OWNER_PASSWORD.txt'), pw + '\n', { mode: 0o600 }); } catch (e) {}
+    console.log('\n==== كلمة مرور مالك التطبيق (صفحة /owner) ====\n' + pw + '\nحُفظت أيضاً في ' + path.join(DATA_DIR, 'OWNER_PASSWORD.txt') + ' — احفظها ثم احذف الملف. لتغييرها لاحقاً اضبط المتغيّر OWNER_PASSWORD.\n');
+  } catch (e) { console.error('تعذّر تهيئة حساب المالك:', e.message); }
+})();
+const ownerSess = new Map();
+setInterval(() => { const t = now(); for (const [k, v] of ownerSess) if (v.exp < t) ownerSess.delete(k); }, 6e4).unref();
+function ownerAuth(req) {
+  const h = req.headers.authorization || '', tok = h.startsWith('Bearer ') ? h.slice(7) : '', k = tok ? sha(tok) : '', e = k && ownerSess.get(k);
+  if (!e || e.exp < now()) throw httpErr(401, 'unauthorized'); return k;
+}
+const approvalOn = () => db.settings.requireApproval === undefined ? process.env.REQUIRE_APPROVAL !== 'false' : !!db.settings.requireApproval;
+const statusOf = c => c.status === 'pending' || c.status === 'suspended' ? c.status : 'active';
+function ownerView(c) {
+  const t = now(); let devices = 0; for (const s of Object.values(db.sessions)) if (s.clinicId === c.id && s.exp > t) devices++;
+  return { id: c.id, name: c.name, doctor: c.doctor.name, username: c.doctor.username, code: c.code, status: statusOf(c), createdAt: c.createdAt || null, approvedAt: c.approvedAt || null, lastLoginAt: c.lastLoginAt || null,
+    nurses: c.nurses.length, patients: c.patients.length, visits: c.archive.length, devices };
+}
+function killSessions(c) {
+  for (const [k, s] of Object.entries(db.sessions)) if (s.clinicId === c.id) { delete db.sessions[k]; closeStreamsOf(k); }
+  for (const [k, u] of unlocks) if (u.cid === c.id) unlocks.delete(k);
+}
+function dropClinic(c) {
+  for (const pt of c.patients.concat(c.archive)) if (pt.ticket) idx.ticket.delete(pt.ticket);
+  killSessions(c); fs.rm(path.join(DATA_DIR, 'img', c.id), { recursive: true, force: true }, () => {});
+  idx.user.delete(c.doctor.username); idx.code.delete(c.code); delete db.clinics[c.id]; delete rt[c.id]; save();
+}
+
 /* ---------- المسارات ---------- */
 async function api(req, res, url) {
   const m = req.method, p = url.pathname; let x;
   const ip = clientIp(req);
 
-  if (m === 'GET' && p === '/api/config') return send(res, 200, { registration: !ALLOW_REG ? 'closed' : REG_CODE ? 'code' : 'open', hasClinics: Object.keys(db.clinics).length > 0 });
+  if (m === 'GET' && p === '/api/config') return send(res, 200, { registration: !ALLOW_REG ? 'closed' : REG_CODE ? 'code' : 'open', approval: approvalOn(), hasClinics: Object.keys(db.clinics).length > 0 });
 
   if (m === 'POST' && p === '/api/register') {
     if (!ALLOW_REG) throw httpErr(403, 'reg_closed');
-    rate('reg:' + ip, 10, 36e5);
+    rate('reg:' + ip, +process.env.REG_RATE_MAX || 10, 36e5);
     const b = await readJSON(req);
     if (REG_CODE && b.registrationCode !== REG_CODE) throw httpErr(403, 'bad_code');
     const clinicName = str(b.clinicName, 80), doctorName = str(b.doctorName, 80), username = str(b.username, 40).toLowerCase(), pw = typeof b.password === 'string' ? b.password : '';
     if (!clinicName || !doctorName || !/^[a-z0-9._@-]{3,40}$/.test(username) || pw.length < 8 || pw.length > 200) throw httpErr(400, 'invalid_input');
     if (idx.user.has(username)) throw httpErr(409, 'exists');
-    const id = rid(8), c = { id, code: newClinicCode(), name: clinicName, doctor: { name: doctorName, username, ...(await hashPw(pw)) }, nurses: [], patients: [], archive: [], counter: null, createdAt: now() };
+    const needOk = approvalOn();
+    if (needOk && Object.values(db.clinics).filter(z => z.status === 'pending').length >= 100) throw httpErr(429, 'too_many_pending');
+    const id = rid(8), c = { id, code: newClinicCode(), name: clinicName, doctor: { name: doctorName, username, ...(await hashPw(pw)) }, nurses: [], patients: [], archive: [], counter: null, createdAt: now(), ...(needOk ? { status: 'pending' } : {}) };
+    if (idx.user.has(username)) throw httpErr(409, 'exists');
     db.clinics[id] = c; idx.user.set(username, id); idx.code.set(c.code, id);
+    if (needOk) { save(); return send(res, 202, { pending: true }); }   // لا جلسة: يلزم إذن المالك أولاً
     return send(res, 201, await openSession('doctor', c, null));
   }
   if (m === 'POST' && p === '/api/login/doctor') {
@@ -529,6 +575,7 @@ async function api(req, res, url) {
     rate('login:' + ip, 30, 6e5); rate('loginu:' + u, 10, 6e5);
     const c = db.clinics[idx.user.get(u)], ok = await checkPw(b.password || '', c ? c.doctor : DUMMY);
     if (!c || !ok) throw httpErr(401, 'bad_credentials');
+    if (statusOf(c) !== 'active') throw httpErr(403, statusOf(c));
     return send(res, 200, await openSession('doctor', c, null));
   }
   if (m === 'POST' && p === '/api/login/nurse') {
@@ -536,7 +583,29 @@ async function api(req, res, url) {
     rate('login:' + ip, 30, 6e5); rate('loginc:' + code, 20, 6e5);
     const c = db.clinics[idx.code.get(code)], n = c && c.nurses.find(z => z.name.toLowerCase() === name), ok = await checkPw(b.password || '', n || DUMMY);
     if (!c || !n || !ok) throw httpErr(401, 'bad_credentials');
+    if (statusOf(c) !== 'active') throw httpErr(403, statusOf(c));
     return send(res, 200, await openSession('nurse', c, n));
+  }
+
+  /* ---- لوحة مالك التطبيق ---- */
+  if (m === 'POST' && p === '/api/owner/login') {
+    rate('own:' + ip, 10, 6e5); rate('ownall', 60, 6e5);
+    const b = await readJSON(req), ok = await checkPw(b.password || '', ownerRec || DUMMY);
+    if (!ownerRec || !ok) throw httpErr(401, 'bad_credentials');
+    const tok = b64u(32); ownerSess.set(sha(tok), { exp: now() + 8 * 36e5 }); return send(res, 200, { token: tok });
+  }
+  if (p.startsWith('/api/owner/')) {
+    const ok = ownerAuth(req);
+    if (m === 'POST' && p === '/api/owner/logout') { ownerSess.delete(ok); return send(res, 200, { ok: true }); }
+    if (m === 'GET' && p === '/api/owner/clinics') return send(res, 200, { approval: approvalOn(), serverTime: now(), clinics: Object.values(db.clinics).map(ownerView).sort((a, b) => (a.status === 'pending') !== (b.status === 'pending') ? (a.status === 'pending' ? -1 : 1) : (b.createdAt || 0) - (a.createdAt || 0)) });
+    if (m === 'POST' && p === '/api/owner/settings') { const b = await readJSON(req); db.settings.requireApproval = !!b.requireApproval; save(); return send(res, 200, { approval: approvalOn() }); }
+    const mo = p.match(/^\/api\/owner\/clinics\/([a-f0-9]{16})(?:\/(approve|suspend|activate))?$/), oc = mo && db.clinics[mo[1]];
+    if (!oc) throw httpErr(404, 'not_found');
+    if (m === 'POST' && mo[2] === 'approve') { if (statusOf(oc) !== 'pending') throw httpErr(409, 'bad_state'); delete oc.status; oc.approvedAt = now(); save(); return send(res, 200, ownerView(oc)); }
+    if (m === 'POST' && mo[2] === 'suspend') { if (statusOf(oc) !== 'active') throw httpErr(409, 'bad_state'); oc.status = 'suspended'; killSessions(oc); save(); return send(res, 200, ownerView(oc)); }
+    if (m === 'POST' && mo[2] === 'activate') { if (statusOf(oc) !== 'suspended') throw httpErr(409, 'bad_state'); delete oc.status; save(); return send(res, 200, ownerView(oc)); }
+    if (m === 'DELETE' && !mo[2]) { dropClinic(oc); return send(res, 200, { ok: true }); }
+    throw httpErr(405, 'forbidden');
   }
 
   /* ---- صفحة التذكرة العامة (المريض) ---- */
@@ -576,7 +645,7 @@ async function api(req, res, url) {
     const st = streamTickets.get(url.searchParams.get('ticket') || ''); streamTickets.delete(url.searchParams.get('ticket') || '');
     const s = st && st.exp > now() && db.sessions[st.key];
     if (!s) throw httpErr(401, 'unauthorized');
-    const c = db.clinics[s.clinicId]; if (!c) throw httpErr(401, 'unauthorized');
+    const c = db.clinics[s.clinicId]; if (!c || statusOf(c) !== 'active') throw httpErr(401, 'unauthorized');
     const r = RT(c); if (r.streams.size >= 40) throw httpErr(429, 'rate_limited');
     res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store', Connection: 'keep-alive', 'X-Accel-Buffering': 'no' });
     res.write('retry: 3000\n\n');
@@ -669,6 +738,15 @@ async function api(req, res, url) {
     if (c.archive.includes(rec)) needUnlock(req, c);
     return serveFile(req, res, imgPath(c, mt[2]), { 'Cache-Control': 'private, max-age=3600', 'Content-Type': 'image/jpeg' });
   }
+  if (m === 'PUT' && mt) {   // استبدال الصورة بعد التدوير (طبيب فقط)
+    const a = authOf(req, ['doctor']), c = a.clinic;
+    const rec = c.patients.find(z => z.id === mt[1]) || c.archive.find(z => z.id === mt[1]);
+    if (!rec || !(rec.images || []).some(z => z.id === mt[2])) throw httpErr(404, 'not_found');
+    if (c.archive.includes(rec)) needUnlock(req, c);
+    const buf = await readBody(req, 4e6); if (!isJpeg(buf)) throw httpErr(400, 'invalid_input');
+    const f = imgPath(c, mt[2]); await fs.promises.writeFile(f + '.tmp', buf); await fs.promises.rename(f + '.tmp', f);
+    return send(res, 200, { ok: true });
+  }
 
   /* قائمة الأسعار (طبيب فقط) */
   if (p === '/api/prices' && m === 'PUT') {
@@ -704,9 +782,15 @@ async function api(req, res, url) {
   if (m === 'POST' && mt) {
     const a = authOf(req, ['doctor']); needUnlock(req, a.clinic); const rec = a.clinic.archive.find(z => z.id === mt[1]); if (!rec) throw httpErr(404, 'not_found');
     const b = await readJSON(req), amt = num(b.amount), c = a.clinic, k = patKey(rec); if (!amt || amt <= 0) throw httpErr(400, 'invalid_input');
-    const fromW = !!b.wallet, x = Math.min(amt, remOf(rec), fromW ? wbal(c, k) : Infinity); if (x <= 0) throw httpErr(409, fromW && remOf(rec) > 0 ? 'wallet_empty' : 'nothing_due');
-    const t = now(); rec.paid = r2(paidOf(rec) + x); (rec.payments = rec.payments || []).push({ t, amt: x, vid: null, ...(fromW ? { m: 'w' } : {}) });
-    if (fromW) wMove(c, k, 'use', x, t, { rid: rec.id });
+    const fromW = !!b.wallet, t = now();
+    if (!fromW) {
+      /* نقداً: يسدّد هذا السجل أولاً ثم أقدم دَين آخر للمريض، وما زاد يُودَع في وعاء المريض */
+      const left = allocPay(c, k, rec, amt, t, null); if (left >= amt) throw httpErr(409, 'nothing_due');
+      if (left > 0) wMove(c, k, 'dep', left, t, { rid: rec.id });
+    } else {
+      const x = Math.min(amt, remOf(rec), wbal(c, k)); if (x <= 0) throw httpErr(409, remOf(rec) > 0 ? 'wallet_empty' : 'nothing_due');
+      rec.paid = r2(paidOf(rec) + x); (rec.payments = rec.payments || []).push({ t, amt: x, vid: null, m: 'w' }); wMove(c, k, 'use', x, t, { rid: rec.id });
+    }
     save(); return send(res, 200, archiveView(rec));
   }
   /* وعاء المريض: إيداع مسبق أو استرجاع نقدي (طبيب فقط) */
@@ -762,9 +846,9 @@ async function api(req, res, url) {
     let d0 = isDay(dFrom) ? dayStart(dFrom) : 0, d1 = isDay(dTo) ? dayStart(dTo) + 864e5 : 0;
     if (d0 && d1 && d0 >= d1) { const x = isDay(dTo) ? dayStart(dTo) : 0; d0 = x; d1 = dayStart(dFrom) + 864e5; }  // عُكس الترتيب
     const off = Math.max(0, +q.get('offset') || 0), lim = Math.min(100, Math.max(1, +q.get('limit') || 30));
-    const X = { c: a.clinic, info: visitInfo(a.clinic) };
+    const X = { c: a.clinic, info: visitInfo(a.clinic) }, owe = new Map(); for (const o of a.clinic.archive) { const d = remOf(o); if (d > 0) owe.set(patKey(o), r2((owe.get(patKey(o)) || 0) + d)); }  /* دين المريض الكلي (كل زياراته) */
     const all = a.clinic.archive.filter(r => (!name || r.name.toLowerCase().includes(name)) && (!year || String(r.birthYear).includes(year)) && (!gender || r.gender === gender) && (!tooth || String(r.tooth).toLowerCase().includes(tooth)) && (!tr || (r.treatment || '').includes(tr)) && (!d0 || r.finishedAt >= d0) && (!d1 || r.finishedAt < d1));
-    return send(res, 200, { total: all.length, sum: r2(all.reduce((x, r) => x + dueOf(r), 0)), paidSum: r2(all.reduce((x, r) => x + paidOf(r), 0)), debt: r2(all.reduce((x, r) => x + remOf(r), 0)), items: all.slice(off, off + lim).map(r => archiveView(r, X)) });
+    return send(res, 200, { total: all.length, sum: r2(all.reduce((x, r) => x + dueOf(r), 0)), paidSum: r2(all.reduce((x, r) => x + paidOf(r), 0)), debt: r2(all.reduce((x, r) => x + remOf(r), 0)), items: all.slice(off, off + lim).map(r => ({ ...archiveView(r, X), patDebt: owe.get(patKey(r)) || 0 })) });
   }
   /* أرشيف الوصفات (طبيب فقط): كل سجل منتهٍ له وصفة، الأحدث أولاً */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})$/);
@@ -877,7 +961,7 @@ async function api(req, res, url) {
   if (m === 'GET' && p === '/api/backup') {
     const a = authOf(req, ['doctor']), c = a.clinic, images = {}; needUnlock(req, c);
     for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
-    const body = JSON.stringify({ app: 'calm-clinic', version: 2, exportedAt: now(), clinicName: c.name, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], images });
+    const body = JSON.stringify({ app: 'calm-clinic', version: 2, exportedAt: now(), clinicName: c.name, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
   }
@@ -905,6 +989,9 @@ async function api(req, res, url) {
     fs.rmSync(path.join(DATA_DIR, 'img', c.id), { recursive: true, force: true }); fs.mkdirSync(path.join(DATA_DIR, 'img', c.id), { recursive: true });
     for (const r of P.concat(A)) { for (const [id, buf] of r._w || []) fs.writeFileSync(imgPath(c, id), buf); delete r._w; idx.ticket.set(r.ticket, c.id); }
     if (Array.isArray(b.rxBasket)) c.rxBasket = cleanBasket(b.rxBasket); if (Array.isArray(b.rxDrugs)) c.rxDrugs = cleanDrugs(b.rxDrugs);
+    /* قائمة الأسعار وقالب/تخطيط الوصفة (تُستعاد إن وُجدت في النسخة) */
+    if (b.prices && typeof b.prices === 'object') { const tr = Array.isArray(b.prices.treatments) ? normTreatments(b.prices.treatments) : treatsOf(c); c.prices = { currency: str(b.prices.currency, 10), list: normList(b.prices.list, tr), treatments: tr }; }
+    if (b.rxTpl && typeof b.rxTpl === 'object') c.rxTpl = cleanTpl(b.rxTpl);
     const W = {}; if (b.wallets && typeof b.wallets === 'object') for (const [k, w] of Object.entries(b.wallets).slice(0, 50000)) {
       if (typeof k !== 'string' || k.length > 120 || !w || typeof w !== 'object') continue;
       W[k] = { bal: Math.max(0, num(w.bal) || 0), log: (Array.isArray(w.log) ? w.log : []).slice(-1000).filter(e => e && WK.has(e.k)).map(e => ({ t: +e.t || now(), amt: Math.max(0, num(e.amt) || 0), k: e.k, ...(REC_ID.test(String(e.vid)) ? { vid: e.vid } : {}) })) };
@@ -923,6 +1010,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname.startsWith('/api/')) return await api(req, res, url);
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
     if (/^\/t\/[A-Za-z0-9_-]+$/.test(url.pathname)) return serveFile(req, res, path.join(PUBLIC_DIR, 'ticket.html'), { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
+    if (url.pathname === '/owner' || url.pathname === '/owner/') return serveFile(req, res, path.join(PUBLIC_DIR, 'owner.html'), { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
     if (url.pathname === '/healthz') { res.writeHead(200, { 'Content-Type': 'text/plain' }); return res.end('ok'); }
     return serveStatic(req, res, url.pathname);
   } catch (e) {
