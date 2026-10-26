@@ -856,7 +856,7 @@ const ACT = {
   openSet(el) {
     const m = el.dataset.m; if (m === 'set_clinicModal') { $$('.setClinicName').forEach(i => { i.value = S.me.clinicName; }); $$('.setDoctorName').forEach(i => { i.value = S.me.name; }); }
     if (m === 'set_pricesModal') { const f = $('form[data-form=prices]'); delete f.dataset.dirty; renderPriceForm(); }
-    if (m === 'set_backupModal') protectUI();
+    if (m === 'set_backupModal') { protectUI(); if (window.abUI) abUI(); }
     if (m === 'set_scheduleModal') { S.schedSig = ''; syncSchedule(); }
     openModal(m);
   }, closeLightbox: () => $('#lightboxModal').classList.remove('active'),

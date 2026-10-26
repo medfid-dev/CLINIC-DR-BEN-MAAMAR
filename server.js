@@ -1020,4 +1020,14 @@ const server = http.createServer(async (req, res) => {
   }
 });
 server.headersTimeout = 20000; server.requestTimeout = 0; server.keepAliveTimeout = 65000;
+/* لقطة يومية لقاعدة البيانات (دون الصور) في DATA_DIR/backups — آخر 14 يوماً. تفيد حين يكون DATA_DIR على قرص دائم. */
+function dailySnapshot() {
+  try {
+    const dir = path.join(DATA_DIR, 'backups'); fs.mkdirSync(dir, { recursive: true });
+    const f = path.join(dir, 'db-' + new Date().toISOString().slice(0, 10) + '.json');
+    if (!fs.existsSync(f) && fs.existsSync(DB_FILE)) { flush(); fs.copyFileSync(DB_FILE, f); }
+    fs.readdirSync(dir).filter(n => /^db-\d{4}-\d{2}-\d{2}\.json$/.test(n)).sort().reverse().slice(14).forEach(n => fs.rmSync(path.join(dir, n), { force: true }));
+  } catch (e) { console.error('تعذّرت اللقطة اليومية:', e.message); }
+}
+setTimeout(dailySnapshot, 20000); setInterval(dailySnapshot, 6 * 36e5).unref();
 server.listen(PORT, () => console.log(`عيادتي الذكية تعمل على المنفذ ${PORT} — البيانات في: ${DATA_DIR}`));
