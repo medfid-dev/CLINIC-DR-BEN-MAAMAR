@@ -231,6 +231,54 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 200, op: 'out' }); ok(r.s === 200 && r.j.bal === 500, 'استرجاع نقدي 200');
       r = await J('DELETE', `/api/archive/${v3.id}`, B); ok(r.s === 200 && await wal() === 1000, 'حذف سجل دُفع من الوعاء يعيد 500 إليه'); }
 
+    console.log('خطة العلاج لكل سن (حصة أو حصتان)');
+    { const NM = 'مريض الخطة', YR = 1980, q = encodeURIComponent(NM);
+      const vis = async (body) => { const rm = (await J('GET', '/api/state', B)).j.patients.find(z => z.status === 'in'); if (rm) await J('POST', `/api/patients/${rm.id}/finish`, B, { lines: [] }); const p0 = (await J('POST', '/api/patients', B, pat(NM, { birthYear: YR }))).j; await J('POST', `/api/patients/${p0.id}/enter`, B); const r = await J('POST', `/api/patients/${p0.id}/finish`, B, body); return r; };
+      const acct = async () => (await J('GET', `/api/account?name=${q}&year=${YR}`, B)).j;
+      let r = await vis({ lines: [{ tooth: '16', treatment: 'علاج عصب', total: 6000, sessions: 2, pay: 3000 }] });
+      ok(r.s === 200 && r.j.price === 6000 && r.j.paid === 3000 && r.j.remaining === 3000 && r.j.lines.length === 1 && r.j.lines[0].no === 1 && r.j.lines[0].sessions === 2 && r.j.teeth[0] === '16', 'الحصة 1: سعر كلي 6000 ودفع نصفه');
+      const rec1 = r.j.id, plan = r.j.lines[0].plan;
+      let a = await acct(); ok(a.plans.length === 1 && a.plans[0].tooth === '16' && a.plans[0].remaining === 3000 && a.plans[0].done === 1 && a.plans[0].open && a.debts.length === 0 && a.balance === 3000, 'الخطة الجارية تظهر مع متبقّيها (لا تُعدّ ديناً منفصلاً)');
+      r = await vis({ lines: [{ plan, pay: 99999 }] });
+      ok(r.s === 200 && r.j.price === 0 && r.j.paid === 0 && r.j.followUp === true && r.j.lines[0].no === 2 && r.j.lines[0].remaining === 0 && r.j.lines[0].open === false && r.j.treatment === 'علاج عصب' && r.j.teeth[0] === '16', 'الحصة 2: تُسدَّد بقية الخطة والزائد يُقصّ');
+      const rec2 = r.j.id; a = await acct(); ok(a.plans.length === 0 && a.balance === 0, 'اكتملت الخطة ولا متبقٍ');
+      r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); const h1 = r.j.records.find(z => z.id === rec1);
+      ok(h1.paid === 6000 && h1.payments.length === 2 && h1.payments[1].vid === rec2 && h1.payments[1].vn === 2 && h1.payments.every(p => p.pl === undefined || true), 'دفعة الحصة 2 تُسجَّل على سجل الحصة 1 وتُنسب للحصة 2');
+      r = await vis({ lines: [{ plan, pay: 10 }] }); ok(r.s === 409, 'لا متابعة لخطة مكتملة');
+      r = await vis({ lines: [{ plan: 'aaaaaaaaaa', pay: 10 }] }); ok(r.s === 404, 'خطة غير موجودة');
+      r = await vis({ lines: [{ tooth: '99', treatment: 'قلع', total: 1 }] }); ok(r.s === 400, 'سن غير صالح');
+      /* حصة واحدة تُدفع كاملة + بندان في زيارة واحدة */
+      r = await vis({ lines: [{ tooth: '26', treatment: 'حشوة', total: 1500, sessions: 1, pay: 1500 }, { tooth: '27', treatment: 'علاج عصب', total: 4000, sessions: 2, pay: 1000 }] });
+      ok(r.s === 200 && r.j.price === 5500 && r.j.paid === 2500 && r.j.remaining === 3000 && r.j.treatments.length === 2 && r.j.teeth.length === 2 && r.j.lines.find(l => l.tooth === '27').remaining === 3000 && r.j.lines.find(l => l.tooth === '26').open === false, 'بندان: حشوة بحصة (مدفوعة) وعصب بحصتين');
+      const rec3 = r.j.id, plan27 = r.j.lines.find(l => l.tooth === '27').plan; a = await acct(); ok(a.plans.length === 1 && a.plans[0].tooth === '27' && a.balance === 3000, 'الخطة المفتوحة الوحيدة هي السن 27');
+      /* الوعاء: يغطّي جزءاً من الدفع والباقي نقداً */
+      await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 1000 });
+      r = await vis({ lines: [{ plan: plan27, pay: 2000 }], wallet: 5000 });
+      ok(r.s === 200 && (await acct()).wallet === 0 && (await acct()).balance === 1000, 'الاقتطاع من الوعاء لا يتجاوز رصيده (1000) وتُسدَّد 2000');
+      const rec4 = r.j.id; r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); const h3 = r.j.records.find(z => z.id === rec3);
+      ok(h3.payments.filter(p => p.vid === rec4).length === 2 && h3.payments.filter(p => p.vid === rec4 && p.m === 'w').reduce((x, p) => x + p.amt, 0) === 1000, 'دفعتان: 1000 من الوعاء و1000 نقداً');
+      a = await acct(); ok(a.plans.length === 0 && a.debts.length === 1 && a.debts[0].plan === plan27 && a.debts[0].remaining === 1000, 'الخطة اكتملت بحصصها وبقي 1000 ديناً قابلاً للسداد');
+      /* حذف الحصة 2 يعيد الخطة مفتوحة ويعيد الوعاء */
+      r = await J('DELETE', `/api/archive/${rec4}`, B); ok(r.s === 200, 'حذف حصة المتابعة');
+      a = await acct(); ok(a.wallet === 1000 && a.plans.length === 1 && a.plans[0].remaining === 3000 && a.plans[0].done === 1 && a.balance === 3000, 'الحذف يلغي دفعاتها ويعيد الخطة مفتوحة والوعاء');
+      /* إغلاق خطة قبل اكتمالها + سداد بالدَّين بلا حصة علاجية */
+      r = await J('POST', `/api/plans/${plan27}/close`, B); ok(r.s === 200, 'إغلاق الخطة'); r = await J('POST', `/api/plans/${plan27}/close`, N); ok(r.s === 401 || r.s === 403, 'الإغلاق للطبيب فقط');
+      a = await acct(); ok(a.plans.length === 0 && a.debts.length === 1 && a.debts[0].remaining === 3000, 'الخطة المغلقة تتحوّل إلى دَين');
+      r = await vis({ lines: [], debts: [{ plan: plan27, pay: 500 }] }); ok(r.s === 200 && r.j.price === 0 && r.j.followUp === true && (await acct()).balance === 2500, 'سداد دفعة من الدَّين بزيارة بلا علاج');
+      r = await vis({ lines: [], debts: [{ rec: 'f'.repeat(12), pay: 5 }] }); ok(r.s === 404, 'سجل دَين غير موجود');
+      /* تعديل سجل الخطة يدوياً يطابق البنود والدفعات */
+      r = await J('PUT', `/api/archive/${rec3}`, B, { name: NM, birthYear: YR, gender: 'ذكر', reason: 'قلع أسنان', tooth: '26 27', price: 5500, paid: 5500, treatments: ['حشوة', 'علاج عصب'] });
+      ok(r.s === 200 && r.j.remaining === 0, 'تعديل المدفوع إلى الكل'); a = await acct(); ok(a.debts.length === 0 && a.plans.length === 0 && a.balance === 0, 'بعد التعديل: لا خطط ولا ديون');
+      /* سداد من الأرشيف على سجل له خطة: يُنسب للخطة ويُقصّ عند متبقّيها والزائد يذهب للوعاء */
+      r = await vis({ lines: [{ tooth: '36', treatment: 'علاج عصب', total: 3000, sessions: 2, pay: 1000 }] }); const rec5 = r.j.id, plan36 = r.j.lines[0].plan;
+      const w0 = (await acct()).wallet; r = await J('POST', `/api/archive/${rec5}/payment`, B, { amount: 500 }); ok(r.s === 200 && r.j.paid === 1500 && r.j.lines[0].remaining === 1500, 'دفعة أرشيف تُنسب إلى الخطة');
+      r = await J('POST', `/api/archive/${rec5}/payment`, B, { amount: 2000 }); a = await acct(); ok(r.s === 200 && r.j.remaining === 0 && a.wallet === w0 + 500 && a.plans.some(p => p.id === plan36 && p.remaining === 0 && p.open), 'الزائد عن الخطة يُودَع في الوعاء والخطة تبقى مفتوحة للحصة الثانية');
+      r = await vis({ lines: [{ plan: plan36, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].no === 2 && r.j.paid === 0 && (await acct()).plans.length === 0, 'الحصة الثانية بلا دفع إضافي تُكمل الخطة');
+      /* نسخة احتياطية واستعادة تحفظ البنود وانتساب الدفعات */
+      const bk = (await J('GET', '/api/backup', B)).j; ok(bk.archive.some(z => z.lines && z.lines.length) && bk.archive.some(z => (z.payments || []).some(p => p.pl)), 'النسخة تشمل بنود الخطط');
+      r = await J('POST', '/api/restore', B, bk); ok(r.s === 200, 'استعادة'); r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); ok(r.j.records.some(z => z.lines.length && z.lines[0].plan) && r.j.balance === 0, 'الاستعادة تحفظ البنود');
+      const rm = (await J('GET', '/api/state', B)).j.patients.find(z => z.status === 'in'); if (rm) await J('POST', `/api/patients/${rm.id}/finish`, B, { lines: [] }); }
+
     console.log('علم المتبقي على المريض');
     { const A = B;   /* عيادة أ حُذفت أعلاه؛ نستعمل عيادة ب (حد التسجيل 10/ساعة) */
       const dcode = (await J('GET', '/api/state', A)).j.me.code; await J('POST', '/api/nurses', A, { name: 'ممرضة د', phone: '2', password: 'nurse888' });

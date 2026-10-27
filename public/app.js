@@ -118,8 +118,10 @@ Object.assign(L.ar, { dlg_ok: 'موافق', lock_ask: '🔒 هذا القسم م
 Object.assign(L.en, { dlg_ok: 'OK', lock_ask: '🔒 This section is protected. Enter the doctor password:', e_locked: 'Password protected', prot_title: '🔒 Archive & edits protection', prot_on: 'Protection is ON — tap to turn off', prot_off: 'Protection is OFF — tap to turn on', prot_pw_on: 'Enter the doctor password to turn protection on:', prot_pw_off: 'Enter the doctor password to turn protection off:', prot_hint: 'When on, the app asks for the doctor password to open the archive or a patient history, edit or delete records, add payments or export backups. Unlock stays valid 10 minutes after last use.' });
 Object.assign(L.ar, { debt_note: 'تنبيه: على هذا المريض متبقٍّ غير مدفوع قدره {x}', pay_recv: 'سدّد دَين الحصة {n} ({tr})', wal_chk: 'الدفع من الوعاء', rc_price: 'سعر هذه الحصة', rc_wallet: 'من الوعاء', rc_cash: 'نقداً', rc_left: 'المتبقي من هذه الحصة', rc_to_debt: 'الزيادة تسدّد دَيناً سابقاً', rc_to_wal: 'الزيادة تُودَع في الوعاء', rc_all_debt: 'مجموع ديون المريض بعد الحصة', pay_src_q: 'سداد {a} — من أين؟', pay_ledger: '💵 سجل الدفعات', pay_for: 'عن الحصة', pay_same: 'في نفس الحصة', pay_in_visit: 'في الحصة {n} ({d})', pay_later: 'لاحقاً من الأرشيف', pay_cash: 'دفعة نقدية', pay_wallet: 'من الوعاء', pay_cut_wal: 'اقتُطع من الوعاء', snd_test: 'تجربة النغمات', snd_names: ['مريض جديد', 'دخول المعاينة', 'انتهاء المعاينة', 'مهمة جديدة', 'إنجاز مهمة', 'طلب تخطي', 'رفض الطلب', 'حان دور المريض'], paid_full: 'مدفوع بالكامل', follow_b: 'حصة متابعة', wal_bal_b: 'رصيد الوعاء', treat_l: 'العلاج:', pay_dep: 'إيداع في الوعاء', pay_out: 'استرجاع نقدي من الوعاء', pay_dep_in: 'أثناء الحصة {n} ({d})', pay_dep_manual: 'إيداع مباشر',
   wal_title: 'وعاء المريض', wal_bal: 'الرصيد:', wal_use: 'اقتطاع من الوعاء', wal_dep: 'إيداع في الوعاء', wal_out: 'استرجاع نقدي', wal_dep_q: 'مبلغ الإيداع في وعاء المريض:', wal_out_q: 'المبلغ المسترجع نقداً للمريض:', wal_saved: 'تم تحديث الوعاء ✅', wal_excess: 'الفائض {x} يُودَع في وعاء المريض', wal_after: 'رصيد الوعاء بعد الحصة:', pay_from_wal_q: 'سداد الدفعة من وعاء المريض (الرصيد {w})؟\nموافق = من الوعاء · إلغاء = نقداً', e_wallet_empty: 'لا يوجد رصيد في الوعاء', e_wallet_short: 'المبلغ أكبر من رصيد الوعاء', hist_wallet: 'الوعاء' });
+Object.assign(L.ar, { pat_debt: 'دين المريض', pl_title: 'خطة علاج اليوم', pl_none: 'لا توجد بنود. اختر السن والعلاج في الأعلى.', pl_session_n: 'الحصة {n} من {m}', pl_total: 'السعر الكلي للعلاج', pl_sess_1: 'حصة واحدة', pl_sess_2: 'حصتان', pl_split_hint: 'يُقسَّم السعر بين الحصتين: يُقترح دفع {a} اليوم والباقي في الحصة الثانية (يمكنك تغيير المبلغ).', pl_one_hint: 'يُدفع كامل السعر في هذه الحصة.', pl_pay_now: 'يُدفع اليوم', pl_left_after: 'المتبقي من هذا البند بعد اليوم', pl_all: 'الكل', pl_half: 'النصف', pl_zero: '٠', pl_del: 'إزالة البند', pl_prev_title: 'متبقٍّ سابق وخطط جارية', pl_next_session: 'الحصة القادمة {n} من {m}', pl_go: '▶ متابعة اليوم', pl_close: 'إغلاق الخطة', pl_close_q: 'إغلاق هذه الخطة؟ لن تُطلب لها حصص أخرى، ويبقى متبقّيها ديناً يمكن سداده لاحقاً.', pl_closed_t: 'أُغلقت الخطة', pl_tr_missing: 'العلاج «{n}» غير موجود في قائمة العلاجات؛ أضفه من الإعدادات أولاً', pl_sum_today: 'قيمة بنود اليوم', pl_sum_paid: 'المدفوع اليوم', pl_sum_wal: 'من الوعاء', pl_sum_cash: 'نقداً', pl_sum_after: 'المتبقي على المريض بعد هذه الزيارة', e_plan_closed: 'هذه الخطة مكتملة أو مغلقة' });
 Object.assign(L.en, { debt_note: 'Note: this patient has an unpaid balance of {x}', pay_recv: 'paid the debt of session {n} ({tr})', wal_chk: 'Pay from wallet', rc_price: 'This session price', rc_wallet: 'From wallet', rc_cash: 'Cash', rc_left: 'Left for this session', rc_to_debt: 'Excess pays an earlier debt', rc_to_wal: 'Excess goes to wallet', rc_all_debt: 'Total patient debt after', pay_src_q: 'Pay {a} — from where?', pay_ledger: '💵 Payments ledger', pay_for: 'for session', pay_same: 'same session', pay_in_visit: 'in session {n} ({d})', pay_later: 'later, from archive', pay_cash: 'Cash payment', pay_wallet: 'From wallet', pay_cut_wal: 'Deducted from wallet', snd_test: 'Preview sounds', snd_names: ['New patient', 'Patient entered', 'Consultation finished', 'New task', 'Task done', 'Skip request', 'Request denied', 'Patient turn'], paid_full: 'Fully paid', follow_b: 'Follow-up session', wal_bal_b: 'Wallet balance', treat_l: 'Treatment:', pay_dep: 'Wallet deposit', pay_out: 'Cash refund from wallet', pay_dep_in: 'during session {n} ({d})', pay_dep_manual: 'direct deposit',
   wal_title: 'Patient wallet', wal_bal: 'Balance:', wal_use: 'Deduct from wallet', wal_dep: 'Deposit to wallet', wal_out: 'Cash refund', wal_dep_q: 'Amount to deposit in the patient wallet:', wal_out_q: 'Amount refunded in cash to the patient:', wal_saved: 'Wallet updated ✅', wal_excess: 'The excess {x} goes to the patient wallet', wal_after: 'Wallet balance after this session:', pay_from_wal_q: 'Pay from the patient wallet (balance {w})?\nOK = wallet · Cancel = cash', e_wallet_empty: 'The wallet is empty', e_wallet_short: 'Amount exceeds the wallet balance', hist_wallet: 'Wallet' });
+Object.assign(L.en, { pat_debt: 'Patient debt', pl_title: "Today's treatment plan", pl_none: 'No items. Pick the tooth and treatment above.', pl_session_n: 'Session {n} of {m}', pl_total: 'Total treatment price', pl_sess_1: 'One session', pl_sess_2: 'Two sessions', pl_split_hint: 'The price is split between the two sessions: {a} is suggested today, the rest in session 2 (you can change the amount).', pl_one_hint: 'The full price is paid in this session.', pl_pay_now: 'Pay today', pl_left_after: 'Left on this item after today', pl_all: 'All', pl_half: 'Half', pl_zero: '0', pl_del: 'Remove item', pl_prev_title: 'Previous balance & ongoing plans', pl_next_session: 'Next: session {n} of {m}', pl_go: '▶ Continue today', pl_close: 'Close plan', pl_close_q: 'Close this plan? No more sessions will be expected and its remaining amount stays as a debt to settle later.', pl_closed_t: 'Plan closed', pl_tr_missing: 'The treatment "{n}" is not in your treatment list; add it in settings first', pl_sum_today: "Today's items value", pl_sum_paid: 'Paid today', pl_sum_wal: 'From wallet', pl_sum_cash: 'Cash', pl_sum_after: 'Patient balance after this visit', e_plan_closed: 'This plan is complete or closed' });
 const errMsg = e => t('e_' + ((e && e.code) || 'server_error')) || t('e_server_error');
 const genderL = g => (g === 'أنثى' ? t('female') : t('male'));
 const reasonL = r => { const f = REASONS.find(x => x[0] === r); return f ? (settings.lang === 'en' ? f[1] : f[0]) : r; };
@@ -326,7 +328,7 @@ function renderConsultation() {
   if (!a) { area.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);background:var(--surface-card);border-radius:16px">${t('empty_room')}</div>`; }
   else {
     const imgs = a.images.length ? a.images.map(id => `<div class="thumb-box"><img data-rec="${a.id}" data-img="${id}" data-act="lightbox" alt=""><button type="button" class="del-img" data-act="delImage" data-id="${a.id}" data-img="${id}">✕</button></div>`).join('') : `<span style="font-size:12px;color:var(--text-muted)">${t('no_images')}</span>`;
-    const owed = Math.max(a.debt || 0, prevBal());
+    const owed = Math.max(a.debt || 0, (S.account && S.account.balance) || 0);
     area.innerHTML = `<div class="consultation-card"><div class="cons-stick" aria-hidden="true"><div class="cons-stick-in">👤 ${esc(a.name)}</div></div>${owed > 0 ? `<div class="debt-alert">⚠️ ${t('debt_note', { x: money(owed) })}</div>` : ''}<div class="patient-highlight-box${owed > 0 ? ' has-debt' : (a.wallet > 0 || wBal() > 0) ? ' has-wallet' : ''}">
       <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:20px;font-weight:600">${t('consult_patient')} ${esc(a.name)}</div><span style="display:flex;gap:8px;align-items:center"><button type="button" class="btn-action btn-green" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}">${t('hist_title')}</button><button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${a.id}">✏️ ${t('edit')}</button><span style="background:var(--orange);padding:4px 14px;border-radius:20px;font-weight:600;font-size:13px">${t('ticket_no')} ${a.ticketNo}</span></span></div>
       <div style="margin-top:10px;padding:10px 14px;border-radius:12px;background:var(--surface-card);border-inline-start:5px solid var(--orange);font-size:15px">${t('reason_l')} <strong style="font-size:17px">${esc(reasonL(a.reason))}</strong></div>
@@ -417,54 +419,88 @@ function renderPriceForm() {
   $('.priceCur', f).value = cur();
 }
 document.addEventListener('input', ev => { const f = ev.target.closest && ev.target.closest('form[data-form=prices]'); if (f) f.dataset.dirty = '1'; });
-/* حالة المال في المعاينة */
-const prevBal = () => (S.account && S.account.balance) || 0;
+/* ===== خطة العلاج والحساب في المعاينة =====
+   كل بند = (سن + علاج). خطة بحصة واحدة تُدفع كاملة، أو بحصتين يُقسَّم سعرها الكلي بينهما (الحصة 1 دفعة، والحصة 2 المتبقي).
+   البنود تُشتقّ من اختيار الأسنان والعلاجات أعلاه؛ فإن كان للمريض خطة جارية على نفس السن والعلاج
+   يصير البند «متابعة» لها ويعرض متبقّيها مباشرة. ما عدا ذلك من متبقٍّ سابق يظهر أسفلها ليُسدَّد اختيارياً. */
 const wBal = () => (S.account && S.account.wallet) || 0, r2c = v => Math.round(v * 100) / 100;
-/* الوعاء: مربع اختيار واحد. إن فُعِّل يُخصم min(الرصيد، المطلوب في هذه الحصة) والباقي نقداً */
-const wTarget = () => S.followUp ? prevBal() : (+S.price || 0);
-const wUse = () => S.useWal && wBal() > 0 ? Math.max(0, Math.min(wBal(), wTarget())) : 0;
-function moneyReset() { S.price = ''; S.paid = ''; S.useWal = true; S.priceDirty = false; S.paidDirty = false; S.followUp = false; S.account = null; }
-/* سعر عدة علاجات: مجموع سعر كل علاج مختار (كلٌّ يُسعَّر بحسب الأسنان المحددة) */
-function priceForMany(trs, teeth) {
-  const items = trs.map(n => { const r = priceFor(n, teeth); return { name: n, price: r.total === '' ? 0 : r.total, has: r.total !== '', parts: r.parts }; });
-  const any = items.some(i => i.has);
-  return { total: any ? Math.round(items.reduce((x, y) => x + y.price, 0) * 100) / 100 : '', items };
+function moneyReset() { S.useWal = true; S.removed = new Set(); S.lov = {}; S.dpay = {}; S.account = null; }
+const defSessions = tr => /عصب|root|endo/i.test(tr) ? 2 : 1;   // علاج العصب غالباً حصتان
+const lineKey = (th, tr) => th + '|' + tr;
+function consLines() {
+  const plans = (S.account && S.account.plans) || [], teeth = [...S.teeth].sort(), used = new Set(), out = [];
+  for (const tr of S.treatments) for (const th of (teeth.length ? teeth : [''])) {
+    const key = lineKey(th, tr); if (S.removed.has(key)) continue;
+    const ov = S.lov[key] || {}, p = plans.find(x => x.tooth === th && x.treatment === tr && !used.has(x.id)); let L;
+    if (p) { used.add(p.id); const ps = ov.pay != null ? ov.pay : String(p.remaining); L = { key, th, tr, plan: p, cont: true, tot: p.total, sessions: p.sessions, no: p.done + 1, cap: p.remaining, payStr: ps, pay: Math.min(p.remaining, Math.max(0, +ps || 0)) }; }
+    else {
+      const auto = priceFor(tr, th ? [th] : []), ts = ov.total != null ? ov.total : (auto.total === '' ? '' : String(auto.total)), tot = Math.max(0, +ts || 0), sessions = ov.sessions || defSessions(tr);
+      const ps = ov.pay != null ? ov.pay : (ts === '' ? '' : String(sessions === 2 ? r2c(tot / 2) : tot));
+      L = { key, th, tr, cont: false, totStr: ts, tot, sessions, no: 1, cap: tot, payStr: ps, pay: Math.min(tot, Math.max(0, +ps || 0)), parts: auto.parts };
+    }
+    L.left = r2c((L.cont ? L.cap : L.tot) - L.pay); out.push(L);
+  }
+  return out;
 }
-/* إن مُسحت خانة المستحق يدوياً ثم غُيّر العلاج أو السن، يعود الحساب التلقائي ليملأها */
-const repriceIfEmpty = () => { if (S.priceDirty && String(S.price).trim() === '') S.priceDirty = false; };
-function recalc() {
-  const auto = S.followUp ? { total: 0, items: [] } : priceForMany(S.treatments, [...S.teeth]); S.items = auto.items;
-  if (!S.priceDirty) S.price = auto.total === '' ? '' : String(auto.total);
-  const due = +S.price || 0;
-  const w = wUse();
-  if (!S.paidDirty) S.paid = S.followUp ? (prevBal() ? String(r2c(Math.max(0, prevBal() - w))) : '') : (S.price === '' ? '' : String(r2c(Math.max(0, due - w))));
-  const set = (id, v) => { const e = $(id); if (e && e !== document.activeElement) e.value = v; };
-  set('#consultPrice', S.price); set('#consultPaid', S.paid);
-  const wl = $('#walLine'); if (wl) wl.textContent = S.useWal ? '− ' + money(w) : '';
-  const hint = $('#priceHint'); if (hint) hint.innerHTML = auto.items.length && !S.priceDirty && auto.items.some(i => i.has) ? auto.items.map(i => `<span class="ph-item"><b>${esc(treatLabel(i.name))}</b>${i.parts.length ? ` <small>(${i.parts.map(x => x.n + ' ' + t('price_cat_' + x.c)).join('، ')})</small>` : ''} ${money(i.price)}</span>`).join(' + ') + (auto.items.length > 1 ? ` <span class="ph-total">= <b>${money(auto.total)}</b></span>` : '') : '';
-  const cash = +S.paid || 0, tot = r2c(cash + w), after = Math.max(0, r2c(prevBal() + due - tot)), over = Math.max(0, r2c(tot - due)), toDebt = Math.min(over, prevBal()), toWal = r2c(Math.max(0, over - prevBal())), left = Math.max(0, r2c(due - tot)), sum = $('#moneySum');
+/* متبقٍّ سابق: خطط جارية لم يُتابَع بها اليوم + خطط مغلقة + سجلات قديمة غير مسدَّدة */
+function prevItems() {
+  const ac = S.account; if (!ac) return []; const cont = new Set(consLines().filter(l => l.cont).map(l => l.plan.id)), out = [];
+  for (const p of ac.plans || []) if (!cont.has(p.id)) out.push({ id: p.id, kind: 'plan', open: true, th: p.tooth, tr: p.treatment, tot: p.total, paid: p.paid, rem: p.remaining, next: p.done + 1, sessions: p.sessions });
+  for (const d of ac.debts || []) out.push({ id: d.plan || d.rec, kind: d.plan ? 'plan' : 'rec', open: false, th: d.tooth || '', tr: d.treatment, tot: d.total, paid: d.paid, rem: d.remaining });
+  for (const i of out) { i.payStr = S.dpay[i.id] == null ? '' : S.dpay[i.id]; i.pay = Math.min(i.rem, Math.max(0, +i.payStr || 0)); }
+  return out;
+}
+function moneyTotals() {
+  const ls = consLines(), ps = prevItems(), pay = r2c(ls.reduce((x, l) => x + l.pay, 0) + ps.reduce((x, i) => x + i.pay, 0)), due = r2c(ls.reduce((x, l) => x + (l.cont ? 0 : l.tot), 0));
+  const w = S.useWal && wBal() > 0 ? Math.min(wBal(), pay) : 0, bal = (S.account && S.account.balance) || 0;
+  return { ls, ps, pay, due, w, cash: r2c(pay - w), after: Math.max(0, r2c(bal + due - pay)) };
+}
+const wUse = () => moneyTotals().w;
+const plBadge = (th, tr) => `${th ? `<span class="pl-tooth">${esc(th)}</span>` : ''}<b>${esc(treatLabel(tr))}</b>`;
+function quickBtns(act, attrs) { return `<span class="pl-quick">${[['all', 'pl_all'], ['half', 'pl_half'], ['zero', 'pl_zero']].map(([v, k]) => `<button type="button" data-act="${act}" ${attrs} data-v="${v}">${t(k)}</button>`).join('')}</span>`; }
+function lineHTML(l) {
+  const k = esc(l.key), del = `<button type="button" class="pl-del" data-act="lineDel" data-key="${k}" title="${esc(t('pl_del'))}" aria-label="${esc(t('pl_del'))}">✕</button>`;
+  const pay = `<div class="pl-row"><label>💵 ${t('pl_pay_now')}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(l.payStr)}" data-input="lpay" data-key="${k}">${quickBtns('lpayQuick', `data-key="${k}"`)}</div><div class="pl-foot"><span>${t('pl_left_after')}</span><b class="pl-left"></b></div>`;
+  if (l.cont) return `<div class="pl-line pl-cont" data-key="${k}"><div class="pl-head">${plBadge(l.th, l.tr)}<span class="pl-badge cont">${t('pl_session_n', { n: l.no, m: l.sessions })}</span>${del}</div>
+    <div class="pl-info">${t('pl_total')} <b>${money(l.tot)}</b> · ${t('paid_l')} <b>${money(l.plan.paid)}</b> · ${t('rem_l')} <b class="pl-rem">${money(l.plan.remaining)}</b></div>${pay}</div>`;
+  const hint = l.sessions === 2 ? t('pl_split_hint', { a: money(r2c(l.tot / 2)) }) : t('pl_one_hint');
+  return `<div class="pl-line" data-key="${k}"><div class="pl-head">${plBadge(l.th, l.tr)}<span class="pl-badge">${t('pl_session_n', { n: 1, m: l.sessions })}</span>${del}</div>
+    ${l.parts && l.parts.length ? `<div class="pl-info"><small>${l.parts.map(x => x.n + ' ' + t('price_cat_' + x.c)).join('، ')}</small></div>` : ''}
+    <div class="pl-row"><label>${t('pl_total')}${cur() ? ' (' + esc(cur()) + ')' : ''}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(l.totStr)}" data-input="ltotal" data-key="${k}"></div>
+    <div class="pl-seg" role="group">${[1, 2].map(n => `<button type="button" class="${l.sessions === n ? 'on' : ''}" data-act="lineSess" data-key="${k}" data-v="${n}">${t('pl_sess_' + n)}</button>`).join('')}</div>
+    <div class="pl-hint" id="plh">${hint}</div>${pay}</div>`;
+}
+function prevHTML(i) {
+  const id = esc(i.id), title = plBadge(i.th, i.tr) + (i.open ? `<span class="pl-badge cont">${t('pl_next_session', { n: i.next, m: i.sessions })}</span>` : '');
+  return `<div class="pl-line pl-prev" data-id="${id}"><div class="pl-head">${title}</div>
+    <div class="pl-info">${t('paid_l')} <b>${money(i.paid)}</b> / ${money(i.tot)} · ${t('rem_l')} <b class="pl-rem" style="color:var(--danger-soft,#e8607a)">${money(i.rem)}</b></div>
+    ${i.rem > 0 ? `<div class="pl-row"><label>💵 ${t('pl_pay_now')}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(i.payStr)}" data-input="dpay" data-id="${id}"><span class="pl-quick"><button type="button" data-act="dpayAll" data-id="${id}">${t('pl_all')}</button></span></div>` : ''}
+    ${i.open ? `<div class="pl-acts"><button type="button" class="btn-action btn-green" data-act="planGo" data-id="${id}">${t('pl_go')}</button><button type="button" class="btn-action btn-red" data-act="planClose" data-id="${id}">${t('pl_close')}</button></div>` : ''}</div>`;
+}
+function sumHTML(m) {
   const ln = (l, v, cls) => `<div class="rc-row${cls ? ' ' + cls : ''}"><span>${l}</span><b>${v}</b></div>`;
-  if (sum) sum.innerHTML = ln(t('rc_price'), money(due)) + (w > 0 ? ln('🏺 ' + t('rc_wallet'), '− ' + money(w), 'rc-w') : '') + (cash > 0 ? ln('💵 ' + t('rc_cash'), '− ' + money(cash)) : '')
-    + ln(t('rc_left'), money(left), left > 0 ? 'rc-bad rc-total' : 'rc-ok rc-total')
-    + (toDebt > 0 ? ln(t('rc_to_debt'), money(toDebt), 'rc-note') : '') + (toWal > 0 ? ln('🏺 ' + t('rc_to_wal'), '+ ' + money(toWal), 'rc-note') : '')
-    + (prevBal() > 0 ? ln(t('rc_all_debt'), money(after), after > 0 ? 'rc-bad' : 'rc-ok') : '')
-    + (S.account && (wBal() > 0 || toWal > 0) ? ln(t('wal_after'), money(r2c(wBal() - w + toWal)), 'rc-note') : '');
+  return (m.due > 0 ? ln(t('pl_sum_today'), money(m.due)) : '') + (m.pay > 0 ? ln(t('pl_sum_paid'), money(m.pay)) + (m.w > 0 ? ln('🏺 ' + t('pl_sum_wal'), '− ' + money(m.w), 'rc-w') + ln('💵 ' + t('pl_sum_cash'), money(m.cash)) : '') : '')
+    + ln(t('pl_sum_after'), money(m.after), (m.after > 0 ? 'rc-bad' : 'rc-ok') + ' rc-total') + (S.account && wBal() > 0 ? ln(t('wal_after'), money(r2c(wBal() - m.w)), 'rc-note') : '');
 }
-function moneyHTML() {
-  const ac = S.account, has = ac && ac.records && ac.records.length;
-  const acct = has ? `<div class="acct-box"><div class="acct-head"><strong>${t('acct_title')}</strong>${ac.balance > 0 ? `<span class="acct-debt">${t('acct_prev')} <b>${money(ac.balance)}</b></span>` : ''}</div>
-    ${ac.records.filter(r => r.remaining > 0).map(r => `<div class="acct-row"><span>${esc(r.treatment)}${r.tooth ? ' · ' + esc(r.tooth) : ''} · ${new Date(r.finishedAt).toLocaleDateString(locale())}</span><span>${t('paid_l')} ${money(r.paid)} / ${money(r.price)}</span></div>`).join('')}
-    <label class="acct-follow"><input type="checkbox" data-act="followUp" ${S.followUp ? 'checked' : ''} style="width:auto"> ${t('follow_l')}</label></div>` : '';
-  const wal = S.account ? `<div class="wallet-box"><div class="acct-head"><strong>🏺 ${t('wal_title')}</strong><span>${t('wal_bal')} <b>${money(wBal())}</b></span></div>
-    ${wBal() > 0 ? `<label class="acct-follow"><input type="checkbox" data-act="useWal" ${S.useWal ? 'checked' : ''} style="width:auto"> ${t('wal_chk')} <b id="walLine"></b></label>` : ''}
-    <button type="button" class="btn-action btn-green" data-act="walDeposit" data-name="${esc(S.account.key.name)}" data-year="${S.account.key.year}" data-ctx="room">${t('wal_dep')}</button></div>` : '';
-  return acct + wal + `<div class="money-box">
-    <div class="money-row"><label>${t('due_l')}${cur() ? ' (' + esc(cur()) + ')' : ''}</label><input type="number" id="consultPrice" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(S.price))}" data-input="price"></div>
-    <div id="priceHint" class="price-hint"></div>
-    <div class="money-row"><label>💵 ${t('paid_now')}</label><input type="number" id="consultPaid" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(S.paid))}" data-input="paid"></div>
-    <div class="money-quick"><button type="button" data-act="payQuick" data-v="all">${t('pay_all')}</button><button type="button" data-act="payQuick" data-v="half">${t('pay_half')}</button><button type="button" data-act="payQuick" data-v="zero">${t('pay_zero')}</button></div>
-    <div id="moneySum" class="money-sum"></div></div>`;
+function planBoxInner() {
+  const m = moneyTotals(), ac = S.account;
+  const wal = ac ? `<div class="wallet-box"><div class="acct-head"><strong>🏺 ${t('wal_title')}</strong><span>${t('wal_bal')} <b>${money(wBal())}</b></span></div>
+    ${wBal() > 0 ? `<label class="acct-follow"><input type="checkbox" data-act="useWal" ${S.useWal ? 'checked' : ''} style="width:auto"> ${t('wal_chk')} <b id="walLine">${S.useWal && m.w > 0 ? '− ' + money(m.w) : ''}</b></label>` : ''}
+    <button type="button" class="btn-action btn-green" data-act="walDeposit" data-name="${esc(ac.key.name)}" data-year="${ac.key.year}" data-ctx="room">${t('wal_dep')}</button></div>` : '';
+  return `<div class="plan-box"><div class="acct-head"><strong>🦷 ${t('pl_title')}</strong></div>${m.ls.length ? m.ls.map(lineHTML).join('') : `<div class="hint" style="padding:6px 0">${t('pl_none')}</div>`}</div>
+    ${m.ps.length ? `<div class="acct-box"><div class="acct-head"><strong>${t('pl_prev_title')}</strong>${ac && ac.balance > 0 ? `<span class="acct-debt">${t('acct_prev')} <b>${money(ac.balance)}</b></span>` : ''}</div>${m.ps.map(prevHTML).join('')}</div>` : ''}
+    ${wal}<div id="moneySum" class="money-sum">${sumHTML(m)}</div>`;
 }
+const moneyHTML = () => `<div id="planBox">${planBoxInner()}</div>`;
+/* تحديث الأرقام فقط (أثناء الكتابة) دون إعادة بناء الحقول فلا يضيع التركيز */
+function moneyUpdate() {
+  const m = moneyTotals(), act = document.activeElement;
+  $$('#planBox .pl-line[data-key]').forEach(row => { const l = m.ls.find(x => x.key === row.dataset.key); if (!l) return; const pi = $('[data-input=lpay]', row); if (pi && pi !== act) pi.value = l.payStr; const lf = $('.pl-left', row); if (lf) { lf.textContent = money(l.left); lf.style.color = l.left > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'; } const h = $('.pl-hint', row); if (h && !l.cont) h.textContent = l.sessions === 2 ? t('pl_split_hint', { a: money(r2c(l.tot / 2)) }) : t('pl_one_hint'); });
+  const sm = $('#moneySum'); if (sm) sm.innerHTML = sumHTML(m); const wl = $('#walLine'); if (wl) wl.textContent = S.useWal && m.w > 0 ? '− ' + money(m.w) : '';
+}
+function recalc() { const b = $('#planBox'); if (!b) return; if (b.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return moneyUpdate(); b.innerHTML = planBoxInner(); moneyUpdate(); }
+/* مفاتيح بنود محذوفة يدوياً تعود إن اختار الطبيب السن أو العلاج من جديد */
+const unRemove = (th, tr) => { for (const k of [...S.removed]) { const [a, b] = k.split('|'); if ((th && a === th) || (tr && b === tr)) S.removed.delete(k); } };
 async function loadAccount(a) {
   try { const r = await api('GET', `/api/account?name=${encodeURIComponent(a.name)}&year=${a.birthYear}`); if (!S.me || $('#consultationArea').dataset.pid !== a.id) return; r.key = { name: a.name, year: a.birthYear }; S.account = r; recalc(); const c = $('#consultationArea'); c.dataset.sig = ''; renderAll(); } catch (e) {}
 }
@@ -618,7 +654,7 @@ function loadArchive(reset = true) {
 function renderArchive() {
   $('#archiveResultCount').textContent = S.archive.total; $('#archiveSum').innerHTML = S.archive.sum ? `${t('total_due')} <b>${money(S.archive.sum)}</b> · ${t('total_paid')} <b>${money(S.archive.paidSum)}</b>${S.archive.debt ? ` · ${t('total_debt')} <b style="color:var(--danger-soft,#e8607a)">${money(S.archive.debt)}</b>` : ''}` : '';
   const l = $('#archiveList');
-  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card${a.remaining > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${(a.treatments || [a.treatment]).map(n => `<span class="badge">${esc(n)}</span>`).join(' ')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(a.price)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}${a.followUp ? ` <span class="badge">${t('follow_b')}</span>` : ''}
+  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card${a.remaining > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${lineBadges(a, 'badge')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(a.price)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}${a.followUp ? ` <span class="badge">${t('follow_b')}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong></div>
     ${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(a, a) : ''}
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
@@ -639,6 +675,8 @@ async function walMove(el, op) {
 }
 /* أين دُفعت الدفعة؟ (رقم الحصة التي دُفعت فيها) */
 const dShort = v => v ? new Date(v).toLocaleDateString(locale(), { dateStyle: 'medium' }) : '—', tShort = v => v ? new Date(v).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '';
+/* شارات العلاج: لكل بند خطة «سن · علاج (الحصة n/m)»، وللسجلات القديمة أسماء العلاجات */
+const lineBadges = (x, cls) => (x.lines && x.lines.length ? x.lines.map(l => `<span class="${cls}">${l.tooth ? esc(l.tooth) + ' · ' : ''}${esc(treatLabel(l.treatment))}${l.sessions > 1 ? ` (${l.no}/${l.sessions})` : ''}</span>`) : (x.treatments || [x.treatment]).map(n => `<span class="${cls}">${esc(n)}</span>`)).join(' ');
 const payWhere = (p, recId) => p.vid && p.vid === recId ? t('pay_same') : p.vn ? t('pay_in_visit', { n: p.vn, d: dShort(p.vat) }) : t('pay_later');
 const payLbl = p => p.m === 'w' ? t('pay_cut_wal') : t('pay_cash');
 const payChips = (ps, recId) => `<div class="pay-chips">${ps.map(p => `<span class="pay-chip${p.m === 'w' ? ' w' : ''}"><b class="${p.m === 'w' ? 'wal-tag' : 'cash-tag'}">${payLbl(p)}</b>: <b>${money(p.amt)}</b> · ${dShort(p.t)} ${tShort(p.t)} · ${payWhere(p, recId)}</span>`).join('')}</div>`;
@@ -648,6 +686,11 @@ const NEUTRAL_TR = /استشارة|تبييض|أخرى|consult|whiten|other/i, E
 function teethStatus(records) {
   const st = new Map();
   records.forEach(x => {
+    if (x.lines && x.lines.length) {
+      const lab = new Date(x.finishedAt).toLocaleDateString(locale(), { dateStyle: 'medium' });
+      x.lines.forEach(l => { const n = String(l.tooth || ''); if (!ALL_TEETH.has(n)) return; const ext = EXT_TR.test(l.treatment), trt = !ext && !NEUTRAL_TR.test(l.treatment); if (!ext && !trt) return; const o = st.get(n); if (o && o.kind === 'ext') return; st.set(n, { kind: ext ? 'ext' : 'trt', label: l.treatment + ' · ' + lab }); });
+      return;
+    }
     const tl = x.treatments || String(x.treatment || '').split(' + '), teeth = (x.teeth || []).filter(n => ALL_TEETH.has(String(n)));
     if (!teeth.length) return;
     const ext = tl.some(n => EXT_TR.test(n)), trt = tl.some(n => !EXT_TR.test(n) && !NEUTRAL_TR.test(n));
@@ -677,7 +720,7 @@ async function showHistory(name, year) {
       <div class="hi-line">${t('reason_s')}: ${esc(reasonL(r.current.reason))} | ${t('tooth')}: <strong>${esc(r.current.tooth || '---')}</strong> | ${t('date_l')} ${dt(r.current.createdAt)}</div>${imgs(r.current)}</div>` : '';
   const vis = new Map(r.records.map((x, i) => [x.id, { n: i + 1, at: x.finishedAt }]));
   const wlog = (r.wallet ? r.wallet.log : []).filter(e => e.k === 'dep' || e.k === 'out');
-  const trName = x => esc(x.treatments ? x.treatments.join(' + ') : x.treatment);
+  const trName = x => esc(x.lines && x.lines.length ? x.lines.map(l => (l.tooth ? l.tooth + ' ' : '') + l.treatment).join(' + ') : (x.treatments ? x.treatments.join(' + ') : x.treatment));
   /* خط زمني واحد: كل حصة (العلاج بارز) ومعها مدفوعاتها، وبينها حركات الوعاء المستقلة */
   const visitHTML = (x, n) => {
     const own = x.payments && x.payments.length ? payChips(x.payments, x.id) : '';
@@ -685,7 +728,7 @@ async function showHistory(name, year) {
     const dep = wlog.filter(e => e.vid === x.id).map(e => `<span class="pay-chip dep"><b class="wal-tag">${t('pay_dep')}</b>: <b>${money(e.amt)}</b></span>`);
     const extra = recv.concat(dep).join('');
     return `<div class="hist-item"><div class="hi-date">${t('hist_visit_n', { n })} · ${dt(x.finishedAt)}${x.followUp ? ' · ' + t('follow_b') : ''}</div>
-      <div class="hi-treat">${t('treat_l')} ${(x.treatments || [x.treatment]).map(n => `<span class="hi-tbadge">${esc(n)}</span>`).join(' ')}</div>
+      <div class="hi-treat">${t('treat_l')} ${lineBadges(x, 'hi-tbadge')}</div>
       <div class="hi-line">${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ${t('reason_s')}: ${esc(reasonL(x.reason))}</div>
       ${x.price != null ? `<div class="hi-line hi-money">${t('due_l')} ${money(x.price)} · ${t('paid_l')} ${money(x.paid)}${x.remaining > 0 ? ` · <b style="color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(x.remaining)}</b>` : ` · <b style="color:var(--success,#2e9e6b)">${t('paid_full')}</b>`}</div>` : ''}
       ${own || extra ? `<div class="hi-line">${t('pays_l')}${own}${extra ? `<div class="pay-chips">${extra}</div>` : ''}</div>` : ''}
@@ -877,18 +920,32 @@ const ACT = {
   qrShare: () => { const p = S.patients.find(x => x.id === S.qrPid); if (p && navigator.share) navigator.share({ title: S.me.clinicName, url: ticketUrl(p) }).catch(() => {}); },
   openCamera: el => openCamera(el.dataset.id), pickFile: el => pickFile(el.dataset.id), snap, closeCamera,
   async delImage(el) { if (await run(() => api('DELETE', `/api/patients/${el.dataset.id}/images/${el.dataset.img}`))) refresh(); },
-  tooth(el) { const n = el.dataset.n; if (S.teeth.has(n)) S.teeth.delete(n); else S.teeth.add(n); el.classList.toggle('on', S.teeth.has(n)); $('#teethSum').innerHTML = teethSumText(); repriceIfEmpty(); recalc(); },
+  tooth(el) { const n = el.dataset.n; if (S.teeth.has(n)) S.teeth.delete(n); else S.teeth.add(n); el.classList.toggle('on', S.teeth.has(n)); if (S.teeth.has(n)) unRemove(n, ''); $('#teethSum').innerHTML = teethSumText(); recalc(); },
   teethSet(el) { S.teethSet = el.dataset.v; const box = el.closest('.teeth-box'); box.outerHTML = teethHTML(); },
   soundTest(el) { const k = UISound.names, i = (S.sndI = ((S.sndI == null ? -1 : S.sndI) + 1) % k.length); UISound.play(k[i]); toast((i + 1) + '/' + k.length + ' · ' + (t('snd_names')[i] || k[i]), 'success'); },
-  teethClear() { S.teeth.clear(); $$('.tooth-btn.on').forEach(x => x.classList.remove('on')); $('#teethSum').innerHTML = teethSumText(); repriceIfEmpty(); recalc(); },
-  followUp(el) {
-    S.followUp = el.checked; S.priceDirty = false; S.paidDirty = false;
-    const r = el.checked && S.account && S.account.records.find(x => x.remaining > 0) || null;
-    if (r) { const tl = (r.treatments || [r.treatment]).filter(x => treatList().includes(x)); if (tl.length) S.treatments = tl; S.teeth = new Set(r.teeth || []); }
+  teethClear() { S.teeth.clear(); $$('.tooth-btn.on').forEach(x => x.classList.remove('on')); $('#teethSum').innerHTML = teethSumText(); recalc(); },
+  useWal(el) { S.useWal = el.checked; recalc(); },
+  lineDel(el) { S.removed.add(el.dataset.key); recalc(); },
+  lineSess(el) { const o = S.lov[el.dataset.key] = S.lov[el.dataset.key] || {}; o.sessions = +el.dataset.v; delete o.pay; recalc(); },
+  lpayQuick(el) {
+    const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const cap = l.cont ? l.cap : l.tot, v = el.dataset.v;
+    (S.lov[l.key] = S.lov[l.key] || {}).pay = v === 'all' ? String(cap) : v === 'half' ? String(r2c(cap / 2)) : '0'; recalc();
+  },
+  dpayAll(el) { const i = prevItems().find(x => String(x.id) === el.dataset.id); if (i) { S.dpay[i.id] = String(i.rem); recalc(); } },
+  /* متابعة خطة جارية اليوم: نضيف سنّها وعلاجها للاختيار، ونخفي بنوداً جانبية لا يريدها الطبيب من تقاطع الاختيارين */
+  planGo(el) {
+    const p = ((S.account && S.account.plans) || []).find(x => x.id === el.dataset.id); if (!p) return;
+    if (!treatList().includes(p.treatment)) return toast(t('pl_tr_missing', { n: p.treatment }), 'warning');
+    const before = new Set(consLines().map(x => x.key)), pk = lineKey(p.tooth, p.treatment);
+    if (!S.treatments.includes(p.treatment)) S.treatments.push(p.treatment);
+    if (p.tooth) { S.teeth.add(p.tooth); S.teethSet = +p.tooth >= 51 && +p.tooth <= 85 ? 'child' : 'adult'; }
+    S.removed.delete(pk); for (const x of consLines()) if (!before.has(x.key) && x.key !== pk) S.removed.add(x.key);
     const c = $('#consultationArea'); c.dataset.sig = ''; renderAll();
   },
-  useWal(el) { S.useWal = el.checked; S.paidDirty = false; recalc(); },
-  payQuick(el) { const due = +S.price || 0, v = el.dataset.v, w = wUse(); S.paid = v === 'all' ? String(r2c(Math.max(0, due + prevBal() - w))) : v === 'half' ? String(r2c(Math.max(0, due - w) / 2)) : '0'; S.paidDirty = true; recalc(); },
+  async planClose(el) {
+    if (!await appConfirm(t('pl_close_q'))) return;
+    if (await run(() => api('POST', `/api/plans/${el.dataset.id}/close`))) { toast(t('pl_closed_t'), 'info'); const a = S.patients.find(p => p.status === 'in'); if (a) loadAccount(a); }
+  },
   async addPayment(el) {
     const rem = +el.dataset.rem, wal = +el.dataset.wallet || 0, v = await appPrompt(t('pay_prompt', { r: money(rem) }), rem, false, true); if (v == null) return;
     const fromW = wal > 0 ? await appDialog({ msg: t('pay_src_q', { a: money(Math.min(+v, rem)) }), okL: '🏺 ' + t('pay_wallet') + ' (' + money(wal) + ')', noL: '💵 ' + t('pay_cash'), cancelL: 1 }) : false; if (fromW === null) return;
@@ -896,9 +953,9 @@ const ACT = {
   },
   async walDeposit(el) { return walMove(el, 'dep'); },
   async walOut(el) { return walMove(el, 'out'); },
-  treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); repriceIfEmpty(); recalc(); },
+  treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); if (i < 0) unRemove('', v); recalc(); },
   async finish(el) {
-    const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { treatment: S.treatments.join(' + '), treatments: S.treatments, items: (S.items || []).map(i => ({ name: i.name, price: i.price })), price: $('#consultPrice') ? $('#consultPrice').value : '', paid: $('#consultPaid') ? $('#consultPaid').value : '', wallet: wUse(), followUp: S.followUp, teeth: [...S.teeth], notes: ($('#consultNotes') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
+    const m = moneyTotals(), r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay } : { tooth: l.th, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, notes: ($('#consultNotes') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
   },
   copyCode: () => copyText(S.me.code || ''),
@@ -971,8 +1028,9 @@ document.addEventListener('input', e => {
   const el = e.target;
   if (el.dataset.input === 'age') updateAge(el.dataset.pre);
   else if (el.dataset.input === 'archive') loadArchive(true);
-  else if (el.dataset.input === 'price') { S.price = el.value; S.priceDirty = true; recalc(); }
-  else if (el.dataset.input === 'paid') { S.paid = el.value; S.paidDirty = true; recalc(); }
+  else if (el.dataset.input === 'ltotal') { (S.lov[el.dataset.key] = S.lov[el.dataset.key] || {}).total = el.value; moneyUpdate(); }
+  else if (el.dataset.input === 'lpay') { (S.lov[el.dataset.key] = S.lov[el.dataset.key] || {}).pay = el.value; moneyUpdate(); }
+  else if (el.dataset.input === 'dpay') { S.dpay[el.dataset.id] = el.value; moneyUpdate(); }
 });
 document.addEventListener('change', e => {
   const el = e.target, c = el.dataset.change;

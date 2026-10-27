@@ -750,3 +750,30 @@ label{font-weight:600;font-size:14px}
 .rxl-prev{margin-bottom:12px}.rxl-prev>summary{cursor:pointer;font-size:13px;color:#555;margin-bottom:8px;user-select:none}
 .rxl-prev-box{background:#d9dbe3;border-radius:8px;padding:8px;overflow:hidden;direction:ltr}
 .rxl-prev-box .rxl{margin:0 auto;box-shadow:0 1px 8px rgba(0,0,0,.25)}
+
+/* ===== خطة العلاج لكل سن ===== */
+.plan-box{background:var(--surface-sunk);border:1px solid var(--border-calm);border-radius:14px;padding:14px;margin-bottom:14px}
+.pl-line{background:var(--surface-card);border:1px solid var(--border-calm);border-radius:12px;padding:12px;margin-top:10px}
+.pl-line.pl-cont{border-color:color-mix(in srgb,#2e9e6b 55%,var(--border-calm));background:color-mix(in srgb,#2e9e6b 7%,var(--surface-card))}
+.pl-line.pl-prev{border-color:color-mix(in srgb,var(--danger-soft,#e8607a) 40%,var(--border-calm))}
+.pl-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:15px}
+.pl-head .pl-del{margin-inline-start:auto}
+.pl-tooth{background:var(--primary-sage);color:var(--on-primary);border-radius:8px;padding:2px 9px;font-weight:700;font-size:14px}
+.pl-badge{font-size:12px;padding:2px 10px;border-radius:999px;background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange);font-weight:600}
+.pl-badge.cont{background:color-mix(in srgb,#2e9e6b 20%,transparent);color:#2e9e6b}
+.pl-del{border:0;background:transparent;color:var(--text-secondary);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:8px}
+.pl-del:hover{background:color-mix(in srgb,var(--danger-soft,#e8607a) 18%,transparent);color:var(--danger-soft,#e8607a)}
+.pl-info{font-size:12.5px;color:var(--text-secondary);margin-top:6px}
+.pl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pl-row label{font-size:13px;font-weight:600;color:var(--text-secondary);min-width:96px}
+.pl-row input{flex:1;min-width:110px}
+.pl-quick{display:flex;gap:6px}
+.pl-quick button{border:1px solid var(--border-calm);background:var(--surface-sunk);color:var(--text-primary);padding:6px 12px;border-radius:999px;font-size:12px;cursor:pointer}
+.pl-seg{display:flex;margin-top:10px;border:1px solid var(--border-calm);border-radius:12px;overflow:hidden}
+.pl-seg button{flex:1;border:0;background:var(--surface-sunk);color:var(--text-primary);padding:10px;font-size:14px;font-weight:600;cursor:pointer}
+.pl-seg button+button{border-inline-start:1px solid var(--border-calm)}
+.pl-seg button.on{background:var(--primary-sage);color:var(--on-primary)}
+.pl-hint{font-size:12px;color:var(--text-secondary);margin-top:6px}
+.pl-foot{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:8px;padding-top:6px;border-top:1px dashed var(--border-calm)}
+.pl-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+@media(max-width:520px){.pl-row label{min-width:100%}}
