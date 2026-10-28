@@ -164,11 +164,11 @@
 <div id="doctorScreen" class="screen">
   <div class="hero">
     <div class="hero-id"><div class="hero-clinic" id="doctorHeaderTitle"></div><div class="hero-doc" id="doctorSubtitle"></div></div>
-    <div class="hero-side"><div class="clk" aria-live="off"><div class="clk-time"><span class="clk-hm"></span><small class="clk-s"></small></div><div class="clk-date"></div></div>
+    <div class="hero-side"><div class="clk led" aria-live="off"><div class="led-main"><b class="led-ap"></b><div class="clk-hm"></div><div class="clk-s"></div></div><div class="led-days"></div><div class="clk-date"></div></div>
     <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button></div>
   </div>
   <div class="nav-tabs">
-    <button type="button" class="tab-btn active" data-act="docTab" data-tab="waiting"><span data-i18n="tab_waiting">الانتظار</span> (<span id="waitingCount">0</span>)</button>
+    <button type="button" class="tab-btn active" data-act="docTab" data-tab="waiting"><span data-i18n="tab_waiting">الانتظار</span> <span id="waitingCount" class="count-badge zero">0</span></button>
     <button type="button" class="tab-btn" id="consultationNavBtn" data-act="docTab" data-tab="consultation" data-i18n="tab_consult">المعاينة 🩺</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="addPatientDoc" data-i18n="tab_add">تسجيل ➕</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="nurses" data-i18n="tab_nurses">الممرضات 👩‍⚕️</button>
@@ -266,7 +266,7 @@
 <div id="nurseScreen" class="screen">
   <div class="hero">
     <div class="hero-id"><div class="hero-clinic" id="nurseHeaderTitle"></div><div class="hero-doc" id="nurseUserWelcome"></div></div>
-    <div class="hero-side"><div class="clk" aria-live="off"><div class="clk-time"><span class="clk-hm"></span><small class="clk-s"></small></div><div class="clk-date"></div></div>
+    <div class="hero-side"><div class="clk led" aria-live="off"><div class="led-main"><b class="led-ap"></b><div class="clk-hm"></div><div class="clk-s"></div></div><div class="led-days"></div><div class="clk-date"></div></div>
     <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button></div>
   </div>
   <div class="nav-tabs">
@@ -276,7 +276,7 @@
   <div id="patientsNurseTab" class="tab-content active">
     <div style="background:var(--primary-soft);border:1px solid var(--primary-line);padding:14px 20px;border-radius:var(--radius-md);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;font-weight:600">
       <span data-i18n="waiting_rem">👥 المرضى المتبقون في الانتظار:</span>
-      <span id="nurseWaitingBadge" style="background:var(--primary-sage);color:var(--on-primary);padding:4px 14px;border-radius:20px;font-size:15px">0</span>
+      <span id="nurseWaitingBadge" class="count-badge count-badge-lg">0</span>
     </div>
     <div id="regClosedBanner" style="display:none;background:var(--surface-sunk);border:1.5px solid var(--orange);padding:14px 18px;border-radius:14px;margin-bottom:16px;font-size:14px;font-weight:600"></div>
     <form data-form="addPatient" data-pre="pn" style="background:var(--surface-card);padding:20px;border-radius:16px;margin-bottom:25px;border:1px solid var(--border-calm)">
@@ -307,6 +307,15 @@
         <button type="button" class="theme-color-btn" style="background:#8A4A1C" data-act="setTheme" data-theme="brown" aria-label="brown"></button>
         <button type="button" class="theme-color-btn" style="background:#3A4A5C" data-act="setTheme" data-theme="slate" aria-label="slate"></button>
         <input type="color" class="themeCustom theme-color-btn" data-change="themeColor" title="لون مخصّص" aria-label="custom color">
+      </div></div>
+    <div class="settings-item"><div><strong data-i18n="led_color">لون أرقام الساعة</strong></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:260px">
+        <button type="button" class="theme-color-btn led-btn" style="background:#FF9A1F" data-act="setLed" data-led="orange" aria-label="orange"></button>
+        <button type="button" class="theme-color-btn led-btn" style="background:#FFD93D" data-act="setLed" data-led="yellow" aria-label="yellow"></button>
+        <button type="button" class="theme-color-btn led-btn" style="background:#3DF08F" data-act="setLed" data-led="green" aria-label="green"></button>
+        <button type="button" class="theme-color-btn led-btn" style="background:#35D6FF" data-act="setLed" data-led="cyan" aria-label="cyan"></button>
+        <button type="button" class="theme-color-btn led-btn" style="background:#F1F5FF" data-act="setLed" data-led="white" aria-label="white"></button>
+        <button type="button" class="theme-color-btn led-btn" style="background:#FF4D4D" data-act="setLed" data-led="red" aria-label="red"></button>
       </div></div>
   </div>
 

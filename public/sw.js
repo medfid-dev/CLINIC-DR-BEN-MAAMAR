@@ -1,6 +1,6 @@
 'use strict';
 /* يخزّن هيكل التطبيق فقط. لا تُخزَّن أي بيانات مرضى ولا طلبات /api ولا صفحات التذاكر. */
-const CACHE = 'cc-shell-v70';
+const CACHE = 'cc-shell-v72';
 const SHELL = ['/', '/style.css', '/app.js', '/sounds.js', '/stats.js', '/drugs.js', '/rx.js', '/rxlayout.js', '/numpad.js', '/autobackup.js', '/splash.js', '/icons/logo.png', '/qr.js', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -13,6 +13,8 @@ self.addEventListener('fetch', e => {
 /* ---- إشعارات النظام (Web Push): تصل والتطبيق مغلق أو الشاشة مقفلة ---- */
 self.addEventListener('push', e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) {}
+  /* شارة أيقونة التطبيق = عدد المنتظرين، تُحدَّث حتى والتطبيق مغلق */
+  if (typeof d.badge === 'number' && self.navigator) { try { if (d.badge > 0 && self.navigator.setAppBadge) self.navigator.setAppBadge(d.badge).catch(() => {}); else if (self.navigator.clearAppBadge) self.navigator.clearAppBadge().catch(() => {}); } catch (x) {} }
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
     const seen = list.find(c => c.visibilityState === 'visible');
     if (seen) { list.forEach(c => c.postMessage({ type: 'push', data: d })); return; }   // التطبيق أمام المستخدم: يتولّى الصوت والتنبيه داخلياً

@@ -76,6 +76,15 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     g = await fetch(`${base}/api/records/${p1.id}/images/${imgId}`, { headers: { Authorization: 'Bearer ' + B } }); ok(g.status === 404, 'الطبيب ب لا يصل لصورة أ');
     g = await fetch(`${base}/api/records/${p1.id}/images/${imgId}`, { headers: { Authorization: 'Bearer ' + N } }); ok(g.status === 403, 'الممرضة لا تصل للصور');
 
+    console.log('إرجاع المريض الغائب إلى آخر الصف');
+    const ord = async () => (await J('GET', '/api/state', A)).j.patients.filter(x => x.status === 'waiting').map(x => x.id).join();
+    ok(await ord() === [p2.id, p3.id].join(), 'الترتيب الأصلي: 2 ثم 3');
+    r = await J('POST', `/api/patients/${p2.id}/requeue`, N); ok(r.s === 200 && await ord() === [p3.id, p2.id].join(), 'الممرضة تنقل الأول إلى آخر الصف');
+    r = await J('POST', `/api/patients/${p3.id}/requeue`, A); ok(r.s === 200 && await ord() === [p2.id, p3.id].join(), 'الطبيب ينقل المريض إلى آخر الصف');
+    r = await J('POST', `/api/patients/${p1.id}/requeue`, A); ok(r.s === 409, 'لا إرجاع لمن هو في المعاينة');
+    r = await J('POST', `/api/patients/${p2.id}/requeue`, B); ok(r.s === 404, 'طبيب آخر لا يصل إلى المريض');
+    r = await J('POST', `/api/patients/${'f'.repeat(12)}/requeue`, A); ok(r.s === 404, 'مريض غير موجود');
+
     console.log('تذكرة المريض (الخصوصية)');
     const t2 = (await J('GET', '/api/state', A)).j.patients.find(x => x.id === p2.id).ticket;
     r = await J('GET', `/api/ticket/${t2}`); ok(r.s === 200 && r.j.state === 'waiting' && r.j.ahead === 0 && r.j.busy === true, 'تذكرة 2: لا أحد أمامه والطبيب مشغول');
@@ -86,10 +95,10 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     r = await J('GET', '/api/ticket/../state'); ok(r.s === 401 || r.s === 404, 'لا ثغرة مسار في التذكرة');
     const tEv = []; const acT = await sse(`${base}/api/ticket/${t3}/stream`, (e, d) => tEv.push(d)); await wait(150);
     r = await J('POST', `/api/patients/${p1.id}/finish`, N, { treatment: 'قلع' }); ok(r.s === 403, 'الممرضة لا تنهي المعاينة');
-    r = await J('POST', `/api/patients/${p1.id}/finish`, A, { treatment: 'قلع', notes: 'ملاحظة', teeth: ['16', '55', '99', 'x', '16'], price: '2000' }); ok(r.s === 200 && JSON.stringify(r.j.teeth) === '["16","55"]' && r.j.tooth === '16 55' && r.j.price === 2000, 'إنهاء المعاينة مع أسنان (FDI بالغ ولبني، تُرفض غير الصالحة)');
+    r = await J('POST', `/api/patients/${p1.id}/finish`, A, { treatment: 'قلع', notes: 'ملاحظة', teeth: ['16', '55', '99', 'x', '16'], price: '2000', patientNote: 'لا تأكل ساعتين' }); ok(r.s === 200 && JSON.stringify(r.j.teeth) === '["16","55"]' && r.j.tooth === '16 55' && r.j.price === 2000, 'إنهاء المعاينة مع أسنان (FDI بالغ ولبني، تُرفض غير الصالحة)');
     await wait(200); ok(tEv.length >= 2 && tEv[tEv.length - 1].state === 'waiting' && tEv[tEv.length - 1].ahead === 1, 'تذكرة 3 تتلقى تحديثاً فورياً عبر البث');
     ok(nEv.some(e => e[1].type === 'finish'), 'الممرضة تُبلَّغ بانتهاء المعاينة');
-    r = await J('GET', `/api/ticket/${p1.ticket}`); ok(r.j.state === 'done', 'تذكرة المنتهي: done');
+    r = await J('GET', `/api/ticket/${p1.ticket}`); ok(r.j.state === 'done', 'تذكرة المنتهي: done'); ok(r.j.visit && r.j.visit.treats[0].n === 'قلع' && r.j.visit.rx === false && r.j.visit.note === 'لا تأكل ساعتين', 'تذكرة المنتهي تعرض العلاج المنجز وملاحظة الطبيب للمريض'); ok(!JSON.stringify(r.j).includes('ملاحظة') && !JSON.stringify(r.j).includes('2000') && !('price' in r.j), 'التذكرة لا تكشف ملاحظات الطبيب السريرية ولا الأسعار');
     r = await J('POST', `/api/patients/${p2.id}/enter`, N); ok(r.s === 200, 'الثاني يدخل بعد الإنهاء');
     r = await J('PUT', `/api/patients/${p2.id}`, N, { name: 'ممنوع', birthYear: 1990 }); ok(r.s === 409, 'الممرضة لا تعدّل بيانات من في المعاينة');
     r = await J('PUT', `/api/patients/${p2.id}`, A, { name: 'اسم معدّل', birthYear: 1991, gender: 'أنثى', phone: '0555123456', reason: 'استشارة وطوارئ' }); ok(r.s === 200 && r.j.name === 'اسم معدّل' && r.j.gender === 'أنثى' && r.j.phone === '0555123456', 'الطبيب يعدّل بيانات المريض أثناء المعاينة');
@@ -281,6 +290,12 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('POST', `/api/plans/${plan46}/sessions`, B, { delta: 1 }); ok(r.s === 200 && r.j.sessions === 4, 'إضافة حصة (4)'); r = await J('POST', `/api/plans/${plan46}/sessions`, N, { delta: 1 }); ok(r.s === 401 || r.s === 403, 'الإضافة للطبيب فقط');
       r = await vis({ lines: [{ plan: plan46, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].no === 3 && r.j.lines[0].sessions === 4 && (await acct()).plans.some(p => p.id === plan46 && p.open), 'الحصة 3 من 4 ما زالت مفتوحة بعد الإضافة');
       r = await vis({ lines: [{ plan: plan46, pay: 1000 }] }); ok(r.s === 200 && r.j.lines[0].no === 4 && (await acct()).plans.length === 0, 'الحصة 4 تُكمل الخطة');
+      /* حتى 20 حصة + حذف حصة مضافة (لا تنزل عن الحصص المنجزة) */
+      r = await vis({ lines: [{ tooth: '36', treatment: 'تقويم', total: 4000, sessions: 20, pay: 4000 }] }); const plan20 = r.j.lines[0].plan; ok(r.s === 200 && r.j.lines[0].sessions === 20, 'خطة بعشرين حصة');
+      r = await vis({ lines: [{ tooth: '37', treatment: 'تقويم', total: 100, sessions: 21, pay: 100 }] }); ok(r.s === 400 || (r.s === 200 && r.j.lines[0].sessions === 1), 'أكثر من 20 حصة مرفوض');
+      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: 1 }); ok(r.s === 409, 'لا إضافة فوق 20 حصة');
+      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 19, 'حذف حصة (19)');
+      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 18, 'حذف حصة أخرى (18)');
       r = await J('POST', `/api/plans/aaaaaaaaaa/sessions`, B, { delta: 1 }); ok(r.s === 404, 'خطة غير موجودة');
       r = await vis({ lines: [{ tooth: '47', treatment: 'تقويم', total: 0, sessions: 99, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].sessions === 1, 'عدد حصص غير صالح يصير 1'); await J('POST', `/api/plans/${r.j.lines[0].plan}/close`, B);
       r = await J('PUT', '/api/prices', B, { currency: 'DA', treatments: ['حشوة', 'علاج عصب', 'تقويم'], list: { 'حشوة': { base: 1500, sessions: 1 }, 'علاج عصب': { base: 6000, sessions: 3 }, 'تقويم': { sessions: 99 } } });

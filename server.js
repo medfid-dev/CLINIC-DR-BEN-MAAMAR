@@ -98,7 +98,7 @@ const TREAT_KEYS = ['قلع', 'علاج عصب', 'استشارة', 'جلسة ت�
 const num = (v, max = 1e9) => { if (v === '' || v == null) return null; const n = Math.round(Number(v) * 100) / 100; return Number.isFinite(n) && n >= 0 && n <= max ? n : null; };
 const PRICE_CATS = ['base', 'front', 'pre', 'molar', 'wisdom'];   // عام / أمامية (قواطع وأنياب) / ضواحك / أضراس
 const treatsOf = c => (c.prices && Array.isArray(c.prices.treatments) && c.prices.treatments.length) ? c.prices.treatments : TREAT_KEYS;
-const MAX_SESS = 12, cleanSess = v => { const n = parseInt(v); return Number.isInteger(n) && n >= 1 && n <= MAX_SESS ? n : 0; };   // عدد حصص العلاج: 1–12
+const MAX_SESS = 20, cleanSess = v => { const n = parseInt(v); return Number.isInteger(n) && n >= 1 && n <= MAX_SESS ? n : 0; };   // عدد حصص العلاج: 1–20
 const defSess = tr => /عصب|root|endo/i.test(tr) ? 2 : 1;   // افتراض للعلاجات التي لم يُضبط عدد حصصها بعد
 /* ألوان السن لكل علاج: on = مفعّل، part = أثناء العلاج (حصص متبقية)، done = عند اكتمال حصصه */
 const HEX = /^#[0-9a-f]{6}$/i, NEUTRAL_TR = /استشارة|تبييض|أخرى|consult|whiten|other/i, EXT_TR = /قلع|extract/i;
@@ -273,7 +273,12 @@ function ticketView(c, token) {
     return { ...base, state: 'waiting', ticketNo: p.ticketNo, firstName, ahead, busy: !!inRoom(c), estMin: avg ? Math.round(avg * ahead) : null };
   }
   const a = c.archive.slice(0, 500).find(x => x.ticket === token);
-  if (a) return { ...base, state: now() - a.finishedAt < TICKET_DONE_MS ? 'done' : 'expired', ticketNo: a.ticketNo, firstName: a.name.split(/\s+/)[0] };
+  if (a) {
+    const fresh = now() - a.finishedAt < TICKET_DONE_MS, out = { ...base, state: fresh ? 'done' : 'expired', ticketNo: a.ticketNo, firstName: a.name.split(/\s+/)[0] };
+    /* ما تم للمريض اليوم (علاجه فقط — لا أسعار ولا ديون ولا ملاحظات الطبيب السريرية) */
+    if (fresh) out.visit = { treats: (a.lines && a.lines.length ? a.lines.map(l => ({ n: l.treatment, th: l.tooth || '', no: l.no || 1, m: l.sessions || 1 })) : treatmentsOf(a).map(n => ({ n, th: '', no: 1, m: 1 }))).slice(0, 12), rx: !!(a.rx && a.rx.length), note: a.patientNote || '' };
+    return out;
+  }
   return { ...base, state: 'unknown' };
 }
 
@@ -292,7 +297,7 @@ function pushNotify(c, notify) {
     if (s.clinicId !== c.id || !s.push || s.exp < now() || k === notify.exclude || (notify.to && s.role !== notify.to) || (notify.nurseId && s.nurseId !== notify.nurseId)) continue;
     const tx = (PUSH_TXT[s.push.lang] || PUSH_TXT.ar)[d.type]; if (!tx) continue;
     const urgent = d.type === 'skip_request' || d.type === 'add' || d.type === 'task';
-    webpush.send(s.push.sub, { title: tx[0], body: tx[1](d), tag: 'cc-' + d.type + (d.pid ? '-' + d.pid : ''), urgent, type: d.type }, { urgency: 'high', ttl: urgent ? 1800 : 900 })
+    webpush.send(s.push.sub, { title: tx[0], body: tx[1](d), tag: 'cc-' + d.type + (d.pid ? '-' + d.pid : ''), urgent, type: d.type, badge: waiting(c).length }, { urgency: 'high', ttl: urgent ? 1800 : 900 })
       .then(r => { if (r === 'gone' && db.sessions[k] && db.sessions[k].push && db.sessions[k].push.sub === s.push.sub) { delete db.sessions[k].push; save(); } });
   }
 }
@@ -725,7 +730,7 @@ async function api(req, res, url) {
     broadcast(c, { to: 'doctor', exclude: a.key, data: { type: 'add', name: pt.name } });
     return send(res, 201, patientView(pt));
   }
-  mt = p.match(/^\/api\/patients\/([a-f0-9]{12})(?:\/(enter|skip|finish|images))?(?:\/([a-f0-9]{16}))?$/);
+  mt = p.match(/^\/api\/patients\/([a-f0-9]{12})(?:\/(enter|skip|requeue|finish|images))?(?:\/([a-f0-9]{16}))?$/);
   if (mt) {
     const [, pid, act, imgId] = mt;
     if (!act && m === 'PUT') {
@@ -759,11 +764,18 @@ async function api(req, res, url) {
       } else { RT(c).skip.delete(pid); broadcast(c, { to: 'nurse', exclude: a.key, data: { type: 'skip_denied', name: pt.name } }); }
       return send(res, 200, { ok: true });
     }
+    /* المريض غائب عند حلول دوره: يُنقل إلى آخر الصف (يحتفظ برقم تذكرته ووقت وصوله الحقيقي) */
+    if (act === 'requeue' && m === 'POST') {
+      const a = authOf(req), c = a.clinic, pt = findPatient(c, pid);
+      if (pt.status !== 'waiting') throw httpErr(409, 'not_waiting');
+      c.patients = c.patients.filter(z => z !== pt); c.patients.push(pt); RT(c).skip.delete(pid);
+      broadcast(c, null, [pt.ticket]); return send(res, 200, { ok: true });
+    }
     if (act === 'finish' && m === 'POST') {
       const a = authOf(req, ['doctor']), c = a.clinic, pt = findPatient(c, pid), b = await readJSON(req);
       if (pt.status !== 'in') throw httpErr(409, 'not_waiting');
       const t = now(), tl = cleanTreats(b.treatments), treatment = tl.length ? str(tl.join(' + '), 200) : (str(b.treatment, 200) || 'استشارة');
-      const teeth = cleanTeeth(b.teeth), price = num(b.price), entry = { ...pt, price, followUp: !!b.followUp, ...(teeth.length ? { teeth, tooth: teeth.join(' ') } : {}), status: 'done', treatment, ...(tl.length ? { treatments: tl, items: cleanItems(b.items, tl) } : {}), notes: str(b.notes, 2000), ...(cleanRx(b.rx).length ? { rx: cleanRx(b.rx), rxHead: cleanHead(b.rxHead) } : {}), finishedAt: t, waitMin: Math.max(0, Math.round(((pt.startedAt || t) - pt.createdAt) / 6e4)), durationMin: Math.max(1, Math.round((t - (pt.startedAt || t)) / 6e4)) };
+      const teeth = cleanTeeth(b.teeth), price = num(b.price), entry = { ...pt, price, followUp: !!b.followUp, ...(teeth.length ? { teeth, tooth: teeth.join(' ') } : {}), status: 'done', treatment, ...(tl.length ? { treatments: tl, items: cleanItems(b.items, tl) } : {}), notes: str(b.notes, 2000), ...(str(b.patientNote, 300) ? { patientNote: str(b.patientNote, 300) } : {}), ...(cleanRx(b.rx).length ? { rx: cleanRx(b.rx), rxHead: cleanHead(b.rxHead) } : {}), finishedAt: t, waitMin: Math.max(0, Math.round(((pt.startedAt || t) - pt.createdAt) / 6e4)), durationMin: Math.max(1, Math.round((t - (pt.startedAt || t)) / 6e4)) };
       if (Array.isArray(b.lines)) {
         /* خطة العلاج: بنود اليوم (جديدة أو متابعة لخطة جارية) + سداد متبقٍّ سابق + اقتطاع اختياري من الوعاء */
         const k = patKey(pt), pm = plansOf(c, k), seenPl = new Set(), tg = [], lines = [];

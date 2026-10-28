@@ -107,7 +107,8 @@ const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&a
 const jget = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const jset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
-const settings = Object.assign({ darkMode: false, theme: 'sky', themeColor: '', lang: 'ar', sound: true, autoQr: true }, jget('cc_settings', {}));
+const LEDS = { orange: '#FF9A1F', yellow: '#FFD93D', green: '#3DF08F', cyan: '#35D6FF', white: '#F1F5FF', red: '#FF4D4D' };   // ألوان أرقام الساعة
+const settings = Object.assign({ darkMode: false, theme: 'sky', themeColor: '', lang: 'ar', sound: true, autoQr: true, ledColor: 'orange' }, jget('cc_settings', {}));
 /* لون التطبيق: لون واحد يُشتقّ منه كل شيء (الشريط والخلفيات والبطاقات والحدود والنصوص) في الوضعين الفاتح والداكن */
 const THEMES = { sky: '#2E2A6E', mint: '#1F6F78', purple: '#7B2D6E', rose: '#A8324A', green: '#1E7A4C', blue: '#1D5FB4', brown: '#8A4A1C', slate: '#3A4A5C' };
 const themeHex = () => /^#[0-9a-f]{6}$/i.test(settings.themeColor) ? settings.themeColor : (THEMES[settings.theme] || THEMES.sky);
@@ -135,12 +136,16 @@ Object.assign(L.ar, { pat_debt: 'دين المريض', pl_title: 'خطة علا�
 Object.assign(L.en, { debt_note: 'Note: this patient has an unpaid balance of {x}', pay_recv: 'paid the debt of session {n} ({tr})', wal_chk: 'Pay from wallet', rc_price: 'This session price', rc_wallet: 'From wallet', rc_cash: 'Cash', rc_left: 'Left for this session', rc_to_debt: 'Excess pays an earlier debt', rc_to_wal: 'Excess goes to wallet', rc_all_debt: 'Total patient debt after', pay_src_q: 'Pay {a} — from where?', pay_ledger: '💵 Payments ledger', pay_for: 'for session', pay_same: 'same session', pay_in_visit: 'in session {n} ({d})', pay_later: 'later, from archive', pay_cash: 'Cash payment', pay_wallet: 'From wallet', pay_cut_wal: 'Deducted from wallet', snd_test: 'Preview sounds', snd_names: ['New patient', 'Patient entered', 'Consultation finished', 'New task', 'Task done', 'Skip request', 'Request denied', 'Patient turn'], paid_full: 'Fully paid', follow_b: 'Follow-up session', wal_bal_b: 'Wallet balance', treat_l: 'Treatment:', pay_dep: 'Wallet deposit', pay_out: 'Cash refund from wallet', pay_dep_in: 'during session {n} ({d})', pay_dep_manual: 'direct deposit',
   wal_title: 'Patient wallet', wal_bal: 'Balance:', wal_use: 'Deduct from wallet', wal_dep: 'Deposit to wallet', wal_out: 'Cash refund', wal_dep_q: 'Amount to deposit in the patient wallet:', wal_out_q: 'Amount refunded in cash to the patient:', wal_saved: 'Wallet updated ✅', wal_excess: 'The excess {x} goes to the patient wallet', wal_after: 'Wallet balance after this session:', pay_from_wal_q: 'Pay from the patient wallet (balance {w})?\nOK = wallet · Cancel = cash', e_wallet_empty: 'The wallet is empty', e_wallet_short: 'Amount exceeds the wallet balance', hist_wallet: 'Wallet' });
 Object.assign(L.en, { pat_debt: 'Patient debt', pl_title: "Today's treatment plan", pl_none: 'No items. Pick the tooth and treatment above.', pl_session_n: 'Session {n} of {m}', pl_total: 'Total treatment price', pl_sess_1: 'One session', pl_sess_2: 'Two sessions', pl_split_hint: 'The price is split between the two sessions: {a} is suggested today, the rest in session 2 (you can change the amount).', pl_one_hint: 'The full price is paid in this session.', pl_pay_now: 'Pay today', pl_left_after: 'Left on this item after today', pl_all: 'All', pl_half: 'Half', pl_zero: '0', pl_del: 'Remove item', pl_prev_title: 'Previous balance & ongoing plans', pl_next_session: 'Next: session {n} of {m}', pl_go: '▶ Continue today', pl_close: 'Close plan', pl_close_q: 'Close this plan? No more sessions will be expected and its remaining amount stays as a debt to settle later.', pl_closed_t: 'Plan closed', pl_tr_missing: 'The treatment "{n}" is not in your treatment list; add it in settings first', pl_sum_today: "Today's items value", pl_sum_paid: 'Paid today', pl_sum_wal: 'From wallet', pl_sum_cash: 'Cash', pl_sum_after: 'Patient balance after this visit', e_plan_closed: 'This plan is complete or closed' });
-Object.assign(L.ar, { set_prices: '💰 الحصص والأسعار', prices_hint: 'لكل علاج: عدد حصصه وسعره. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض، وإضافة حصة أثناء العلاج.', pl_sess_n: 'عدد الحصص', pl_add_sess: 'إضافة حصة', pl_sess_added: 'أُضيفت حصة إلى العلاج ✅', e_max_sessions: 'بلغ العلاج أقصى عدد من الحصص (12)',
+Object.assign(L.ar, { set_prices: '💰 الحصص والأسعار', prices_hint: 'لكل علاج: عدد حصصه وسعره. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض، وإضافة حصة أثناء العلاج.', pl_sess_n: 'عدد الحصص', pl_add_sess: 'إضافة حصة', pl_sess_added: 'أُضيفت حصة إلى العلاج ✅', e_max_sessions: 'بلغ العلاج أقصى عدد من الحصص (20)',
   pl_split_hint: 'يُقسَّم السعر على {m} حصص: يُقترح دفع {a} اليوم والباقي في الحصص التالية (يمكنك تغيير المبلغ).' });
-Object.assign(L.en, { set_prices: '💰 Sessions & prices', prices_hint: 'Sessions count and price for each treatment. Shown automatically in the consultation (editable per patient); you can add a session mid-treatment.', pl_sess_n: 'Number of sessions', pl_add_sess: 'Add a session', pl_sess_added: 'Session added to the treatment ✅', e_max_sessions: 'Treatment reached the maximum of 12 sessions',
+Object.assign(L.en, { set_prices: '💰 Sessions & prices', prices_hint: 'Sessions count and price for each treatment. Shown automatically in the consultation (editable per patient); you can add a session mid-treatment.', pl_sess_n: 'Number of sessions', pl_add_sess: 'Add a session', pl_sess_added: 'Session added to the treatment ✅', e_max_sessions: 'Treatment reached the maximum of 20 sessions',
   pl_split_hint: 'The price is split over {m} sessions: {a} is suggested today, the rest in the following sessions (you can change the amount).' });
-Object.assign(L.ar, { theme_custom: 'لون مخصّص' });
-Object.assign(L.en, { theme_custom: 'Custom color' });
+Object.assign(L.ar, { theme_custom: 'لون مخصّص', led_color: 'لون أرقام الساعة' });
+Object.assign(L.en, { theme_custom: 'Custom color', led_color: 'Clock digits color' });
+Object.assign(L.ar, { pnote_l: '💬 ملاحظة للمريض (تظهر في تذكرته بعد المعاينة)', pnote_ph: 'مثال: لا تأكل لمدة ساعتين، تناول الدواء بعد الأكل…' });
+Object.assign(L.en, { pnote_l: '💬 Note for the patient (shown on their ticket after the visit)', pnote_ph: 'e.g. Do not eat for 2 hours, take the medicine after meals…' });
+Object.assign(L.ar, { pl_del_sess: 'حذف حصة', pl_sess_removed: 'حُذفت حصة من العلاج ✅', requeue: 'إلى آخر الصف', t_requeued: 'نُقل المريض إلى آخر قائمة الانتظار ↩️' });
+Object.assign(L.en, { pl_del_sess: 'Remove a session', pl_sess_removed: 'Session removed from the treatment ✅', requeue: 'Send to end of queue', t_requeued: 'Patient moved to the end of the queue ↩️' });
 Object.assign(L.ar, { col_on_l: 'تلوين السن', col_part_l: 'أثناء العلاج', col_done_l: 'عند الاكتمال', col_hint: 'لكل علاج: لون السن أثناء العلاج (حصص متبقية) ولونه عند اكتمال الحصص، ويظهران في مخطط الأسنان بالمعاينة وفي سجل المريض.' });
 Object.assign(L.en, { col_on_l: 'Color the tooth', col_part_l: 'In progress', col_done_l: 'Completed', col_hint: 'Per treatment: tooth color while sessions remain and once completed; shown in the consultation tooth chart and the patient record.' });
 Object.assign(L.ar, { money_all: 'الكل (مدينون ودائنون وغيرهم)', money_debtors: '🔴 المدينون (عليهم متبقٍّ)', money_creditors: '🟢 الدائنون (رصيدهم في الوعاء)', money_wal_sum: 'مجموع أرصدة الوعاء:' });
@@ -302,18 +307,18 @@ function renderSoon() { if (rsT) return; rsT = requestAnimationFrame(() => { rsT
 function renderAll() {
   if (!S.me) return;
   const waiting = S.patients.filter(p => p.status === 'waiting');
-  $('#waitingCount').textContent = waiting.length; $('#nurseWaitingBadge').textContent = waiting.length; setBadge(waiting.length); syncSchedule(); updateRegGate();
+  $('#waitingCount').textContent = waiting.length; $('#waitingCount').classList.toggle('zero', !waiting.length); $('#nurseWaitingBadge').textContent = waiting.length; setBadge(waiting.length); syncSchedule(); updateRegGate();
   renderTasks(); if (S.me.role === 'nurse') renderNurseList(); else { renderDocWaiting(); renderConsultation(); renderSkip(); }
 }
 const busy = () => S.patients.some(p => p.status === 'in');
 function patientMeta(p) { return `${t('sex')}: ${esc(genderL(p.gender))} | ${t('birth')}: ${p.birthYear} (${p.age} ${t('years_short')}) | ${t('tooth')}: ${esc(p.tooth)}`; }
 function renderNurseList() {
-  const list = $('#nursePatientList'), isBusy = busy(); let rank = 1;
+  const list = $('#nursePatientList'), isBusy = busy(), nWait = S.patients.filter(p => p.status === 'waiting').length; let rank = 1;
   list.innerHTML = S.patients.length ? S.patients.map(p => {
     const inRoom = p.status === 'in';
     const act = inRoom ? `<span style="font-size:12px;color:var(--warning-warm);font-weight:600">${t('in_room')}</span>`
       : `<button type="button" class="btn-action btn-green ${isBusy ? 'btn-disabled' : ''}" ${isBusy ? 'disabled' : ''} data-act="enter" data-id="${p.id}">🟢 ${t('enter')}</button>`;
-    const extra = inRoom ? '' : `<button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button>`;
+    const extra = inRoom ? '' : `${nWait > 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button>`;
     return `<li class="patient-card ${inRoom ? 'in-doctor' : ''}"><div><span class="queue-badge">${inRoom ? t('doctor_word') : '#' + rank++}</span><strong style="font-size:15px">${esc(p.name)}</strong> <span class="badge">${esc(reasonL(p.reason))}</span>
       <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo}</div></div>
       <div class="actions">${act}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>${extra}</div></li>`;
@@ -323,7 +328,7 @@ function renderDocWaiting() {
   const w = S.patients.filter(p => p.status === 'waiting'), list = $('#docWaitingList'); let r = 1;
   const html = w.length ? w.map(p => `<li class="patient-card${p.debt > 0 ? ' has-debt' : p.wallet > 0 ? ' has-wallet' : ''}" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> <span class="badge">${esc(reasonL(p.reason))}</span>${p.debt > 0 ? ` <span class="badge debt-badge">⚠️ ${t('rem_l')} ${money(p.debt)}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div></div>
-    <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button><button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
+    <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button>${w.length > 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
     <button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('empty_wait')}</li>`;
   if (list._h !== html) { list._h = html; list.innerHTML = html; }
@@ -345,7 +350,7 @@ function renderConsultation() {
   $('#consultationNavBtn').classList.toggle('has-patient', !!a);
   const sig = a ? a.id + ':' + a.images.join(',') + ':' + settings.lang + ':' + a.reason : '';
   if (area.dataset.sig === sig) return;
-  const samePid = area.dataset.pid === (a ? a.id : ''), notes = samePid && $('#consultNotes') ? $('#consultNotes').value : '';
+  const samePid = area.dataset.pid === (a ? a.id : ''), notes = samePid && $('#consultNotes') ? $('#consultNotes').value : '', pnote = samePid && $('#patientNote') ? $('#patientNote').value : '';
   if (!samePid) { S.treatments = [(a && REASON_TREAT[a.reason]) || 'أخرى']; if (a) teethInit(a); moneyReset(); if (window.rxReset) rxReset(a); }
   S.treatments = S.treatments.filter(v => treatList().includes(v)); if (!S.treatments.length) S.treatments = [treatList().includes('أخرى') ? 'أخرى' : treatList()[0]];
   if (!a) { area.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);background:var(--surface-card);border-radius:16px">${t('empty_room')}</div>`; }
@@ -366,9 +371,11 @@ function renderConsultation() {
       <div class="treatment-grid">${treatList().map(v => `<div class="treatment-item ${S.treatments.includes(v) ? 'selected' : ''}" role="checkbox" aria-checked="${S.treatments.includes(v)}" data-act="treat" data-v="${esc(v)}">${esc(treatLabel(v))}</div>`).join('')}</div>
       ${moneyHTML()}
       ${window.rxHTML ? rxHTML() : ''}
-      <textarea id="consultNotes" maxlength="2000" placeholder="${esc(t('notes_ph'))}" style="height:80px;margin-bottom:15px"></textarea>
+      <textarea id="consultNotes" maxlength="2000" placeholder="${esc(t('notes_ph'))}" style="height:80px;margin-bottom:12px"></textarea>
+      <label style="font-size:13px;font-weight:600;color:var(--text-secondary)">${t('pnote_l')}</label>
+      <textarea id="patientNote" maxlength="300" placeholder="${esc(t('pnote_ph'))}" style="height:56px;margin:4px 0 15px"></textarea>
       <button type="button" class="btn-primary btn-green" data-act="finish" data-id="${a.id}" style="padding:16px;font-size:16px">${t('finish')}</button></div>`;
-    if (notes) $('#consultNotes').value = notes;
+    if (notes) $('#consultNotes').value = notes; if (pnote) $('#patientNote').value = pnote;
     recalc(); if (!samePid) loadAccount(a);
     hydrate(area); if (window.rxMount) rxMount(a); consStickInit(area);
   }
@@ -431,7 +438,7 @@ function treatRowHTML(v, vals) {
   const o = vals || {}, cc = o.col || defCol(v || '');
   return `<div class="treat-row" ${v ? `data-orig="${esc(v)}"` : ''}><div class="treat-head"><input type="text" class="treat-name" maxlength="40" placeholder="${esc(t('tr_name_ph'))}" value="${esc(v ? treatLabel(v) : '')}">
     <button type="button" class="btn-action" data-act="moveTreat" data-d="-1" title="${esc(t('tr_up'))}" aria-label="${esc(t('tr_up'))}">▲</button><button type="button" class="btn-action" data-act="moveTreat" data-d="1" title="${esc(t('tr_down'))}" aria-label="${esc(t('tr_down'))}">▼</button><button type="button" class="btn-action btn-red" data-act="delTreat" title="${esc(t('tr_del'))}" aria-label="${esc(t('tr_del'))}">✕</button></div>
-    <div class="sess-row"><label><span>${t('pl_sess_n')}</span><input type="number" min="1" max="12" step="1" inputmode="numeric" class="treat-sess" value="${o.sessions || (v ? defSessions(v) : 1)}"></label>
+    <div class="sess-row"><label><span>${t('pl_sess_n')}</span><input type="number" min="1" max="20" step="1" inputmode="numeric" class="treat-sess" value="${o.sessions || (v ? defSessions(v) : 1)}"></label>
       <label class="col-on"><input type="checkbox" class="treat-col-on" ${cc.on ? 'checked' : ''}><span>🎨 ${t('col_on_l')}</span></label>
       <label class="col-pick"><span>${t('col_part_l')}</span><input type="color" class="treat-col-part" value="${cc.part}"></label><label class="col-pick"><span>${t('col_done_l')}</span><input type="color" class="treat-col-done" value="${cc.done}"></label></div>
     <div class="price-grid">${CATS.map(c => `<label><span>${t('price_cat_' + c)}</span><input type="number" min="0" step="any" inputmode="decimal" data-cat="${c}" value="${o[c] != null ? o[c] : ''}" placeholder="0"></label>`).join('')}</div></div>`;
@@ -451,7 +458,7 @@ document.addEventListener('input', ev => { const f = ev.target.closest && ev.tar
    يصير البند «متابعة» لها ويعرض متبقّيها مباشرة. ما عدا ذلك من متبقٍّ سابق يظهر أسفلها ليُسدَّد اختيارياً. */
 const wBal = () => (S.account && S.account.wallet) || 0, r2c = v => Math.round(v * 100) / 100;
 function moneyReset() { S.useWal = true; S.removed = new Set(); S.lov = {}; S.dpay = {}; S.account = null; }
-const MAXS = 12, defSessions = tr => { const e = S.me && S.me.prices && S.me.prices.list && S.me.prices.list[tr]; return (e && e.sessions) || (/عصب|root|endo/i.test(tr) ? 2 : 1); };   // عدد حصص العلاج يُضبط من «الحصص والأسعار»
+const MAXS = 20, defSessions = tr => { const e = S.me && S.me.prices && S.me.prices.list && S.me.prices.list[tr]; return (e && e.sessions) || (/عصب|root|endo/i.test(tr) ? 2 : 1); };   // عدد حصص العلاج يُضبط من «الحصص والأسعار»
 const splitPay = (rem, left) => left > 1 ? r2c(rem / left) : rem;   // المقترح دفعه اليوم: المتبقي موزَّعاً على الحصص المتبقية
 const lineKey = (th, tr) => th + '|' + tr;
 function consLines() {
@@ -491,7 +498,7 @@ function lineHTML(l) {
   const pay = `<div class="pl-row"><label>💵 ${t('pl_pay_now')}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(l.payStr)}" data-input="lpay" data-key="${k}">${quickBtns('lpayQuick', `data-key="${k}"`)}</div><div class="pl-foot"><span>${t('pl_left_after')}</span><b class="pl-left"></b></div>`;
   if (l.cont) return `<div class="pl-line pl-cont" data-key="${k}"><div class="pl-head">${plBadge(l.th, l.tr)}<span class="pl-badge cont">${t('pl_session_n', { n: l.no, m: l.sessions })}</span>${del}</div>
     <div class="pl-info">${t('pl_total')} <b>${money(l.tot)}</b> · ${t('paid_l')} <b>${money(l.plan.paid)}</b> · ${t('rem_l')} <b class="pl-rem">${money(l.plan.remaining)}</b></div>${pay}
-    ${l.sessions < MAXS ? `<div class="pl-acts"><button type="button" class="btn-action btn-green" data-act="sessAdd" data-id="${esc(l.plan.id)}">➕ ${t('pl_add_sess')}</button></div>` : ''}</div>`;
+    <div class="pl-acts">${l.sessions < MAXS ? `<button type="button" class="btn-action btn-green" data-act="sessAdd" data-id="${esc(l.plan.id)}">➕ ${t('pl_add_sess')}</button>` : ''}${l.sessions > l.no ? `<button type="button" class="btn-action btn-red" data-act="sessDel" data-id="${esc(l.plan.id)}">➖ ${t('pl_del_sess')}</button>` : ''}</div></div>`;
   const hint = sessHint(l);
   return `<div class="pl-line" data-key="${k}"><div class="pl-head">${plBadge(l.th, l.tr)}<span class="pl-badge">${t('pl_session_n', { n: 1, m: l.sessions })}</span>${del}</div>
     ${l.parts && l.parts.length ? `<div class="pl-info"><small>${l.parts.map(x => x.n + ' ' + t('price_cat_' + x.c)).join('، ')}</small></div>` : ''}
@@ -852,19 +859,31 @@ function setHero() {
   $('#' + pre + 'HeaderTitle').textContent = S.me.clinicName;
   $('#' + pre + (doc ? 'Subtitle' : 'UserWelcome')).textContent = doc ? t('hero_doc', { n: S.me.name }) : t('nurse_welcome', { n: S.me.name }) + (S.me.doctorName ? ' · ' + t('hero_doc', { n: S.me.doctorName }) : '');
 }
+/* ساعة LED: أرقام الشرائح السبعة تُرسم بـ SVG من الكود نفسه (بلا خطوط خارجية فتعمل دون إنترنت) */
+const SEG_P = { a: '8,6 14,0 46,0 52,6 46,12 14,12', b: '54,12 60,18 60,38 54,44 48,38 48,18', c: '54,56 60,62 60,82 54,88 48,82 48,62', d: '8,94 14,88 46,88 52,94 46,100 14,100', e: '6,56 12,62 12,82 6,88 0,82 0,62', f: '6,12 12,18 12,38 6,44 0,38 0,18', g: '8,50 14,44 46,44 52,50 46,56 14,56' };
+const LED_MAP = { '0': 'abcdef', '1': 'bc', '2': 'abged', '3': 'abgcd', '4': 'fgbc', '5': 'afgcd', '6': 'afgedc', '7': 'abc', '8': 'abcdefg', '9': 'abcdfg' };
+const LED_COLON = '<svg class="lc" viewBox="0 0 20 100" aria-hidden="true"><rect x="4" y="26" width="12" height="12"/><rect x="4" y="62" width="12" height="12"/></svg>';
+const ledDigit = ch => { const on = LED_MAP[ch] || ''; return '<svg class="ld" viewBox="0 0 60 100" aria-hidden="true">' + Object.keys(SEG_P).map(k => `<polygon${on.includes(k) ? ' class="on"' : ''} points="${SEG_P[k]}"/>`).join('') + '</svg>'; };
+const ledStr = s => [...s].map(ch => ch === ':' ? LED_COLON : ledDigit(ch)).join('');
+const LED_DAYS = { ar: ['سبت', 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع'], en: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'] };   // الأسبوع يبدأ السبت
 let clkFmt = null, clkLoc = '', clkMin = '', clkEls = null;
 function tickClock() {
   if (document.hidden) return;
-  const d = new Date(), loc = settings.lang === 'en' ? 'en-GB' : 'ar-u-nu-latn';
-  if (loc !== clkLoc) { clkLoc = loc; clkMin = ''; clkFmt = { t: new Intl.DateTimeFormat(loc, { hour: '2-digit', minute: '2-digit', hour12: false }), d: new Intl.DateTimeFormat(loc, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) }; clkEls = null; }
-  if (!clkEls || !clkEls.length || !clkEls[0].c.isConnected) clkEls = $$('.clk').map(c => ({ c, hm: $('.clk-hm', c), s: $('.clk-s', c), d: $('.clk-date', c) }));
-  const s = String(d.getSeconds()).padStart(2, '0'), min = d.getMinutes() + ':' + d.getHours();
-  if (min !== clkMin) { clkMin = min; const hm = clkFmt.t.format(d), date = clkFmt.d.format(d); clkEls.forEach(o => { o.hm.textContent = hm; o.d.textContent = date; }); }
-  clkEls.forEach(o => { o.s.textContent = s; });
+  const d = new Date(), en = settings.lang === 'en', loc = en ? 'en-GB' : 'ar-u-nu-latn';
+  if (loc !== clkLoc) { clkLoc = loc; clkMin = ''; clkFmt = { d: new Intl.DateTimeFormat(loc, { day: 'numeric', month: 'long', year: 'numeric' }) }; clkEls = null; }
+  if (!clkEls || !clkEls.length || !clkEls[0].c.isConnected) clkEls = $$('.clk').map(c => ({ c, ap: $('.led-ap', c), hm: $('.clk-hm', c), s: $('.clk-s', c), d: $('.clk-date', c), days: $('.led-days', c) }));
+  const s = ledStr(String(d.getSeconds()).padStart(2, '0')), min = d.getMinutes() + ':' + d.getHours();
+  if (min !== clkMin) {
+    clkMin = min; const h = d.getHours(), h12 = h % 12 || 12, hm = ledStr((h12 < 10 ? ' ' : '') + h12 + ':' + String(d.getMinutes()).padStart(2, '0')), date = clkFmt.d.format(d), ap = en ? (h < 12 ? 'AM' : 'PM') : (h < 12 ? 'ص' : 'م'),
+      today = (d.getDay() + 1) % 7, days = LED_DAYS[en ? 'en' : 'ar'].map((n, i) => `<b${i === today ? ' class="on"' : ''}>${n}</b>`).join('');
+    clkEls.forEach(o => { o.hm.innerHTML = hm; o.ap.textContent = ap; o.d.textContent = date; o.days.innerHTML = days; });
+  }
+  clkEls.forEach(o => { o.s.innerHTML = s; });
 }
 setInterval(tickClock, 1000); tickClock(); document.addEventListener('visibilitychange', () => { clkMin = ''; tickClock(); });
 function applySettings() {
   document.body.classList.toggle('light-mode', !settings.darkMode);
+  document.body.style.setProperty('--led', LEDS[settings.ledColor] || LEDS.orange); $$('.led-btn').forEach(x => x.classList.toggle('sel', x.dataset.led === settings.ledColor)); clkMin = '';
   applyPalette(); $$('.theme-color-btn[data-theme]').forEach(x => x.classList.toggle('sel', !settings.themeColor && x.dataset.theme === settings.theme)); $$('.themeCustom').forEach(x => { x.value = themeHex(); x.classList.toggle('sel', !!settings.themeColor); });
   document.documentElement.lang = settings.lang; document.documentElement.dir = settings.lang === 'ar' ? 'rtl' : 'ltr';
   document.title = t('app_title');
@@ -925,8 +944,8 @@ async function askNotif() {
 }
 if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', ev => { const d = ev.data || {}; if (d.type === 'push' || d.type === 'push-open') { if (S.token) refresh(); } });
 /* إعدادات الجهاز (اللون واللغة والصوت...) تُلحق بالنسخة الاحتياطية دون إعادة قراءتها: نستبدل القوس الأخير بحقل ui */
-const withUi = blob => blob && blob.size > 2 ? new Blob([blob.slice(0, blob.size - 1), ',"ui":' + JSON.stringify({ darkMode: settings.darkMode, theme: settings.theme, themeColor: settings.themeColor, lang: settings.lang, sound: settings.sound, autoQr: settings.autoQr }) + '}'], { type: 'application/json' }) : blob;
-function restoreUi(txt) { try { const i = txt.lastIndexOf(',"ui":{'); if (i < 0) return; const u = JSON.parse(txt.slice(i + 6, -1).trim()); if (!u || typeof u !== 'object') return; if (typeof u.darkMode === 'boolean') settings.darkMode = u.darkMode; if (typeof u.theme === 'string') settings.theme = u.theme; if (typeof u.themeColor === 'string') settings.themeColor = u.themeColor; if (u.lang === 'ar' || u.lang === 'en') settings.lang = u.lang; if (typeof u.sound === 'boolean') settings.sound = u.sound; if (typeof u.autoQr === 'boolean') settings.autoQr = u.autoQr; applySettings(); } catch (e) {} }
+const withUi = blob => blob && blob.size > 2 ? new Blob([blob.slice(0, blob.size - 1), ',"ui":' + JSON.stringify({ darkMode: settings.darkMode, theme: settings.theme, themeColor: settings.themeColor, lang: settings.lang, sound: settings.sound, autoQr: settings.autoQr, ledColor: settings.ledColor }) + '}'], { type: 'application/json' }) : blob;
+function restoreUi(txt) { try { const i = txt.lastIndexOf(',"ui":{'); if (i < 0) return; const u = JSON.parse(txt.slice(i + 6, -1).trim()); if (!u || typeof u !== 'object') return; if (typeof u.darkMode === 'boolean') settings.darkMode = u.darkMode; if (typeof u.theme === 'string') settings.theme = u.theme; if (typeof u.themeColor === 'string') settings.themeColor = u.themeColor; if (u.lang === 'ar' || u.lang === 'en') settings.lang = u.lang; if (typeof u.sound === 'boolean') settings.sound = u.sound; if (typeof u.autoQr === 'boolean') settings.autoQr = u.autoQr; if (typeof u.ledColor === 'string' && LEDS[u.ledColor]) settings.ledColor = u.ledColor; applySettings(); } catch (e) {} }
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }
 
 /* ===================== الأفعال (تفويض الأحداث) ===================== */
@@ -975,6 +994,15 @@ const ACT = {
     if (!await run(() => api('POST', `/api/plans/${el.dataset.id}/sessions`, { delta: 1 }))) return; toast(t('pl_sess_added'), 'success');
     const a = S.patients.find(p => p.status === 'in'); if (a) { for (const o of Object.values(S.lov)) delete o.pay; loadAccount(a); }
   },
+  /* حذف حصة زائدة من علاج جارٍ (لا تنزل الحصص عن الحصة الحالية) */
+  async sessDel(el) {
+    if (!await run(() => api('POST', `/api/plans/${el.dataset.id}/sessions`, { delta: -1 }))) return; toast(t('pl_sess_removed'), 'success');
+    const a = S.patients.find(p => p.status === 'in'); if (a) { for (const o of Object.values(S.lov)) delete o.pay; loadAccount(a); }
+  },
+  /* المريض غائب عند حلول دوره: إلى آخر الصف */
+  async requeue(el) {
+    if (!await run(() => api('POST', `/api/patients/${el.dataset.id}/requeue`))) return; toast(t('t_requeued'), 'success'); refresh();
+  },
   lpayQuick(el) {
     const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const cap = l.cont ? l.cap : l.tot, v = el.dataset.v;
     (S.lov[l.key] = S.lov[l.key] || {}).pay = v === 'all' ? String(cap) : v === 'half' ? String(r2c(cap / 2)) : '0'; recalc();
@@ -1003,7 +1031,7 @@ const ACT = {
   async walOut(el) { return walMove(el, 'out'); },
   treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); if (i < 0) unRemove('', v); recalc(); },
   async finish(el) {
-    const m = moneyTotals(), r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay } : { tooth: l.th, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, notes: ($('#consultNotes') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
+    const m = moneyTotals(), r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay } : { tooth: l.th, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, notes: ($('#consultNotes') || {}).value || '', patientNote: ($('#patientNote') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
   },
   copyCode: () => copyText(S.me.code || ''),
@@ -1046,6 +1074,7 @@ const ACT = {
   addTreat(el) { const f = el.closest('form'); const row = document.createElement('div'); row.innerHTML = treatRowHTML('', null); const n = row.firstElementChild; $('.priceRows', f).insertBefore(n, $('.priceRows .hint', f)); f.dataset.dirty = '1'; $('.treat-name', n).focus(); n.scrollIntoView({ block: 'center' }); },
   delTreat(el) { const f = el.closest('form'); if ($$('.treat-row', f).length <= 1) return toast(t('tr_last'), 'warning'); el.closest('.treat-row').remove(); f.dataset.dirty = '1'; },
   moveTreat(el) { const row = el.closest('.treat-row'), f = el.closest('form'), d = +el.dataset.d, sib = d < 0 ? row.previousElementSibling : row.nextElementSibling; if (!sib || !sib.classList.contains('treat-row')) return; if (d < 0) sib.before(row); else sib.after(row); f.dataset.dirty = '1'; },
+  setLed: el => { if (LEDS[el.dataset.led]) { settings.ledColor = el.dataset.led; applySettings(); } },
   setTheme: el => { settings.theme = el.dataset.theme; settings.themeColor = ''; applySettings(); }, askNotif,
   installApp: async () => {
     if (isStandalone()) return;
