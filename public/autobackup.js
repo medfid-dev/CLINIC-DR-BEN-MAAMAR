@@ -13,6 +13,8 @@ Object.assign(L.ar, {
   ab_ask: 'ينصح باختيار مجلد على هذا الجهاز لتُحفظ فيه نسخة احتياطية يومية تلقائياً (آخر 14 يوماً). اختيار المجلد الآن؟', ab_ask_ok: 'اختيار مجلد', ab_ask_no: 'لاحقاً (تنزيل ملف)',
   ab_empty: '⚠️ تنبيه: سجلات الأرشيف على الخادم فارغة بينما كانت آخر نسخة تحوي {n} سجلاً. قد تكون البيانات مُسحت من الخادم (مثلاً بعد تحديث الاستضافة).\nلم أستبدل أي نسخة قديمة. استعدها من الإعدادات ← النسخ الاحتياطي ← «استعادة» باختيار آخر ملف نسخة.'
 });
+Object.assign(L.ar, { ab_last_note: '✅ آخر نسخة احتياطية: {d} — {n} سجلاً — {w}', ab_where_dir: 'في مجلد «{f}»', ab_where_dl: 'ملف نُزِّل على الجهاز', ab_next: '⏭️ النسخة القادمة: {d}', ab_next_open: 'عند أول فتح للتطبيق {d}', ab_none_note: '⚠️ لم تؤخذ أي نسخة احتياطية بعد' });
+Object.assign(L.en, { ab_last_note: '✅ Last backup: {d} — {n} records — {w}', ab_where_dir: 'in folder "{f}"', ab_where_dl: 'downloaded file', ab_next: '⏭️ Next backup: {d}', ab_next_open: 'on first open {d}', ab_none_note: '⚠️ No backup has been taken yet' });
 Object.assign(L.en, {
   ab_title: '🗓️ Automatic daily backup', ab_on: 'ON — tap to turn off', ab_off: 'OFF — tap to turn on', ab_pick: '📁 Choose backup folder', ab_now: '💾 Back up now',
   ab_time: '⏰ Daily backup time', ab_time_open: 'when the app is opened', ab_time_clear: 'On open', ab_time_hint: 'The backup runs daily after this time, provided the app is open on your device; if it was closed then, it runs when you next open it. Leave empty to back up on first open each day.', ab_time_set: 'Backup time saved',
@@ -25,12 +27,18 @@ Object.assign(L.en, {
 
 (function () {
   const KEEP = 14, KEY = 'cc_ab', NAME = /^clinic_backup_(\d{4}-\d{2}-\d{2})\.json$/;
-  const cfg = () => Object.assign({ on: true, last: '', n: -1, asked: false, folder: '', time: '' }, jget(KEY, {}));
+  const cfg = () => Object.assign({ on: true, last: '', lastTs: 0, where: '', n: -1, asked: false, folder: '', time: '' }, jget(KEY, {}));
   const setCfg = p => jset(KEY, Object.assign(cfg(), p));
   const day = () => new Date().toLocaleDateString('en-CA');
   const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
   const nowHM = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
   let nextTry = 0, ticking = false;
+  const fmt = ts => new Date(ts).toLocaleString(locale(), { dateStyle: 'full', timeStyle: 'short' });
+  /* موعد آخر استحقاق: بلا وقت محدد = بداية اليوم (أول فتح)؛ وبوقت محدد = آخر مرة مرّ فيها هذا الوقت. النسخة مستحقة إن لم تُؤخذ منذ ذلك الموعد */
+  const lastTs = c => c.lastTs || (c.last ? Date.parse(c.last + 'T00:00:00') : 0);
+  function occurrence(c) { const d = new Date(); if (TIME.test(c.time || '')) { const [h, m] = c.time.split(':'); d.setHours(+h, +m, 0, 0); if (d.getTime() > Date.now()) d.setDate(d.getDate() - 1); } else d.setHours(0, 0, 0, 0); return d.getTime(); }
+  const isDue = c => lastTs(c) < occurrence(c);
+  function nextDue(c) { const o = new Date(occurrence(c)); o.setDate(o.getDate() + 1); if (isDue(c)) return Date.now(); return o.getTime(); }
   const canDir = () => typeof window.showDirectoryPicker === 'function' && !!window.indexedDB;
   const idb = () => new Promise((ok, no) => { const r = indexedDB.open('cc_ab_db', 1); r.onupgradeneeded = () => r.result.createObjectStore('h'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); });
   const hGet = async () => { try { const d = await idb(); return await new Promise(ok => { const q = d.transaction('h').objectStore('h').get('dir'); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); } catch (e) { return null; } };
@@ -61,10 +69,11 @@ Object.assign(L.en, {
       if (n === 0 && c.n > 0) { if (c.warned !== day()) { setCfg({ warned: day() }); await appDialog({ msg: t('ab_empty', { n: c.n }), okL: t('dlg_ok') }); } return false; }
       let blob; try { blob = await api('GET', '/api/backup', undefined, { blob: true, noUnlock: true }); } catch (e) { if (e && e.code === 'locked') return false; throw e; }
       if (!blob || !blob.size) throw new Error('empty');
+      blob = withUi(blob);
       const name = `clinic_backup_${day()}.json`;
       if (useDir) { const fh = await h.getFileHandle(name, { create: true }), w = await fh.createWritable(); await w.write(blob); await w.close(); prune(h); }
       else download(blob, name);
-      setCfg({ last: day(), n }); toast(t('ab_done'), 'success'); abUI(); return true;
+      setCfg({ last: day(), lastTs: Date.now(), n, where: useDir ? 'dir:' + (h && h.name || '') : 'dl' }); toast(t('ab_done'), 'success'); abUI(); return true;
     } catch (e) { if (e && e.code === 'unauthorized') return false; toast(t('ab_fail') + (e && e.message ? ': ' + e.message : ''), 'danger'); return false; }
     finally { busy = false; }
   }
@@ -73,8 +82,7 @@ Object.assign(L.en, {
     document.addEventListener('click', () => { waiting = false; runBackup(true); }, { once: true, capture: true });
   }
   async function tick(force) {
-    if (!isDoctor()) return; const c = cfg(); if (!c.on || c.last === day()) return;
-    if (TIME.test(c.time || '') && nowHM() < c.time) return;   // لم يحن الوقت المحدد بعد
+    if (!isDoctor()) return; const c = cfg(); if (!c.on || !isDue(c)) return;   // لم يحن موعد النسخة (أو أُخذت منذ آخر موعد)
     if (!force && Date.now() < nextTry) return;                 // إعادة المحاولة كل 10 دقائق عند الفشل
     if (ticking) return; ticking = true;
     try {
@@ -90,18 +98,21 @@ Object.assign(L.en, {
     b.querySelector('#abToggle').textContent = (c.on ? '✅ ' : '⏸️ ') + t(c.on ? 'ab_on' : 'ab_off');
     const pk = b.querySelector('#abPick'); pk.style.display = canDir() ? '' : 'none';
     const ti = b.querySelector('#abTime'); if (ti && document.activeElement !== ti) ti.value = TIME.test(c.time || '') ? c.time : '';
-    b.querySelector('#abStat').textContent = `${t('ab_last')}: ${c.last || t('ab_never')} · ${t('ab_time')}: ${TIME.test(c.time || '') ? c.time : t('ab_time_open')} · ${t('ab_folder')}: ${h ? h.name : t('ab_dl')}`;
+    const lt = lastTs(c), where = c.where && c.where.startsWith('dir:') ? t('ab_where_dir', { f: c.where.slice(4) }) : t('ab_where_dl'), nx = nextDue(c);
+    const note = b.querySelector('#abNote'); note.textContent = lt ? t('ab_last_note', { d: fmt(lt), n: c.n >= 0 ? c.n : '؟', w: c.where ? where : '' }).replace(/ — $/, '') : t('ab_none_note'); note.style.color = lt ? 'var(--accent-mint,#3FA66B)' : 'var(--danger-soft,#D6455D)';
+    b.querySelector('#abStat').textContent = `${c.on ? t('ab_next', { d: TIME.test(c.time || '') ? fmt(nx) : t('ab_next_open', { d: new Date(nx).toLocaleDateString(locale(), { dateStyle: 'full' }) }) }) + ' · ' : ''}${t('ab_time')}: ${TIME.test(c.time || '') ? c.time : t('ab_time_open')} · ${t('ab_folder')}: ${h ? h.name : t('ab_dl')}`;
   }
   window.abUI = abUI;
   function inject() {
     const m = $('#set_backupModal .settings-modal'); if (!m || $('#abBox')) return;
     const box = document.createElement('div'); box.id = 'abBox'; box.className = 'rxl-sec'; box.style.cssText = 'margin-top:12px;border:1px solid rgba(128,128,150,.35);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px';
-    box.innerHTML = `<b>${esc(t('ab_title'))}</b><button type="button" class="btn-action" id="abToggle" data-act="abToggle"></button>
+    box.innerHTML = `<b>${esc(t('ab_title'))}</b><div id="abNote" style="font-weight:700;font-size:13px"></div><button type="button" class="btn-action" id="abToggle" data-act="abToggle"></button>
       <div style="display:flex;gap:8px"><button type="button" class="btn-action" id="abPick" data-act="abPick" style="flex:1">${esc(t('ab_pick'))}</button><button type="button" class="btn-action btn-green" data-act="abNow" style="flex:1">${esc(t('ab_now'))}</button></div>
       <div data-nonumpad style="display:flex;gap:8px;align-items:center"><label for="abTime" style="flex:1">${esc(t('ab_time'))}</label><input type="time" id="abTime" step="60" style="flex:1;min-width:0"><button type="button" class="btn-action" data-act="abTimeClear">${esc(t('ab_time_clear'))}</button></div>
       <div class="hint">${esc(t('ab_time_hint'))}</div>
       <div class="hint" id="abStat"></div><div class="hint">${esc(t('ab_hint'))}</div>`;
-    box.querySelector('#abTime').addEventListener('change', e => { const v = e.target.value; setCfg({ time: TIME.test(v) ? v : '' }); nextTry = 0; toast(t('ab_time_set'), 'success'); abUI(); tick(true); });
+    let tmr; const saveTime = e => { clearTimeout(tmr); tmr = setTimeout(() => { const v = e.target.value; if (v && !TIME.test(v)) return; if ((cfg().time || '') === v) return; setCfg({ time: v }); nextTry = 0; toast(t('ab_time_set'), 'success'); abUI(); tick(true); }, 500); };
+    box.querySelector('#abTime').addEventListener('change', saveTime); box.querySelector('#abTime').addEventListener('input', saveTime);
     const prot = m.querySelector('.rxl-sec'); if (prot) m.insertBefore(box, prot); else m.appendChild(box);
   }
   Object.assign(ACT, {
@@ -111,6 +122,6 @@ Object.assign(L.en, {
     abNow() { runBackup(true); }
   });
   inject(); abUI();
-  setTimeout(tick, 15000); setInterval(tick, 60 * 1000);
+  setTimeout(tick, 15000); setInterval(() => { tick(); abUI(); }, 60 * 1000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(tick, 2000); });
 })();

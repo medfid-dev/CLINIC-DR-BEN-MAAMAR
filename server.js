@@ -98,8 +98,23 @@ const TREAT_KEYS = ['قلع', 'علاج عصب', 'استشارة', 'جلسة ت�
 const num = (v, max = 1e9) => { if (v === '' || v == null) return null; const n = Math.round(Number(v) * 100) / 100; return Number.isFinite(n) && n >= 0 && n <= max ? n : null; };
 const PRICE_CATS = ['base', 'front', 'pre', 'molar', 'wisdom'];   // عام / أمامية (قواطع وأنياب) / ضواحك / أضراس
 const treatsOf = c => (c.prices && Array.isArray(c.prices.treatments) && c.prices.treatments.length) ? c.prices.treatments : TREAT_KEYS;
-const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
-const pricesOf = c => { const tr = treatsOf(c); return { currency: (c.prices && c.prices.currency) || '', list: normList(c.prices && c.prices.list, tr), treatments: tr }; };
+const MAX_SESS = 12, cleanSess = v => { const n = parseInt(v); return Number.isInteger(n) && n >= 1 && n <= MAX_SESS ? n : 0; };   // عدد حصص العلاج: 1–12
+const defSess = tr => /عصب|root|endo/i.test(tr) ? 2 : 1;   // افتراض للعلاجات التي لم يُضبط عدد حصصها بعد
+/* ألوان السن لكل علاج: on = مفعّل، part = أثناء العلاج (حصص متبقية)، done = عند اكتمال حصصه */
+const HEX = /^#[0-9a-f]{6}$/i, NEUTRAL_TR = /استشارة|تبييض|أخرى|consult|whiten|other/i, EXT_TR = /قلع|extract/i;
+const defCol = tr => EXT_TR.test(tr) ? { on: true, part: '#d64545', done: '#d64545' } : { on: !NEUTRAL_TR.test(tr), part: '#f2b705', done: '#2e9e6b' };
+const cleanCol = (v, tr) => { if (!v || typeof v !== 'object') return null; const d = defCol(tr || ''); return { on: v.on === undefined ? d.on : !!v.on, part: HEX.test(v.part) ? v.part.toLowerCase() : d.part, done: HEX.test(v.done) ? v.done.toLowerCase() : d.done }; };
+/* حالة أسنان المريض: آخر حصة مسجّلة لكل (سن، علاج) بترتيب زمني، من بنود الخطط أو من السجلات القديمة */
+function toothItems(rs) {
+  const out = [];
+  for (const r of [...rs].sort((x, y) => (x.finishedAt || 0) - (y.finishedAt || 0))) {
+    if (r.lines && r.lines.length) { for (const l of r.lines) if (FDI.has(String(l.tooth))) out.push({ tooth: String(l.tooth), treatment: l.treatment, no: l.no || 1, sessions: l.sessions || 1, at: r.finishedAt }); }
+    else for (const n of cleanTeeth(r.teeth)) for (const tr of treatmentsOf(r)) out.push({ tooth: n, treatment: tr, no: 1, sessions: 1, at: r.finishedAt });
+  }
+  return out.slice(-400);
+}
+const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } const sn = cleanSess(v.sessions); if (sn) o.sessions = sn; const cc = cleanCol(v.col, k); if (cc) o.col = cc; } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
+const pricesOf = c => { const tr = treatsOf(c), list = normList(c.prices && c.prices.list, tr); for (const k of tr) list[k] = { ...(list[k] || {}), sessions: (list[k] && list[k].sessions) || defSess(k), col: (list[k] && list[k].col) || defCol(k) }; return { currency: (c.prices && c.prices.currency) || '', list, treatments: tr }; };
 /* أسماء العلاجات: 1–30 اسماً فريداً (بلا حساسية لحالة الأحرف)، كل اسم حتى 40 حرفاً */
 function normTreatments(a) {
   if (!Array.isArray(a)) throw httpErr(400, 'invalid_input');
@@ -175,7 +190,7 @@ function syncLines(rec, price, replacedPay) {
   if (replacedPay) { let left = paidOf(rec); const t = (rec.payments[0] || {}).t || rec.finishedAt; rec.payments = []; for (const l of ch) { const x = Math.min(left, l.total || 0); if (x > 0) { rec.payments.push({ t, amt: x, vid: rec.id, pl: l.plan }); left = r2(left - x); } } }
 }
 /* بنود الخطة المستعادة من نسخة احتياطية */
-const cleanLinesIn = a => (Array.isArray(a) ? a : []).slice(0, 24).filter(l => l && PLAN_ID.test(String(l.plan)) && typeof l.treatment === 'string' && l.treatment.trim()).map(l => ({ plan: l.plan, no: Math.min(2, Math.max(1, parseInt(l.no) || 1)), sessions: +l.sessions === 2 ? 2 : 1, tooth: FDI.has(String(l.tooth)) ? String(l.tooth) : '', treatment: str(l.treatment, 40).trim(), ...(parseInt(l.no) === 1 || !l.no ? { total: num(l.total) || 0 } : {}), ...(l.closed ? { closed: true } : {}) }));
+const cleanLinesIn = a => (Array.isArray(a) ? a : []).slice(0, 24).filter(l => l && PLAN_ID.test(String(l.plan)) && typeof l.treatment === 'string' && l.treatment.trim()).map(l => ({ plan: l.plan, no: Math.min(MAX_SESS, Math.max(1, parseInt(l.no) || 1)), sessions: cleanSess(l.sessions) || 1, tooth: FDI.has(String(l.tooth)) ? String(l.tooth) : '', treatment: str(l.treatment, 40).trim(), ...(parseInt(l.no) === 1 || !l.no ? { total: num(l.total) || 0 } : {}), ...(l.closed ? { closed: true } : {}) }));
 /* ما دُفع من الوعاء لسجل ما يرجع إليه عند حذف السجل أو استبدال دفعاته */
 function unwallet(c, k, rec, t) { const w = (rec.payments || []).reduce((x, p) => x + (p.m === 'w' ? (+p.amt || 0) : 0), 0); wMove(c, k, 'back', r2(w), t, { rid: rec.id }); }
 /* رقم الحصة لكل سجل (حسب المريض) وربط الدفعات القديمة بالحصة التي دُفعت فيها */
@@ -760,7 +775,7 @@ async function api(req, res, url) {
             lines.push({ plan: p.id, no: p.done + 1, sessions: p.sessions, tooth: p.tooth, treatment: p.treatment }); tg.push({ rec: p.rec, plan: p.id, cap: p.remaining, pay });
           } else {
             const treatment = str(z.treatment, 40).trim().replace(/\s+/g, ' '), tooth = z.tooth ? String(z.tooth) : ''; if (!treatment || (tooth && !FDI.has(tooth))) throw httpErr(400, 'invalid_input');
-            const total = num(z.total) || 0, sessions = +z.sessions === 2 ? 2 : 1, id = rid(5);
+            const total = num(z.total) || 0, sessions = cleanSess(z.sessions) || 1, id = rid(5);
             lines.push({ plan: id, no: 1, sessions, tooth, treatment, total }); tg.push({ rec: entry, plan: id, cap: total, pay });
           }
         }
@@ -853,7 +868,7 @@ async function api(req, res, url) {
     const a = authOf(req, ['doctor']), q = url.searchParams, k = patKey({ name: str(q.get('name') || '', 80), birthYear: parseInt(q.get('year')) });
     const rs = a.clinic.archive.filter(r => patKey(r) === k);
     const pm = plansOf(a.clinic, k), pl = [...pm.values()].sort((x, y) => y.at - x.at);
-    return send(res, 200, { plans: pl.filter(p => p.open).map(planView), debts: pl.filter(p => !p.open && p.remaining > 0).map(planView).map(p => ({ ...p, plan: p.id })).concat(rs.filter(r => !(r.lines && r.lines.some(l => l.no === 1)) && remOf(r) > 0).map(r => ({ rec: r.id, treatment: r.treatment, tooth: r.tooth || '', total: dueOf(r), paid: paidOf(r), remaining: remOf(r), at: r.finishedAt }))), wallet: wbal(a.clinic, k), due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)), records: rs.slice(0, 5).map(r => ({ id: r.id, treatment: r.treatment, treatments: treatmentsOf(r), teeth: r.teeth || [], tooth: r.tooth, finishedAt: r.finishedAt, price: r.price, paid: paidOf(r), remaining: remOf(r) })) });
+    return send(res, 200, { plans: pl.filter(p => p.open).map(planView), debts: pl.filter(p => !p.open && p.remaining > 0).map(planView).map(p => ({ ...p, plan: p.id })).concat(rs.filter(r => !(r.lines && r.lines.some(l => l.no === 1)) && remOf(r) > 0).map(r => ({ rec: r.id, treatment: r.treatment, tooth: r.tooth || '', total: dueOf(r), paid: paidOf(r), remaining: remOf(r), at: r.finishedAt }))), teeth: toothItems(rs), wallet: wbal(a.clinic, k), due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)), records: rs.slice(0, 5).map(r => ({ id: r.id, treatment: r.treatment, treatments: treatmentsOf(r), teeth: r.teeth || [], tooth: r.tooth, finishedAt: r.finishedAt, price: r.price, paid: paidOf(r), remaining: remOf(r) })) });
   }
   /* تسجيل دفعة على سجل في الأرشيف (طبيب فقط) */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})\/payment$/);
@@ -870,6 +885,16 @@ async function api(req, res, url) {
       rec.paid = r2(paidOf(rec) + x); (rec.payments = rec.payments || []).push({ t, amt: x, vid: null, m: 'w' }); wMove(c, k, 'use', x, t, { rid: rec.id });
     }
     save(); return send(res, 200, archiveView(rec, { c, info: visitInfo(c) }));
+  }
+  /* تغيير عدد حصص خطة جارية أثناء العلاج (طبيب فقط): delta=+1 تضيف حصة، -1 تحذف حصة لم تُجرَ بعد */
+  mt = p.match(/^\/api\/plans\/([a-f0-9]{10})\/sessions$/);
+  if (m === 'POST' && mt) {
+    const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req); let first = null, done = 1, n = 0;
+    for (const r of c.archive) for (const l of r.lines || []) if (l.plan === mt[1]) { if (l.no === 1) { first = l; n = l.sessions || 1; } done = Math.max(done, l.no || 1); }
+    if (!first) throw httpErr(404, 'not_found');
+    const d = +b.delta === -1 ? -1 : 1, next = Math.min(MAX_SESS, Math.max(done, n + d)); if (next === n && d > 0 && n >= MAX_SESS) throw httpErr(409, 'max_sessions');
+    for (const r of c.archive) for (const l of r.lines || []) if (l.plan === mt[1]) l.sessions = next;
+    save(); return send(res, 200, { ok: true, sessions: next });
   }
   /* إغلاق خطة علاج قبل اكتمال حصصها (المريض لن يعود مثلاً): يبقى متبقّيها ديناً قابلاً للسداد (طبيب فقط) */
   mt = p.match(/^\/api\/plans\/([a-f0-9]{10})\/close$/);
@@ -932,8 +957,12 @@ async function api(req, res, url) {
     if (d0 && d1 && d0 >= d1) { const x = isDay(dTo) ? dayStart(dTo) : 0; d0 = x; d1 = dayStart(dFrom) + 864e5; }  // عُكس الترتيب
     const off = Math.max(0, +q.get('offset') || 0), lim = Math.min(100, Math.max(1, +q.get('limit') || 30));
     const X = { c: a.clinic, info: visitInfo(a.clinic) }, owe = new Map(); for (const o of a.clinic.archive) { const d = remOf(o); if (d > 0) owe.set(patKey(o), r2((owe.get(patKey(o)) || 0) + d)); }  /* دين المريض الكلي (كل زياراته) */
-    const all = a.clinic.archive.filter(r => (!name || r.name.toLowerCase().includes(name)) && (!year || String(r.birthYear).includes(year)) && (!gender || r.gender === gender) && (!tooth || String(r.tooth).toLowerCase().includes(tooth)) && (!tr || (r.treatment || '').includes(tr)) && (!d0 || r.finishedAt >= d0) && (!d1 || r.finishedAt < d1));
-    return send(res, 200, { total: all.length, sum: r2(all.reduce((x, r) => x + dueOf(r), 0)), paidSum: r2(all.reduce((x, r) => x + paidOf(r), 0)), debt: r2(all.reduce((x, r) => x + remOf(r), 0)), items: all.slice(off, off + lim).map(r => ({ ...archiveView(r, X), patDebt: owe.get(patKey(r)) || 0 })) });
+    const money = str(q.get('money') || '', 10);   // debtors: سجلات عليها متبقٍّ · creditors: مرضى لديهم رصيد في الوعاء (آخر سجل لكل مريض)
+    let all = a.clinic.archive.filter(r => (!name || r.name.toLowerCase().includes(name)) && (!year || String(r.birthYear).includes(year)) && (!gender || r.gender === gender) && (!tooth || String(r.tooth).toLowerCase().includes(tooth)) && (!tr || (r.treatment || '').includes(tr)) && (!d0 || r.finishedAt >= d0) && (!d1 || r.finishedAt < d1));
+    let walSum = 0;
+    if (money === 'debtors') all = all.filter(r => remOf(r) > 0);
+    else if (money === 'creditors') { const seen = new Set(); all = all.filter(r => { const k = patKey(r); if (seen.has(k) || !(wbal(a.clinic, k) > 0)) return false; seen.add(k); walSum = r2(walSum + wbal(a.clinic, k)); return true; }); }
+    return send(res, 200, { total: all.length, ...(money === 'creditors' ? { walSum } : {}), sum: r2(all.reduce((x, r) => x + dueOf(r), 0)), paidSum: r2(all.reduce((x, r) => x + paidOf(r), 0)), debt: r2(all.reduce((x, r) => x + remOf(r), 0)), items: all.slice(off, off + lim).map(r => ({ ...archiveView(r, X), patDebt: owe.get(patKey(r)) || 0 })) });
   }
   /* أرشيف الوصفات (طبيب فقط): كل سجل منتهٍ له وصفة، الأحدث أولاً */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})$/);
@@ -1047,7 +1076,7 @@ async function api(req, res, url) {
   if (m === 'GET' && p === '/api/backup') {
     const a = authOf(req, ['doctor']), c = a.clinic, images = {}; needUnlock(req, c);
     for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
-    const body = JSON.stringify({ app: 'calm-clinic', version: 2, exportedAt: now(), clinicName: c.name, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, images });
+    const body = JSON.stringify({ app: 'calm-clinic', version: 3, exportedAt: now(), clinicName: c.name, schedule: c.schedule || null, nurses: c.nurses.map(n => ({ name: n.name, phone: n.phone, salt: n.salt, hash: n.hash, createdAt: n.createdAt })), protect: !!c.protect, counter: c.counter || null, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
   }
@@ -1078,6 +1107,11 @@ async function api(req, res, url) {
     /* قائمة الأسعار وقالب/تخطيط الوصفة (تُستعاد إن وُجدت في النسخة) */
     if (b.prices && typeof b.prices === 'object') { const tr = Array.isArray(b.prices.treatments) ? normTreatments(b.prices.treatments) : treatsOf(c); c.prices = { currency: str(b.prices.currency, 10), list: normList(b.prices.list, tr), treatments: tr }; }
     if (b.rxTpl && typeof b.rxTpl === 'object') c.rxTpl = cleanTpl(b.rxTpl);
+    /* أوقات تسجيل الممرضة، حسابات الممرضات (تُضاف المفقودة بالاسم فقط ولا يُستبدل الموجود)، حماية الأرشيف، وعدّاد التذاكر */
+    if (b.schedule && typeof b.schedule === 'object') c.schedule = normSchedule(b.schedule);
+    if (Array.isArray(b.nurses)) for (const n of b.nurses.slice(0, 30)) { const name = n && str(n.name, 60); if (!name || typeof n.salt !== 'string' || !/^[a-f0-9]{32}$/.test(n.salt) || typeof n.hash !== 'string' || !/^[a-f0-9]{128}$/.test(n.hash) || c.nurses.length >= 30 || c.nurses.some(z => z.name.toLowerCase() === name.toLowerCase())) continue; c.nurses.push({ id: rid(6), name, phone: str(n.phone, 25), salt: n.salt, hash: n.hash, createdAt: +n.createdAt || now() }); }
+    if (typeof b.protect === 'boolean') c.protect = b.protect;
+    if (b.counter && typeof b.counter === 'object' && typeof b.counter.date === 'string' && b.counter.date.length <= 12) c.counter = { date: b.counter.date, n: Math.max(0, parseInt(b.counter.n) || 0) };
     const W = {}; if (b.wallets && typeof b.wallets === 'object') for (const [k, w] of Object.entries(b.wallets).slice(0, 50000)) {
       if (typeof k !== 'string' || k.length > 120 || !w || typeof w !== 'object') continue;
       W[k] = { bal: Math.max(0, num(w.bal) || 0), log: (Array.isArray(w.log) ? w.log : []).slice(-1000).filter(e => e && WK.has(e.k)).map(e => ({ t: +e.t || now(), amt: Math.max(0, num(e.amt) || 0), k: e.k, ...(REC_ID.test(String(e.vid)) ? { vid: e.vid } : {}) })) };

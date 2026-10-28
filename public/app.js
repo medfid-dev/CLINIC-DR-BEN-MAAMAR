@@ -107,7 +107,20 @@ const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&a
 const jget = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const jset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
-const settings = Object.assign({ darkMode: false, theme: 'sky', lang: 'ar', sound: true, autoQr: true }, jget('cc_settings', {}));
+const settings = Object.assign({ darkMode: false, theme: 'sky', themeColor: '', lang: 'ar', sound: true, autoQr: true }, jget('cc_settings', {}));
+/* لون التطبيق: لون واحد يُشتقّ منه كل شيء (الشريط والخلفيات والبطاقات والحدود والنصوص) في الوضعين الفاتح والداكن */
+const THEMES = { sky: '#2E2A6E', mint: '#1F6F78', purple: '#7B2D6E', rose: '#A8324A', green: '#1E7A4C', blue: '#1D5FB4', brown: '#8A4A1C', slate: '#3A4A5C' };
+const themeHex = () => /^#[0-9a-f]{6}$/i.test(settings.themeColor) ? settings.themeColor : (THEMES[settings.theme] || THEMES.sky);
+function hexHsl(hex) { const n = parseInt(hex.slice(1), 16), r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let h = 0; if (d) h = mx === r ? ((g - b) / d + (g < b ? 6 : 0)) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; const l = (mx + mn) / 2; return { h: Math.round(h * 60), s: d ? d / (1 - Math.abs(2 * l - 1)) * 100 : 0, l: l * 100 }; }
+function paletteFor(hex, dark) {
+  const { h, s: s0, l } = hexHsl(hex), s = Math.max(28, Math.min(80, s0)), H = (x, sat, lig, a) => `hsl(${(h + x + 360) % 360} ${sat}% ${lig}%${a != null ? ' / ' + a : ''})`;
+  const base = l > 36 ? H(0, s, 30) : hex;   // لون الشريط والأزرار الرئيسية: غامق دائماً ليبقى النص الأبيض واضحاً
+  if (dark) return { '--bar': H(0, 45, 11), '--g1': H(0, 32, 20), '--g2': H(0, 32, 15), '--g3': H(0, 38, 11), '--bg-calm': H(0, 32, 15), '--surface-calm': H(0, 34, 13), '--surface-card': H(0, 30, 20), '--surface-input': H(0, 34, 13), '--surface-sunk': H(0, 32, 16),
+    '--border-calm': H(0, 40, 80, .30), '--primary-sage': H(0, Math.max(s, 70), 76), '--on-primary': H(0, 50, 10), '--accent-soft': H(0, 70, 74), '--text-primary': '#FFFFFF', '--text-secondary': H(0, 35, 88), '--text-muted': H(0, 25, 76), '--shadow-calm': '0 10px 24px -14px rgba(0,0,0,.75)', '--auth1': H(-12, 30, 26), '--auth2': H(0, 35, 19), '--auth3': H(0, 40, 13), '--hl1': H(-12, 30, 28), '--hl2': H(0, 40, 20) };
+  return { '--bar': base, '--g1': H(-10, 50, 95), '--g2': H(0, 42, 91), '--g3': H(10, 40, 87), '--bg-calm': H(0, 42, 91), '--surface-calm': H(0, 40, 95), '--surface-card': '#FFFFFF', '--surface-input': '#FFFFFF', '--surface-sunk': H(0, 36, 93),
+    '--border-calm': H(0, 40, 22, .30), '--primary-sage': base, '--on-primary': '#FFFFFF', '--accent-soft': H(0, s, 38), '--text-primary': H(0, 50, 9), '--text-secondary': H(0, 32, 22), '--text-muted': H(0, 22, 33), '--shadow-calm': `0 10px 24px -14px ${H(0, 50, 20, .5)}`, '--auth1': H(-12, 30, 32), '--auth2': H(0, 36, 25), '--auth3': H(0, 42, 18), '--hl1': H(-12, 30, 34), '--hl2': base };
+}
+function applyPalette() { const b = document.body, p = paletteFor(themeHex(), settings.darkMode); for (const k in p) b.style.setProperty(k, p[k]); }
 const S = { token: localStorage.getItem('cc_token') || '', me: null, patients: [], skipRequests: [], stamp: 0, es: null, retry: 0, treatment: 'قلع', treatments: [], archive: { items: [], total: 0 }, archOffset: 0, nurses: [], activePid: null, qrPid: null, installEvt: null, shownSkip: '', config: null, schedule: null, schedSig: '' };
 const YEAR = new Date().getFullYear();
 
@@ -122,6 +135,16 @@ Object.assign(L.ar, { pat_debt: 'دين المريض', pl_title: 'خطة علا�
 Object.assign(L.en, { debt_note: 'Note: this patient has an unpaid balance of {x}', pay_recv: 'paid the debt of session {n} ({tr})', wal_chk: 'Pay from wallet', rc_price: 'This session price', rc_wallet: 'From wallet', rc_cash: 'Cash', rc_left: 'Left for this session', rc_to_debt: 'Excess pays an earlier debt', rc_to_wal: 'Excess goes to wallet', rc_all_debt: 'Total patient debt after', pay_src_q: 'Pay {a} — from where?', pay_ledger: '💵 Payments ledger', pay_for: 'for session', pay_same: 'same session', pay_in_visit: 'in session {n} ({d})', pay_later: 'later, from archive', pay_cash: 'Cash payment', pay_wallet: 'From wallet', pay_cut_wal: 'Deducted from wallet', snd_test: 'Preview sounds', snd_names: ['New patient', 'Patient entered', 'Consultation finished', 'New task', 'Task done', 'Skip request', 'Request denied', 'Patient turn'], paid_full: 'Fully paid', follow_b: 'Follow-up session', wal_bal_b: 'Wallet balance', treat_l: 'Treatment:', pay_dep: 'Wallet deposit', pay_out: 'Cash refund from wallet', pay_dep_in: 'during session {n} ({d})', pay_dep_manual: 'direct deposit',
   wal_title: 'Patient wallet', wal_bal: 'Balance:', wal_use: 'Deduct from wallet', wal_dep: 'Deposit to wallet', wal_out: 'Cash refund', wal_dep_q: 'Amount to deposit in the patient wallet:', wal_out_q: 'Amount refunded in cash to the patient:', wal_saved: 'Wallet updated ✅', wal_excess: 'The excess {x} goes to the patient wallet', wal_after: 'Wallet balance after this session:', pay_from_wal_q: 'Pay from the patient wallet (balance {w})?\nOK = wallet · Cancel = cash', e_wallet_empty: 'The wallet is empty', e_wallet_short: 'Amount exceeds the wallet balance', hist_wallet: 'Wallet' });
 Object.assign(L.en, { pat_debt: 'Patient debt', pl_title: "Today's treatment plan", pl_none: 'No items. Pick the tooth and treatment above.', pl_session_n: 'Session {n} of {m}', pl_total: 'Total treatment price', pl_sess_1: 'One session', pl_sess_2: 'Two sessions', pl_split_hint: 'The price is split between the two sessions: {a} is suggested today, the rest in session 2 (you can change the amount).', pl_one_hint: 'The full price is paid in this session.', pl_pay_now: 'Pay today', pl_left_after: 'Left on this item after today', pl_all: 'All', pl_half: 'Half', pl_zero: '0', pl_del: 'Remove item', pl_prev_title: 'Previous balance & ongoing plans', pl_next_session: 'Next: session {n} of {m}', pl_go: '▶ Continue today', pl_close: 'Close plan', pl_close_q: 'Close this plan? No more sessions will be expected and its remaining amount stays as a debt to settle later.', pl_closed_t: 'Plan closed', pl_tr_missing: 'The treatment "{n}" is not in your treatment list; add it in settings first', pl_sum_today: "Today's items value", pl_sum_paid: 'Paid today', pl_sum_wal: 'From wallet', pl_sum_cash: 'Cash', pl_sum_after: 'Patient balance after this visit', e_plan_closed: 'This plan is complete or closed' });
+Object.assign(L.ar, { set_prices: '💰 الحصص والأسعار', prices_hint: 'لكل علاج: عدد حصصه وسعره. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض، وإضافة حصة أثناء العلاج.', pl_sess_n: 'عدد الحصص', pl_add_sess: 'إضافة حصة', pl_sess_added: 'أُضيفت حصة إلى العلاج ✅', e_max_sessions: 'بلغ العلاج أقصى عدد من الحصص (12)',
+  pl_split_hint: 'يُقسَّم السعر على {m} حصص: يُقترح دفع {a} اليوم والباقي في الحصص التالية (يمكنك تغيير المبلغ).' });
+Object.assign(L.en, { set_prices: '💰 Sessions & prices', prices_hint: 'Sessions count and price for each treatment. Shown automatically in the consultation (editable per patient); you can add a session mid-treatment.', pl_sess_n: 'Number of sessions', pl_add_sess: 'Add a session', pl_sess_added: 'Session added to the treatment ✅', e_max_sessions: 'Treatment reached the maximum of 12 sessions',
+  pl_split_hint: 'The price is split over {m} sessions: {a} is suggested today, the rest in the following sessions (you can change the amount).' });
+Object.assign(L.ar, { theme_custom: 'لون مخصّص' });
+Object.assign(L.en, { theme_custom: 'Custom color' });
+Object.assign(L.ar, { col_on_l: 'تلوين السن', col_part_l: 'أثناء العلاج', col_done_l: 'عند الاكتمال', col_hint: 'لكل علاج: لون السن أثناء العلاج (حصص متبقية) ولونه عند اكتمال الحصص، ويظهران في مخطط الأسنان بالمعاينة وفي سجل المريض.' });
+Object.assign(L.en, { col_on_l: 'Color the tooth', col_part_l: 'In progress', col_done_l: 'Completed', col_hint: 'Per treatment: tooth color while sessions remain and once completed; shown in the consultation tooth chart and the patient record.' });
+Object.assign(L.ar, { money_all: 'الكل (مدينون ودائنون وغيرهم)', money_debtors: '🔴 المدينون (عليهم متبقٍّ)', money_creditors: '🟢 الدائنون (رصيدهم في الوعاء)', money_wal_sum: 'مجموع أرصدة الوعاء:' });
+Object.assign(L.en, { money_all: 'All (debtors, creditors, others)', money_debtors: '🔴 Debtors (owe a balance)', money_creditors: '🟢 Creditors (wallet balance)', money_wal_sum: 'Total wallet balances:' });
 const errMsg = e => t('e_' + ((e && e.code) || 'server_error')) || t('e_server_error');
 const genderL = g => (g === 'أنثى' ? t('female') : t('male'));
 const reasonL = r => { const f = REASONS.find(x => x[0] === r); return f ? (settings.lang === 'en' ? f[1] : f[0]) : r; };
@@ -405,9 +428,12 @@ function priceFor(tr, teeth) {
   return { total: Math.round(parts.reduce((x, y) => x + y.v, 0) * 100) / 100, parts };
 }
 function treatRowHTML(v, vals) {
-  const o = vals || {};
+  const o = vals || {}, cc = o.col || defCol(v || '');
   return `<div class="treat-row" ${v ? `data-orig="${esc(v)}"` : ''}><div class="treat-head"><input type="text" class="treat-name" maxlength="40" placeholder="${esc(t('tr_name_ph'))}" value="${esc(v ? treatLabel(v) : '')}">
     <button type="button" class="btn-action" data-act="moveTreat" data-d="-1" title="${esc(t('tr_up'))}" aria-label="${esc(t('tr_up'))}">▲</button><button type="button" class="btn-action" data-act="moveTreat" data-d="1" title="${esc(t('tr_down'))}" aria-label="${esc(t('tr_down'))}">▼</button><button type="button" class="btn-action btn-red" data-act="delTreat" title="${esc(t('tr_del'))}" aria-label="${esc(t('tr_del'))}">✕</button></div>
+    <div class="sess-row"><label><span>${t('pl_sess_n')}</span><input type="number" min="1" max="12" step="1" inputmode="numeric" class="treat-sess" value="${o.sessions || (v ? defSessions(v) : 1)}"></label>
+      <label class="col-on"><input type="checkbox" class="treat-col-on" ${cc.on ? 'checked' : ''}><span>🎨 ${t('col_on_l')}</span></label>
+      <label class="col-pick"><span>${t('col_part_l')}</span><input type="color" class="treat-col-part" value="${cc.part}"></label><label class="col-pick"><span>${t('col_done_l')}</span><input type="color" class="treat-col-done" value="${cc.done}"></label></div>
     <div class="price-grid">${CATS.map(c => `<label><span>${t('price_cat_' + c)}</span><input type="number" min="0" step="any" inputmode="decimal" data-cat="${c}" value="${o[c] != null ? o[c] : ''}" placeholder="0"></label>`).join('')}</div></div>`;
 }
 function renderPriceForm() {
@@ -425,17 +451,18 @@ document.addEventListener('input', ev => { const f = ev.target.closest && ev.tar
    يصير البند «متابعة» لها ويعرض متبقّيها مباشرة. ما عدا ذلك من متبقٍّ سابق يظهر أسفلها ليُسدَّد اختيارياً. */
 const wBal = () => (S.account && S.account.wallet) || 0, r2c = v => Math.round(v * 100) / 100;
 function moneyReset() { S.useWal = true; S.removed = new Set(); S.lov = {}; S.dpay = {}; S.account = null; }
-const defSessions = tr => /عصب|root|endo/i.test(tr) ? 2 : 1;   // علاج العصب غالباً حصتان
+const MAXS = 12, defSessions = tr => { const e = S.me && S.me.prices && S.me.prices.list && S.me.prices.list[tr]; return (e && e.sessions) || (/عصب|root|endo/i.test(tr) ? 2 : 1); };   // عدد حصص العلاج يُضبط من «الحصص والأسعار»
+const splitPay = (rem, left) => left > 1 ? r2c(rem / left) : rem;   // المقترح دفعه اليوم: المتبقي موزَّعاً على الحصص المتبقية
 const lineKey = (th, tr) => th + '|' + tr;
 function consLines() {
   const plans = (S.account && S.account.plans) || [], teeth = [...S.teeth].sort(), used = new Set(), out = [];
   for (const tr of S.treatments) for (const th of (teeth.length ? teeth : [''])) {
     const key = lineKey(th, tr); if (S.removed.has(key)) continue;
     const ov = S.lov[key] || {}, p = plans.find(x => x.tooth === th && x.treatment === tr && !used.has(x.id)); let L;
-    if (p) { used.add(p.id); const ps = ov.pay != null ? ov.pay : String(p.remaining); L = { key, th, tr, plan: p, cont: true, tot: p.total, sessions: p.sessions, no: p.done + 1, cap: p.remaining, payStr: ps, pay: Math.min(p.remaining, Math.max(0, +ps || 0)) }; }
+    if (p) { used.add(p.id); const ps = ov.pay != null ? ov.pay : String(splitPay(p.remaining, p.sessions - p.done)); L = { key, th, tr, plan: p, cont: true, tot: p.total, sessions: p.sessions, no: p.done + 1, cap: p.remaining, payStr: ps, pay: Math.min(p.remaining, Math.max(0, +ps || 0)) }; }
     else {
       const auto = priceFor(tr, th ? [th] : []), ts = ov.total != null ? ov.total : (auto.total === '' ? '' : String(auto.total)), tot = Math.max(0, +ts || 0), sessions = ov.sessions || defSessions(tr);
-      const ps = ov.pay != null ? ov.pay : (ts === '' ? '' : String(sessions === 2 ? r2c(tot / 2) : tot));
+      const ps = ov.pay != null ? ov.pay : (ts === '' ? '' : String(splitPay(tot, sessions)));
       L = { key, th, tr, cont: false, totStr: ts, tot, sessions, no: 1, cap: tot, payStr: ps, pay: Math.min(tot, Math.max(0, +ps || 0)), parts: auto.parts };
     }
     L.left = r2c((L.cont ? L.cap : L.tot) - L.pay); out.push(L);
@@ -458,16 +485,18 @@ function moneyTotals() {
 const wUse = () => moneyTotals().w;
 const plBadge = (th, tr) => `${th ? `<span class="pl-tooth">${esc(th)}</span>` : ''}<b>${esc(treatLabel(tr))}</b>`;
 function quickBtns(act, attrs) { return `<span class="pl-quick">${[['all', 'pl_all'], ['half', 'pl_half'], ['zero', 'pl_zero']].map(([v, k]) => `<button type="button" data-act="${act}" ${attrs} data-v="${v}">${t(k)}</button>`).join('')}</span>`; }
+const sessHint = l => l.sessions > 1 ? t('pl_split_hint', { a: money(r2c(l.tot / l.sessions)), m: l.sessions }) : t('pl_one_hint');
 function lineHTML(l) {
   const k = esc(l.key), del = `<button type="button" class="pl-del" data-act="lineDel" data-key="${k}" title="${esc(t('pl_del'))}" aria-label="${esc(t('pl_del'))}">✕</button>`;
   const pay = `<div class="pl-row"><label>💵 ${t('pl_pay_now')}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(l.payStr)}" data-input="lpay" data-key="${k}">${quickBtns('lpayQuick', `data-key="${k}"`)}</div><div class="pl-foot"><span>${t('pl_left_after')}</span><b class="pl-left"></b></div>`;
   if (l.cont) return `<div class="pl-line pl-cont" data-key="${k}"><div class="pl-head">${plBadge(l.th, l.tr)}<span class="pl-badge cont">${t('pl_session_n', { n: l.no, m: l.sessions })}</span>${del}</div>
-    <div class="pl-info">${t('pl_total')} <b>${money(l.tot)}</b> · ${t('paid_l')} <b>${money(l.plan.paid)}</b> · ${t('rem_l')} <b class="pl-rem">${money(l.plan.remaining)}</b></div>${pay}</div>`;
-  const hint = l.sessions === 2 ? t('pl_split_hint', { a: money(r2c(l.tot / 2)) }) : t('pl_one_hint');
+    <div class="pl-info">${t('pl_total')} <b>${money(l.tot)}</b> · ${t('paid_l')} <b>${money(l.plan.paid)}</b> · ${t('rem_l')} <b class="pl-rem">${money(l.plan.remaining)}</b></div>${pay}
+    ${l.sessions < MAXS ? `<div class="pl-acts"><button type="button" class="btn-action btn-green" data-act="sessAdd" data-id="${esc(l.plan.id)}">➕ ${t('pl_add_sess')}</button></div>` : ''}</div>`;
+  const hint = sessHint(l);
   return `<div class="pl-line" data-key="${k}"><div class="pl-head">${plBadge(l.th, l.tr)}<span class="pl-badge">${t('pl_session_n', { n: 1, m: l.sessions })}</span>${del}</div>
     ${l.parts && l.parts.length ? `<div class="pl-info"><small>${l.parts.map(x => x.n + ' ' + t('price_cat_' + x.c)).join('، ')}</small></div>` : ''}
     <div class="pl-row"><label>${t('pl_total')}${cur() ? ' (' + esc(cur()) + ')' : ''}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(l.totStr)}" data-input="ltotal" data-key="${k}"></div>
-    <div class="pl-seg" role="group">${[1, 2].map(n => `<button type="button" class="${l.sessions === n ? 'on' : ''}" data-act="lineSess" data-key="${k}" data-v="${n}">${t('pl_sess_' + n)}</button>`).join('')}</div>
+    <div class="pl-row pl-sess"><label>${t('pl_sess_n')}</label><span class="pl-stepper"><button type="button" data-act="lineSess" data-key="${k}" data-v="-1" aria-label="-">−</button><b>${l.sessions}</b><button type="button" data-act="lineSess" data-key="${k}" data-v="1" aria-label="+">+</button></span></div>
     <div class="pl-hint" id="plh">${hint}</div>${pay}</div>`;
 }
 function prevHTML(i) {
@@ -495,7 +524,7 @@ const moneyHTML = () => `<div id="planBox">${planBoxInner()}</div>`;
 /* تحديث الأرقام فقط (أثناء الكتابة) دون إعادة بناء الحقول فلا يضيع التركيز */
 function moneyUpdate() {
   const m = moneyTotals(), act = document.activeElement;
-  $$('#planBox .pl-line[data-key]').forEach(row => { const l = m.ls.find(x => x.key === row.dataset.key); if (!l) return; const pi = $('[data-input=lpay]', row); if (pi && pi !== act) pi.value = l.payStr; const lf = $('.pl-left', row); if (lf) { lf.textContent = money(l.left); lf.style.color = l.left > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'; } const h = $('.pl-hint', row); if (h && !l.cont) h.textContent = l.sessions === 2 ? t('pl_split_hint', { a: money(r2c(l.tot / 2)) }) : t('pl_one_hint'); });
+  $$('#planBox .pl-line[data-key]').forEach(row => { const l = m.ls.find(x => x.key === row.dataset.key); if (!l) return; const pi = $('[data-input=lpay]', row); if (pi && pi !== act) pi.value = l.payStr; const lf = $('.pl-left', row); if (lf) { lf.textContent = money(l.left); lf.style.color = l.left > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'; } const h = $('.pl-hint', row); if (h && !l.cont) h.textContent = sessHint(l); });
   const sm = $('#moneySum'); if (sm) sm.innerHTML = sumHTML(m); const wl = $('#walLine'); if (wl) wl.textContent = S.useWal && m.w > 0 ? '− ' + money(m.w) : '';
 }
 function recalc() { const b = $('#planBox'); if (!b) return; if (b.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return moneyUpdate(); b.innerHTML = planBoxInner(); moneyUpdate(); }
@@ -510,11 +539,11 @@ const ALL_TEETH = new Set([].concat(...Object.values(TEETH).map(x => x.up.concat
 S.teeth = new Set(); S.teethSet = 'adult'; moneyReset();
 function teethInit(a) { S.teeth = new Set(String(a.tooth || '').match(/\d{2}/g) ? String(a.tooth).match(/\d{2}/g).filter(x => ALL_TEETH.has(x)) : []); S.teethSet = [...S.teeth].some(x => +x >= 51 && +x <= 85) && ![...S.teeth].some(x => +x <= 48) ? 'child' : (a.age <= 5 ? 'child' : 'adult'); }
 function teethHTML() {
-  const set = TEETH[S.teethSet], row = arr => arr.map(n => `<button type="button" class="tooth-btn${S.teeth.has(String(n)) ? ' on' : ''}${n % 10 >= 6 && S.teethSet === 'adult' ? ' molar' : ''}" data-act="tooth" data-n="${n}">${n}</button>`).join('');
+  const set = TEETH[S.teethSet], st = statusFromItems((S.account && S.account.teeth) || []), row = arr => arr.map(n => { const o = st.get(String(n)); return `<button type="button" class="tooth-btn${S.teeth.has(String(n)) ? ' on' : ''}${n % 10 >= 6 && S.teethSet === 'adult' ? ' molar' : ''}${toothCls(o)}"${o ? ` title="${esc(o.label)}"` : ''}${toothSty(o)} data-act="tooth" data-n="${n}">${n}</button>`; }).join('');
   const half = arr => `<div class="arch-half">${row(arr.slice(0, arr.length / 2))}</div><div class="arch-half">${row(arr.slice(arr.length / 2))}</div>`;
   return `<div class="teeth-box"><div class="teeth-head"><label>${t('teeth_title')}</label><div class="teeth-switch"><button type="button" data-act="teethSet" data-v="adult" class="${S.teethSet === 'adult' ? 'on' : ''}">${t('teeth_perm')}</button><button type="button" data-act="teethSet" data-v="child" class="${S.teethSet === 'child' ? 'on' : ''}">${t('teeth_prim')}</button></div></div>
     <div class="teeth-chart"><div class="teeth-lbl"><span>${t('teeth_ur')}</span><span>${t('teeth_ul')}</span></div><div class="arch">${half(set.up)}</div><div class="arch-sep"></div><div class="arch">${half(set.lo)}</div><div class="teeth-lbl"><span>${t('teeth_lr')}</span><span>${t('teeth_ll')}</span></div></div>
-    <div class="teeth-sum"><span id="teethSum">${teethSumText()}</span><button type="button" class="btn-action btn-red" data-act="teethClear">${t('teeth_clear')}</button></div></div>`;
+    ${colLegend(st)}<div class="teeth-sum"><span id="teethSum">${teethSumText()}</span><button type="button" class="btn-action btn-red" data-act="teethClear">${t('teeth_clear')}</button></div></div>`;
 }
 const teethSumText = () => S.teeth.size ? t('teeth_sel') + ' ' + [...S.teeth].sort().map(x => `<b>${x}</b>`).join(' · ') : t('teeth_none');
 function renderSkip() {
@@ -638,7 +667,7 @@ $('#globalImageInput').addEventListener('change', async ev => {
 
 /* ===================== الأرشيف والممرضات ===================== */
 function archiveParams(off) {
-  const q = new URLSearchParams({ name: $('#aName').value, year: $('#aYear').value, gender: $('#aGender').value, tooth: $('#aTooth').value, treatment: $('#aTreat').value, from: $('#aFrom').value, to: $('#aTo').value, tz: new Date().getTimezoneOffset(), offset: off, limit: 30 });
+  const q = new URLSearchParams({ name: $('#aName').value, year: $('#aYear').value, gender: $('#aGender').value, tooth: $('#aTooth').value, treatment: $('#aTreat').value, money: $('#aMoney').value, from: $('#aFrom').value, to: $('#aTo').value, tz: new Date().getTimezoneOffset(), offset: off, limit: 30 });
   return q.toString();
 }
 let archTimer, archSeq = 0;
@@ -648,11 +677,11 @@ function loadArchive(reset = true) {
   archTimer = setTimeout(async () => {
     const seq = ++archSeq, off = reset ? 0 : S.archive.items.length;
     const r = await run(() => api('GET', '/api/archive?' + archiveParams(off))); if (!r || seq !== archSeq) return;
-    S.archive = { total: r.total, sum: r.sum, paidSum: r.paidSum, debt: r.debt, items: reset ? r.items : S.archive.items.concat(r.items) }; renderArchive();
+    S.archive = { total: r.total, walSum: r.walSum, sum: r.sum, paidSum: r.paidSum, debt: r.debt, items: reset ? r.items : S.archive.items.concat(r.items) }; renderArchive();
   }, reset ? 250 : 0);
 }
 function renderArchive() {
-  $('#archiveResultCount').textContent = S.archive.total; $('#archiveSum').innerHTML = S.archive.sum ? `${t('total_due')} <b>${money(S.archive.sum)}</b> · ${t('total_paid')} <b>${money(S.archive.paidSum)}</b>${S.archive.debt ? ` · ${t('total_debt')} <b style="color:var(--danger-soft,#e8607a)">${money(S.archive.debt)}</b>` : ''}` : '';
+  $('#archiveResultCount').textContent = S.archive.total; $('#archiveSum').innerHTML = S.archive.walSum ? `🏺 ${t('money_wal_sum')} <b>${money(S.archive.walSum)}</b>` : S.archive.sum ? `${t('total_due')} <b>${money(S.archive.sum)}</b> · ${t('total_paid')} <b>${money(S.archive.paidSum)}</b>${S.archive.debt ? ` · ${t('total_debt')} <b style="color:var(--danger-soft,#e8607a)">${money(S.archive.debt)}</b>` : ''}` : '';
   const l = $('#archiveList');
   l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card${a.remaining > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${lineBadges(a, 'badge')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(a.price)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}${a.followUp ? ` <span class="badge">${t('follow_b')}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong></div>
@@ -681,32 +710,43 @@ const payWhere = (p, recId) => p.vid && p.vid === recId ? t('pay_same') : p.vn ?
 const payLbl = p => p.m === 'w' ? t('pay_cut_wal') : t('pay_cash');
 const payChips = (ps, recId) => `<div class="pay-chips">${ps.map(p => `<span class="pay-chip${p.m === 'w' ? ' w' : ''}"><b class="${p.m === 'w' ? 'wal-tag' : 'cash-tag'}">${payLbl(p)}</b>: <b>${money(p.amt)}</b> · ${dShort(p.t)} ${tShort(p.t)} · ${payWhere(p, recId)}</span>`).join('')}</div>`;
 
-/* مخطط أسنان المريض في سجله: الأحمر = مقلوع، الأخضر = معالَج (من الحصص المسجّلة؛ الأحدث يحسم، والمقلوع نهائي) */
+/* ألوان الأسنان: لكل علاج لونان يُضبطان من «الحصص والأسعار»: أثناء العلاج (حصص متبقية) وعند اكتماله.
+   الحالة = آخر حصة مسجّلة لكل سن؛ والمقلوع نهائي. */
 const NEUTRAL_TR = /استشارة|تبييض|أخرى|consult|whiten|other/i, EXT_TR = /قلع|extract/i;
-function teethStatus(records) {
+const defCol = tr => EXT_TR.test(tr) ? { on: true, part: '#d64545', done: '#d64545' } : { on: !NEUTRAL_TR.test(tr), part: '#f2b705', done: '#2e9e6b' };
+const colOf = tr => { const e = S.me && S.me.prices && S.me.prices.list && S.me.prices.list[tr]; return (e && e.col) || defCol(tr); };
+const inkOn = hex => { const n = parseInt(hex.slice(1), 16), y = ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000; return y > 150 ? '#222' : '#fff'; };
+const tcStyle = c => `--tc:${c};--ti:${inkOn(c)}`;
+function statusFromItems(items) {
   const st = new Map();
-  records.forEach(x => {
-    if (x.lines && x.lines.length) {
-      const lab = new Date(x.finishedAt).toLocaleDateString(locale(), { dateStyle: 'medium' });
-      x.lines.forEach(l => { const n = String(l.tooth || ''); if (!ALL_TEETH.has(n)) return; const ext = EXT_TR.test(l.treatment), trt = !ext && !NEUTRAL_TR.test(l.treatment); if (!ext && !trt) return; const o = st.get(n); if (o && o.kind === 'ext') return; st.set(n, { kind: ext ? 'ext' : 'trt', label: l.treatment + ' · ' + lab }); });
-      return;
-    }
-    const tl = x.treatments || String(x.treatment || '').split(' + '), teeth = (x.teeth || []).filter(n => ALL_TEETH.has(String(n)));
-    if (!teeth.length) return;
-    const ext = tl.some(n => EXT_TR.test(n)), trt = tl.some(n => !EXT_TR.test(n) && !NEUTRAL_TR.test(n));
-    if (!ext && !trt) return;
-    const kind = ext ? 'ext' : 'trt', label = tl.join(' + ') + ' · ' + new Date(x.finishedAt).toLocaleDateString(locale(), { dateStyle: 'medium' });
-    teeth.forEach(n => { const o = st.get(String(n)); if (o && o.kind === 'ext') return; st.set(String(n), { kind, label }); });
-  });
+  for (const it of items) {
+    const n = String(it.tooth || ''); if (!ALL_TEETH.has(n)) continue; const col = colOf(it.treatment); if (!col.on) continue;
+    const o = st.get(n); if (o && o.ext) continue; const full = it.no >= it.sessions;
+    st.set(n, { color: full ? col.done : col.part, ext: EXT_TR.test(it.treatment), tr: it.treatment, full, label: it.treatment + (it.sessions > 1 ? ` (${it.no}/${it.sessions})` : '') + (it.at ? ' · ' + new Date(it.at).toLocaleDateString(locale(), { dateStyle: 'medium' }) : '') });
+  }
   return st;
+}
+function teethStatus(records) {
+  const items = [];
+  records.forEach(x => {
+    if (x.lines && x.lines.length) { x.lines.forEach(l => items.push({ tooth: l.tooth, treatment: l.treatment, no: l.no || 1, sessions: l.sessions || 1, at: x.finishedAt })); return; }
+    const tl = x.treatments || String(x.treatment || '').split(' + ');
+    (x.teeth || []).forEach(n => tl.forEach(tr => items.push({ tooth: String(n), treatment: tr, no: 1, sessions: 1, at: x.finishedAt })));
+  });
+  return statusFromItems(items);
+}
+const toothCls = (o) => o ? ' tc' : '', toothSty = o => o ? ` style="${tcStyle(o.color)}"` : '';
+function colLegend(st) {
+  const m = new Map(); for (const o of st.values()) { const k = o.tr + '|' + o.color; if (!m.has(k)) m.set(k, `<span class="col-leg"><i style="background:${o.color}"></i>${esc(treatLabel(o.tr))}${o.full ? '' : ' · ' + t('col_part_l')}</span>`); }
+  return m.size ? `<div class="col-legs">${[...m.values()].join('')}</div>` : '';
 }
 function teethMapHTML(records) {
   const st = teethStatus(records), has = set => set.up.concat(set.lo).some(n => st.has(String(n)));
   if (!st.size) return '';
-  const btn = n => { const o = st.get(String(n)); return `<span class="tooth-btn ro${n % 10 >= 6 && n < 50 ? ' molar' : ''}${o ? ' ' + o.kind : ''}"${o ? ` title="${esc(o.label)}"` : ''}>${n}</span>`; };
+  const btn = n => { const o = st.get(String(n)); return `<span class="tooth-btn ro${n % 10 >= 6 && n < 50 ? ' molar' : ''}${toothCls(o)}"${o ? ` title="${esc(o.label)}"` : ''}${toothSty(o)}>${n}</span>`; };
   const half = arr => `<div class="arch-half">${arr.slice(0, arr.length / 2).map(btn).join('')}</div><div class="arch-half">${arr.slice(arr.length / 2).map(btn).join('')}</div>`;
   const chart = set => `<div class="teeth-chart"><div class="arch">${half(set.up)}</div><div class="arch-sep"></div><div class="arch">${half(set.lo)}</div></div>`;
-  return `<div class="hist-teeth"><div class="ht-head"><b>${t('teeth_map')}</b><span class="ht-leg"><i class="ext"></i>${t('teeth_map_ext')}<i class="trt"></i>${t('teeth_map_trt')}</span></div>${chart(TEETH.adult)}${has(TEETH.child) ? chart(TEETH.child) : ''}</div>`;
+  return `<div class="hist-teeth"><div class="ht-head"><b>${t('teeth_map')}</b></div>${colLegend(st)}${chart(TEETH.adult)}${has(TEETH.child) ? chart(TEETH.child) : ''}</div>`;
 }
 /* سجل المريض الكامل: من أول زيارة إلى آخرها */
 async function showHistory(name, year) {
@@ -825,7 +865,7 @@ function tickClock() {
 setInterval(tickClock, 1000); tickClock(); document.addEventListener('visibilitychange', () => { clkMin = ''; tickClock(); });
 function applySettings() {
   document.body.classList.toggle('light-mode', !settings.darkMode);
-  document.body.classList.remove('theme-mint', 'theme-purple', 'theme-rose'); if (settings.theme !== 'sky') document.body.classList.add('theme-' + settings.theme);
+  applyPalette(); $$('.theme-color-btn[data-theme]').forEach(x => x.classList.toggle('sel', !settings.themeColor && x.dataset.theme === settings.theme)); $$('.themeCustom').forEach(x => { x.value = themeHex(); x.classList.toggle('sel', !!settings.themeColor); });
   document.documentElement.lang = settings.lang; document.documentElement.dir = settings.lang === 'ar' ? 'rtl' : 'ltr';
   document.title = t('app_title');
   $$('.darkModeToggle').forEach(x => { x.checked = settings.darkMode; }); $$('.soundToggle').forEach(x => { x.checked = settings.sound; }); $$('.autoQrToggle').forEach(x => { x.checked = settings.autoQr; });
@@ -884,6 +924,9 @@ async function askNotif() {
   if (r === 'granted' && pushState() !== 'on') toast(t('push_fail'), 'warning'); else toast(r === 'granted' ? t('notif_on') : t('notif_denied'), r === 'granted' ? 'success' : 'warning');
 }
 if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', ev => { const d = ev.data || {}; if (d.type === 'push' || d.type === 'push-open') { if (S.token) refresh(); } });
+/* إعدادات الجهاز (اللون واللغة والصوت...) تُلحق بالنسخة الاحتياطية دون إعادة قراءتها: نستبدل القوس الأخير بحقل ui */
+const withUi = blob => blob && blob.size > 2 ? new Blob([blob.slice(0, blob.size - 1), ',"ui":' + JSON.stringify({ darkMode: settings.darkMode, theme: settings.theme, themeColor: settings.themeColor, lang: settings.lang, sound: settings.sound, autoQr: settings.autoQr }) + '}'], { type: 'application/json' }) : blob;
+function restoreUi(txt) { try { const i = txt.lastIndexOf(',"ui":{'); if (i < 0) return; const u = JSON.parse(txt.slice(i + 6, -1).trim()); if (!u || typeof u !== 'object') return; if (typeof u.darkMode === 'boolean') settings.darkMode = u.darkMode; if (typeof u.theme === 'string') settings.theme = u.theme; if (typeof u.themeColor === 'string') settings.themeColor = u.themeColor; if (u.lang === 'ar' || u.lang === 'en') settings.lang = u.lang; if (typeof u.sound === 'boolean') settings.sound = u.sound; if (typeof u.autoQr === 'boolean') settings.autoQr = u.autoQr; applySettings(); } catch (e) {} }
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }
 
 /* ===================== الأفعال (تفويض الأحداث) ===================== */
@@ -926,7 +969,12 @@ const ACT = {
   teethClear() { S.teeth.clear(); $$('.tooth-btn.on').forEach(x => x.classList.remove('on')); $('#teethSum').innerHTML = teethSumText(); recalc(); },
   useWal(el) { S.useWal = el.checked; recalc(); },
   lineDel(el) { S.removed.add(el.dataset.key); recalc(); },
-  lineSess(el) { const o = S.lov[el.dataset.key] = S.lov[el.dataset.key] || {}; o.sessions = +el.dataset.v; delete o.pay; recalc(); },
+  lineSess(el) { const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const o = S.lov[l.key] = S.lov[l.key] || {}; o.sessions = Math.min(MAXS, Math.max(1, l.sessions + (+el.dataset.v))); delete o.pay; recalc(); },
+  /* إضافة حصة إلى علاج جارٍ أثناء المعاينة (مثلاً العلاج يحتاج حصة أخرى) */
+  async sessAdd(el) {
+    if (!await run(() => api('POST', `/api/plans/${el.dataset.id}/sessions`, { delta: 1 }))) return; toast(t('pl_sess_added'), 'success');
+    const a = S.patients.find(p => p.status === 'in'); if (a) { for (const o of Object.values(S.lov)) delete o.pay; loadAccount(a); }
+  },
   lpayQuick(el) {
     const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const cap = l.cont ? l.cap : l.tot, v = el.dataset.v;
     (S.lov[l.key] = S.lov[l.key] || {}).pay = v === 'all' ? String(cap) : v === 'half' ? String(r2c(cap / 2)) : '0'; recalc();
@@ -998,18 +1046,18 @@ const ACT = {
   addTreat(el) { const f = el.closest('form'); const row = document.createElement('div'); row.innerHTML = treatRowHTML('', null); const n = row.firstElementChild; $('.priceRows', f).insertBefore(n, $('.priceRows .hint', f)); f.dataset.dirty = '1'; $('.treat-name', n).focus(); n.scrollIntoView({ block: 'center' }); },
   delTreat(el) { const f = el.closest('form'); if ($$('.treat-row', f).length <= 1) return toast(t('tr_last'), 'warning'); el.closest('.treat-row').remove(); f.dataset.dirty = '1'; },
   moveTreat(el) { const row = el.closest('.treat-row'), f = el.closest('form'), d = +el.dataset.d, sib = d < 0 ? row.previousElementSibling : row.nextElementSibling; if (!sib || !sib.classList.contains('treat-row')) return; if (d < 0) sib.before(row); else sib.after(row); f.dataset.dirty = '1'; },
-  setTheme: el => { settings.theme = el.dataset.theme; applySettings(); }, askNotif,
+  setTheme: el => { settings.theme = el.dataset.theme; settings.themeColor = ''; applySettings(); }, askNotif,
   installApp: async () => {
     if (isStandalone()) return;
     if (!S.installEvt) { toast(t(IS_IOS ? 'install_ios' : 'install_manual'), 'info'); return; }
     const e = S.installEvt; S.installEvt = null; e.prompt(); try { await e.userChoice; } catch (x) {} updateInstallUI();
   },
-  async exportData() { const b = await run(() => api('GET', '/api/backup', undefined, { blob: true })); if (b) download(b, `clinic_backup_${new Date().toISOString().slice(0, 10)}.json`); },
+  async exportData() { const b = await run(() => api('GET', '/api/backup', undefined, { blob: true })); if (b) download(withUi(b), `clinic_backup_${new Date().toISOString().slice(0, 10)}.json`); },
   importData() {
     const i = document.createElement('input'); i.type = 'file'; i.accept = '.json,application/json';
     i.onchange = async () => {
       const f = i.files[0]; if (!f || !await appConfirm(t('c_restore'))) return;
-      const r = await run(async () => api('POST', '/api/restore', undefined, { text: await f.text() })); if (r) { toast(t('restored', { p: r.patients, a: r.archive }), 'success'); refresh(); loadArchive(true); }
+      let txt = ''; const r = await run(async () => api('POST', '/api/restore', undefined, { text: (txt = await f.text()) })); if (r) { restoreUi(txt); toast(t('restored', { p: r.patients, a: r.archive }), 'success'); refresh(); loadArchive(true); }
     }; i.click();
   },
   async toggleProtect() {
@@ -1034,7 +1082,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target, c = el.dataset.change;
-  if (c === 'dark') settings.darkMode = el.checked; else if (c === 'lang') settings.lang = el.value; else if (c === 'sound') settings.sound = el.checked; else if (c === 'autoQr') settings.autoQr = el.checked; else if (el.dataset.input === 'archive') { loadArchive(true); return; } else return;
+  if (c === 'themeColor') { settings.themeColor = el.value; settings.theme = 'custom'; } else if (c === 'dark') settings.darkMode = el.checked; else if (c === 'lang') settings.lang = el.value; else if (c === 'sound') settings.sound = el.checked; else if (c === 'autoQr') settings.autoQr = el.checked; else if (el.dataset.input === 'archive') { loadArchive(true); return; } else return;
   applySettings();
 });
 document.addEventListener('submit', async e => {
@@ -1081,7 +1129,7 @@ document.addEventListener('submit', async e => {
       if (!name) { toast(t('tr_empty_name'), 'danger'); return; }
       const key = orig && name === treatLabel(orig) ? orig : name;   // الاسم الافتراضي غير المعدَّل يحتفظ بمفتاحه الأصلي
       if (seen.has(key.toLowerCase())) { toast(t('e_duplicate'), 'danger'); return; } seen.add(key.toLowerCase());
-      treatments.push(key); $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
+      treatments.push(key); (list[key] = list[key] || {}).sessions = Math.min(MAXS, Math.max(1, parseInt($('.treat-sess', row).value) || 1)); list[key].col = { on: $('.treat-col-on', row).checked, part: $('.treat-col-part', row).value, done: $('.treat-col-done', row).value }; $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
     }
     if (!treatments.length) { toast(t('tr_last'), 'danger'); return; }
     const r = await run(() => api('PUT', '/api/prices', { currency: $('.priceCur', f).value, list, treatments }));

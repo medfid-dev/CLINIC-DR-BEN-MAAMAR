@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-title" content="عيادتي">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="light-mode">
@@ -218,6 +218,7 @@
           <option value="استشارة" data-i18n="tr_cons">استشارة</option><option value="تركيب" data-i18n="tr_pros">تركيب</option><option value="تبييض" data-i18n="tr_white">تبييض</option><option value="أخرى" data-i18n="tr_other">أخرى</option>
         </select>
       </div>
+      <select id="aMoney" data-input="archive"><option value="" data-i18n="money_all">الكل (مدينون ودائنون وغيرهم)</option><option value="debtors" data-i18n="money_debtors">🔴 المدينون (عليهم متبقٍّ)</option><option value="creditors" data-i18n="money_creditors">🟢 الدائنون (رصيدهم في الوعاء)</option></select>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <label style="flex:1;min-width:130px;font-size:12px;color:var(--text-secondary)"><span data-i18n="from_l">من</span>
           <input type="date" id="aFrom" data-input="archive" style="width:100%"></label>
@@ -296,11 +297,16 @@
     <div class="settings-item"><div><strong data-i18n="dark_mode">الوضع الداكن</strong></div>
       <label class="toggle-switch"><input type="checkbox" class="darkModeToggle" data-change="dark"><span class="slider"></span></label></div>
     <div class="settings-item"><div><strong data-i18n="theme_color">لون العيادة</strong></div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:260px">
         <button type="button" class="theme-color-btn" style="background:#2E2A6E" data-act="setTheme" data-theme="sky" aria-label="indigo"></button>
         <button type="button" class="theme-color-btn" style="background:#1F6F78" data-act="setTheme" data-theme="mint" aria-label="teal"></button>
         <button type="button" class="theme-color-btn" style="background:#7B2D6E" data-act="setTheme" data-theme="purple" aria-label="purple"></button>
         <button type="button" class="theme-color-btn" style="background:#A8324A" data-act="setTheme" data-theme="rose" aria-label="rose"></button>
+        <button type="button" class="theme-color-btn" style="background:#1E7A4C" data-act="setTheme" data-theme="green" aria-label="green"></button>
+        <button type="button" class="theme-color-btn" style="background:#1D5FB4" data-act="setTheme" data-theme="blue" aria-label="blue"></button>
+        <button type="button" class="theme-color-btn" style="background:#8A4A1C" data-act="setTheme" data-theme="brown" aria-label="brown"></button>
+        <button type="button" class="theme-color-btn" style="background:#3A4A5C" data-act="setTheme" data-theme="slate" aria-label="slate"></button>
+        <input type="color" class="themeCustom theme-color-btn" data-change="themeColor" title="لون مخصّص" aria-label="custom color">
       </div></div>
   </div>
 
@@ -375,7 +381,7 @@
 <!-- نافذة إعدادات: prices -->
 <div id="set_pricesModal" class="modal-overlay">
   <div class="modal-card settings-modal">
-    <div class="modal-head"><h4 data-i18n="set_prices">💰 قائمة الأسعار</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
+    <div class="modal-head"><h4 data-i18n="set_prices">💰 الحصص والأسعار</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="prices">
       <div class="hint" style="margin-bottom:6px" data-i18n="prices_hint">سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.</div>
       <div class="hint" style="margin-bottom:10px" data-i18n="tr_hint">أضف علاجاتك أو عدّل أسماءها وأسعارها أو احذفها. تظهر هذه القائمة في واجهة المعاينة.</div>

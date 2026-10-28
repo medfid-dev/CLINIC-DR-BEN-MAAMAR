@@ -111,7 +111,7 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     r = await J('GET', '/api/suggest?q=abc'); ok(r.s === 401, 'الاقتراحات تتطلب دخولاً');
     r = await J('GET', '/api/suggest?q=' + encodeURIComponent('يض1'), A); ok(r.s === 200 && r.j.length === 0, 'الاقتراحات تطابق من بداية الاسم فقط');
     r = await J('PUT', '/api/prices', N, { currency: 'دج', list: { 'قلع': 1000 } }); ok(r.s === 403, 'الممرضة لا تعدّل الأسعار');
-    r = await J('PUT', '/api/prices', A, { currency: 'دج', list: { 'قلع': '1500.505', 'غير معروف': 5, 'عصب': -1, 'أخرى': 'abc' } }); ok(r.s === 200 && r.j.currency === 'دج' && r.j.list['قلع'].base === 1500.51 && Object.keys(r.j.list).length === 1, 'حفظ الأسعار مع تنقية القيم غير الصالحة');
+    r = await J('PUT', '/api/prices', A, { currency: 'دج', list: { 'قلع': '1500.505', 'غير معروف': 5, 'عصب': -1, 'أخرى': 'abc' } }); ok(r.s === 200 && r.j.currency === 'دج' && r.j.list['قلع'].base === 1500.51 && Object.values(r.j.list).filter(v => v.base != null).length === 1, 'حفظ الأسعار مع تنقية القيم غير الصالحة');
     r = await J('GET', '/api/state', A); ok(r.j.me.prices.list['قلع'].base === 1500.51, 'الطبيب يرى قائمة الأسعار');
     r = await J('GET', '/api/state', N); ok(r.j.me.prices === undefined, 'الممرضة لا ترى الأسعار');
     console.log('مهام الطبيب للممرضة (فقاعات)');
@@ -274,9 +274,32 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       const w0 = (await acct()).wallet; r = await J('POST', `/api/archive/${rec5}/payment`, B, { amount: 500 }); ok(r.s === 200 && r.j.paid === 1500 && r.j.lines[0].remaining === 1500, 'دفعة أرشيف تُنسب إلى الخطة');
       r = await J('POST', `/api/archive/${rec5}/payment`, B, { amount: 2000 }); a = await acct(); ok(r.s === 200 && r.j.remaining === 0 && a.wallet === w0 + 500 && a.plans.some(p => p.id === plan36 && p.remaining === 0 && p.open), 'الزائد عن الخطة يُودَع في الوعاء والخطة تبقى مفتوحة للحصة الثانية');
       r = await vis({ lines: [{ plan: plan36, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].no === 2 && r.j.paid === 0 && (await acct()).plans.length === 0, 'الحصة الثانية بلا دفع إضافي تُكمل الخطة');
+      /* علاج بثلاث حصص + إضافة حصة أثناء العلاج + ضبط عدد الحصص في قائمة الأسعار */
+      r = await vis({ lines: [{ tooth: '46', treatment: 'تقويم', total: 3000, sessions: 3, pay: 1000 }] }); const plan46 = r.j.lines[0].plan;
+      ok(r.s === 200 && r.j.lines[0].sessions === 3 && r.j.remaining === 2000, 'خطة بثلاث حصص');
+      r = await vis({ lines: [{ plan: plan46, pay: 1000 }] }); ok(r.s === 200 && r.j.lines[0].no === 2 && (await acct()).plans.some(p => p.id === plan46 && p.open && p.remaining === 1000), 'الحصة 2 من 3 تبقي الخطة مفتوحة');
+      r = await J('POST', `/api/plans/${plan46}/sessions`, B, { delta: 1 }); ok(r.s === 200 && r.j.sessions === 4, 'إضافة حصة (4)'); r = await J('POST', `/api/plans/${plan46}/sessions`, N, { delta: 1 }); ok(r.s === 401 || r.s === 403, 'الإضافة للطبيب فقط');
+      r = await vis({ lines: [{ plan: plan46, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].no === 3 && r.j.lines[0].sessions === 4 && (await acct()).plans.some(p => p.id === plan46 && p.open), 'الحصة 3 من 4 ما زالت مفتوحة بعد الإضافة');
+      r = await vis({ lines: [{ plan: plan46, pay: 1000 }] }); ok(r.s === 200 && r.j.lines[0].no === 4 && (await acct()).plans.length === 0, 'الحصة 4 تُكمل الخطة');
+      r = await J('POST', `/api/plans/aaaaaaaaaa/sessions`, B, { delta: 1 }); ok(r.s === 404, 'خطة غير موجودة');
+      r = await vis({ lines: [{ tooth: '47', treatment: 'تقويم', total: 0, sessions: 99, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].sessions === 1, 'عدد حصص غير صالح يصير 1'); await J('POST', `/api/plans/${r.j.lines[0].plan}/close`, B);
+      r = await J('PUT', '/api/prices', B, { currency: 'DA', treatments: ['حشوة', 'علاج عصب', 'تقويم'], list: { 'حشوة': { base: 1500, sessions: 1 }, 'علاج عصب': { base: 6000, sessions: 3 }, 'تقويم': { sessions: 99 } } });
+      ok(r.s === 200 && r.j.list['علاج عصب'].sessions === 3 && r.j.list['حشوة'].sessions === 1 && r.j.list['تقويم'].sessions === 1 && r.j.list['علاج عصب'].base === 6000, 'قائمة الحصص والأسعار تحفظ عدد الحصص لكل علاج');
+      r = await J('PUT', '/api/prices', B, { currency: 'DA', treatments: ['قلع', 'علاج عصب', 'استشارة'], list: { 'قلع': { base: 500, col: { on: true, part: '#FF0000', done: 'bad' } }, 'علاج عصب': { base: 6000, sessions: 2, col: { on: true, part: '#f2b705', done: '#2e9e6b' } } } });
+      ok(r.s === 200 && r.j.list['قلع'].col.part === '#ff0000' && r.j.list['قلع'].col.done === '#d64545' && r.j.list['علاج عصب'].col.done === '#2e9e6b' && r.j.list['استشارة'].col.on === false, 'ألوان العلاجات تُحفظ وتُنقّى وفيها افتراضات');
+      r = await vis({ lines: [{ tooth: '15', treatment: 'علاج عصب', total: 0, sessions: 2, pay: 0 }, { tooth: '16', treatment: 'قلع', total: 0, sessions: 1, pay: 0 }] });
+      a = await acct(); ok(Array.isArray(a.teeth) && a.teeth.some(z => z.tooth === '15' && z.treatment === 'علاج عصب' && z.no === 1 && z.sessions === 2) && a.teeth.some(z => z.tooth === '16' && z.treatment === 'قلع'), 'حساب المريض يعيد حالة الأسنان لمخطط المعاينة');
+      await J('POST', `/api/plans/${r.j.lines[0].plan}/close`, B);
+      /* فلتر الأرشيف: المدينون والدائنون */
+      await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 700 });
+      r = await J('GET', '/api/archive?money=creditors', B); ok(r.s === 200 && r.j.walSum >= 700 && r.j.items.length >= 1 && r.j.items.every(z => z.wallet > 0) && new Set(r.j.items.map(z => z.name + z.birthYear)).size === r.j.items.length, 'فلتر الدائنين: سجل واحد لكل مريض لديه رصيد');
+      r = await J('GET', '/api/archive?money=debtors', B); ok(r.s === 200 && r.j.items.every(z => z.remaining > 0) && r.j.total === r.j.items.length, 'فلتر المدينين: سجلات عليها متبقٍّ فقط');
       /* نسخة احتياطية واستعادة تحفظ البنود وانتساب الدفعات */
       const bk = (await J('GET', '/api/backup', B)).j; ok(bk.archive.some(z => z.lines && z.lines.length) && bk.archive.some(z => (z.payments || []).some(p => p.pl)), 'النسخة تشمل بنود الخطط');
-      r = await J('POST', '/api/restore', B, bk); ok(r.s === 200, 'استعادة'); r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); ok(r.j.records.some(z => z.lines.length && z.lines[0].plan) && r.j.balance === 0, 'الاستعادة تحفظ البنود');
+      ok(bk.version === 3 && 'schedule' in bk && Array.isArray(bk.nurses) && typeof bk.protect === 'boolean' && 'counter' in bk && bk.nurses.every(n => n.hash && n.salt), 'النسخة تشمل الجدول وحسابات الممرضات وحماية الأرشيف والعدّاد');
+      const nn0 = (await J('GET', '/api/nurses', B)).j.length;
+      r = await J('POST', '/api/restore', B, bk); ok(r.s === 200, 'استعادة');
+      ok((await J('GET', '/api/nurses', B)).j.length === nn0, 'الاستعادة لا تكرّر حسابات الممرضات الموجودة'); r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); ok(r.j.records.some(z => z.lines.length && z.lines[0].plan) && r.j.balance === 0, 'الاستعادة تحفظ البنود');
       const rm = (await J('GET', '/api/state', B)).j.patients.find(z => z.status === 'in'); if (rm) await J('POST', `/api/patients/${rm.id}/finish`, B, { lines: [] }); }
 
     console.log('علم المتبقي على المريض');
