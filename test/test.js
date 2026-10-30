@@ -257,6 +257,9 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('DELETE', `/api/appts/${l[0].id}`, B); l = await ap(); ok(r.s === 200 && l.length === 0, 'حذف الموعد من القائمة');
       r = await vis({ today: '2026-10-30', lines: [{ tooth: '36', treatment: 'علاج عصب', total: 6000, sessions: 2, pay: 0 }] }); l = await ap();
       const bk = (await J('GET', '/api/backup', B)).j; ok(Array.isArray(bk.appts) && bk.appts.some(x => x.id === l[0].id), 'النسخة الاحتياطية تتضمن المواعيد');
+      /* أيام الانتظار التي يختارها الطبيب في نافذة المعاينة (➕/➖) تُطبَّق على موعد الحصة القادمة */
+      r = await vis({ today: '2026-10-30', lines: [{ tooth: '46', treatment: 'علاج عصب', total: 6000, sessions: 2, pay: 0, gap: 3 }] }); l = await ap(); ok(r.s === 200 && l.some(x => x.tooth === '46' && x.date === '2026-11-02'), 'الموعد يتبع الأيام التي عدّلها الطبيب (3 أيام)');
+      r = await vis({ today: '2026-10-30', lines: [{ tooth: '47', treatment: 'علاج عصب', total: 6000, sessions: 2, pay: 0, gap: 999 }] }); l = await ap(); ok(l.some(x => x.tooth === '47' && x.date === '2026-11-09'), 'قيمة أيام غير صالحة تُهمَل ويُستعمل الافتراضي');
     }
     console.log('خطة العلاج لكل سن (حصة أو حصتان)');
     { const NM = 'مريض الخطة', YR = 1980, q = encodeURIComponent(NM);

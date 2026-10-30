@@ -142,6 +142,8 @@ Object.assign(L.en, { set_prices: '💰 Sessions & prices', prices_hint: 'Sessio
   pl_split_hint: 'The price is split over {m} sessions: {a} is suggested today, the rest in the following sessions (you can change the amount).' });
 Object.assign(L.ar, { theme_custom: 'لون مخصّص', led_color: 'لون أرقام الساعة' });
 Object.assign(L.en, { theme_custom: 'Custom color', led_color: 'Clock digits color' });
+Object.assign(L.ar, { pl_next_appt: 'موعد الحصة القادمة' });
+Object.assign(L.en, { pl_next_appt: 'Next session' });
 Object.assign(L.ar, { pnote_l: '💬 ملاحظة للمريض (تظهر في تذكرته بعد المعاينة)', pnote_ph: 'مثال: لا تأكل لمدة ساعتين، تناول الدواء بعد الأكل…' });
 Object.assign(L.en, { pnote_l: '💬 Note for the patient (shown on their ticket after the visit)', pnote_ph: 'e.g. Do not eat for 2 hours, take the medicine after meals…' });
 Object.assign(L.ar, { tab_appts: 'المواعيد 📅', ap_gap_l: 'أيام حتى الحصة القادمة', ap_banner: '{n} مريض حان موعد حصته:', ap_view: 'فتح المواعيد', ap_late: 'متأخر {n} يوم', ap_today: 'اليوم', ap_in: 'بعد {n} يوم', ap_day: 'يوم', ap_date: 'موعد الحصة', ap_del: 'حذف', ap_del_q: 'حذف هذا الموعد من القائمة؟', ap_deleted: 'حُذف الموعد', ap_due_h: 'حان موعدهم', ap_up_h: 'مواعيد قادمة', ap_empty: 'لا توجد مواعيد. يُسجَّل موعد الحصة التالية تلقائياً عند إنهاء حصة يبقى بعدها حصص.', ap_hint: 'يبقى المريض في «حان موعدهم» حتى يُنجز حصته، أو احذفه من القائمة يدوياً. عدد الأيام الافتراضي يُضبط من الإعدادات ← الحصص والأسعار.' });
@@ -464,6 +466,13 @@ function moneyReset() { S.useWal = true; S.removed = new Set(); S.lov = {}; S.dp
 const MAXS = 20, defSessions = tr => { const e = S.me && S.me.prices && S.me.prices.list && S.me.prices.list[tr]; return (e && e.sessions) || (/عصب|root|endo/i.test(tr) ? 2 : 1); };   // عدد حصص العلاج يُضبط من «الحصص والأسعار»
 const splitPay = (rem, left) => left > 1 ? r2c(rem / left) : rem;   // المقترح دفعه اليوم: المتبقي موزَّعاً على الحصص المتبقية
 const lineKey = (th, tr) => th + '|' + tr;
+/* موعد الحصة القادمة: يُحسب من اليوم + أيام الانتظار، ويُعرض باسم اليوم والتاريخ */
+const gapOf = tr => { const e = S.me && S.me.prices && S.me.prices.list && S.me.prices.list[tr]; return e && e.gap != null ? e.gap : 7; };
+function nextTxt(l) {
+  const d = new Date(Date.parse(localDay() + 'T00:00:00Z') + l.gap * 864e5), iso = d.toISOString().slice(0, 10), wd = d.toLocaleDateString(locale(), { weekday: 'long', timeZone: 'UTC' });
+  return `<span class="pl-nd-day">${esc(wd)}</span><span class="pl-nd-date" dir="ltr">${iso}</span><small>${l.gap === 0 ? t('ap_today') : t('ap_in', { n: l.gap })}</small>`;
+}
+const nextRow = l => !l.hasNext ? '' : `<div class="pl-row pl-next"><label>📅 ${t('pl_next_appt')}</label><span class="pl-stepper"><button type="button" data-act="lineGap" data-key="${esc(l.key)}" data-v="-1" aria-label="-">−</button><span class="pl-nd">${nextTxt(l)}</span><button type="button" data-act="lineGap" data-key="${esc(l.key)}" data-v="1" aria-label="+">+</button></span></div>`;
 function consLines() {
   const plans = (S.account && S.account.plans) || [], teeth = [...S.teeth].sort(), used = new Set(), out = [];
   for (const tr of S.treatments) for (const th of (teeth.length ? teeth : [''])) {
@@ -475,6 +484,7 @@ function consLines() {
       const ps = ov.pay != null ? ov.pay : (ts === '' ? '' : String(splitPay(tot, sessions)));
       L = { key, th, tr, cont: false, totStr: ts, tot, sessions, no: 1, cap: tot, payStr: ps, pay: Math.min(tot, Math.max(0, +ps || 0)), parts: auto.parts };
     }
+    L.hasNext = L.no < L.sessions; L.gap = ov.gap != null ? ov.gap : gapOf(tr);   // موعد الحصة القادمة: أيام الانتظار (من الإعدادات أو ما عدّله الطبيب)
     L.left = r2c((L.cont ? L.cap : L.tot) - L.pay); out.push(L);
   }
   return out;
@@ -498,7 +508,7 @@ function quickBtns(act, attrs) { return `<span class="pl-quick">${[['all', 'pl_a
 const sessHint = l => l.sessions > 1 ? t('pl_split_hint', { a: money(r2c(l.tot / l.sessions)), m: l.sessions }) : t('pl_one_hint');
 function lineHTML(l) {
   const k = esc(l.key), del = `<button type="button" class="pl-del" data-act="lineDel" data-key="${k}" title="${esc(t('pl_del'))}" aria-label="${esc(t('pl_del'))}">✕</button>`;
-  const pay = `<div class="pl-row"><label>💵 ${t('pl_pay_now')}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(l.payStr)}" data-input="lpay" data-key="${k}">${quickBtns('lpayQuick', `data-key="${k}"`)}</div><div class="pl-foot"><span>${t('pl_left_after')}</span><b class="pl-left"></b></div>`;
+  const pay = `<div class="pl-row"><label>💵 ${t('pl_pay_now')}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(l.payStr)}" data-input="lpay" data-key="${k}">${quickBtns('lpayQuick', `data-key="${k}"`)}</div><div class="pl-foot"><span>${t('pl_left_after')}</span><b class="pl-left"></b></div>${nextRow(l)}`;
   if (l.cont) return `<div class="pl-line pl-cont" data-key="${k}"><div class="pl-head">${plBadge(l.th, l.tr)}<span class="pl-badge cont">${t('pl_session_n', { n: l.no, m: l.sessions })}</span>${del}</div>
     <div class="pl-info">${t('pl_total')} <b>${money(l.tot)}</b> · ${t('paid_l')} <b>${money(l.plan.paid)}</b> · ${t('rem_l')} <b class="pl-rem">${money(l.plan.remaining)}</b></div>${pay}
     <div class="pl-acts">${l.sessions < MAXS ? `<button type="button" class="btn-action btn-green" data-act="sessAdd" data-id="${esc(l.plan.id)}">➕ ${t('pl_add_sess')}</button>` : ''}${l.sessions > l.no ? `<button type="button" class="btn-action btn-red" data-act="sessDel" data-id="${esc(l.plan.id)}">➖ ${t('pl_del_sess')}</button>` : ''}</div></div>`;
@@ -534,7 +544,7 @@ const moneyHTML = () => `<div id="planBox">${planBoxInner()}</div>`;
 /* تحديث الأرقام فقط (أثناء الكتابة) دون إعادة بناء الحقول فلا يضيع التركيز */
 function moneyUpdate() {
   const m = moneyTotals(), act = document.activeElement;
-  $$('#planBox .pl-line[data-key]').forEach(row => { const l = m.ls.find(x => x.key === row.dataset.key); if (!l) return; const pi = $('[data-input=lpay]', row); if (pi && pi !== act) pi.value = l.payStr; const lf = $('.pl-left', row); if (lf) { lf.textContent = money(l.left); lf.style.color = l.left > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'; } const h = $('.pl-hint', row); if (h && !l.cont) h.textContent = sessHint(l); });
+  $$('#planBox .pl-line[data-key]').forEach(row => { const l = m.ls.find(x => x.key === row.dataset.key); if (!l) return; const pi = $('[data-input=lpay]', row); if (pi && pi !== act) pi.value = l.payStr; const lf = $('.pl-left', row); if (lf) { lf.textContent = money(l.left); lf.style.color = l.left > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'; } const h = $('.pl-hint', row); if (h && !l.cont) h.textContent = sessHint(l); const nd = $('.pl-nd', row); if (nd && l.hasNext) nd.innerHTML = nextTxt(l); });
   const sm = $('#moneySum'); if (sm) sm.innerHTML = sumHTML(m); const wl = $('#walLine'); if (wl) wl.textContent = S.useWal && m.w > 0 ? '− ' + money(m.w) : '';
 }
 function recalc() { const b = $('#planBox'); if (!b) return; if (b.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return moneyUpdate(); b.innerHTML = planBoxInner(); moneyUpdate(); }
@@ -1013,6 +1023,7 @@ const ACT = {
   useWal(el) { S.useWal = el.checked; recalc(); },
   lineDel(el) { S.removed.add(el.dataset.key); recalc(); },
   lineSess(el) { const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const o = S.lov[l.key] = S.lov[l.key] || {}; o.sessions = Math.min(MAXS, Math.max(1, l.sessions + (+el.dataset.v))); delete o.pay; recalc(); },
+  lineGap(el) { const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const o = S.lov[l.key] = S.lov[l.key] || {}; o.gap = Math.min(365, Math.max(0, l.gap + (+el.dataset.v))); moneyUpdate(); },   // ➕/➖ يوم على موعد الحصة القادمة
   /* إضافة حصة إلى علاج جارٍ أثناء المعاينة (مثلاً العلاج يحتاج حصة أخرى) */
   async sessAdd(el) {
     if (!await run(() => api('POST', `/api/plans/${el.dataset.id}/sessions`, { delta: 1 }))) return; toast(t('pl_sess_added'), 'success');
@@ -1055,7 +1066,7 @@ const ACT = {
   async walOut(el) { return walMove(el, 'out'); },
   treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); if (i < 0) unRemove('', v); recalc(); },
   async finish(el) {
-    const m = moneyTotals(), r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { today: localDay(), lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay } : { tooth: l.th, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, notes: ($('#consultNotes') || {}).value || '', patientNote: ($('#patientNote') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
+    const m = moneyTotals(), r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { today: localDay(), lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay, gap: l.gap } : { tooth: l.th, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay, gap: l.gap }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, notes: ($('#consultNotes') || {}).value || '', patientNote: ($('#patientNote') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
   },
   copyCode: () => copyText(S.me.code || ''),

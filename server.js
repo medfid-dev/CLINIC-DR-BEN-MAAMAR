@@ -796,17 +796,17 @@ async function api(req, res, url) {
       const teeth = cleanTeeth(b.teeth), price = num(b.price), entry = { ...pt, price, followUp: !!b.followUp, ...(teeth.length ? { teeth, tooth: teeth.join(' ') } : {}), status: 'done', treatment, ...(tl.length ? { treatments: tl, items: cleanItems(b.items, tl) } : {}), notes: str(b.notes, 2000), ...(str(b.patientNote, 300) ? { patientNote: str(b.patientNote, 300) } : {}), ...(cleanRx(b.rx).length ? { rx: cleanRx(b.rx), rxHead: cleanHead(b.rxHead) } : {}), finishedAt: t, waitMin: Math.max(0, Math.round(((pt.startedAt || t) - pt.createdAt) / 6e4)), durationMin: Math.max(1, Math.round((t - (pt.startedAt || t)) / 6e4)) };
       if (Array.isArray(b.lines)) {
         /* خطة العلاج: بنود اليوم (جديدة أو متابعة لخطة جارية) + سداد متبقٍّ سابق + اقتطاع اختياري من الوعاء */
-        const k = patKey(pt), pm = plansOf(c, k), seenPl = new Set(), tg = [], lines = [];
+        const k = patKey(pt), pm = plansOf(c, k), seenPl = new Set(), tg = [], lines = [], gaps = new Map();   // gaps: خطة ← أيام الانتظار التي اختارها الطبيب لموعد الحصة القادمة
         for (const z of b.lines.slice(0, 24)) {
           if (!z || typeof z !== 'object') throw httpErr(400, 'invalid_input');
           const pay = Math.max(0, num(z.pay) || 0);
           if (z.plan !== undefined && z.plan !== null && z.plan !== '') {
             const p = typeof z.plan === 'string' && PLAN_ID.test(z.plan) ? pm.get(z.plan) : null; if (!p) throw httpErr(404, 'not_found'); if (!p.open) throw httpErr(409, 'plan_closed'); if (seenPl.has(p.id)) throw httpErr(400, 'invalid_input'); seenPl.add(p.id);
-            lines.push({ plan: p.id, no: p.done + 1, sessions: p.sessions, tooth: p.tooth, treatment: p.treatment }); tg.push({ rec: p.rec, plan: p.id, cap: p.remaining, pay });
+            lines.push({ plan: p.id, no: p.done + 1, sessions: p.sessions, tooth: p.tooth, treatment: p.treatment }); gaps.set(p.id, cleanGap(z.gap)); tg.push({ rec: p.rec, plan: p.id, cap: p.remaining, pay });
           } else {
             const treatment = str(z.treatment, 40).trim().replace(/\s+/g, ' '), tooth = z.tooth ? String(z.tooth) : ''; if (!treatment || (tooth && !FDI.has(tooth))) throw httpErr(400, 'invalid_input');
             const total = num(z.total) || 0, sessions = cleanSess(z.sessions) || 1, id = rid(5);
-            lines.push({ plan: id, no: 1, sessions, tooth, treatment, total }); tg.push({ rec: entry, plan: id, cap: total, pay });
+            lines.push({ plan: id, no: 1, sessions, tooth, treatment, total }); gaps.set(id, cleanGap(z.gap)); tg.push({ rec: entry, plan: id, cap: total, pay });
           }
         }
         for (const z of (Array.isArray(b.debts) ? b.debts : []).slice(0, 40)) {
@@ -820,7 +820,7 @@ async function api(req, res, url) {
         c.patients = c.patients.filter(z => z !== pt); c.archive.unshift(entry);
         /* مواعيد الحصص القادمة: يُحذف موعد البنود المنجَزة اليوم، ثم يُنشأ موعد لكل بند تبقّت له حصص */
         { const today = cleanDate(b.today) || new Date(t).toISOString().slice(0, 10), pl = pricesOf(c).list; c.appts = (c.appts || []).filter(x => !(x.k === k && lines.some(l => l.plan === x.plan)));
-          for (const l of lines) if (l.no < l.sessions) c.appts.push({ id: rid(5), plan: l.plan, k, name: pt.name, birthYear: pt.birthYear, phone: pt.phone || '', tooth: l.tooth, treatment: l.treatment, date: addDays(today, (pl[l.treatment] && pl[l.treatment].gap != null) ? pl[l.treatment].gap : DEF_GAP) });
+          for (const l of lines) if (l.no < l.sessions) c.appts.push({ id: rid(5), plan: l.plan, k, name: pt.name, birthYear: pt.birthYear, phone: pt.phone || '', tooth: l.tooth, treatment: l.treatment, date: addDays(today, gaps.get(l.plan) != null ? gaps.get(l.plan) : (pl[l.treatment] && pl[l.treatment].gap != null) ? pl[l.treatment].gap : DEF_GAP) });
           pruneAppts(c); }
         /* المبلغ الفعلي لكل هدف لا يتجاوز متبقيه (أكثر من ذلك لا يُقبل)؛ الوعاء يُغطّي منها بالترتيب والباقي نقداً */
         for (const g of tg) { if (g.rec === entry) g.cap = Math.min(g.cap, entry.price); g.amt = Math.min(g.pay, g.cap); }
