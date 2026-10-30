@@ -1118,7 +1118,7 @@ async function api(req, res, url) {
   if (m === 'GET' && p === '/api/backup') {
     const a = authOf(req, ['doctor']), c = a.clinic, images = {}; needUnlock(req, c);
     for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
-    const body = JSON.stringify({ app: 'calm-clinic', version: 3, exportedAt: now(), clinicName: c.name, schedule: c.schedule || null, nurses: c.nurses.map(n => ({ name: n.name, phone: n.phone, salt: n.salt, hash: n.hash, createdAt: n.createdAt })), protect: !!c.protect, counter: c.counter || null, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, appts: c.appts || [], images });
+    const body = JSON.stringify({ app: 'calm-clinic', version: 4, exportedAt: now(), clinicName: c.name, doctorName: c.doctor.name, tasks: (c.tasks || []).map(k => ({ text: k.text, toName: k.to ? ((c.nurses.find(z => z.id === k.to) || {}).name || '') : '', createdAt: k.createdAt, done: !!k.done, doneAt: k.doneAt || null, doneBy: k.doneBy || '' })), schedule: c.schedule || null, nurses: c.nurses.map(n => ({ name: n.name, phone: n.phone, salt: n.salt, hash: n.hash, createdAt: n.createdAt })), protect: !!c.protect, counter: c.counter || null, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, appts: c.appts || [], images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
   }
@@ -1153,6 +1153,8 @@ async function api(req, res, url) {
     if (b.schedule && typeof b.schedule === 'object') c.schedule = normSchedule(b.schedule);
     if (Array.isArray(b.nurses)) for (const n of b.nurses.slice(0, 30)) { const name = n && str(n.name, 60); if (!name || typeof n.salt !== 'string' || !/^[a-f0-9]{32}$/.test(n.salt) || typeof n.hash !== 'string' || !/^[a-f0-9]{128}$/.test(n.hash) || c.nurses.length >= 30 || c.nurses.some(z => z.name.toLowerCase() === name.toLowerCase())) continue; c.nurses.push({ id: rid(6), name, phone: str(n.phone, 25), salt: n.salt, hash: n.hash, createdAt: +n.createdAt || now() }); }
     if (typeof b.protect === 'boolean') c.protect = b.protect;
+    { const cn = str(b.clinicName, 80), dn = str(b.doctorName, 80); if (cn) c.name = cn; if (dn) c.doctor.name = dn; }
+    if (Array.isArray(b.tasks)) c.tasks = b.tasks.slice(0, 100).filter(k => k && str(k.text, 300)).map(k => { const nn = str(k.toName, 60), n = nn && c.nurses.find(z => z.name.toLowerCase() === nn.toLowerCase()), done = !!k.done; return { id: rid(6), text: str(k.text, 300), to: n ? n.id : null, createdAt: +k.createdAt || now(), done, ...(done ? { doneAt: +k.doneAt || now(), doneBy: str(k.doneBy, 60) } : {}) }; });
     if (b.counter && typeof b.counter === 'object' && typeof b.counter.date === 'string' && b.counter.date.length <= 12) c.counter = { date: b.counter.date, n: Math.max(0, parseInt(b.counter.n) || 0) };
     const W = {}; if (b.wallets && typeof b.wallets === 'object') for (const [k, w] of Object.entries(b.wallets).slice(0, 50000)) {
       if (typeof k !== 'string' || k.length > 120 || !w || typeof w !== 'object') continue;

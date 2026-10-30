@@ -234,6 +234,11 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 700 });
       const bk2 = (await J('GET', '/api/backup', B)).j; ok(Object.values(bk2.wallets).some(w => w.bal === 700), 'النسخة الاحتياطية تشمل الوعاء');
       r = await J('POST', '/api/restore', B, bk2); ok(r.s === 200 && await wal() === 700, 'الاستعادة تعيد الوعاء');
+      /* النسخة الكاملة تشمل المهام والمواعيد والأسعار واسم العيادة والطبيب */
+      await J('POST', '/api/tasks', B, { text: 'مهمة داخل النسخة', to: 'all' });
+      const bk3 = (await J('GET', '/api/backup', B)).j; ok(bk3.version === 4 && bk3.doctorName && Array.isArray(bk3.tasks) && bk3.tasks.some(k => k.text === 'مهمة داخل النسخة') && Array.isArray(bk3.appts) && bk3.prices !== undefined, 'النسخة تشمل المهام والمواعيد والأسعار واسم الطبيب');
+      await J('POST', '/api/restore', B, { ...bk3, tasks: [] }); r = await J('GET', '/api/state', B); ok(!r.j.tasks.some(k => k.text === 'مهمة داخل النسخة'), 'الاستعادة تستبدل المهام بما في النسخة');
+      r = await J('POST', '/api/restore', B, bk3); r = await J('GET', '/api/state', B); ok(r.s === 200 && r.j.tasks.some(k => k.text === 'مهمة داخل النسخة'), 'الاستعادة تعيد المهام');
       r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); ok(r.j.records.some(z => z.payments.some(p => p.m === 'w' && p.vn)), 'الاستعادة تحفظ نوع الدفعة ورقم الحصة');
       /* استرجاع نقدي + حذف سجل دُفع من الوعاء يعيد المبلغ */
       r = await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 5000, op: 'out' }); ok(r.s === 409, 'لا استرجاع أكثر من الرصيد');
@@ -332,7 +337,7 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('GET', '/api/archive?money=debtors', B); ok(r.s === 200 && r.j.items.every(z => z.remaining > 0) && r.j.total === r.j.items.length, 'فلتر المدينين: سجلات عليها متبقٍّ فقط');
       /* نسخة احتياطية واستعادة تحفظ البنود وانتساب الدفعات */
       const bk = (await J('GET', '/api/backup', B)).j; ok(bk.archive.some(z => z.lines && z.lines.length) && bk.archive.some(z => (z.payments || []).some(p => p.pl)), 'النسخة تشمل بنود الخطط');
-      ok(bk.version === 3 && 'schedule' in bk && Array.isArray(bk.nurses) && typeof bk.protect === 'boolean' && 'counter' in bk && bk.nurses.every(n => n.hash && n.salt), 'النسخة تشمل الجدول وحسابات الممرضات وحماية الأرشيف والعدّاد');
+      ok(bk.version === 4 && 'schedule' in bk && Array.isArray(bk.nurses) && typeof bk.protect === 'boolean' && 'counter' in bk && bk.nurses.every(n => n.hash && n.salt), 'النسخة تشمل الجدول وحسابات الممرضات وحماية الأرشيف والعدّاد');
       const nn0 = (await J('GET', '/api/nurses', B)).j.length;
       r = await J('POST', '/api/restore', B, bk); ok(r.s === 200, 'استعادة');
       ok((await J('GET', '/api/nurses', B)).j.length === nn0, 'الاستعادة لا تكرّر حسابات الممرضات الموجودة'); r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); ok(r.j.records.some(z => z.lines.length && z.lines[0].plan) && r.j.balance === 0, 'الاستعادة تحفظ البنود');

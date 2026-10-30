@@ -108,7 +108,7 @@ const jget = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSO
 const jset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
 const LEDS = { orange: '#FF9A1F', yellow: '#FFD93D', green: '#3DF08F', cyan: '#35D6FF', white: '#F1F5FF', red: '#FF4D4D' };   // ألوان أرقام الساعة
-const settings = Object.assign({ darkMode: false, theme: 'sky', themeColor: '', lang: 'ar', sound: true, autoQr: true, ledColor: 'orange' }, jget('cc_settings', {}));
+const settings = Object.assign({ darkMode: false, theme: 'sky', themeColor: '', lang: 'ar', sound: true, autoQr: true, ledColor: 'white' }, jget('cc_settings', {}));
 /* لون التطبيق: لون واحد يُشتقّ منه كل شيء (الشريط والخلفيات والبطاقات والحدود والنصوص) في الوضعين الفاتح والداكن */
 const THEMES = { sky: '#2E2A6E', mint: '#1F6F78', purple: '#7B2D6E', rose: '#A8324A', green: '#1E7A4C', blue: '#1D5FB4', brown: '#8A4A1C', slate: '#3A4A5C' };
 const themeHex = () => /^#[0-9a-f]{6}$/i.test(settings.themeColor) ? settings.themeColor : (THEMES[settings.theme] || THEMES.sky);
@@ -852,10 +852,17 @@ function renderAppts() {
   cnt.textContent = due.length; cnt.classList.toggle('zero', !due.length);
   if (ban) { const bh = due.length ? `<span>📅 <b>${t('ap_banner', { n: due.length })}</b> ${esc(due.slice(0, 3).map(a => a.name).join('، '))}${due.length > 3 ? '…' : ''}</span><button type="button" class="btn-action btn-red" data-act="docTab" data-tab="appts">${t('ap_view')}</button>` : ''; if (ban._h !== bh) { ban._h = bh; ban.innerHTML = bh; ban.hidden = !due.length; } }
   if (box.contains(document.activeElement) && document.activeElement.matches('input')) return;
+  const miniTeeth = a => {   // مخطط أسنان صغير يبيّن السن المعالج (بلون العلاج أثناء الحصص)
+    const n = String(a.tooth || ''); if (!ALL_TEETH.has(n)) return '';
+    const set = +n >= 51 && +n <= 85 ? TEETH.child : TEETH.adult, col = colOf(a.treatment), on = col.on ? { color: col.part } : { color: '#f2b705' };
+    const btn = x => `<span class="tooth-btn ro${x % 10 >= 6 && x < 50 ? ' molar' : ''}${String(x) === n ? ' tc hit' : ''}"${String(x) === n ? ` style="${tcStyle(on.color)}" title="${esc(treatLabel(a.treatment))}"` : ''}>${String(x) === n ? x : ''}</span>`;
+    const half = arr => `<div class="arch-half">${arr.slice(0, arr.length / 2).map(btn).join('')}</div><div class="arch-half">${arr.slice(arr.length / 2).map(btn).join('')}</div>`;
+    return `<div class="appt-teeth" aria-label="${esc(t('tooth'))} ${n}"><div class="teeth-chart"><div class="arch">${half(set.up)}</div><div class="arch-sep"></div><div class="arch">${half(set.lo)}</div></div></div>`;
+  };
   const row = a => {
     const d = dayDiff(a.date, td), st = d < 0 ? t('ap_late', { n: -d }) : d === 0 ? t('ap_today') : t('ap_in', { n: d }), cls = d < 0 ? 'late' : d === 0 ? 'today' : 'soon';
     return `<li class="patient-card appt-card ${cls}"><div><strong style="font-size:15px">${esc(a.name)}</strong> <span class="badge">${a.tooth ? esc(a.tooth) + ' · ' : ''}${esc(treatLabel(a.treatment))}</span> <span class="badge">${t('pl_session_n', { n: a.no, m: a.sessions })}</span>
-      <div class="note-line appt-when"><span class="appt-chip ${cls}">${st}</span> <input type="date" class="appt-date" data-change="apptDate" data-id="${a.id}" value="${a.date}" aria-label="${esc(t('ap_date'))}">${a.phone ? ` · <a href="tel:${esc(a.phone)}" dir="ltr">📞 ${esc(a.phone)}</a>` : ''}</div></div>
+      <div class="note-line appt-when"><span class="appt-chip ${cls}">${st}</span> <input type="date" class="appt-date" data-change="apptDate" data-id="${a.id}" value="${a.date}" aria-label="${esc(t('ap_date'))}">${a.phone ? ` · <a href="tel:${esc(a.phone)}" dir="ltr">📞 ${esc(a.phone)}</a>` : ''}</div>${miniTeeth(a)}</div>
       <div class="actions"><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="-1">➖ ${t('ap_day')}</button><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="1">➕ ${t('ap_day')}</button><button type="button" class="btn-action btn-red" data-act="apptDel" data-id="${a.id}" title="${esc(t('ap_del'))}">🗑 ${t('ap_del')}</button></div></li>`;
   };
   const up = list.filter(a => a.date > td);
@@ -891,31 +898,26 @@ function setHero() {
   $('#' + pre + 'HeaderTitle').textContent = S.me.clinicName;
   $('#' + pre + (doc ? 'Subtitle' : 'UserWelcome')).textContent = doc ? t('hero_doc', { n: S.me.name }) : t('nurse_welcome', { n: S.me.name }) + (S.me.doctorName ? ' · ' + t('hero_doc', { n: S.me.doctorName }) : '');
 }
-/* ساعة LED: أرقام الشرائح السبعة تُرسم بـ SVG من الكود نفسه (بلا خطوط خارجية فتعمل دون إنترنت) */
-const SEG_P = { a: '8,6 14,0 46,0 52,6 46,12 14,12', b: '54,12 60,18 60,38 54,44 48,38 48,18', c: '54,56 60,62 60,82 54,88 48,82 48,62', d: '8,94 14,88 46,88 52,94 46,100 14,100', e: '6,56 12,62 12,82 6,88 0,82 0,62', f: '6,12 12,18 12,38 6,44 0,38 0,18', g: '8,50 14,44 46,44 52,50 46,56 14,56' };
-const LED_MAP = { '0': 'abcdef', '1': 'bc', '2': 'abged', '3': 'abgcd', '4': 'fgbc', '5': 'afgcd', '6': 'afgedc', '7': 'abc', '8': 'abcdefg', '9': 'abcdfg' };
-const LED_COLON = '<svg class="lc" viewBox="0 0 20 100" aria-hidden="true"><rect x="4" y="26" width="12" height="12"/><rect x="4" y="62" width="12" height="12"/></svg>';
-const ledDigit = ch => { const on = LED_MAP[ch] || ''; return '<svg class="ld" viewBox="0 0 60 100" aria-hidden="true">' + Object.keys(SEG_P).map(k => `<polygon${on.includes(k) ? ' class="on"' : ''} points="${SEG_P[k]}"/>`).join('') + '</svg>'; };
-const ledStr = s => [...s].map(ch => ch === ':' ? LED_COLON : ledDigit(ch)).join('');
-const LED_DAYS = { ar: ['سبت', 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع'], en: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'] };   // الأسبوع يبدأ السبت
+/* ساعة عصرية بلا إطار ولا خلفية: الوقت بخط ناعم + اسم اليوم والتاريخ (ما زال لون الأرقام قابلاً للتغيير من الإعدادات) */
+const clkTxt = (h, m) => `${h}<i class="clk-colon">:</i>${m}`;
 let clkFmt = null, clkLoc = '', clkMin = '', clkEls = null;
 function tickClock() {
   if (document.hidden) return;
   const d = new Date(), en = settings.lang === 'en', loc = en ? 'en-GB' : 'ar-u-nu-latn';
-  if (loc !== clkLoc) { clkLoc = loc; clkMin = ''; clkFmt = { d: new Intl.DateTimeFormat(loc, { day: 'numeric', month: 'long', year: 'numeric' }) }; clkEls = null; }
+  if (loc !== clkLoc) { clkLoc = loc; clkMin = ''; clkFmt = { d: new Intl.DateTimeFormat(loc, { day: 'numeric', month: 'long', year: 'numeric' }), w: new Intl.DateTimeFormat(loc, { weekday: 'long' }) }; clkEls = null; }
   if (!clkEls || !clkEls.length || !clkEls[0].c.isConnected) clkEls = $$('.clk').map(c => ({ c, ap: $('.led-ap', c), hm: $('.clk-hm', c), s: $('.clk-s', c), d: $('.clk-date', c), days: $('.led-days', c) }));
-  const s = ledStr(String(d.getSeconds()).padStart(2, '0')), min = d.getMinutes() + ':' + d.getHours();
+  const s = String(d.getSeconds()).padStart(2, '0'), min = d.getMinutes() + ':' + d.getHours();
   if (min !== clkMin) {
-    clkMin = min; const h = d.getHours(), h12 = h % 12 || 12, hm = ledStr((h12 < 10 ? ' ' : '') + h12 + ':' + String(d.getMinutes()).padStart(2, '0')), date = clkFmt.d.format(d), ap = en ? (h < 12 ? 'AM' : 'PM') : (h < 12 ? 'ص' : 'م'),
-      today = (d.getDay() + 1) % 7, days = LED_DAYS[en ? 'en' : 'ar'].map((n, i) => `<b${i === today ? ' class="on"' : ''}>${n}</b>`).join('');
+    clkMin = min; const h = d.getHours(), h12 = h % 12 || 12, hm = clkTxt(h12, String(d.getMinutes()).padStart(2, '0')), date = clkFmt.d.format(d), ap = en ? (h < 12 ? 'AM' : 'PM') : (h < 12 ? 'ص' : 'م'),
+      days = `<b>${esc(clkFmt.w.format(d))}</b>`;
     clkEls.forEach(o => { o.hm.innerHTML = hm; o.ap.textContent = ap; o.d.textContent = date; o.days.innerHTML = days; });
   }
-  clkEls.forEach(o => { o.s.innerHTML = s; });
+  clkEls.forEach(o => { o.s.textContent = s; });
 }
 setInterval(tickClock, 1000); tickClock(); document.addEventListener('visibilitychange', () => { clkMin = ''; tickClock(); });
 function applySettings() {
   document.body.classList.toggle('light-mode', !settings.darkMode);
-  document.body.style.setProperty('--led', LEDS[settings.ledColor] || LEDS.orange); $$('.led-btn').forEach(x => x.classList.toggle('sel', x.dataset.led === settings.ledColor)); clkMin = '';
+  document.body.style.setProperty('--led', LEDS[settings.ledColor] || LEDS.white); $$('.led-btn').forEach(x => x.classList.toggle('sel', x.dataset.led === settings.ledColor)); clkMin = '';
   applyPalette(); $$('.theme-color-btn[data-theme]').forEach(x => x.classList.toggle('sel', !settings.themeColor && x.dataset.theme === settings.theme)); $$('.themeCustom').forEach(x => { x.value = themeHex(); x.classList.toggle('sel', !!settings.themeColor); });
   document.documentElement.lang = settings.lang; document.documentElement.dir = settings.lang === 'ar' ? 'rtl' : 'ltr';
   document.title = t('app_title');
