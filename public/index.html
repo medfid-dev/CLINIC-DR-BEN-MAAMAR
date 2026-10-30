@@ -169,6 +169,7 @@
   </div>
   <div class="nav-tabs">
     <button type="button" class="tab-btn active" data-act="docTab" data-tab="waiting"><span data-i18n="tab_waiting">الانتظار</span> <span id="waitingCount" class="count-badge zero">0</span></button>
+    <button type="button" class="tab-btn tab-appts" data-act="docTab" data-tab="appts"><span data-i18n="tab_appts">المواعيد 📅</span> <span id="apptCount" class="count-badge zero">0</span></button>
     <button type="button" class="tab-btn" id="consultationNavBtn" data-act="docTab" data-tab="consultation" data-i18n="tab_consult">المعاينة 🩺</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="addPatientDoc" data-i18n="tab_add">تسجيل ➕</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="nurses" data-i18n="tab_nurses">الممرضات 👩‍⚕️</button>
@@ -177,7 +178,9 @@
     <button type="button" class="tab-btn" data-act="docTab" data-tab="settingsDoc" data-i18n="tab_settings">الإعدادات ⚙️</button>
   </div>
 
+  <div id="apptBanner" class="appt-banner" hidden></div>
   <div id="waitingTab" class="tab-content active"><ul id="docWaitingList" class="patient-list"></ul></div>
+  <div id="apptsTab" class="tab-content"><div id="apptsArea"></div></div>
   <div id="consultationTab" class="tab-content"><div id="consultationArea"></div></div>
 
   <div id="addPatientDocTab" class="tab-content">

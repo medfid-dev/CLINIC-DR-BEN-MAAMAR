@@ -144,6 +144,8 @@ Object.assign(L.ar, { theme_custom: 'لون مخصّص', led_color: 'لون أر
 Object.assign(L.en, { theme_custom: 'Custom color', led_color: 'Clock digits color' });
 Object.assign(L.ar, { pnote_l: '💬 ملاحظة للمريض (تظهر في تذكرته بعد المعاينة)', pnote_ph: 'مثال: لا تأكل لمدة ساعتين، تناول الدواء بعد الأكل…' });
 Object.assign(L.en, { pnote_l: '💬 Note for the patient (shown on their ticket after the visit)', pnote_ph: 'e.g. Do not eat for 2 hours, take the medicine after meals…' });
+Object.assign(L.ar, { tab_appts: 'المواعيد 📅', ap_gap_l: 'أيام حتى الحصة القادمة', ap_banner: '{n} مريض حان موعد حصته:', ap_view: 'فتح المواعيد', ap_late: 'متأخر {n} يوم', ap_today: 'اليوم', ap_in: 'بعد {n} يوم', ap_day: 'يوم', ap_date: 'موعد الحصة', ap_del: 'حذف', ap_del_q: 'حذف هذا الموعد من القائمة؟', ap_deleted: 'حُذف الموعد', ap_due_h: 'حان موعدهم', ap_up_h: 'مواعيد قادمة', ap_empty: 'لا توجد مواعيد. يُسجَّل موعد الحصة التالية تلقائياً عند إنهاء حصة يبقى بعدها حصص.', ap_hint: 'يبقى المريض في «حان موعدهم» حتى يُنجز حصته، أو احذفه من القائمة يدوياً. عدد الأيام الافتراضي يُضبط من الإعدادات ← الحصص والأسعار.' });
+Object.assign(L.en, { tab_appts: 'Appointments 📅', ap_gap_l: 'Days until next session', ap_banner: '{n} patient(s) due:', ap_view: 'Open appointments', ap_late: '{n} day(s) overdue', ap_today: 'Today', ap_in: 'in {n} day(s)', ap_day: 'day', ap_date: 'Session date', ap_del: 'Delete', ap_del_q: 'Remove this appointment from the list?', ap_deleted: 'Appointment removed', ap_due_h: 'Due now', ap_up_h: 'Upcoming', ap_empty: 'No appointments. The next session date is set automatically when a session is finished and more remain.', ap_hint: 'A patient stays under "Due now" until the session is done, or remove them manually. The default gap is set in Settings → Sessions & prices.' });
 Object.assign(L.ar, { pl_del_sess: 'حذف حصة', pl_sess_removed: 'حُذفت حصة من العلاج ✅', requeue: 'إلى آخر الصف', t_requeued: 'نُقل المريض إلى آخر قائمة الانتظار ↩️' });
 Object.assign(L.en, { pl_del_sess: 'Remove a session', pl_sess_removed: 'Session removed from the treatment ✅', requeue: 'Send to end of queue', t_requeued: 'Patient moved to the end of the queue ↩️' });
 Object.assign(L.ar, { col_on_l: 'تلوين السن', col_part_l: 'أثناء العلاج', col_done_l: 'عند الاكتمال', col_hint: 'لكل علاج: لون السن أثناء العلاج (حصص متبقية) ولونه عند اكتمال الحصص، ويظهران في مخطط الأسنان بالمعاينة وفي سجل المريض.' });
@@ -269,7 +271,7 @@ function forceLogout(silent) {
 /* ===================== المزامنة الفورية ===================== */
 function applyState(st, force) {
   if (!force && st.serverTime < S.stamp) return;
-  S.stamp = st.serverTime; S.patients = st.patients; S.tasks = st.tasks || []; S.skipRequests = st.skipRequests || []; if (st.schedule) S.schedule = st.schedule;
+  S.stamp = st.serverTime; S.patients = st.patients; S.tasks = st.tasks || []; S.skipRequests = st.skipRequests || []; S.appts = st.appts || []; if (st.schedule) S.schedule = st.schedule;
 }
 async function connect() {
   if (S.es) { S.es.close(); S.es = null; }
@@ -308,7 +310,7 @@ function renderAll() {
   if (!S.me) return;
   const waiting = S.patients.filter(p => p.status === 'waiting');
   $('#waitingCount').textContent = waiting.length; $('#waitingCount').classList.toggle('zero', !waiting.length); $('#nurseWaitingBadge').textContent = waiting.length; setBadge(waiting.length); syncSchedule(); updateRegGate();
-  renderTasks(); if (S.me.role === 'nurse') renderNurseList(); else { renderDocWaiting(); renderConsultation(); renderSkip(); }
+  renderTasks(); if (S.me.role === 'nurse') renderNurseList(); else { renderDocWaiting(); renderConsultation(); renderSkip(); renderAppts(); }
 }
 const busy = () => S.patients.some(p => p.status === 'in');
 function patientMeta(p) { return `${t('sex')}: ${esc(genderL(p.gender))} | ${t('birth')}: ${p.birthYear} (${p.age} ${t('years_short')}) | ${t('tooth')}: ${esc(p.tooth)}`; }
@@ -439,6 +441,7 @@ function treatRowHTML(v, vals) {
   return `<div class="treat-row" ${v ? `data-orig="${esc(v)}"` : ''}><div class="treat-head"><input type="text" class="treat-name" maxlength="40" placeholder="${esc(t('tr_name_ph'))}" value="${esc(v ? treatLabel(v) : '')}">
     <button type="button" class="btn-action" data-act="moveTreat" data-d="-1" title="${esc(t('tr_up'))}" aria-label="${esc(t('tr_up'))}">▲</button><button type="button" class="btn-action" data-act="moveTreat" data-d="1" title="${esc(t('tr_down'))}" aria-label="${esc(t('tr_down'))}">▼</button><button type="button" class="btn-action btn-red" data-act="delTreat" title="${esc(t('tr_del'))}" aria-label="${esc(t('tr_del'))}">✕</button></div>
     <div class="sess-row"><label><span>${t('pl_sess_n')}</span><input type="number" min="1" max="20" step="1" inputmode="numeric" class="treat-sess" value="${o.sessions || (v ? defSessions(v) : 1)}"></label>
+      <label><span>📅 ${t('ap_gap_l')}</span><input type="number" min="0" max="365" step="1" inputmode="numeric" class="treat-gap" value="${o.gap != null ? o.gap : 7}"></label>
       <label class="col-on"><input type="checkbox" class="treat-col-on" ${cc.on ? 'checked' : ''}><span>🎨 ${t('col_on_l')}</span></label>
       <label class="col-pick"><span>${t('col_part_l')}</span><input type="color" class="treat-col-part" value="${cc.part}"></label><label class="col-pick"><span>${t('col_done_l')}</span><input type="color" class="treat-col-done" value="${cc.done}"></label></div>
     <div class="price-grid">${CATS.map(c => `<label><span>${t('price_cat_' + c)}</span><input type="number" min="0" step="any" inputmode="decimal" data-cat="${c}" value="${o[c] != null ? o[c] : ''}" placeholder="0"></label>`).join('')}</div></div>`;
@@ -830,6 +833,25 @@ function syncSchedule() {
   $('.schedEnabled', form).checked = s.enabled; $('.schedFrom', form).value = s.from; $('.schedTo', form).value = s.to;
   $('.schedDays', form).innerHTML = t('days_full').map((n, i) => `<label style="display:flex;align-items:center;gap:6px;font-size:13px;background:var(--surface-sunk);padding:6px 12px;border-radius:999px"><input type="checkbox" value="${i}" style="width:auto" ${s.days.includes(i) ? 'checked' : ''}>${esc(n)}</label>`).join('');
 }
+/* ===================== المواعيد ===================== */
+const localDay = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const dayDiff = (a, b) => Math.round((Date.parse(a + 'T00:00:00Z') - Date.parse(b + 'T00:00:00Z')) / 864e5);
+function renderAppts() {
+  const box = $('#apptsArea'); if (!box) return;
+  const td = localDay(), list = S.appts || [], due = list.filter(a => a.date <= td), cnt = $('#apptCount'), ban = $('#apptBanner');
+  cnt.textContent = due.length; cnt.classList.toggle('zero', !due.length);
+  if (ban) { const bh = due.length ? `<span>📅 <b>${t('ap_banner', { n: due.length })}</b> ${esc(due.slice(0, 3).map(a => a.name).join('، '))}${due.length > 3 ? '…' : ''}</span><button type="button" class="btn-action btn-red" data-act="docTab" data-tab="appts">${t('ap_view')}</button>` : ''; if (ban._h !== bh) { ban._h = bh; ban.innerHTML = bh; ban.hidden = !due.length; } }
+  if (box.contains(document.activeElement) && document.activeElement.matches('input')) return;
+  const row = a => {
+    const d = dayDiff(a.date, td), st = d < 0 ? t('ap_late', { n: -d }) : d === 0 ? t('ap_today') : t('ap_in', { n: d }), cls = d < 0 ? 'late' : d === 0 ? 'today' : 'soon';
+    return `<li class="patient-card appt-card ${cls}"><div><strong style="font-size:15px">${esc(a.name)}</strong> <span class="badge">${a.tooth ? esc(a.tooth) + ' · ' : ''}${esc(treatLabel(a.treatment))}</span> <span class="badge">${t('pl_session_n', { n: a.no, m: a.sessions })}</span>
+      <div class="note-line appt-when"><span class="appt-chip ${cls}">${st}</span> <input type="date" class="appt-date" data-change="apptDate" data-id="${a.id}" value="${a.date}" aria-label="${esc(t('ap_date'))}">${a.phone ? ` · <a href="tel:${esc(a.phone)}" dir="ltr">📞 ${esc(a.phone)}</a>` : ''}</div></div>
+      <div class="actions"><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="-1">➖ ${t('ap_day')}</button><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="1">➕ ${t('ap_day')}</button><button type="button" class="btn-action btn-red" data-act="apptDel" data-id="${a.id}" title="${esc(t('ap_del'))}">🗑 ${t('ap_del')}</button></div></li>`;
+  };
+  const up = list.filter(a => a.date > td);
+  const html = (list.length ? (due.length ? `<h3 class="appt-h due">🔔 ${t('ap_due_h')} (${due.length})</h3><ul class="patient-list">${due.map(row).join('')}</ul>` : '') + (up.length ? `<h3 class="appt-h">🗓 ${t('ap_up_h')} (${up.length})</h3><ul class="patient-list">${up.map(row).join('')}</ul>` : '') : `<div class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('ap_empty')}</div>`) + `<p class="note-line" style="margin-top:12px">${t('ap_hint')}</p>`;
+  if (box._h !== html) { box._h = html; box.innerHTML = html; }
+}
 function docTab(tab) {
   if (window.showHero) showHero();
   $$('#doctorScreen .tab-content').forEach(s => s.classList.remove('active')); $$('#doctorScreen .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -951,6 +973,8 @@ function download(blob, name) { const a = document.createElement('a'); a.href = 
 /* ===================== الأفعال (تفويض الأحداث) ===================== */
 const ACT = {
   authMode: el => authMode(el.dataset.mode), logout, closeAlert: el => el.parentElement.remove(),
+  async apptShift(el) { if (await run(() => api('PUT', `/api/appts/${el.dataset.id}`, { delta: +el.dataset.d }))) refresh(); },
+  async apptDel(el) { if (!await appConfirm(t('ap_del_q'))) return; if (await run(() => api('DELETE', `/api/appts/${el.dataset.id}`))) { toast(t('ap_deleted'), 'success'); refresh(); } },
   docTab: el => docTab(el.dataset.tab), nurseTab: el => nurseTab(el.dataset.tab),
   closeModal: closeModals,
   openTasks,
@@ -1031,7 +1055,7 @@ const ACT = {
   async walOut(el) { return walMove(el, 'out'); },
   treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); if (i < 0) unRemove('', v); recalc(); },
   async finish(el) {
-    const m = moneyTotals(), r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay } : { tooth: l.th, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, notes: ($('#consultNotes') || {}).value || '', patientNote: ($('#patientNote') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
+    const m = moneyTotals(), r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { today: localDay(), lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay } : { tooth: l.th, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, notes: ($('#consultNotes') || {}).value || '', patientNote: ($('#patientNote') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
   },
   copyCode: () => copyText(S.me.code || ''),
@@ -1111,6 +1135,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target, c = el.dataset.change;
+  if (c === 'apptDate') { if (el.value) run(() => api('PUT', `/api/appts/${el.dataset.id}`, { date: el.value })).then(r => r && refresh()); return; }
   if (c === 'themeColor') { settings.themeColor = el.value; settings.theme = 'custom'; } else if (c === 'dark') settings.darkMode = el.checked; else if (c === 'lang') settings.lang = el.value; else if (c === 'sound') settings.sound = el.checked; else if (c === 'autoQr') settings.autoQr = el.checked; else if (el.dataset.input === 'archive') { loadArchive(true); return; } else return;
   applySettings();
 });
@@ -1158,7 +1183,7 @@ document.addEventListener('submit', async e => {
       if (!name) { toast(t('tr_empty_name'), 'danger'); return; }
       const key = orig && name === treatLabel(orig) ? orig : name;   // الاسم الافتراضي غير المعدَّل يحتفظ بمفتاحه الأصلي
       if (seen.has(key.toLowerCase())) { toast(t('e_duplicate'), 'danger'); return; } seen.add(key.toLowerCase());
-      treatments.push(key); (list[key] = list[key] || {}).sessions = Math.min(MAXS, Math.max(1, parseInt($('.treat-sess', row).value) || 1)); list[key].col = { on: $('.treat-col-on', row).checked, part: $('.treat-col-part', row).value, done: $('.treat-col-done', row).value }; $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
+      treatments.push(key); (list[key] = list[key] || {}).sessions = Math.min(MAXS, Math.max(1, parseInt($('.treat-sess', row).value) || 1)); { const g = parseInt($('.treat-gap', row).value); list[key].gap = Number.isInteger(g) ? Math.min(365, Math.max(0, g)) : 7; } list[key].col = { on: $('.treat-col-on', row).checked, part: $('.treat-col-part', row).value, done: $('.treat-col-done', row).value }; $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
     }
     if (!treatments.length) { toast(t('tr_last'), 'danger'); return; }
     const r = await run(() => api('PUT', '/api/prices', { currency: $('.priceCur', f).value, list, treatments }));

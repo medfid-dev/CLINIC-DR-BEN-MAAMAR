@@ -833,3 +833,17 @@ html[dir=rtl] .led-days{direction:rtl}
  .clk-hm{--h:30px}.clk-s{--h:13px}
  .clk.led .clk-date{display:none}
 }
+
+/* ===== المواعيد (v74) ===== */
+.tab-btn.tab-appts{font-weight:800}
+.appt-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:12px 16px;border-radius:var(--radius-md);background:color-mix(in srgb,#E5233B 14%,var(--surface-card));border:1.5px solid color-mix(in srgb,#E5233B 55%,transparent);font-size:14px}
+.appt-banner[hidden]{display:none}
+.appt-h{margin:14px 0 8px;font-size:15px}
+.appt-h.due{color:#E5233B}
+.appt-card.late{border-inline-start-color:#E5233B;background:color-mix(in srgb,#E5233B 12%,var(--surface-card))}
+.appt-card.today{border-inline-start-color:#f2b705;background:color-mix(in srgb,#f2b705 16%,var(--surface-card))}
+.appt-card.soon{border-inline-start-color:#2e9e6b}
+.appt-when{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+.appt-chip{font-size:12px;font-weight:800;padding:2px 10px;border-radius:999px;color:#fff;background:#2e9e6b}
+.appt-chip.late{background:#E5233B}.appt-chip.today{background:#c98f00}
+.appt-date{width:auto;min-width:150px;padding:6px 10px}

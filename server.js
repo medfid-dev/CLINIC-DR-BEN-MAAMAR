@@ -99,6 +99,8 @@ const num = (v, max = 1e9) => { if (v === '' || v == null) return null; const n 
 const PRICE_CATS = ['base', 'front', 'pre', 'molar', 'wisdom'];   // عام / أمامية (قواطع وأنياب) / ضواحك / أضراس
 const treatsOf = c => (c.prices && Array.isArray(c.prices.treatments) && c.prices.treatments.length) ? c.prices.treatments : TREAT_KEYS;
 const MAX_SESS = 20, cleanSess = v => { const n = parseInt(v); return Number.isInteger(n) && n >= 1 && n <= MAX_SESS ? n : 0; };   // عدد حصص العلاج: 1–20
+const cleanGap = v => { if (v === '' || v == null) return null; const n = parseInt(v); return Number.isInteger(n) && n >= 0 && n <= 365 ? n : null; };   // أيام الانتظار حتى الحصة القادمة
+const DEF_GAP = 7;
 const defSess = tr => /عصب|root|endo/i.test(tr) ? 2 : 1;   // افتراض للعلاجات التي لم يُضبط عدد حصصها بعد
 /* ألوان السن لكل علاج: on = مفعّل، part = أثناء العلاج (حصص متبقية)، done = عند اكتمال حصصه */
 const HEX = /^#[0-9a-f]{6}$/i, NEUTRAL_TR = /استشارة|تبييض|أخرى|consult|whiten|other/i, EXT_TR = /قلع|extract/i;
@@ -113,8 +115,8 @@ function toothItems(rs) {
   }
   return out.slice(-400);
 }
-const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } const sn = cleanSess(v.sessions); if (sn) o.sessions = sn; const cc = cleanCol(v.col, k); if (cc) o.col = cc; } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
-const pricesOf = c => { const tr = treatsOf(c), list = normList(c.prices && c.prices.list, tr); for (const k of tr) list[k] = { ...(list[k] || {}), sessions: (list[k] && list[k].sessions) || defSess(k), col: (list[k] && list[k].col) || defCol(k) }; return { currency: (c.prices && c.prices.currency) || '', list, treatments: tr }; };
+const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } const sn = cleanSess(v.sessions); if (sn) o.sessions = sn; const gp = cleanGap(v.gap); if (gp != null) o.gap = gp; const cc = cleanCol(v.col, k); if (cc) o.col = cc; } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
+const pricesOf = c => { const tr = treatsOf(c), list = normList(c.prices && c.prices.list, tr); for (const k of tr) list[k] = { ...(list[k] || {}), sessions: (list[k] && list[k].sessions) || defSess(k), gap: (list[k] && list[k].gap != null) ? list[k].gap : DEF_GAP, col: (list[k] && list[k].col) || defCol(k) }; return { currency: (c.prices && c.prices.currency) || '', list, treatments: tr }; };
 /* أسماء العلاجات: 1–30 اسماً فريداً (بلا حساسية لحالة الأحرف)، كل اسم حتى 40 حرفاً */
 function normTreatments(a) {
   if (!Array.isArray(a)) throw httpErr(400, 'invalid_input');
@@ -159,6 +161,22 @@ function plansOf(c, k) {
   return m;
 }
 const planView = p => ({ id: p.id, tooth: p.tooth, treatment: p.treatment, total: p.total, sessions: p.sessions, done: p.done, paid: p.paid, remaining: p.remaining, open: p.open, rec: p.rec.id, at: p.at });
+/* ---------- المواعيد: موعد الحصة القادمة لكل خطة علاج مفتوحة ----------
+   c.appts = [{ id, plan, k, name, birthYear, phone, tooth, treatment, date:'YYYY-MM-DD' }]
+   يُنشأ الموعد تلقائياً عند إنهاء حصة تبقّى بعدها حصص (التاريخ = يوم الحصة + أيام الانتظار من الإعدادات)،
+   ويُحذف عند إنجاز الحصة التالية. والموعد الذي لم تعد خطته مفتوحة (أُغلقت/اكتملت) لا يظهر. */
+const cleanDate = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s + 'T00:00:00Z')) && new Date(Date.parse(s + 'T00:00:00Z')).toISOString().slice(0, 10) === s ? s : null;
+const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
+function apptsView(c) {
+  const out = [], cache = new Map();
+  for (const a of c.appts || []) {
+    let pm = cache.get(a.k); if (!pm) { pm = plansOf(c, a.k); cache.set(a.k, pm); }
+    const p = pm.get(a.plan); if (!p || !p.open) continue;
+    out.push({ id: a.id, name: a.name, birthYear: a.birthYear, phone: a.phone || '', tooth: p.tooth, treatment: p.treatment, no: p.done + 1, sessions: p.sessions, date: a.date });
+  }
+  return out.sort((x, y) => x.date < y.date ? -1 : x.date > y.date ? 1 : 0);
+}
+const pruneAppts = c => { const ok = new Set(apptsView(c).map(a => a.id)); c.appts = (c.appts || []).filter(a => ok.has(a.id)).slice(-2000); };
 /* يدفع حتى amt من متبقي السجل rec (وإن كان له خطط فعلى خططه بالترتيب، أو خطة واحدة only)؛ يعيد ما دُفع فعلاً */
 function payRec(c, k, rec, amt, t, vid, m, only) {
   let left = r2(amt); const used0 = left; if (!(left > 0)) return 0;
@@ -259,7 +277,7 @@ function stateFor(c, role, nurseId) {
   for (const [k, v] of r.skip) if (v.ts < t - 6e5 || !c.patients.some(p => p.id === k && p.status === 'waiting')) r.skip.delete(k);
   /* المتبقي على المريض (للطبيب فقط؛ الممرضة لا ترى أي مبالغ) */
   let owe = null; if (role === 'doctor' && c.patients.length) { owe = new Map(); for (const o of c.archive) { const d = remOf(o); if (d > 0) owe.set(patKey(o), r2((owe.get(patKey(o)) || 0) + d)); } }
-  return { patients: c.patients.map(p => { const v = patientView(p), d = owe && owe.get(patKey(p)); const w = role === 'doctor' ? wbal(c, patKey(p)) : 0; return { ...v, ...(d ? { debt: d } : {}), ...(w > 0 ? { wallet: w } : {}) }; }), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), tasks: role ? tasksFor(c, role, nurseId) : [] };
+  return { patients: c.patients.map(p => { const v = patientView(p), d = owe && owe.get(patKey(p)); const w = role === 'doctor' ? wbal(c, patKey(p)) : 0; return { ...v, ...(d ? { debt: d } : {}), ...(w > 0 ? { wallet: w } : {}) }; }), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), tasks: role ? tasksFor(c, role, nurseId) : [], ...(role === 'doctor' ? { appts: apptsView(c) } : {}) };
 }
 function ticketView(c, token) {
   const i = c.patients.findIndex(p => p.ticket === token);
@@ -800,6 +818,10 @@ async function api(req, res, url) {
         Object.assign(entry, { price, paid: 0, payments: [], lines, followUp: !lines.some(l => l.no === 1), treatment: treats.length ? str(treats.join(' + '), 200) : 'استشارة', ...(treats.length ? { treatments: treats, items: treats.map(n => ({ name: n, price: r2(lines.reduce((x, l) => x + (l.no === 1 && l.treatment === n ? l.total : 0), 0)) })) } : {}) });
         delete entry.teeth; delete entry.tooth; if (tts.length) { entry.teeth = tts; entry.tooth = tts.join(' '); } else entry.tooth = pt.tooth;
         c.patients = c.patients.filter(z => z !== pt); c.archive.unshift(entry);
+        /* مواعيد الحصص القادمة: يُحذف موعد البنود المنجَزة اليوم، ثم يُنشأ موعد لكل بند تبقّت له حصص */
+        { const today = cleanDate(b.today) || new Date(t).toISOString().slice(0, 10), pl = pricesOf(c).list; c.appts = (c.appts || []).filter(x => !(x.k === k && lines.some(l => l.plan === x.plan)));
+          for (const l of lines) if (l.no < l.sessions) c.appts.push({ id: rid(5), plan: l.plan, k, name: pt.name, birthYear: pt.birthYear, phone: pt.phone || '', tooth: l.tooth, treatment: l.treatment, date: addDays(today, (pl[l.treatment] && pl[l.treatment].gap != null) ? pl[l.treatment].gap : DEF_GAP) });
+          pruneAppts(c); }
         /* المبلغ الفعلي لكل هدف لا يتجاوز متبقيه (أكثر من ذلك لا يُقبل)؛ الوعاء يُغطّي منها بالترتيب والباقي نقداً */
         for (const g of tg) { if (g.rec === entry) g.cap = Math.min(g.cap, entry.price); g.amt = Math.min(g.pay, g.cap); }
         const tot = r2(tg.reduce((x, g) => x + g.amt, 0)); let wl = Math.max(0, Math.min(num(b.wallet) || 0, wbal(c, k), tot)), used = 0;
@@ -899,6 +921,14 @@ async function api(req, res, url) {
     save(); return send(res, 200, archiveView(rec, { c, info: visitInfo(c) }));
   }
   /* تغيير عدد حصص خطة جارية أثناء العلاج (طبيب فقط): delta=+1 تضيف حصة، -1 تحذف حصة لم تُجرَ بعد */
+  /* قائمة المواعيد: تعديل التاريخ (date أو إزاحة بالأيام delta) أو الحذف من القائمة (طبيب فقط) */
+  mt = p.match(/^\/api\/appts\/([a-f0-9]{10})$/);
+  if (mt && (m === 'PUT' || m === 'DELETE')) {
+    const a = authOf(req, ['doctor']), c = a.clinic, ap = (c.appts || []).find(x => x.id === mt[1]); if (!ap) throw httpErr(404, 'not_found');
+    if (m === 'DELETE') c.appts = c.appts.filter(x => x !== ap);
+    else { const b = await readJSON(req), d = b.date !== undefined ? cleanDate(b.date) : (Number.isInteger(b.delta) && Math.abs(b.delta) <= 365 ? addDays(ap.date, b.delta) : null); if (!d) throw httpErr(400, 'invalid_input'); ap.date = d; }
+    broadcast(c); return send(res, 200, { ok: true });
+  }
   mt = p.match(/^\/api\/plans\/([a-f0-9]{10})\/sessions$/);
   if (m === 'POST' && mt) {
     const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req); let first = null, done = 1, n = 0;
@@ -1088,7 +1118,7 @@ async function api(req, res, url) {
   if (m === 'GET' && p === '/api/backup') {
     const a = authOf(req, ['doctor']), c = a.clinic, images = {}; needUnlock(req, c);
     for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
-    const body = JSON.stringify({ app: 'calm-clinic', version: 3, exportedAt: now(), clinicName: c.name, schedule: c.schedule || null, nurses: c.nurses.map(n => ({ name: n.name, phone: n.phone, salt: n.salt, hash: n.hash, createdAt: n.createdAt })), protect: !!c.protect, counter: c.counter || null, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, images });
+    const body = JSON.stringify({ app: 'calm-clinic', version: 3, exportedAt: now(), clinicName: c.name, schedule: c.schedule || null, nurses: c.nurses.map(n => ({ name: n.name, phone: n.phone, salt: n.salt, hash: n.hash, createdAt: n.createdAt })), protect: !!c.protect, counter: c.counter || null, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, appts: c.appts || [], images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
   }
@@ -1129,6 +1159,7 @@ async function api(req, res, url) {
       W[k] = { bal: Math.max(0, num(w.bal) || 0), log: (Array.isArray(w.log) ? w.log : []).slice(-1000).filter(e => e && WK.has(e.k)).map(e => ({ t: +e.t || now(), amt: Math.max(0, num(e.amt) || 0), k: e.k, ...(REC_ID.test(String(e.vid)) ? { vid: e.vid } : {}) })) };
     }
     c.wallets = W;
+    c.appts = (Array.isArray(b.appts) ? b.appts : []).slice(0, 2000).filter(x => x && PLAN_ID.test(String(x.id)) && PLAN_ID.test(String(x.plan)) && typeof x.k === 'string' && x.k.length <= 120 && cleanDate(x.date)).map(x => ({ id: x.id, plan: x.plan, k: x.k, name: str(x.name, 80), birthYear: parseInt(x.birthYear) || 0, phone: str(x.phone, 25), tooth: str(x.tooth, 20), treatment: str(x.treatment, 40), date: x.date }));
     c.patients = P; c.archive = A; RT(c).skip.clear(); broadcast(c); return send(res, 200, { patients: P.length, archive: A.length });
   }
   throw httpErr(404, 'not_found');

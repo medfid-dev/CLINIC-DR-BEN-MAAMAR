@@ -240,6 +240,24 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 200, op: 'out' }); ok(r.s === 200 && r.j.bal === 500, 'استرجاع نقدي 200');
       r = await J('DELETE', `/api/archive/${v3.id}`, B); ok(r.s === 200 && await wal() === 1000, 'حذف سجل دُفع من الوعاء يعيد 500 إليه'); }
 
+    console.log('المواعيد');
+    { const NM = 'مريض المواعيد', YR = 1975;
+      const vis = async (body) => { const rm = (await J('GET', '/api/state', B)).j.patients.find(z => z.status === 'in'); if (rm) await J('POST', `/api/patients/${rm.id}/finish`, B, { lines: [] }); const p0 = (await J('POST', '/api/patients', B, pat(NM, { birthYear: YR }))).j; await J('POST', `/api/patients/${p0.id}/enter`, B); return J('POST', `/api/patients/${p0.id}/finish`, B, body); };
+      const ap = async () => (await J('GET', '/api/state', B)).j.appts.filter(x => x.name === NM);
+      await J('PUT', '/api/prices', B, { currency: '', treatments: ['علاج عصب', 'قلع'], list: { 'علاج عصب': { base: 6000, sessions: 2, gap: 10 }, 'قلع': { base: 1000, sessions: 1 } } });
+      let r = await vis({ today: '2026-10-30', lines: [{ tooth: '16', treatment: 'علاج عصب', total: 6000, sessions: 2, pay: 3000 }, { tooth: '17', treatment: 'قلع', total: 1000, sessions: 1, pay: 1000 }] });
+      let l = await ap(); ok(r.s === 200 && l.length === 1 && l[0].date === '2026-11-09' && l[0].tooth === '16' && l[0].no === 2 && l[0].sessions === 2, 'موعد الحصة الثانية يُحدَّد تلقائياً بأيام الانتظار من الإعدادات (10 أيام)، ولا موعد لعلاج بحصة واحدة');
+      ok((await J('GET', '/api/state', N)).j.appts === undefined, 'الممرضة لا ترى المواعيد');
+      r = await J('PUT', `/api/appts/${l[0].id}`, B, { delta: -3 }); l = await ap(); ok(r.s === 200 && l[0].date === '2026-11-06', 'تقديم الموعد بالأيام');
+      r = await J('PUT', `/api/appts/${l[0].id}`, B, { date: '2026-12-01' }); l = await ap(); ok(l[0].date === '2026-12-01', 'تعديل الموعد بتاريخ');
+      r = await J('PUT', `/api/appts/${l[0].id}`, B, { date: '2026-13-45' }); ok(r.s === 400, 'تاريخ غير صالح مرفوض');
+      const plan = (await J('GET', `/api/account?name=${encodeURIComponent(NM)}&year=${YR}`, B)).j.plans[0].id;
+      r = await vis({ today: '2026-12-02', lines: [{ plan, pay: 0 }] }); l = await ap(); ok(r.s === 200 && l.length === 0, 'إنجاز الحصة الأخيرة يزيل الموعد');
+      r = await vis({ today: '2026-10-30', lines: [{ tooth: '26', treatment: 'علاج عصب', total: 6000, sessions: 3, pay: 0 }] }); l = await ap(); ok(l.length === 1 && l[0].no === 2, 'علاج بثلاث حصص: موعد للحصة 2');
+      r = await J('DELETE', `/api/appts/${l[0].id}`, B); l = await ap(); ok(r.s === 200 && l.length === 0, 'حذف الموعد من القائمة');
+      r = await vis({ today: '2026-10-30', lines: [{ tooth: '36', treatment: 'علاج عصب', total: 6000, sessions: 2, pay: 0 }] }); l = await ap();
+      const bk = (await J('GET', '/api/backup', B)).j; ok(Array.isArray(bk.appts) && bk.appts.some(x => x.id === l[0].id), 'النسخة الاحتياطية تتضمن المواعيد');
+    }
     console.log('خطة العلاج لكل سن (حصة أو حصتان)');
     { const NM = 'مريض الخطة', YR = 1980, q = encodeURIComponent(NM);
       const vis = async (body) => { const rm = (await J('GET', '/api/state', B)).j.patients.find(z => z.status === 'in'); if (rm) await J('POST', `/api/patients/${rm.id}/finish`, B, { lines: [] }); const p0 = (await J('POST', '/api/patients', B, pat(NM, { birthYear: YR }))).j; await J('POST', `/api/patients/${p0.id}/enter`, B); const r = await J('POST', `/api/patients/${p0.id}/finish`, B, body); return r; };
