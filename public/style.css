@@ -856,3 +856,52 @@ html[dir=rtl] .led-days{direction:rtl}
 .appt-chip{font-size:12px;font-weight:800;padding:2px 10px;border-radius:999px;color:#fff;background:#2e9e6b}
 .appt-chip.late{background:#E5233B}.appt-chip.today{background:#c98f00}
 .appt-date{width:auto;min-width:150px;padding:6px 10px}
+
+/* ===== جدول التقويم في المعاينة ===== */
+.ortho{margin:10px 0;padding:12px;border-radius:14px;background:color-mix(in srgb,var(--primary-sage) 6%,var(--surface-card));border:1px solid var(--border-calm)}
+.ortho-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;font-size:14px;margin-bottom:10px}
+.ortho table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+.ortho-now th,.ortho-now td{padding:6px;text-align:center}
+.ortho-now thead th{font-size:12px;color:var(--text-secondary);font-weight:600}
+.ortho-now tbody th{text-align:start;font-weight:600;font-size:12px;white-space:nowrap;color:var(--text-secondary)}
+.ortho-now input{width:100%;min-width:0;text-align:center;font-weight:700;padding:9px 6px;border-radius:10px}
+.ortho-now .o-today input{border-color:var(--primary-sage);background:color-mix(in srgb,var(--primary-sage) 8%,var(--surface-input))}
+.ortho-notes{display:block;margin-top:8px;font-size:12px;color:var(--text-secondary)}
+.ortho-notes textarea{width:100%;margin-top:4px;border-radius:10px;resize:vertical;font:inherit}
+.ortho-hist{margin-top:10px}
+.ortho-hist summary{cursor:pointer;font-weight:600;font-size:13px;padding:4px 0;list-style-position:inside}
+.ortho-scroll{max-height:260px;overflow:auto;border-radius:10px;border:1px solid var(--border-calm);background:var(--surface-card);margin-top:6px}
+.ortho-scroll th{position:sticky;top:0;background:var(--surface-sunk);font-size:11.5px;font-weight:600;padding:7px 6px;text-align:center;white-space:nowrap}
+.ortho-scroll td{padding:7px 6px;text-align:center;border-top:1px solid var(--border-calm);vertical-align:top}
+.ortho-scroll tr:nth-child(even) td{background:color-mix(in srgb,var(--primary-sage) 4%,transparent)}
+.ortho-scroll .o-n{font-weight:700;color:var(--primary-sage)}
+.ortho-scroll .o-note{text-align:start;min-width:120px;white-space:pre-wrap}
+.ortho-scroll td[dir=ltr]{white-space:nowrap}
+
+/* ===== خطط العلاج في سجل المريض ===== */
+.hist-plans{margin:12px 0}
+.hist-plan{margin-top:8px;padding:12px;border-radius:14px;background:var(--surface-card);border:1px solid var(--border-calm)}
+.hp-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.hp-sum{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.hp-sum>div{flex:1;min-width:90px;padding:8px;border-radius:10px;background:var(--surface-sunk);font-size:11.5px;color:var(--text-secondary);display:flex;flex-direction:column;gap:2px}
+.hp-sum b{font-size:14px;color:var(--text-primary)}
+.hist-plan .ortho{margin:0;padding:0;background:none;border:0}
+.hi-ortho{font-size:12.5px}
+.hist-plan .ortho-scroll td:not(.o-note){white-space:nowrap}
+
+/* ===== شاشة ملخص نهاية المعاينة ===== */
+.fs-card{max-width:460px;max-height:90vh;overflow:auto}
+.fs-title{margin:0 0 10px;font-size:17px}
+.fs-pat{display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:12px;background:var(--surface-sunk);margin-bottom:10px}
+.fs-pat b{font-size:16px}.fs-pat span{font-size:12.5px;color:var(--text-secondary)}
+.fs-sec{margin:10px 0 6px;font-size:12px;font-weight:700;color:var(--text-secondary)}
+.fs-item{padding:10px 12px;border-radius:12px;border:1px solid var(--border-calm);margin-bottom:8px}
+.fs-it-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.fs-row{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:13.5px}
+.fs-sub{font-size:12.5px;margin-top:4px;color:var(--text-secondary)}
+.fs-sub2{font-size:12px;color:var(--text-secondary)}
+.fs-bad b{color:var(--danger-soft,#e8607a)}.fs-ok b{color:var(--success,#2e9e6b)}
+.fs-notes{white-space:pre-wrap;font-size:13px;padding:8px 10px;border-radius:10px;background:var(--surface-sunk)}
+.fs-tot{margin-top:10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--primary-sage) 8%,var(--surface-card));border:1px solid var(--border-calm)}
+.fs-big{font-size:16px;padding-top:6px;margin-top:4px;border-top:1px dashed var(--border-calm)}
+.fs-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.fs-btns .btn-action{flex:1;min-width:140px;padding:12px}
