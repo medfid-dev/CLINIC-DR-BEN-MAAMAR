@@ -444,7 +444,7 @@ function treatRowHTML(v, vals) {
     <button type="button" class="btn-action" data-act="moveTreat" data-d="-1" title="${esc(t('tr_up'))}" aria-label="${esc(t('tr_up'))}">▲</button><button type="button" class="btn-action" data-act="moveTreat" data-d="1" title="${esc(t('tr_down'))}" aria-label="${esc(t('tr_down'))}">▼</button><button type="button" class="btn-action btn-red" data-act="delTreat" title="${esc(t('tr_del'))}" aria-label="${esc(t('tr_del'))}">✕</button></div>
     <div class="sess-row"><label><span>${t('pl_sess_n')}</span><input type="number" min="1" max="60" step="1" inputmode="numeric" class="treat-sess" value="${o.sessions || (v ? defSessions(v) : 1)}"></label>
       <label><span>📅 ${t('ap_gap_l')}</span><input type="number" min="0" max="365" step="1" inputmode="numeric" class="treat-gap" value="${o.gap != null ? o.gap : 7}"></label>
-      <label class="col-on ortho-on"><input type="checkbox" class="treat-ortho" ${o.ortho ? 'checked' : ''}><span>🦷 ${t('ortho_l')}</span></label>
+      <label class="col-on ortho-on"${(o.sessions || (v ? defSessions(v) : 1)) >= 6 ? '' : ' hidden'}><input type="checkbox" class="treat-ortho" ${o.ortho ? 'checked' : ''}><span>🦷 ${t('ortho_l')}</span></label>
       <label class="col-on"><input type="checkbox" class="treat-col-on" ${cc.on ? 'checked' : ''}><span>🎨 ${t('col_on_l')}</span></label>
       <label class="col-pick"><span>${t('col_part_l')}</span><input type="color" class="treat-col-part" value="${cc.part}"></label><label class="col-pick"><span>${t('col_done_l')}</span><input type="color" class="treat-col-done" value="${cc.done}"></label></div>
     <div class="price-grid">${CATS.map(c => `<label><span>${t('price_cat_' + c)}</span><input type="number" min="0" step="any" inputmode="decimal" data-cat="${c}" value="${o[c] != null ? o[c] : ''}" placeholder="0"></label>`).join('')}</div></div>`;
@@ -457,7 +457,7 @@ function renderPriceForm() {
   $('.priceRows', f).innerHTML = treatList().map(v => treatRowHTML(v, L2[v])).join('') + `<div class="hint" style="margin-bottom:6px">${t('prices_hint2')}</div>`;
   $('.priceCur', f).value = cur();
 }
-document.addEventListener('input', ev => { const f = ev.target.closest && ev.target.closest('form[data-form=prices]'); if (f) f.dataset.dirty = '1'; });
+document.addEventListener('input', ev => { const f = ev.target.closest && ev.target.closest('form[data-form=prices]'); if (f) f.dataset.dirty = '1'; if (f && ev.target.classList.contains('treat-sess')) { const lb = ev.target.closest('.treat-row').querySelector('.ortho-on'); if (lb) lb.hidden = !((parseInt(ev.target.value) || 1) >= 6); } });
 /* ===== خطة العلاج والحساب في المعاينة =====
    كل بند = (سن + علاج). خطة بحصة واحدة تُدفع كاملة، أو بحصتين يُقسَّم سعرها الكلي بينهما (الحصة 1 دفعة، والحصة 2 المتبقي).
    البنود تُشتقّ من اختيار الأسنان والعلاجات أعلاه؛ فإن كان للمريض خطة جارية على نفس السن والعلاج
@@ -483,14 +483,12 @@ function orthoOf(l) {
 }
 const wireTxt = (a, b) => { a = a || ''; b = b || ''; return !a && !b ? '—' : a && b && a !== b ? `${esc(a)} ← <b>${esc(b)}</b>` : `<b>${esc(b || a)}</b>`; };
 function orthoHTML(l) {
-  if (!l.ortho) return ''; const o = l.ortho, k = esc(l.key), inp = (f, ph) => `<input type="text" maxlength="30" inputmode="text" placeholder="${esc(ph)}" value="${esc(o[f])}" data-input="oin" data-key="${k}" data-f="${f}">`;
-  const rows = o.hist.slice().reverse().map(h => `<tr><td class="o-n">${h.no}</td><td dir="ltr">${esc(new Date(h.at).toLocaleDateString('en-CA'))}</td><td>${wireTxt(h.upPrev, h.up)}</td><td>${wireTxt(h.loPrev, h.lo)}</td><td dir="ltr">${h.next ? esc(h.next) : '—'}</td><td class="o-note">${h.notes ? esc(h.notes) : '—'}</td></tr>`).join('');
+  if (!l.ortho) return ''; const o = l.ortho, k = esc(l.key), cell = (f, ph) => `<input type="text" maxlength="30" inputmode="text" placeholder="${esc(ph)}" value="${esc(o[f])}" data-input="oin" data-key="${k}" data-f="${f}">`, w = v => v ? `<b>${esc(v)}</b>` : '—';
+  const rows = o.hist.slice().reverse().map(h => `<tr><td class="o-n">${h.no}</td><td dir="ltr">${esc(new Date(h.at).toLocaleDateString('en-CA'))}</td><td>${w(h.up)}</td><td>${w(h.lo)}</td><td class="o-note">${h.notes ? esc(h.notes) : '—'}</td></tr>`).join('');
   return `<div class="ortho"><div class="ortho-h">🦷 ${t('ortho_title')} <span class="pl-badge cont">${t('pl_session_n', { n: l.no, m: l.sessions })}</span></div>
-    <table class="ortho-now"><thead><tr><th></th><th>${t('ortho_up')}</th><th>${t('ortho_lo')}</th></tr></thead><tbody>
-      <tr><th>${t('ortho_prev')}</th><td>${inp('upPrev', '—')}</td><td>${inp('loPrev', '—')}</td></tr>
-      <tr class="o-today"><th>${t('ortho_today')}</th><td>${inp('up', '#')}</td><td>${inp('lo', '#')}</td></tr></tbody></table>
-    <label class="ortho-notes"><span>📝 ${t('ortho_notes')}</span><textarea rows="2" maxlength="500" data-input="oin" data-key="${k}" data-f="notes" placeholder="${esc(t('ortho_notes_ph'))}">${esc(o.notes)}</textarea></label>
-    <details class="ortho-hist" ${rows ? 'open' : ''}><summary>${t('ortho_hist')} <small>(${o.hist.length})</small></summary>${rows ? `<div class="ortho-scroll"><table><thead><tr><th>#</th><th>${t('ortho_date')}</th><th>${t('ortho_up')}</th><th>${t('ortho_lo')}</th><th>${t('ortho_next')}</th><th>${t('ortho_notes')}</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="hint">${t('ortho_none')}</div>`}</details></div>`;
+    <div class="ortho-scroll"><table class="ortho-tbl"><thead><tr><th>#</th><th>${t('ortho_date')}</th><th>${t('ortho_up')}</th><th>${t('ortho_lo')}</th><th>${t('ortho_notes')}</th></tr></thead><tbody>
+      <tr class="o-today"><td class="o-n">${l.no}</td><td dir="ltr">${esc(localDay())}</td><td>${cell('up', '#')}</td><td>${cell('lo', '#')}</td><td class="o-note"><textarea rows="1" maxlength="500" data-input="oin" data-key="${k}" data-f="notes" placeholder="${esc(t('ortho_notes_ph'))}">${esc(o.notes)}</textarea></td></tr>
+      ${rows || `<tr><td colspan="5" class="hint">${t('ortho_none')}</td></tr>`}</tbody></table></div></div>`;
 }
 const orthoSend = l => l.ortho ? { upPrev: l.ortho.upPrev, up: l.ortho.up, loPrev: l.ortho.loPrev, lo: l.ortho.lo, notes: l.ortho.notes } : undefined;
 /* شاشة ملخص نهاية المعاينة: العلاج، المريض، المبالغ. «تأكيد» يُنهي الزيارة، و«رجوع» يعيد الطبيب إلى المعاينة */
@@ -508,7 +506,7 @@ function finishSummary(pid, m) {
     const age = pt.birthYear ? `${new Date().getFullYear() - pt.birthYear} ${t('years_short')}` : '';
     const el = document.createElement('div'); el.className = 'modal-overlay active'; el.style.zIndex = 30000;
     el.innerHTML = `<div class="modal-card fs-card" role="dialog" aria-modal="true"><h3 class="fs-title">📋 ${t('fs_title')}</h3>
-      <div class="fs-pat"><b>${esc(pt.name || '')}</b><span>${[age, pt.gender ? esc(genderL(pt.gender)) : '', pt.phone ? '☎ <span dir="ltr">' + esc(pt.phone) + '</span>' : '', pt.ticketNo ? t('ticket_no') + ' ' + pt.ticketNo : ''].filter(Boolean).join(' · ')}</span></div>
+      <div class="fs-pat"><b>${esc(pt.name || '')}</b><span>${[age, pt.gender ? esc(genderL(pt.gender)) : '', pt.phone ? '☎️ <span dir="ltr">' + esc(pt.phone) + '</span>' : '', pt.ticketNo ? t('ticket_no') + ' ' + pt.ticketNo : ''].filter(Boolean).join(' · ')}</span></div>
       <div class="fs-sec">${t('fs_treat')}</div>${lines || `<div class="hint">${t('pl_none')}</div>`}${prev ? `<div class="fs-item"><div class="fs-it-h"><b>${t('fs_prev_pay')}</b></div>${prev}</div>` : ''}
       ${notes ? `<div class="fs-sec">${t('notes_l')}</div><div class="fs-notes">${esc(notes)}</div>` : ''}
       <div class="fs-tot">${row(t('pl_sum_today'), money(m.due))}${row(t('pl_sum_paid'), money(m.pay))}${m.w > 0 ? row('🏺 ' + t('pl_sum_wal'), money(m.w), 'fs-sub2') + row('💵 ' + t('pl_sum_cash'), money(m.cash), 'fs-sub2') : ''}${row(t('pl_sum_after'), money(m.after), m.after > 0 ? 'fs-bad fs-big' : 'fs-ok fs-big')}</div>
@@ -872,7 +870,7 @@ async function showHistory(name, year) {
   const walBox = `<div class="hist-wallet"><div><b>${t('wal_title')}</b> <span class="hw-bal">${money(r.wallet ? r.wallet.bal : 0)}</span></div>
     <div class="hw-btns"><button type="button" class="btn-action btn-green" data-act="walDeposit" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_dep')}</button>${r.wallet && r.wallet.bal > 0 ? `<button type="button" class="btn-action btn-yellow" data-act="walOut" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_out')}</button>` : ''}</div></div>`;
   body.innerHTML = `<div class="hist-sum"><div class="hs-name">${esc(r.name)}</div>
-      <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div>
+      <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎️ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div>
       <div class="hist-stats"><div>${t('hist_visits')}<b>${r.visits}</b></div><div>${t('hist_first')}<b>${dd(r.firstVisit)}</b></div><div>${t('hist_last')}<b>${dd(r.lastVisit)}</b></div>
       ${r.due ? `<div>${t('total_due')}<b>${money(r.due)}</b></div><div>${t('total_paid')}<b>${money(r.paid)}</b></div>` : ''}${r.balance ? `<div>${t('total_debt')}<b style="color:var(--danger-soft,#e8607a)">${money(r.balance)}</b></div>` : ''}</div></div>
     ${walBox}
@@ -1270,7 +1268,7 @@ document.addEventListener('submit', async e => {
       const key = orig && name === treatLabel(orig) ? orig : name;   // الاسم الافتراضي غير المعدَّل يحتفظ بمفتاحه الأصلي
       if (seen.has(key.toLowerCase())) { toast(t('e_duplicate'), 'danger'); return; } seen.add(key.toLowerCase());
       treatments.push(key); (list[key] = list[key] || {}).sessions = Math.min(MAXS, Math.max(1, parseInt($('.treat-sess', row).value) || 1));
-      { const oc = $('.treat-ortho', row); if (list[key].sessions >= 6 && !oc.checked && row.dataset.oset !== '1') { oc.checked = (await appDialog({ msg: t('ortho_q', { n: name, s: list[key].sessions }), okL: t('ortho_yes'), noL: t('ortho_no') })) === true; row.dataset.oset = '1'; } if (oc.checked) list[key].ortho = true; else if (row.dataset.oset === '1') list[key].ortho = false; }   // علاج ≥ 6 حصص: نسأل مرة واحدة هل هو تقويم
+      { const oc = $('.treat-ortho', row); if (list[key].sessions < 6) { oc.checked = false; list[key].ortho = false; } else { if (list[key].sessions >= 6 && !oc.checked && row.dataset.oset !== '1') { oc.checked = (await appDialog({ msg: t('ortho_q', { n: name, s: list[key].sessions }), okL: t('ortho_yes'), noL: t('ortho_no') })) === true; row.dataset.oset = '1'; } if (oc.checked) list[key].ortho = true; else if (row.dataset.oset === '1') list[key].ortho = false; } }   // علاج ≥ 6 حصص: نسأل مرة واحدة هل هو تقويم
       { const g = parseInt($('.treat-gap', row).value); list[key].gap = Number.isInteger(g) ? Math.min(365, Math.max(0, g)) : 7; } list[key].col = { on: $('.treat-col-on', row).checked, part: $('.treat-col-part', row).value, done: $('.treat-col-done', row).value }; $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
     }
     if (!treatments.length) { toast(t('tr_last'), 'danger'); return; }

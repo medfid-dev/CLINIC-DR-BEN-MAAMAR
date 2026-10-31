@@ -11,7 +11,7 @@ body:not(.light-mode){--bar:#15112f;--g1:#2b2250;--g2:#211a45;--g3:#15112f;--bg-
 body{--primary-soft:color-mix(in srgb,var(--primary-sage) 12%,transparent);--primary-line:color-mix(in srgb,var(--primary-sage) 30%,transparent)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{height:100%;-webkit-text-size-adjust:100%}
-body{height:100dvh;overflow:hidden;background:var(--bg-calm);color:var(--text-primary);font-family:'Readex Pro','Segoe UI',Tahoma,system-ui,sans-serif;font-weight:400;font-size:15px;line-height:1.65}
+body{height:100dvh;overflow:hidden;background:var(--bg-calm);color:var(--text-primary);font-family:'Readex Pro','Segoe UI',Tahoma,system-ui,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-weight:400;font-size:15px;line-height:1.65}
 input,select,textarea,button{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--orange);outline-offset:2px}
@@ -905,3 +905,36 @@ html[dir=rtl] .led-days{direction:rtl}
 .fs-tot{margin-top:10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--primary-sage) 8%,var(--surface-card));border:1px solid var(--border-calm)}
 .fs-big{font-size:16px;padding-top:6px;margin-top:4px;border-top:1px dashed var(--border-calm)}
 .fs-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.fs-btns .btn-action{flex:1;min-width:140px;padding:12px}
+
+/* v82: جدول التقويم الموحّد (اليوم + الأسلاك السابقة بتواريخها وملاحظاتها) */
+.ortho-tbl{min-width:430px}
+.ortho-tbl .o-today td{background:color-mix(in srgb,var(--primary-sage) 10%,var(--surface-input));border-top:0}
+.ortho-tbl .o-today input,.ortho-tbl .o-today textarea{width:100%;min-width:0;text-align:center;font-weight:700;padding:8px 6px;border-radius:10px;border:1px solid var(--primary-sage);background:var(--surface-input);font:inherit;font-weight:700}
+.ortho-tbl .o-today textarea{text-align:start;font-weight:400;resize:vertical}
+.ortho-scroll{max-height:340px}
+
+.sess-row .ortho-on[hidden]{display:none!important}
+
+/* v85: نص أوضح — الأبيض أنصع في الوضع الداكن، والخط أثقل، وإزالة الشفافية عن النصوص الصغيرة */
+body:not(.light-mode){--text-primary:#FFFFFF;--text-secondary:#F2EFFF;--text-muted:#D6D0F2;--border-calm:rgba(255,255,255,.28)}
+body.light-mode{--text-primary:#0B0930;--text-secondary:#25214F;--text-muted:#46427A}
+body{font-weight:600}
+label{font-weight:700}
+input,select,textarea{font-weight:600}
+body:not(.light-mode) input,body:not(.light-mode) select,body:not(.light-mode) textarea{color:#FFFFFF}
+body:not(.light-mode) ::placeholder{color:#C9C2EC;opacity:1}
+.tab-btn{color:#fff}
+.auth-seg button{color:#fff}
+.clk-s,.clk-date,.hist-pays li small,.hist-pays li .pl-when,.pl-nd small,.tbub-from{opacity:1}
+.task-item.done{opacity:.9}
+.settings-link .sl-ar{opacity:.85}
+
+/* v86: مراجعة التصميم والأيقونات — أهداف لمس أكبر، رموز موحّدة، محاذاة أفضل */
+.btn-action{min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1.2}
+.btn-action.modal-x,.pl-del,.btn-action[data-act=moveTreat],.btn-action[data-act=delTreat]{min-width:40px;padding-inline:12px}
+.pl-del{min-height:40px;min-width:40px;display:inline-flex;align-items:center;justify-content:center}
+.pl-stepper button{min-width:40px;min-height:40px}
+.tab-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.settings-link{min-height:48px}
+button:active:not(:disabled){transform:scale(.97)}
+button:disabled{opacity:.55;cursor:not-allowed}
