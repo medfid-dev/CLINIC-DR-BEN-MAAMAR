@@ -98,8 +98,20 @@ const TREAT_KEYS = ['قلع', 'علاج عصب', 'استشارة', 'جلسة ت�
 const num = (v, max = 1e9) => { if (v === '' || v == null) return null; const n = Math.round(Number(v) * 100) / 100; return Number.isFinite(n) && n >= 0 && n <= max ? n : null; };
 const PRICE_CATS = ['base', 'front', 'pre', 'molar', 'wisdom'];   // عام / أمامية (قواطع وأنياب) / ضواحك / أضراس
 const treatsOf = c => (c.prices && Array.isArray(c.prices.treatments) && c.prices.treatments.length) ? c.prices.treatments : TREAT_KEYS;
-const MAX_SESS = 20, cleanSess = v => { const n = parseInt(v); return Number.isInteger(n) && n >= 1 && n <= MAX_SESS ? n : 0; };   // عدد حصص العلاج: 1–20
+const MAX_SESS = 60, cleanSess = v => { const n = parseInt(v); return Number.isInteger(n) && n >= 1 && n <= MAX_SESS ? n : 0; };   // عدد حصص العلاج: 1–60 (التقويم يحتاج حصصاً كثيرة)
 const cleanGap = v => { if (v === '' || v == null) return null; const n = parseInt(v); return Number.isInteger(n) && n >= 0 && n <= 365 ? n : null; };   // أيام الانتظار حتى الحصة القادمة
+/* جدول التقويم لكل حصة: السلك السابق واليوم للفك العلوي والسفلي + ملاحظات (+ تاريخ الموعد القادم يُحسب عند الحفظ) */
+const cleanOrtho = (o, keepNext) => {
+  if (!o || typeof o !== 'object') return null; const f = k => str(o[k], 30).trim();
+  const r = { upPrev: f('upPrev'), up: f('up'), loPrev: f('loPrev'), lo: f('lo'), notes: str(o.notes, 500).trim(), notesUp: str(o.notesUp, 300).trim(), notesLo: str(o.notesLo, 300).trim() };
+  if (keepNext && typeof o.next === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(o.next)) r.next = o.next; return r;
+};
+const orthoPart = z => { const o = cleanOrtho(z && z.ortho); return o ? { ortho: o } : {}; };
+function orthoHist(rs) {
+  const out = [];
+  for (const r of [...rs].sort((x, y) => (x.finishedAt || 0) - (y.finishedAt || 0))) for (const l of r.lines || []) if (l.ortho) out.push({ plan: l.plan, treatment: l.treatment, no: l.no, sessions: l.sessions, at: r.finishedAt, ...l.ortho });
+  return out;
+}
 const DEF_GAP = 7;
 const defSess = tr => /عصب|root|endo/i.test(tr) ? 2 : 1;   // افتراض للعلاجات التي لم يُضبط عدد حصصها بعد
 /* ألوان السن لكل علاج: on = مفعّل، part = أثناء العلاج (حصص متبقية)، done = عند اكتمال حصصه */
@@ -115,7 +127,7 @@ function toothItems(rs) {
   }
   return out.slice(-400);
 }
-const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } const sn = cleanSess(v.sessions); if (sn) o.sessions = sn; const gp = cleanGap(v.gap); if (gp != null) o.gap = gp; const cc = cleanCol(v.col, k); if (cc) o.col = cc; } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
+const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } const sn = cleanSess(v.sessions); if (sn) o.sessions = sn; const gp = cleanGap(v.gap); if (gp != null) o.gap = gp; const cc = cleanCol(v.col, k); if (cc) o.col = cc; if (typeof v.ortho === 'boolean') o.ortho = v.ortho; } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
 const pricesOf = c => { const tr = treatsOf(c), list = normList(c.prices && c.prices.list, tr); for (const k of tr) list[k] = { ...(list[k] || {}), sessions: (list[k] && list[k].sessions) || defSess(k), gap: (list[k] && list[k].gap != null) ? list[k].gap : DEF_GAP, col: (list[k] && list[k].col) || defCol(k) }; return { currency: (c.prices && c.prices.currency) || '', list, treatments: tr }; };
 /* أسماء العلاجات: 1–30 اسماً فريداً (بلا حساسية لحالة الأحرف)، كل اسم حتى 40 حرفاً */
 function normTreatments(a) {
@@ -208,7 +220,7 @@ function syncLines(rec, price, replacedPay) {
   if (replacedPay) { let left = paidOf(rec); const t = (rec.payments[0] || {}).t || rec.finishedAt; rec.payments = []; for (const l of ch) { const x = Math.min(left, l.total || 0); if (x > 0) { rec.payments.push({ t, amt: x, vid: rec.id, pl: l.plan }); left = r2(left - x); } } }
 }
 /* بنود الخطة المستعادة من نسخة احتياطية */
-const cleanLinesIn = a => (Array.isArray(a) ? a : []).slice(0, 24).filter(l => l && PLAN_ID.test(String(l.plan)) && typeof l.treatment === 'string' && l.treatment.trim()).map(l => ({ plan: l.plan, no: Math.min(MAX_SESS, Math.max(1, parseInt(l.no) || 1)), sessions: cleanSess(l.sessions) || 1, tooth: FDI.has(String(l.tooth)) ? String(l.tooth) : '', treatment: str(l.treatment, 40).trim(), ...(parseInt(l.no) === 1 || !l.no ? { total: num(l.total) || 0 } : {}), ...(l.closed ? { closed: true } : {}) }));
+const cleanLinesIn = a => (Array.isArray(a) ? a : []).slice(0, 24).filter(l => l && PLAN_ID.test(String(l.plan)) && typeof l.treatment === 'string' && l.treatment.trim()).map(l => ({ plan: l.plan, no: Math.min(MAX_SESS, Math.max(1, parseInt(l.no) || 1)), sessions: cleanSess(l.sessions) || 1, tooth: FDI.has(String(l.tooth)) ? String(l.tooth) : '', treatment: str(l.treatment, 40).trim(), ...(parseInt(l.no) === 1 || !l.no ? { total: num(l.total) || 0 } : {}), ...(l.closed ? { closed: true } : {}), ...(l.ortho && typeof l.ortho === 'object' ? { ortho: cleanOrtho(l.ortho, true) } : {}) }));
 /* ما دُفع من الوعاء لسجل ما يرجع إليه عند حذف السجل أو استبدال دفعاته */
 function unwallet(c, k, rec, t) { const w = (rec.payments || []).reduce((x, p) => x + (p.m === 'w' ? (+p.amt || 0) : 0), 0); wMove(c, k, 'back', r2(w), t, { rid: rec.id }); }
 /* رقم الحصة لكل سجل (حسب المريض) وربط الدفعات القديمة بالحصة التي دُفعت فيها */
@@ -222,14 +234,14 @@ function paysView(a, x) {
   return paysOf(a).map(p => {
     if (!x) return p;
     const vid = p.vid === undefined ? (x.info.byT.get(patKey(a) + '|' + p.t) || null) : p.vid, v = vid && x.info.n.get(vid);
-    return { t: p.t, amt: p.amt, ...(p.m ? { m: p.m } : {}), vid, ...(v ? { vn: v.n, vat: v.at } : {}) };
+    return { t: p.t, amt: p.amt, ...(p.m ? { m: p.m } : {}), ...(p.pl ? { pl: p.pl } : {}), vid, ...(v ? { vn: v.n, vat: v.at } : {}) };
   });
 }
 /* بنود الخطة في السجل مع حالة كل خطة الآن (المدفوع/المتبقي) */
 function linesView(a, x) {
   if (!a.lines || !a.lines.length) return [];
   const pm = x ? (x.pm || (x.pm = new Map())) : null, plans = x ? (pm.get(patKey(a)) || (pm.set(patKey(a), plansOf(x.c, patKey(a))), pm.get(patKey(a)))) : null;
-  return a.lines.map(l => { const p = plans && plans.get(l.plan); return { plan: l.plan, no: l.no, sessions: l.sessions, tooth: l.tooth || '', treatment: l.treatment, ...(l.no === 1 ? { total: l.total || 0 } : {}), ...(p ? { paid: p.paid, remaining: p.remaining, open: p.open, done: p.done } : {}) }; });
+  return a.lines.map(l => { const p = plans && plans.get(l.plan); return { plan: l.plan, no: l.no, sessions: l.sessions, tooth: l.tooth || '', treatment: l.treatment, ...(l.no === 1 ? { total: l.total || 0 } : {}), ...(l.ortho ? { ortho: l.ortho } : {}), ...(p ? { paid: p.paid, remaining: p.remaining, open: p.open, done: p.done } : {}) }; });
 }
 function archiveView(a, x) {
   const me = x && x.info.n.get(a.id);
@@ -277,7 +289,7 @@ function stateFor(c, role, nurseId) {
   for (const [k, v] of r.skip) if (v.ts < t - 6e5 || !c.patients.some(p => p.id === k && p.status === 'waiting')) r.skip.delete(k);
   /* المتبقي على المريض (للطبيب فقط؛ الممرضة لا ترى أي مبالغ) */
   let owe = null; if (role === 'doctor' && c.patients.length) { owe = new Map(); for (const o of c.archive) { const d = remOf(o); if (d > 0) owe.set(patKey(o), r2((owe.get(patKey(o)) || 0) + d)); } }
-  return { patients: c.patients.map(p => { const v = patientView(p), d = owe && owe.get(patKey(p)); const w = role === 'doctor' ? wbal(c, patKey(p)) : 0; return { ...v, ...(d ? { debt: d } : {}), ...(w > 0 ? { wallet: w } : {}) }; }), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), tasks: role ? tasksFor(c, role, nurseId) : [], ...(role === 'doctor' ? { appts: apptsView(c) } : {}) };
+  return { patients: c.patients.map(p => { const v = patientView(p), d = owe && owe.get(patKey(p)); const w = role === 'doctor' ? wbal(c, patKey(p)) : 0; return { ...v, ...(d ? { debt: d } : {}), ...(w > 0 ? { wallet: w } : {}) }; }), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), bookings: bookingsView(c), booking: bookOf(c), tasks: role ? tasksFor(c, role, nurseId) : [], ...(role === 'doctor' ? { appts: apptsView(c) } : {}) };
 }
 function ticketView(c, token) {
   const i = c.patients.findIndex(p => p.ticket === token);
@@ -309,6 +321,8 @@ const PUSH_TXT = {
   ar: { task: ['📌 مهمة جديدة من الطبيب', n => n.text || ''], task_done: ['✅ تمت المهمة', n => `${n.by || ''}: ${n.text || ''}`], add: ['🔔 مريض جديد في الانتظار', n => `تمت إضافة: ${n.name}`], enter: ['🩺 دخول مريض للمعاينة', n => `تم إدخال المريض: ${n.name}`], skip_request: ['⚠️ تنبيه تخطي الدور!', n => `الممرضة تحاول إدخال ${n.name} وقبله ${n.first || ''} في القائمة. هل تسمح؟`], finish: ['✅ انتهت المعاينة!', n => `انتهى الطبيب من ${n.name}. يمكنك إدخال المريض التالي.`], skip_denied: ['⛔ رفض الطبيب التخطي', n => `رفض الطبيب إدخال ${n.name} قبل دوره.`] },
   en: { task: ['📌 New task from the doctor', n => n.text || ''], task_done: ['✅ Task completed', n => `${n.by || ''}: ${n.text || ''}`], add: ['🔔 New patient waiting', n => `Added: ${n.name}`], enter: ['🩺 Patient entering', n => `Patient sent in: ${n.name}`], skip_request: ['⚠️ Queue skip request!', n => `The nurse wants to send in ${n.name} before ${n.first || ''}. Allow?`], finish: ['✅ Consultation finished!', n => `The doctor finished with ${n.name}. You can send in the next patient.`], skip_denied: ['⛔ Skip declined', n => `The doctor declined to see ${n.name} before their turn.`] }
 };
+PUSH_TXT.ar.booking = ['📅 طلب حجز جديد', n => `${n.name} — ${n.date} ${n.time}`];
+PUSH_TXT.en.booking = ['📅 New booking request', n => `${n.name} — ${n.date} ${n.time}`];
 function pushNotify(c, notify) {
   const d = notify.data; if (!d) return;
   for (const [k, s] of Object.entries(db.sessions)) {
@@ -631,11 +645,72 @@ function dropClinic(c) {
 }
 
 /* ---------- المسارات ---------- */
+/* ===== الحجز عبر الإنترنت: المريض يختار يوماً وساعة من صفحة /book/<رمز العيادة> ويصل الطلب للطبيب ===== */
+const DEF_BOOK = { enabled: false, days: [0, 1, 2, 3, 4, 6], from: '09:00', to: '17:00', slot: 30, ahead: 21, per: 1, tz: 0 };
+const bookOf = c => ({ ...DEF_BOOK, ...(c.booking || {}) });
+function normBooking(b) {
+  const T = /^([01]\d|2[0-3]):[0-5]\d$/;
+  if (!b || typeof b !== 'object') throw httpErr(400, 'invalid_input');
+  const days = Array.isArray(b.days) ? [...new Set(b.days.map(Number))].filter(x => Number.isInteger(x) && x >= 0 && x <= 6).sort() : [];
+  const from = typeof b.from === 'string' ? b.from : '', to = typeof b.to === 'string' ? b.to : '', tz = Number(b.tz), slot = parseInt(b.slot), ahead = parseInt(b.ahead), per = parseInt(b.per);
+  if (!T.test(from) || !T.test(to) || from >= to || !Number.isInteger(tz) || tz < -840 || tz > 840) throw httpErr(400, 'invalid_input');
+  if (![10, 15, 20, 30, 45, 60, 90].includes(slot) || !(ahead >= 1 && ahead <= 60) || !(per >= 1 && per <= 5)) throw httpErr(400, 'invalid_input');
+  const enabled = b.enabled === true; if (enabled && !days.length) throw httpErr(400, 'invalid_input');
+  return { enabled, days, from, to, slot, ahead, per, tz };
+}
+const hhmm = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const toMin = s => +s.slice(0, 2) * 60 + +s.slice(3);
+function bookSlots(bk) { const out = []; for (let m = toMin(bk.from); m + bk.slot <= toMin(bk.to); m += bk.slot) out.push(hhmm(m)); return out; }
+const bookNow = bk => { const d = new Date(now() + bk.tz * 6e4); return { day: d.toISOString().slice(0, 10), min: d.getUTCHours() * 60 + d.getUTCMinutes() }; };
+function pruneBookings(c) { if (!c.bookings) return; const bk = bookOf(c), lim = addDays(bookNow(bk).day, -30); c.bookings = c.bookings.filter(x => x.date >= lim).slice(-1000); }
+function bookAvail(c) {
+  const bk = bookOf(c); if (!bk.enabled) return {};
+  const nw = bookNow(bk), taken = new Map(), all = bookSlots(bk), out = {};
+  for (const x of c.bookings || []) if (x.status !== 'no') taken.set(x.date + ' ' + x.time, (taken.get(x.date + ' ' + x.time) || 0) + 1);
+  for (let i = 0; i <= bk.ahead; i++) {
+    const d = addDays(nw.day, i), dow = new Date(Date.parse(d + 'T00:00:00Z')).getUTCDay(); if (!bk.days.includes(dow)) continue;
+    const free = all.filter(t => (i > 0 || toMin(t) > nw.min + 30) && (taken.get(d + ' ' + t) || 0) < bk.per);
+    if (free.length) out[d] = free;
+  }
+  return out;
+}
+const bookingsView = c => { pruneBookings(c); return (c.bookings || []).slice().sort((a, b) => (a.date + a.time) < (b.date + b.time) ? -1 : 1).map(x => ({ id: x.id, name: x.name, phone: x.phone, date: x.date, time: x.time, note: x.note || '', status: x.status, createdAt: x.createdAt })); };
+
 async function api(req, res, url) {
   const m = req.method, p = url.pathname; let x;
   const ip = clientIp(req);
 
   if (m === 'GET' && p === '/api/config') return send(res, 200, { registration: !ALLOW_REG ? 'closed' : REG_CODE ? 'code' : 'open', approval: approvalOn(), hasClinics: Object.keys(db.clinics).length > 0 });
+
+  /* ---- حجز المواعيد (عام للمرضى) ---- */
+  { const mb = p.match(/^\/api\/book\/([A-Za-z0-9]{4,12})$/);
+    if (mb) {
+      const cid = idx.code.get(mb[1].toUpperCase()), c = cid && db.clinics[cid];
+      if (!c || c.status === 'pending') throw httpErr(404, 'not_found');
+      if (m === 'GET') { rate('bk:' + ip, 120, 6e4); const bk = bookOf(c); return send(res, 200, { clinic: c.name, doctor: c.doctor.name, open: !!bk.enabled, slot: bk.slot, slots: bookAvail(c) }); }
+      if (m === 'POST') {
+        rate('bkp:' + ip, 6, 36e5); rate('bkc:' + c.id, 300, 36e5);
+        const b = await readJSON(req, 10e3), bk = bookOf(c); if (!bk.enabled) throw httpErr(403, 'closed');
+        const name = str(b.name, 80), phone = str(b.phone, 25), note = str(b.note, 200), date = cleanDate(b.date), time = typeof b.time === 'string' ? b.time : '';
+        if (name.length < 2 || !/^[0-9+\-\s()]{6,25}$/.test(phone) || !date || !bookSlots(bk).includes(time)) throw httpErr(400, 'invalid_input');
+        const free = bookAvail(c)[date]; if (!free || !free.includes(time)) throw httpErr(409, 'slot_taken');
+        const mine = (c.bookings || []).filter(x => x.phone === phone && x.status !== 'no' && x.date >= bookNow(bk).day);
+        if (mine.length >= 2) throw httpErr(429, 'too_many');
+        if ((c.bookings || []).filter(x => x.status === 'pending').length >= 300) throw httpErr(429, 'rate_limited');
+        const rec = { id: rid(5), name, phone, date, time, note, status: 'pending', createdAt: now() };
+        (c.bookings = c.bookings || []).push(rec); pruneBookings(c);
+        broadcast(c, { data: { type: 'booking', name, date, time } });
+        return send(res, 200, { ok: true, date, time });
+      }
+    } }
+  /* ---- حجز المواعيد (للطبيب والممرض) ---- */
+  if (m === 'PUT' && p === '/api/booking') { const a = authOf(req, ['doctor']); a.clinic.booking = normBooking(await readJSON(req)); broadcast(a.clinic); return send(res, 200, bookOf(a.clinic)); }
+  { const mk = p.match(/^\/api\/bookings\/([a-f0-9]{10})$/);
+    if (mk) {
+      const a = authOf(req, ['doctor', 'nurse']), c = a.clinic, rec = (c.bookings || []).find(x => x.id === mk[1]); if (!rec) throw httpErr(404, 'not_found');
+      if (m === 'DELETE') { c.bookings = c.bookings.filter(x => x !== rec); broadcast(c); return send(res, 200, { ok: true }); }
+      if (m === 'PATCH') { const b = await readJSON(req, 2e3); if (!['pending', 'ok', 'no'].includes(b.status)) throw httpErr(400, 'invalid_input'); rec.status = b.status; broadcast(c); return send(res, 200, { ok: true }); }
+    } }
 
   if (m === 'POST' && p === '/api/register') {
     if (!ALLOW_REG) throw httpErr(403, 'reg_closed');
@@ -802,11 +877,11 @@ async function api(req, res, url) {
           const pay = Math.max(0, num(z.pay) || 0);
           if (z.plan !== undefined && z.plan !== null && z.plan !== '') {
             const p = typeof z.plan === 'string' && PLAN_ID.test(z.plan) ? pm.get(z.plan) : null; if (!p) throw httpErr(404, 'not_found'); if (!p.open) throw httpErr(409, 'plan_closed'); if (seenPl.has(p.id)) throw httpErr(400, 'invalid_input'); seenPl.add(p.id);
-            lines.push({ plan: p.id, no: p.done + 1, sessions: p.sessions, tooth: p.tooth, treatment: p.treatment }); gaps.set(p.id, cleanGap(z.gap)); tg.push({ rec: p.rec, plan: p.id, cap: p.remaining, pay });
+            lines.push({ plan: p.id, no: p.done + 1, sessions: p.sessions, tooth: p.tooth, treatment: p.treatment, ...orthoPart(z) }); gaps.set(p.id, cleanGap(z.gap)); tg.push({ rec: p.rec, plan: p.id, cap: p.remaining, pay });
           } else {
             const treatment = str(z.treatment, 40).trim().replace(/\s+/g, ' '), tooth = z.tooth ? String(z.tooth) : ''; if (!treatment || (tooth && !FDI.has(tooth))) throw httpErr(400, 'invalid_input');
             const total = num(z.total) || 0, sessions = cleanSess(z.sessions) || 1, id = rid(5);
-            lines.push({ plan: id, no: 1, sessions, tooth, treatment, total }); gaps.set(id, cleanGap(z.gap)); tg.push({ rec: entry, plan: id, cap: total, pay });
+            lines.push({ plan: id, no: 1, sessions, tooth, treatment, total, ...orthoPart(z) }); gaps.set(id, cleanGap(z.gap)); tg.push({ rec: entry, plan: id, cap: total, pay });
           }
         }
         for (const z of (Array.isArray(b.debts) ? b.debts : []).slice(0, 40)) {
@@ -820,6 +895,7 @@ async function api(req, res, url) {
         c.patients = c.patients.filter(z => z !== pt); c.archive.unshift(entry);
         /* مواعيد الحصص القادمة: يُحذف موعد البنود المنجَزة اليوم، ثم يُنشأ موعد لكل بند تبقّت له حصص */
         { const today = cleanDate(b.today) || new Date(t).toISOString().slice(0, 10), pl = pricesOf(c).list; c.appts = (c.appts || []).filter(x => !(x.k === k && lines.some(l => l.plan === x.plan)));
+          for (const l of lines) if (l.ortho && l.no < l.sessions) l.ortho.next = addDays(today, gaps.get(l.plan) != null ? gaps.get(l.plan) : (pl[l.treatment] && pl[l.treatment].gap != null) ? pl[l.treatment].gap : DEF_GAP);
           for (const l of lines) if (l.no < l.sessions) c.appts.push({ id: rid(5), plan: l.plan, k, name: pt.name, birthYear: pt.birthYear, phone: pt.phone || '', tooth: l.tooth, treatment: l.treatment, date: addDays(today, gaps.get(l.plan) != null ? gaps.get(l.plan) : (pl[l.treatment] && pl[l.treatment].gap != null) ? pl[l.treatment].gap : DEF_GAP) });
           pruneAppts(c); }
         /* المبلغ الفعلي لكل هدف لا يتجاوز متبقيه (أكثر من ذلك لا يُقبل)؛ الوعاء يُغطّي منها بالترتيب والباقي نقداً */
@@ -902,7 +978,7 @@ async function api(req, res, url) {
     const a = authOf(req, ['doctor']), q = url.searchParams, k = patKey({ name: str(q.get('name') || '', 80), birthYear: parseInt(q.get('year')) });
     const rs = a.clinic.archive.filter(r => patKey(r) === k);
     const pm = plansOf(a.clinic, k), pl = [...pm.values()].sort((x, y) => y.at - x.at);
-    return send(res, 200, { plans: pl.filter(p => p.open).map(planView), debts: pl.filter(p => !p.open && p.remaining > 0).map(planView).map(p => ({ ...p, plan: p.id })).concat(rs.filter(r => !(r.lines && r.lines.some(l => l.no === 1)) && remOf(r) > 0).map(r => ({ rec: r.id, treatment: r.treatment, tooth: r.tooth || '', total: dueOf(r), paid: paidOf(r), remaining: remOf(r), at: r.finishedAt }))), teeth: toothItems(rs), wallet: wbal(a.clinic, k), due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)), records: rs.slice(0, 5).map(r => ({ id: r.id, treatment: r.treatment, treatments: treatmentsOf(r), teeth: r.teeth || [], tooth: r.tooth, finishedAt: r.finishedAt, price: r.price, paid: paidOf(r), remaining: remOf(r) })) });
+    return send(res, 200, { plans: pl.filter(p => p.open).map(planView), debts: pl.filter(p => !p.open && p.remaining > 0).map(planView).map(p => ({ ...p, plan: p.id })).concat(rs.filter(r => !(r.lines && r.lines.some(l => l.no === 1)) && remOf(r) > 0).map(r => ({ rec: r.id, treatment: r.treatment, tooth: r.tooth || '', total: dueOf(r), paid: paidOf(r), remaining: remOf(r), at: r.finishedAt }))), teeth: toothItems(rs), ortho: orthoHist(rs), wallet: wbal(a.clinic, k), due: r2(rs.reduce((x, r) => x + dueOf(r), 0)), paid: r2(rs.reduce((x, r) => x + paidOf(r), 0)), balance: r2(rs.reduce((x, r) => x + remOf(r), 0)), records: rs.slice(0, 5).map(r => ({ id: r.id, treatment: r.treatment, treatments: treatmentsOf(r), teeth: r.teeth || [], tooth: r.tooth, finishedAt: r.finishedAt, price: r.price, paid: paidOf(r), remaining: remOf(r) })) });
   }
   /* تسجيل دفعة على سجل في الأرشيف (طبيب فقط) */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})\/payment$/);
@@ -1118,7 +1194,7 @@ async function api(req, res, url) {
   if (m === 'GET' && p === '/api/backup') {
     const a = authOf(req, ['doctor']), c = a.clinic, images = {}; needUnlock(req, c);
     for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
-    const body = JSON.stringify({ app: 'calm-clinic', version: 4, exportedAt: now(), clinicName: c.name, doctorName: c.doctor.name, tasks: (c.tasks || []).map(k => ({ text: k.text, toName: k.to ? ((c.nurses.find(z => z.id === k.to) || {}).name || '') : '', createdAt: k.createdAt, done: !!k.done, doneAt: k.doneAt || null, doneBy: k.doneBy || '' })), schedule: c.schedule || null, nurses: c.nurses.map(n => ({ name: n.name, phone: n.phone, salt: n.salt, hash: n.hash, createdAt: n.createdAt })), protect: !!c.protect, counter: c.counter || null, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, appts: c.appts || [], images });
+    const body = JSON.stringify({ app: 'calm-clinic', version: 4, exportedAt: now(), clinicName: c.name, doctorName: c.doctor.name, tasks: (c.tasks || []).map(k => ({ text: k.text, toName: k.to ? ((c.nurses.find(z => z.id === k.to) || {}).name || '') : '', createdAt: k.createdAt, done: !!k.done, doneAt: k.doneAt || null, doneBy: k.doneBy || '' })), schedule: c.schedule || null, nurses: c.nurses.map(n => ({ name: n.name, phone: n.phone, salt: n.salt, hash: n.hash, createdAt: n.createdAt })), protect: !!c.protect, counter: c.counter || null, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, appts: c.appts || [], booking: c.booking || null, bookings: c.bookings || [], images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
   }
@@ -1161,6 +1237,8 @@ async function api(req, res, url) {
       W[k] = { bal: Math.max(0, num(w.bal) || 0), log: (Array.isArray(w.log) ? w.log : []).slice(-1000).filter(e => e && WK.has(e.k)).map(e => ({ t: +e.t || now(), amt: Math.max(0, num(e.amt) || 0), k: e.k, ...(REC_ID.test(String(e.vid)) ? { vid: e.vid } : {}) })) };
     }
     c.wallets = W;
+    if (b.booking && typeof b.booking === 'object') { try { c.booking = normBooking(b.booking); } catch (e) {} }
+    c.bookings = (Array.isArray(b.bookings) ? b.bookings : []).slice(0, 1000).filter(x => x && cleanDate(x.date) && /^([01]\d|2[0-3]):[0-5]\d$/.test(String(x.time)) && str(x.name, 80)).map(x => ({ id: /^[a-f0-9]{10}$/.test(String(x.id)) ? x.id : rid(5), name: str(x.name, 80), phone: str(x.phone, 25), date: x.date, time: x.time, note: str(x.note, 200), status: ['pending', 'ok', 'no'].includes(x.status) ? x.status : 'pending', createdAt: +x.createdAt || now() }));
     c.appts = (Array.isArray(b.appts) ? b.appts : []).slice(0, 2000).filter(x => x && PLAN_ID.test(String(x.id)) && PLAN_ID.test(String(x.plan)) && typeof x.k === 'string' && x.k.length <= 120 && cleanDate(x.date)).map(x => ({ id: x.id, plan: x.plan, k: x.k, name: str(x.name, 80), birthYear: parseInt(x.birthYear) || 0, phone: str(x.phone, 25), tooth: str(x.tooth, 20), treatment: str(x.treatment, 40), date: x.date }));
     c.patients = P; c.archive = A; RT(c).skip.clear(); broadcast(c); return send(res, 200, { patients: P.length, archive: A.length });
   }
@@ -1175,6 +1253,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname.startsWith('/api/')) return await api(req, res, url);
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
     if (/^\/t\/[A-Za-z0-9_-]+$/.test(url.pathname)) return serveFile(req, res, path.join(PUBLIC_DIR, 'ticket.html'), { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
+    if (/^\/book\/[A-Za-z0-9]{4,12}$/.test(url.pathname)) return serveFile(req, res, path.join(PUBLIC_DIR, 'book.html'), { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
     if (url.pathname === '/owner' || url.pathname === '/owner/') return serveFile(req, res, path.join(PUBLIC_DIR, 'owner.html'), { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
     if (url.pathname === '/healthz') { res.writeHead(200, { 'Content-Type': 'text/plain' }); return res.end('ok'); }
     return serveStatic(req, res, url.pathname);

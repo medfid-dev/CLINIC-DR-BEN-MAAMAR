@@ -24,7 +24,7 @@ const L = {
     set_sound: 'التنبيهات', sound_alerts: 'التنبيهات الصوتية', auto_qr: 'إظهار QR بعد تسجيل المريض', sys_notif: 'إشعارات النظام', sys_notif_sub: 'تصلك التنبيهات حتى لو كان التطبيق مغلقاً أو الشاشة مقفلة', enable: 'تفعيل',
     install_app: 'تثبيت التطبيق', install_sub: 'يُفتح كتطبيق مستقل على الجوال أو الحاسوب', install: 'تثبيت', set_clinic: 'بيانات العيادة', chg_pass: 'تغيير كلمة المرور',
     old_pass: 'كلمة المرور الحالية', new_pass: 'كلمة المرور الجديدة (8 أحرف فأكثر)', change: 'تغيير', chg_pass_hint: 'ستُغلق جلسات باقي الأجهزة.', set_backup: 'النسخ الاحتياطي', set_schedule: 'تسجيل الممرضة للمرضى', sched_enable: 'تقييد وقت التسجيل', sched_enable_sub: 'عند الإيقاف تسجّل الممرضة في أي وقت', sched_days: 'الأيام المسموحة:', sched_from: 'من الساعة:', sched_to: 'إلى الساعة:', sched_hint: 'خارج هذه الأيام والأوقات لا تستطيع الممرضة تسجيل مرضى جدد، أما أنت فتسجّل في أي وقت.', days_full: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'], reg_closed: '⏰ التسجيل مغلق حالياً. أوقات التسجيل: {d} من {a} إلى {b}', e_registration_closed: 'التسجيل مغلق خارج الأوقات التي حدّدها الطبيب', t_sched_saved: 'تم حفظ أوقات التسجيل',
-    export_data: 'تصدير نسخة 📥', import_data: 'استعادة 📤', backup_hint: 'النسخة تشمل المرضى والأرشيف والصور (دون كلمات المرور).', wipe_data: 'حذف جميع بيانات المرضى…', delete_account: 'حذف الحساب نهائياً…',
+    export_data: 'تصدير نسخة 📥', import_data: 'استعادة 📤', backup_hint: 'تتضمّن المرضى والأرشيف والصور والعلاجات وأسعارها وعدد حصصها (دون كلمات المرور).', wipe_data: 'حذف جميع بيانات المرضى…', delete_account: 'حذف الحساب نهائياً…',
     // ديناميكية
     lbl_name: 'اسم المريض:', lbl_birth: 'سنة الازدياد:', lbl_gender: 'الجنس:', lbl_reason: 'سبب الزيارة:', lbl_tooth: 'السن (اختياري):', lbl_phone: 'رقم الهاتف (اختياري):',
     age_fmt: 'العمر: {n} سنة', age_none: 'العمر: --', years_short: 'سنة', doc_title: 'لوحة الطبيب 🔔', doc_sub: 'إشراف عام وعيادة مباشرة', nurse_title: 'شاشة الممرضة', nurse_welcome: 'الممرضة: {n}',
@@ -69,7 +69,7 @@ const L = {
     set_sound: 'Notifications', sound_alerts: 'Sound alerts', auto_qr: 'Show QR after registering a patient', sys_notif: 'System notifications', sys_notif_sub: 'Alerts reach you even when the app is closed or the screen is locked', enable: 'Enable',
     install_app: 'Install app', install_sub: 'Opens as a standalone app on phone or computer', install: 'Install', set_clinic: 'Clinic info', chg_pass: 'Change password',
     old_pass: 'Current password', new_pass: 'New password (8+ chars)', change: 'Change', chg_pass_hint: 'Other devices will be signed out.', set_backup: 'Backup', set_schedule: 'Nurse patient registration', sched_enable: 'Restrict registration times', sched_enable_sub: 'When off, nurses can register at any time', sched_days: 'Allowed days:', sched_from: 'From:', sched_to: 'To:', sched_hint: 'Outside these days and times nurses cannot register new patients. You can always register.', days_full: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], reg_closed: '⏰ Registration is closed right now. Hours: {d}, {a} to {b}', e_registration_closed: 'Registration is closed outside the hours set by the doctor', t_sched_saved: 'Registration hours saved',
-    export_data: 'Export backup 📥', import_data: 'Restore 📤', backup_hint: 'Includes patients, archive and images (not passwords).', wipe_data: 'Delete all patient data…', delete_account: 'Delete account permanently…',
+    export_data: 'Export backup 📥', import_data: 'Restore 📤', backup_hint: 'Includes patients, archive, images, treatments with prices and session counts (not passwords).', wipe_data: 'Delete all patient data…', delete_account: 'Delete account permanently…',
     lbl_name: 'Patient name:', lbl_birth: 'Birth year:', lbl_gender: 'Gender:', lbl_reason: 'Reason for visit:', lbl_tooth: 'Tooth (optional):', lbl_phone: 'Phone (optional):',
     age_fmt: 'Age: {n}', age_none: 'Age: --', years_short: 'y', doc_title: 'Doctor panel 🔔', doc_sub: 'Supervision & direct clinic', nurse_title: 'Nurse screen', nurse_welcome: 'Nurse: {n}',
     hero_doc: 'Dr. {n}', price_cat_base: 'General', price_cat_front: 'Front', price_cat_pre: 'Premolar', price_cat_molar: 'Molar', price_cat_wisdom: 'Wisdom', prices_hint2: 'Leave Front/Premolar/Molar/Wisdom empty to use the General price for any tooth. If filled, each tooth is priced by its type and summed (incisors & canines = Front, primary molars = Molar, teeth 18/28/38/48 = Wisdom; if Wisdom is empty the Molar price applies).', due_l: 'Amount due', paid_now: 'Paid now', pay_all: 'Pay all outstanding', pay_half: 'Half', pay_zero: 'None', acct_title: '💼 Patient account', acct_prev: 'Outstanding from earlier visits:', follow_l: 'Follow-up session of an earlier treatment (no new charge)', after_l: 'Outstanding after this visit:', over_warn: '⚠️ Paid exceeds what is due plus earlier balance; the excess is ignored.', rem_l: 'Outstanding', paid_l: 'Paid', add_pay: 'Add payment', pay_prompt: 'Payment amount (outstanding: {r}):\nAny excess pays the patient\'s other debts, then goes to the wallet.', t_paid: 'Payment recorded ✅', pays_l: 'Payments:', total_due: 'Due:', total_paid: 'Collected:', total_debt: 'Outstanding:',  set_prices: '💰 Price list', prices_hint: 'Price of each treatment. It appears in the consultation and can be changed per patient.', currency_l: 'Currency (optional):', price_l: 'Price', price_total: 'Total:', t_prices_saved: 'Prices saved ✅', teeth_title: '🦷 Tooth chart (select treated tooth)', teeth_perm: 'Permanent (adult)', teeth_prim: 'Primary (child)', teeth_sel: 'Selected:', teeth_none: 'No tooth selected', teeth_clear: 'Clear', teeth_ur: 'Upper right', teeth_ul: 'Upper left', teeth_lr: 'Lower right', teeth_ll: 'Lower left', doc_sub2: '{c} — {n}', in_room: 'In consultation 🩺', enter: 'Enter', edit: 'Edit', del: 'Delete', call: 'Call in 🩺', qr: 'QR', doctor_word: 'Doctor', ticket_no: 'Ticket',
@@ -132,10 +132,14 @@ Object.assign(L.ar, { dlg_ok: 'موافق', lock_ask: '🔒 هذا القسم م
 Object.assign(L.en, { dlg_ok: 'OK', lock_ask: '🔒 This section is protected. Enter the doctor password:', e_locked: 'Password protected', prot_title: '🔒 Archive & edits protection', prot_on: 'Protection is ON — tap to turn off', prot_off: 'Protection is OFF — tap to turn on', prot_pw_on: 'Enter the doctor password to turn protection on:', prot_pw_off: 'Enter the doctor password to turn protection off:', prot_hint: 'When on, the app asks for the doctor password to open the archive or a patient history, edit or delete records, add payments or export backups. Unlock stays valid 10 minutes after last use.' });
 Object.assign(L.ar, { debt_note: 'تنبيه: على هذا المريض متبقٍّ غير مدفوع قدره {x}', pay_recv: 'سدّد دَين الحصة {n} ({tr})', wal_chk: 'الدفع من الوعاء', rc_price: 'سعر هذه الحصة', rc_wallet: 'من الوعاء', rc_cash: 'نقداً', rc_left: 'المتبقي من هذه الحصة', rc_to_debt: 'الزيادة تسدّد دَيناً سابقاً', rc_to_wal: 'الزيادة تُودَع في الوعاء', rc_all_debt: 'مجموع ديون المريض بعد الحصة', pay_src_q: 'سداد {a} — من أين؟', pay_ledger: '💵 سجل الدفعات', pay_for: 'عن الحصة', pay_same: 'في نفس الحصة', pay_in_visit: 'في الحصة {n} ({d})', pay_later: 'لاحقاً من الأرشيف', pay_cash: 'دفعة نقدية', pay_wallet: 'من الوعاء', pay_cut_wal: 'اقتُطع من الوعاء', snd_test: 'تجربة النغمات', snd_names: ['مريض جديد', 'دخول المعاينة', 'انتهاء المعاينة', 'مهمة جديدة', 'إنجاز مهمة', 'طلب تخطي', 'رفض الطلب', 'حان دور المريض'], paid_full: 'مدفوع بالكامل', follow_b: 'حصة متابعة', wal_bal_b: 'رصيد الوعاء', treat_l: 'العلاج:', pay_dep: 'إيداع في الوعاء', pay_out: 'استرجاع نقدي من الوعاء', pay_dep_in: 'أثناء الحصة {n} ({d})', pay_dep_manual: 'إيداع مباشر',
   wal_title: 'وعاء المريض', wal_bal: 'الرصيد:', wal_use: 'اقتطاع من الوعاء', wal_dep: 'إيداع في الوعاء', wal_out: 'استرجاع نقدي', wal_dep_q: 'مبلغ الإيداع في وعاء المريض:', wal_out_q: 'المبلغ المسترجع نقداً للمريض:', wal_saved: 'تم تحديث الوعاء ✅', wal_excess: 'الفائض {x} يُودَع في وعاء المريض', wal_after: 'رصيد الوعاء بعد الحصة:', pay_from_wal_q: 'سداد الدفعة من وعاء المريض (الرصيد {w})؟\nموافق = من الوعاء · إلغاء = نقداً', e_wallet_empty: 'لا يوجد رصيد في الوعاء', e_wallet_short: 'المبلغ أكبر من رصيد الوعاء', hist_wallet: 'الوعاء' });
-Object.assign(L.ar, { pat_debt: 'دين المريض', pl_title: 'خطة علاج اليوم', pl_none: 'لا توجد بنود. اختر السن والعلاج في الأعلى.', pl_session_n: 'الحصة {n} من {m}', pl_total: 'السعر الكلي للعلاج', pl_sess_1: 'حصة واحدة', pl_sess_2: 'حصتان', pl_split_hint: 'يُقسَّم السعر بين الحصتين: يُقترح دفع {a} اليوم والباقي في الحصة الثانية (يمكنك تغيير المبلغ).', pl_one_hint: 'يُدفع كامل السعر في هذه الحصة.', pl_pay_now: 'يُدفع اليوم', pl_left_after: 'المتبقي من هذا البند بعد اليوم', pl_all: 'الكل', pl_half: 'النصف', pl_zero: '٠', pl_del: 'إزالة البند', pl_prev_title: 'متبقٍّ سابق وخطط جارية', pl_next_session: 'الحصة القادمة {n} من {m}', pl_go: '▶ متابعة اليوم', pl_close: 'إغلاق الخطة', pl_close_q: 'إغلاق هذه الخطة؟ لن تُطلب لها حصص أخرى، ويبقى متبقّيها ديناً يمكن سداده لاحقاً.', pl_closed_t: 'أُغلقت الخطة', pl_tr_missing: 'العلاج «{n}» غير موجود في قائمة العلاجات؛ أضفه من الإعدادات أولاً', pl_sum_today: 'قيمة بنود اليوم', pl_sum_paid: 'المدفوع اليوم', pl_sum_wal: 'من الوعاء', pl_sum_cash: 'نقداً', pl_sum_after: 'المتبقي على المريض بعد هذه الزيارة', e_plan_closed: 'هذه الخطة مكتملة أو مغلقة' });
+Object.assign(L.ar, { fs_title: 'ملخص نهاية المعاينة', fs_treat: 'العلاج', fs_prev_pay: 'سداد متبقٍّ سابق', fs_ok: 'تأكيد وإنهاء المعاينة', fs_back: 'رجوع للتعديل', hp_title: 'خطط العلاج متعددة الحصص', hp_sessions: 'الحصة {n} من {m}', hp_closed: 'مغلقة', hp_paid_in: 'المدفوع', ortho_l: 'علاج تقويم', ortho_name: 'تقويم الأسنان', ortho_q: 'علاج «{n}» له {s} حصص أو أكثر.\nهل هو علاج تقويم؟ (سيظهر له جدول الأسلاك في المعاينة)', ortho_yes: 'نعم، تقويم', ortho_no: 'لا، ليس تقويماً', ortho_title: 'جدول التقويم', ortho_up: 'الفك العلوي', ortho_lo: 'الفك السفلي', ortho_prev: 'السلك السابق', ortho_today: 'سلك اليوم', ortho_notes: 'ملاحظات', ortho_notes_ph: 'ملاحظات هذه الحصة…', ortho_hist: 'سجل حصص التقويم', ortho_date: 'التاريخ', ortho_next: 'الموعد القادم', ortho_none: 'لا توجد حصص تقويم سابقة لهذا المريض.', tr_add_ortho: '＋ إضافة علاج التقويم', pl_pay_session: 'المدفوع لهذه الحصة', pl_suggest: 'المقترح', pl_spay_hint: 'يُوزَّع المبلغ على البنود بالترتيب: يُسدَّد ثمن حصة البند الأول ثم ما بقي للثاني فالثالث. المقترح: {a}', pl_excess: 'المبلغ يزيد عن مجموع البنود بـ {a} (لا يُحتسب).', pat_debt: 'دين المريض', pl_title: 'خطة علاج اليوم', pl_none: 'لا توجد بنود. اختر السن والعلاج في الأعلى.', pl_session_n: 'الحصة {n} من {m}', pl_total: 'السعر الكلي للعلاج', pl_sess_1: 'حصة واحدة', pl_sess_2: 'حصتان', pl_split_hint: 'يُقسَّم السعر بين الحصتين: يُقترح دفع {a} اليوم والباقي في الحصة الثانية (يمكنك تغيير المبلغ).', pl_one_hint: 'يُدفع كامل السعر في هذه الحصة.', pl_pay_now: 'يُدفع اليوم', pl_left_after: 'المتبقي من هذا البند بعد اليوم', pl_all: 'الكل', pl_half: 'النصف', pl_zero: '٠', pl_del: 'إزالة البند', pl_prev_title: 'متبقٍّ سابق وخطط جارية', pl_next_session: 'الحصة القادمة {n} من {m}', pl_go: '▶ متابعة اليوم', pl_close: 'إغلاق الخطة', pl_close_q: 'إغلاق هذه الخطة؟ لن تُطلب لها حصص أخرى، ويبقى متبقّيها ديناً يمكن سداده لاحقاً.', pl_closed_t: 'أُغلقت الخطة', pl_tr_missing: 'العلاج «{n}» غير موجود في قائمة العلاجات؛ أضفه من الإعدادات أولاً', pl_sum_today: 'قيمة بنود اليوم', pl_sum_paid: 'المدفوع اليوم', pl_sum_wal: 'من الوعاء', pl_sum_cash: 'نقداً', pl_sum_after: 'المتبقي على المريض بعد هذه الزيارة', e_plan_closed: 'هذه الخطة مكتملة أو مغلقة' });
 Object.assign(L.en, { debt_note: 'Note: this patient has an unpaid balance of {x}', pay_recv: 'paid the debt of session {n} ({tr})', wal_chk: 'Pay from wallet', rc_price: 'This session price', rc_wallet: 'From wallet', rc_cash: 'Cash', rc_left: 'Left for this session', rc_to_debt: 'Excess pays an earlier debt', rc_to_wal: 'Excess goes to wallet', rc_all_debt: 'Total patient debt after', pay_src_q: 'Pay {a} — from where?', pay_ledger: '💵 Payments ledger', pay_for: 'for session', pay_same: 'same session', pay_in_visit: 'in session {n} ({d})', pay_later: 'later, from archive', pay_cash: 'Cash payment', pay_wallet: 'From wallet', pay_cut_wal: 'Deducted from wallet', snd_test: 'Preview sounds', snd_names: ['New patient', 'Patient entered', 'Consultation finished', 'New task', 'Task done', 'Skip request', 'Request denied', 'Patient turn'], paid_full: 'Fully paid', follow_b: 'Follow-up session', wal_bal_b: 'Wallet balance', treat_l: 'Treatment:', pay_dep: 'Wallet deposit', pay_out: 'Cash refund from wallet', pay_dep_in: 'during session {n} ({d})', pay_dep_manual: 'direct deposit',
   wal_title: 'Patient wallet', wal_bal: 'Balance:', wal_use: 'Deduct from wallet', wal_dep: 'Deposit to wallet', wal_out: 'Cash refund', wal_dep_q: 'Amount to deposit in the patient wallet:', wal_out_q: 'Amount refunded in cash to the patient:', wal_saved: 'Wallet updated ✅', wal_excess: 'The excess {x} goes to the patient wallet', wal_after: 'Wallet balance after this session:', pay_from_wal_q: 'Pay from the patient wallet (balance {w})?\nOK = wallet · Cancel = cash', e_wallet_empty: 'The wallet is empty', e_wallet_short: 'Amount exceeds the wallet balance', hist_wallet: 'Wallet' });
-Object.assign(L.en, { pat_debt: 'Patient debt', pl_title: "Today's treatment plan", pl_none: 'No items. Pick the tooth and treatment above.', pl_session_n: 'Session {n} of {m}', pl_total: 'Total treatment price', pl_sess_1: 'One session', pl_sess_2: 'Two sessions', pl_split_hint: 'The price is split between the two sessions: {a} is suggested today, the rest in session 2 (you can change the amount).', pl_one_hint: 'The full price is paid in this session.', pl_pay_now: 'Pay today', pl_left_after: 'Left on this item after today', pl_all: 'All', pl_half: 'Half', pl_zero: '0', pl_del: 'Remove item', pl_prev_title: 'Previous balance & ongoing plans', pl_next_session: 'Next: session {n} of {m}', pl_go: '▶ Continue today', pl_close: 'Close plan', pl_close_q: 'Close this plan? No more sessions will be expected and its remaining amount stays as a debt to settle later.', pl_closed_t: 'Plan closed', pl_tr_missing: 'The treatment "{n}" is not in your treatment list; add it in settings first', pl_sum_today: "Today's items value", pl_sum_paid: 'Paid today', pl_sum_wal: 'From wallet', pl_sum_cash: 'Cash', pl_sum_after: 'Patient balance after this visit', e_plan_closed: 'This plan is complete or closed' });
+Object.assign(L.en, { fs_title: 'Consultation summary', fs_treat: 'Treatment', fs_prev_pay: 'Previous balance payment', fs_ok: 'Confirm & finish', fs_back: 'Back to edit', hp_title: 'Multi-session treatment plans', hp_sessions: 'Session {n} of {m}', hp_closed: 'Closed', hp_paid_in: 'Paid', ortho_l: 'Orthodontic', ortho_name: 'Orthodontics', ortho_q: 'Treatment “{n}” has {s} sessions or more.\nIs it orthodontic treatment? (a wire table will show in the consultation)', ortho_yes: 'Yes, orthodontic', ortho_no: 'No', ortho_title: 'Orthodontic table', ortho_up: 'Upper jaw', ortho_lo: 'Lower jaw', ortho_prev: 'Previous wire', ortho_today: 'Today’s wire', ortho_notes: 'Notes', ortho_notes_ph: 'Notes for this session…', ortho_hist: 'Orthodontic sessions history', ortho_date: 'Date', ortho_next: 'Next appt.', ortho_none: 'No previous orthodontic sessions for this patient.', tr_add_ortho: '＋ Add orthodontics', pl_pay_session: 'Paid for this session', pl_suggest: 'Suggested', pl_spay_hint: 'The amount is applied to the items in order: first the first item’s session price, then the rest to the second, then the third. Suggested: {a}', pl_excess: 'Amount exceeds the items by {a} (not counted).', pat_debt: 'Patient debt', pl_title: "Today's treatment plan", pl_none: 'No items. Pick the tooth and treatment above.', pl_session_n: 'Session {n} of {m}', pl_total: 'Total treatment price', pl_sess_1: 'One session', pl_sess_2: 'Two sessions', pl_split_hint: 'The price is split between the two sessions: {a} is suggested today, the rest in session 2 (you can change the amount).', pl_one_hint: 'The full price is paid in this session.', pl_pay_now: 'Pay today', pl_left_after: 'Left on this item after today', pl_all: 'All', pl_half: 'Half', pl_zero: '0', pl_del: 'Remove item', pl_prev_title: 'Previous balance & ongoing plans', pl_next_session: 'Next: session {n} of {m}', pl_go: '▶ Continue today', pl_close: 'Close plan', pl_close_q: 'Close this plan? No more sessions will be expected and its remaining amount stays as a debt to settle later.', pl_closed_t: 'Plan closed', pl_tr_missing: 'The treatment "{n}" is not in your treatment list; add it in settings first', pl_sum_today: "Today's items value", pl_sum_paid: 'Paid today', pl_sum_wal: 'From wallet', pl_sum_cash: 'Cash', pl_sum_after: 'Patient balance after this visit', e_plan_closed: 'This plan is complete or closed' });
+Object.assign(L.ar, { set_booking: 'الحجز عبر الإنترنت', bk_enable: 'تفعيل الحجز عبر الإنترنت', bk_enable_sub: 'يستطيع المرضى اختيار يوم وساعة من صفحة الحجز', bk_link: 'رابط صفحة الحجز (شاركه مع المرضى):', bk_open: 'فتح', bk_days: 'أيام الحجز:', bk_slot: 'مدة الموعد', bk_ahead: 'الحجز حتى (يوم)', bk_per: 'حجوزات للموعد الواحد', bk_hint: 'تظهر الطلبات في تبويب المواعيد، ويصلك إشعار عند كل طلب جديد. الموعد المرفوض يعود متاحاً للآخرين.', bk_saved: 'تم حفظ إعدادات الحجز', bk_req: 'طلبات الحجز عبر الإنترنت', bk_none: 'لا توجد طلبات حجز قادمة.', bk_off: 'الحجز عبر الإنترنت مغلق', bk_setup: 'إعدادات الحجز', bk_pending: 'بانتظار التأكيد', bk_ok: 'مؤكَّد', bk_no: 'مرفوض', bk_accept: 'تأكيد', bk_reject: 'رفض', bk_del_q: 'حذف طلب الحجز هذا؟', bk_copied: 'تم نسخ الرابط', bk_new: 'طلب حجز جديد', bk_min: 'د' });
+Object.assign(L.en, { set_booking: 'Online booking', bk_enable: 'Enable online booking', bk_enable_sub: 'Patients pick a day and time on the booking page', bk_link: 'Booking page link (share it with patients):', bk_open: 'Open', bk_days: 'Booking days:', bk_slot: 'Slot length', bk_ahead: 'Book up to (days)', bk_per: 'Bookings per slot', bk_hint: 'Requests appear in the Appointments tab and you get a notification for each one. A declined slot becomes available again.', bk_saved: 'Booking settings saved', bk_req: 'Online booking requests', bk_none: 'No upcoming booking requests.', bk_off: 'Online booking is off', bk_setup: 'Booking settings', bk_pending: 'Awaiting confirmation', bk_ok: 'Confirmed', bk_no: 'Declined', bk_accept: 'Confirm', bk_reject: 'Decline', bk_del_q: 'Delete this booking request?', bk_copied: 'Link copied', bk_new: 'New booking request', bk_min: 'min' });
+Object.assign(L.ar, { ortho_wire_up: 'سلك العلوي', ortho_wire_lo: 'سلك السفلي', ortho_notes_up: 'ملاحظات العلوي', ortho_notes_lo: 'ملاحظات السفلي', ortho_notes_ph: 'ملاحظات…' });
+Object.assign(L.en, { ortho_wire_up: 'Upper wire', ortho_wire_lo: 'Lower wire', ortho_notes_up: 'Upper notes', ortho_notes_lo: 'Lower notes', ortho_notes_ph: 'Notes…' });
 Object.assign(L.ar, { set_prices: '💰 الحصص والأسعار', prices_hint: 'لكل علاج: عدد حصصه وسعره. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض، وإضافة حصة أثناء العلاج.', pl_sess_n: 'عدد الحصص', pl_add_sess: 'إضافة حصة', pl_sess_added: 'أُضيفت حصة إلى العلاج ✅', e_max_sessions: 'بلغ العلاج أقصى عدد من الحصص (20)',
   pl_split_hint: 'يُقسَّم السعر على {m} حصص: يُقترح دفع {a} اليوم والباقي في الحصص التالية (يمكنك تغيير المبلغ).' });
 Object.assign(L.en, { set_prices: '💰 Sessions & prices', prices_hint: 'Sessions count and price for each treatment. Shown automatically in the consultation (editable per patient); you can add a session mid-treatment.', pl_sess_n: 'Number of sessions', pl_add_sess: 'Add a session', pl_sess_added: 'Session added to the treatment ✅', e_max_sessions: 'Treatment reached the maximum of 20 sessions',
@@ -273,7 +277,7 @@ function forceLogout(silent) {
 /* ===================== المزامنة الفورية ===================== */
 function applyState(st, force) {
   if (!force && st.serverTime < S.stamp) return;
-  S.stamp = st.serverTime; S.patients = st.patients; S.tasks = st.tasks || []; S.skipRequests = st.skipRequests || []; S.appts = st.appts || []; if (st.schedule) S.schedule = st.schedule;
+  S.stamp = st.serverTime; S.patients = st.patients; S.tasks = st.tasks || []; S.skipRequests = st.skipRequests || []; S.appts = st.appts || []; S.bookings = st.bookings || []; if (st.booking) S.booking = st.booking; if (st.schedule) S.schedule = st.schedule;
 }
 async function connect() {
   if (S.es) { S.es.close(); S.es = null; }
@@ -289,6 +293,8 @@ function retryConnect() { if (!S.token) return; S.retry = Math.min(S.retry + 1, 
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.token) { if (!S.es) { S.retry = 0; connect(); } refresh(); pushSync(); } });
 window.addEventListener('focus', () => { if (S.token) refresh(); });
 window.addEventListener('online', () => { if (S.token) { if (!S.es) connect(); refresh(); } });
+/* بعد الاستعادة: نعيد تحميل بيانات العيادة (الأسعار والعلاجات وعدد الحصص تأتي مع me) وليس الحالة فقط */
+async function reloadMe() { try { const st = await api('GET', '/api/state'); S.me = st.me; applyState(st); renderAll(); applySettings(); } catch (e) {} }
 async function refresh() { try { applyState(await api('GET', '/api/state')); renderAll(); } catch (e) {} }
 
 let lastOwnAdd = 0;
@@ -296,6 +302,7 @@ function onNotify(n) {
   if (!S.me) return;
   if (S.me.role === 'doctor') {
     if (n.type === 'add' && Date.now() - lastOwnAdd > 3000) { chime('add'); visualAlert(t('t_welcome_new'), t('t_added', { n: n.name })); sysNotify(t('app_title'), t('t_added', { n: n.name })); }
+    else if (n.type === 'booking') { chime('add'); visualAlert(t('bk_new'), `${n.name} — ${bkDate(n.date)} ${bkTime(n.time)}`); sysNotify(t('bk_new'), `${n.name} — ${bkDate(n.date)} ${bkTime(n.time)}`); }
     else if (n.type === 'task_done') { chime('taskdone'); toast(t('task_finished') + ' ' + n.by + ': ' + n.text, 'success'); sysNotify(t('task_finished'), n.by + ': ' + n.text); }
     else if (n.type === 'enter') { docTab('consultation'); chime('enter'); visualAlert(t('t_enter'), t('t_entered', { n: n.name })); }
   } else {
@@ -440,10 +447,11 @@ function priceFor(tr, teeth) {
 }
 function treatRowHTML(v, vals) {
   const o = vals || {}, cc = o.col || defCol(v || '');
-  return `<div class="treat-row" ${v ? `data-orig="${esc(v)}"` : ''}><div class="treat-head"><input type="text" class="treat-name" maxlength="40" placeholder="${esc(t('tr_name_ph'))}" value="${esc(v ? treatLabel(v) : '')}">
+  return `<div class="treat-row" ${v ? `data-orig="${esc(v)}"` : ''} data-oset="${o.ortho !== undefined ? 1 : ''}"><div class="treat-head"><input type="text" class="treat-name" maxlength="40" placeholder="${esc(t('tr_name_ph'))}" value="${esc(v ? treatLabel(v) : '')}">
     <button type="button" class="btn-action" data-act="moveTreat" data-d="-1" title="${esc(t('tr_up'))}" aria-label="${esc(t('tr_up'))}">▲</button><button type="button" class="btn-action" data-act="moveTreat" data-d="1" title="${esc(t('tr_down'))}" aria-label="${esc(t('tr_down'))}">▼</button><button type="button" class="btn-action btn-red" data-act="delTreat" title="${esc(t('tr_del'))}" aria-label="${esc(t('tr_del'))}">✕</button></div>
-    <div class="sess-row"><label><span>${t('pl_sess_n')}</span><input type="number" min="1" max="20" step="1" inputmode="numeric" class="treat-sess" value="${o.sessions || (v ? defSessions(v) : 1)}"></label>
+    <div class="sess-row"><label><span>${t('pl_sess_n')}</span><input type="number" min="1" max="60" step="1" inputmode="numeric" class="treat-sess" value="${o.sessions || (v ? defSessions(v) : 1)}"></label>
       <label><span>📅 ${t('ap_gap_l')}</span><input type="number" min="0" max="365" step="1" inputmode="numeric" class="treat-gap" value="${o.gap != null ? o.gap : 7}"></label>
+      <label class="col-on ortho-on"${(o.sessions || (v ? defSessions(v) : 1)) >= 6 ? '' : ' hidden'}><input type="checkbox" class="treat-ortho" ${o.ortho ? 'checked' : ''}><span>🦷 ${t('ortho_l')}</span></label>
       <label class="col-on"><input type="checkbox" class="treat-col-on" ${cc.on ? 'checked' : ''}><span>🎨 ${t('col_on_l')}</span></label>
       <label class="col-pick"><span>${t('col_part_l')}</span><input type="color" class="treat-col-part" value="${cc.part}"></label><label class="col-pick"><span>${t('col_done_l')}</span><input type="color" class="treat-col-done" value="${cc.done}"></label></div>
     <div class="price-grid">${CATS.map(c => `<label><span>${t('price_cat_' + c)}</span><input type="number" min="0" step="any" inputmode="decimal" data-cat="${c}" value="${o[c] != null ? o[c] : ''}" placeholder="0"></label>`).join('')}</div></div>`;
@@ -456,14 +464,14 @@ function renderPriceForm() {
   $('.priceRows', f).innerHTML = treatList().map(v => treatRowHTML(v, L2[v])).join('') + `<div class="hint" style="margin-bottom:6px">${t('prices_hint2')}</div>`;
   $('.priceCur', f).value = cur();
 }
-document.addEventListener('input', ev => { const f = ev.target.closest && ev.target.closest('form[data-form=prices]'); if (f) f.dataset.dirty = '1'; });
+document.addEventListener('input', ev => { const f = ev.target.closest && ev.target.closest('form[data-form=prices]'); if (f) f.dataset.dirty = '1'; if (f && ev.target.classList.contains('treat-sess')) { const lb = ev.target.closest('.treat-row').querySelector('.ortho-on'); if (lb) lb.hidden = !((parseInt(ev.target.value) || 1) >= 6); } });
 /* ===== خطة العلاج والحساب في المعاينة =====
    كل بند = (سن + علاج). خطة بحصة واحدة تُدفع كاملة، أو بحصتين يُقسَّم سعرها الكلي بينهما (الحصة 1 دفعة، والحصة 2 المتبقي).
    البنود تُشتقّ من اختيار الأسنان والعلاجات أعلاه؛ فإن كان للمريض خطة جارية على نفس السن والعلاج
    يصير البند «متابعة» لها ويعرض متبقّيها مباشرة. ما عدا ذلك من متبقٍّ سابق يظهر أسفلها ليُسدَّد اختيارياً. */
 const wBal = () => (S.account && S.account.wallet) || 0, r2c = v => Math.round(v * 100) / 100;
-function moneyReset() { S.useWal = true; S.removed = new Set(); S.lov = {}; S.dpay = {}; S.account = null; }
-const MAXS = 20, defSessions = tr => { const e = S.me && S.me.prices && S.me.prices.list && S.me.prices.list[tr]; return (e && e.sessions) || (/عصب|root|endo/i.test(tr) ? 2 : 1); };   // عدد حصص العلاج يُضبط من «الحصص والأسعار»
+function moneyReset() { S.useWal = true; S.removed = new Set(); S.lov = {}; S.dpay = {}; S.sessPay = null; S.account = null; }
+const MAXS = 60, defSessions = tr => { const e = S.me && S.me.prices && S.me.prices.list && S.me.prices.list[tr]; return (e && e.sessions) || (/عصب|root|endo/i.test(tr) ? 2 : 1); };   // عدد حصص العلاج يُضبط من «الحصص والأسعار»
 const splitPay = (rem, left) => left > 1 ? r2c(rem / left) : rem;   // المقترح دفعه اليوم: المتبقي موزَّعاً على الحصص المتبقية
 const lineKey = (th, tr) => th + '|' + tr;
 /* موعد الحصة القادمة: يُحسب من اليوم + أيام الانتظار، ويُعرض باسم اليوم والتاريخ */
@@ -473,20 +481,75 @@ function nextTxt(l) {
   return `<span class="pl-nd-day">${esc(wd)}</span><span class="pl-nd-date" dir="ltr">${iso}</span><small>${l.gap === 0 ? t('ap_today') : t('ap_in', { n: l.gap })}</small>`;
 }
 const nextRow = l => !l.hasNext ? '' : `<div class="pl-row pl-next"><label>📅 ${t('pl_next_appt')}</label><span class="pl-stepper"><button type="button" data-act="lineGap" data-key="${esc(l.key)}" data-v="-1" aria-label="-">−</button><span class="pl-nd">${nextTxt(l)}</span><button type="button" data-act="lineGap" data-key="${esc(l.key)}" data-v="1" aria-label="+">+</button></span></div>`;
+/* ===== جدول التقويم: السلك السابق واليوم لكل فك + موعد قادم + ملاحظات + سجل كل حصص التقويم ===== */
+const isOrtho = tr => !!(S.me && S.me.prices && S.me.prices.list && S.me.prices.list[tr] && S.me.prices.list[tr].ortho);
+const orthoHist = tr => ((S.account && S.account.ortho) || []).filter(h => h.treatment === tr);
+function orthoOf(l) {
+  const h = orthoHist(l.tr), last = h[h.length - 1] || {}, o = (S.lov[l.key] || {}).ortho || {}, g = (k, d) => o[k] != null ? o[k] : d;
+  return { upPrev: g('upPrev', last.up || ''), up: g('up', ''), loPrev: g('loPrev', last.lo || ''), lo: g('lo', ''), notesUp: g('notesUp', ''), notesLo: g('notesLo', ''), hist: h };
+}
+const wireTxt = (a, b) => { a = a || ''; b = b || ''; return !a && !b ? '—' : a && b && a !== b ? `${esc(a)} ← <b>${esc(b)}</b>` : `<b>${esc(b || a)}</b>`; };
+/* ملاحظات منفصلة لكل فك؛ والملاحظة العامة القديمة (notes) تُعرض ممتدة على العمودين */
+const oNote = v => v ? esc(v) : '—';
+const orthoNoteCells = o => (o.notes && !o.notesUp && !o.notesLo) ? `<td class="o-note" colspan="2">${esc(o.notes)}</td>` : `<td class="o-note">${oNote(o.notesUp)}</td><td class="o-note">${oNote(o.notesLo)}</td>`;
+const wireFmt = v => { const d = String(v || '').replace(/\D/g, '').slice(0, 4); return d.length > 2 ? d.slice(0, 2) + '×' + d.slice(2) : d; };   // رقمان: كل منهما من خانتين (يكفي رقم واحد)
+function orthoHTML(l) {
+  if (!l.ortho) return ''; const o = l.ortho, k = esc(l.key), wire = (f, ph) => `<input type="text" class="o-wire" maxlength="5" inputmode="numeric" pattern="[0-9×]*" autocomplete="off" dir="ltr" placeholder="${esc(ph)}" value="${esc(wireFmt(o[f]))}" data-input="oin" data-wire="1" data-key="${k}" data-f="${f}">`, nt = f => `<textarea rows="1" maxlength="300" data-input="oin" data-key="${k}" data-f="${f}" placeholder="${esc(t('ortho_notes_ph'))}">${esc(o[f])}</textarea>`, w = v => v ? `<b>${esc(v)}</b>` : '—';
+  const rows = o.hist.slice().reverse().map(h => `<tr><td class="o-n">${h.no}</td><td dir="ltr">${esc(new Date(h.at).toLocaleDateString('en-CA'))}</td><td dir="ltr">${w(h.up)}</td><td dir="ltr">${w(h.lo)}</td>${orthoNoteCells(h)}</tr>`).join('');
+  return `<div class="ortho"><div class="ortho-h">🦷 ${t('ortho_title')} <span class="pl-badge cont">${t('pl_session_n', { n: l.no, m: l.sessions })}</span></div>
+    <div class="ortho-scroll"><table class="ortho-tbl"><thead><tr><th>#</th><th>${t('ortho_date')}</th><th>${t('ortho_wire_up')}</th><th>${t('ortho_wire_lo')}</th><th>${t('ortho_notes_up')}</th><th>${t('ortho_notes_lo')}</th></tr></thead><tbody>
+      <tr class="o-today"><td class="o-n">${l.no}</td><td dir="ltr">${esc(localDay())}</td><td>${wire('up', '16×22')}</td><td>${wire('lo', '16×22')}</td><td class="o-note">${nt('notesUp')}</td><td class="o-note">${nt('notesLo')}</td></tr>
+      ${rows || `<tr><td colspan="6" class="hint">${t('ortho_none')}</td></tr>`}</tbody></table></div></div>`;
+}
+const orthoSend = l => l.ortho ? { upPrev: l.ortho.upPrev, up: l.ortho.up, loPrev: l.ortho.loPrev, lo: l.ortho.lo, notesUp: l.ortho.notesUp, notesLo: l.ortho.notesLo } : undefined;
+/* شاشة ملخص نهاية المعاينة: العلاج، المريض، المبالغ. «تأكيد» يُنهي الزيارة، و«رجوع» يعيد الطبيب إلى المعاينة */
+function finishSummary(pid, m) {
+  return new Promise(res => {
+    const pt = (S.patients || []).find(x => String(x.id) === String(pid)) || {}, notes = (($('#consultNotes') || {}).value || '').trim();
+    const row = (a, b, cls) => `<div class="fs-row${cls ? ' ' + cls : ''}"><span>${a}</span><b>${b}</b></div>`;
+    const lines = m.ls.map(l => {
+      const o = l.ortho, ow = o && (o.up || o.lo) ? `<div class="fs-sub">🦷 ${t('ortho_up')}: ${wireTxt(o.upPrev, o.up)} · ${t('ortho_lo')}: ${wireTxt(o.loPrev, o.lo)}</div>` : '';
+      return `<div class="fs-item"><div class="fs-it-h">${plBadge(l.th, l.tr)}<span class="pl-badge cont">${t('pl_session_n', { n: l.no, m: l.sessions })}</span></div>
+        ${row(t('pl_total'), money(l.tot))}${row(t('pl_pay_now'), money(l.pay))}${row(t('pl_left_after'), money(l.left), l.left > 0 ? 'fs-bad' : 'fs-ok')}
+        ${l.hasNext ? row('📅 ' + t('pl_next_appt'), `<span dir="ltr">${new Date(Date.parse(localDay() + 'T00:00:00Z') + l.gap * 864e5).toISOString().slice(0, 10)}</span>`) : ''}${ow}</div>`;
+    }).join('');
+    const prev = m.ps.filter(x => x.pay > 0).map(x => row(`${x.th ? esc(x.th) + ' · ' : ''}${esc(treatLabel(x.tr))} <small>(${t('pl_prev_title')})</small>`, money(x.pay))).join('');
+    const age = pt.birthYear ? `${new Date().getFullYear() - pt.birthYear} ${t('years_short')}` : '';
+    const el = document.createElement('div'); el.className = 'modal-overlay active'; el.style.zIndex = 30000;
+    el.innerHTML = `<div class="modal-card fs-card" role="dialog" aria-modal="true"><h3 class="fs-title">📋 ${t('fs_title')}</h3>
+      <div class="fs-pat"><b>${esc(pt.name || '')}</b><span>${[age, pt.gender ? esc(genderL(pt.gender)) : '', pt.phone ? '☎️ <span dir="ltr">' + esc(pt.phone) + '</span>' : '', pt.ticketNo ? t('ticket_no') + ' ' + pt.ticketNo : ''].filter(Boolean).join(' · ')}</span></div>
+      <div class="fs-sec">${t('fs_treat')}</div>${lines || `<div class="hint">${t('pl_none')}</div>`}${prev ? `<div class="fs-item"><div class="fs-it-h"><b>${t('fs_prev_pay')}</b></div>${prev}</div>` : ''}
+      ${notes ? `<div class="fs-sec">${t('notes_l')}</div><div class="fs-notes">${esc(notes)}</div>` : ''}
+      <div class="fs-tot">${row(t('pl_sum_today'), money(m.due))}${row(t('pl_sum_paid'), money(m.pay))}${m.w > 0 ? row('🏺 ' + t('pl_sum_wal'), money(m.w), 'fs-sub2') + row('💵 ' + t('pl_sum_cash'), money(m.cash), 'fs-sub2') : ''}${row(t('pl_sum_after'), money(m.after), m.after > 0 ? 'fs-bad fs-big' : 'fs-ok fs-big')}</div>
+      <div class="fs-btns"><button type="button" class="btn-action btn-green" data-d="ok">✔ ${t('fs_ok')}</button><button type="button" class="btn-action" data-d="no">↩ ${t('fs_back')}</button></div></div>`;
+    const done = v => { document.removeEventListener('keydown', key, true); el.remove(); res(v); };
+    const key = e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); } };
+    el.addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('[data-d]'); if (b) done(b.dataset.d === 'ok'); });
+    document.addEventListener('keydown', key, true); document.body.appendChild(el); el.querySelector('[data-d=no]').focus();
+  });
+}
 function consLines() {
   const plans = (S.account && S.account.plans) || [], teeth = [...S.teeth].sort(), used = new Set(), out = [];
   for (const tr of S.treatments) for (const th of (teeth.length ? teeth : [''])) {
     const key = lineKey(th, tr); if (S.removed.has(key)) continue;
     const ov = S.lov[key] || {}, p = plans.find(x => x.tooth === th && x.treatment === tr && !used.has(x.id)); let L;
-    if (p) { used.add(p.id); const ps = ov.pay != null ? ov.pay : String(splitPay(p.remaining, p.sessions - p.done)); L = { key, th, tr, plan: p, cont: true, tot: p.total, sessions: p.sessions, no: p.done + 1, cap: p.remaining, payStr: ps, pay: Math.min(p.remaining, Math.max(0, +ps || 0)) }; }
+    if (p) { used.add(p.id); L = { key, th, tr, plan: p, cont: true, tot: p.total, sessions: p.sessions, no: p.done + 1, cap: p.remaining, due: Math.min(p.remaining, splitPay(p.remaining, p.sessions - p.done)), pay: 0 }; }
     else {
       const auto = priceFor(tr, th ? [th] : []), ts = ov.total != null ? ov.total : (auto.total === '' ? '' : String(auto.total)), tot = Math.max(0, +ts || 0), sessions = ov.sessions || defSessions(tr);
-      const ps = ov.pay != null ? ov.pay : (ts === '' ? '' : String(splitPay(tot, sessions)));
-      L = { key, th, tr, cont: false, totStr: ts, tot, sessions, no: 1, cap: tot, payStr: ps, pay: Math.min(tot, Math.max(0, +ps || 0)), parts: auto.parts };
+      L = { key, th, tr, cont: false, totStr: ts, tot, sessions, no: 1, cap: tot, due: ts === '' ? 0 : Math.min(tot, splitPay(tot, sessions)), pay: 0, parts: auto.parts };
     }
     L.hasNext = L.no < L.sessions; L.gap = ov.gap != null ? ov.gap : gapOf(tr);   // موعد الحصة القادمة: أيام الانتظار (من الإعدادات أو ما عدّله الطبيب)
-    L.left = r2c((L.cont ? L.cap : L.tot) - L.pay); out.push(L);
+    if (isOrtho(tr)) L.ortho = orthoOf(L);
+    out.push(L);
   }
+  /* حقل دفع واحد: المبلغ يُوزَّع بالترتيب؛ يُسدَّد أولاً ثمن حصة البند الأول، وما بقي يذهب للبند الثاني فالثالث وهكذا.
+     إن زاد المبلغ عن أثمان الحصص نزل الفائض من متبقّي البنود بالترتيب. إن تُرك الحقل فارغاً فالقيمة المقترحة = مجموع أثمان الحصص. */
+  const sugg = r2c(out.reduce((x, l) => x + l.due, 0)), amt = S.sessPay == null ? sugg : Math.max(0, +S.sessPay || 0);
+  let rest = amt;
+  for (const l of out) { l.pay = r2c(Math.min(l.due, rest)); rest = r2c(rest - l.pay); }
+  for (const l of out) { const x = r2c(Math.min(l.cap - l.pay, rest)); l.pay = r2c(l.pay + x); rest = r2c(rest - x); }
+  for (const l of out) l.left = r2c(l.cap - l.pay);
+  out.amt = amt; out.sugg = sugg; out.excess = rest;
   return out;
 }
 /* متبقٍّ سابق: خطط جارية لم يُتابَع بها اليوم + خطط مغلقة + سجلات قديمة غير مسدَّدة */
@@ -508,16 +571,16 @@ function quickBtns(act, attrs) { return `<span class="pl-quick">${[['all', 'pl_a
 const sessHint = l => l.sessions > 1 ? t('pl_split_hint', { a: money(r2c(l.tot / l.sessions)), m: l.sessions }) : t('pl_one_hint');
 function lineHTML(l) {
   const k = esc(l.key), del = `<button type="button" class="pl-del" data-act="lineDel" data-key="${k}" title="${esc(t('pl_del'))}" aria-label="${esc(t('pl_del'))}">✕</button>`;
-  const pay = `<div class="pl-row"><label>💵 ${t('pl_pay_now')}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(l.payStr)}" data-input="lpay" data-key="${k}">${quickBtns('lpayQuick', `data-key="${k}"`)}</div><div class="pl-foot"><span>${t('pl_left_after')}</span><b class="pl-left"></b></div>${nextRow(l)}`;
+  const pay = `<div class="pl-foot"><span>${t('pl_pay_now')}</span><b class="pl-paynow"></b></div><div class="pl-foot"><span>${t('pl_left_after')}</span><b class="pl-left"></b></div>${nextRow(l)}`;
   if (l.cont) return `<div class="pl-line pl-cont" data-key="${k}"><div class="pl-head">${plBadge(l.th, l.tr)}<span class="pl-badge cont">${t('pl_session_n', { n: l.no, m: l.sessions })}</span>${del}</div>
-    <div class="pl-info">${t('pl_total')} <b>${money(l.tot)}</b> · ${t('paid_l')} <b>${money(l.plan.paid)}</b> · ${t('rem_l')} <b class="pl-rem">${money(l.plan.remaining)}</b></div>${pay}
+    <div class="pl-info">${t('pl_total')} <b>${money(l.tot)}</b> · ${t('paid_l')} <b>${money(l.plan.paid)}</b> · ${t('rem_l')} <b class="pl-rem">${money(l.plan.remaining)}</b></div>${orthoHTML(l)}${pay}
     <div class="pl-acts">${l.sessions < MAXS ? `<button type="button" class="btn-action btn-green" data-act="sessAdd" data-id="${esc(l.plan.id)}">➕ ${t('pl_add_sess')}</button>` : ''}${l.sessions > l.no ? `<button type="button" class="btn-action btn-red" data-act="sessDel" data-id="${esc(l.plan.id)}">➖ ${t('pl_del_sess')}</button>` : ''}</div></div>`;
   const hint = sessHint(l);
   return `<div class="pl-line" data-key="${k}"><div class="pl-head">${plBadge(l.th, l.tr)}<span class="pl-badge">${t('pl_session_n', { n: 1, m: l.sessions })}</span>${del}</div>
     ${l.parts && l.parts.length ? `<div class="pl-info"><small>${l.parts.map(x => x.n + ' ' + t('price_cat_' + x.c)).join('، ')}</small></div>` : ''}
     <div class="pl-row"><label>${t('pl_total')}${cur() ? ' (' + esc(cur()) + ')' : ''}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(l.totStr)}" data-input="ltotal" data-key="${k}"></div>
     <div class="pl-row pl-sess"><label>${t('pl_sess_n')}</label><span class="pl-stepper"><button type="button" data-act="lineSess" data-key="${k}" data-v="-1" aria-label="-">−</button><b>${l.sessions}</b><button type="button" data-act="lineSess" data-key="${k}" data-v="1" aria-label="+">+</button></span></div>
-    <div class="pl-hint" id="plh">${hint}</div>${pay}</div>`;
+    <div class="pl-hint" id="plh">${hint}</div>${orthoHTML(l)}${pay}</div>`;
 }
 function prevHTML(i) {
   const id = esc(i.id), title = plBadge(i.th, i.tr) + (i.open ? `<span class="pl-badge cont">${t('pl_next_session', { n: i.next, m: i.sessions })}</span>` : '');
@@ -536,7 +599,8 @@ function planBoxInner() {
   const wal = ac ? `<div class="wallet-box"><div class="acct-head"><strong>🏺 ${t('wal_title')}</strong><span>${t('wal_bal')} <b>${money(wBal())}</b></span></div>
     ${wBal() > 0 ? `<label class="acct-follow"><input type="checkbox" data-act="useWal" ${S.useWal ? 'checked' : ''} style="width:auto"> ${t('wal_chk')} <b id="walLine">${S.useWal && m.w > 0 ? '− ' + money(m.w) : ''}</b></label>` : ''}
     <button type="button" class="btn-action btn-green" data-act="walDeposit" data-name="${esc(ac.key.name)}" data-year="${ac.key.year}" data-ctx="room">${t('wal_dep')}</button></div>` : '';
-  return `<div class="plan-box"><div class="acct-head"><strong>🦷 ${t('pl_title')}</strong></div>${m.ls.length ? m.ls.map(lineHTML).join('') : `<div class="hint" style="padding:6px 0">${t('pl_none')}</div>`}</div>
+  const sp = m.ls.length ? `<div class="pl-sesspay"><div class="pl-row"><label>💵 ${t('pl_pay_session')}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(m.ls.amt))}" data-input="spay"><span class="pl-quick"><button type="button" data-act="spayQuick" data-v="all">${t('pl_all')}</button><button type="button" data-act="spayQuick" data-v="sugg">${t('pl_suggest')}</button><button type="button" data-act="spayQuick" data-v="zero">${t('pl_zero')}</button></span></div><div class="pl-hint" id="spayHint"></div></div>` : '';
+  return `<div class="plan-box"><div class="acct-head"><strong>🦷 ${t('pl_title')}</strong></div>${m.ls.length ? m.ls.map(lineHTML).join('') : `<div class="hint" style="padding:6px 0">${t('pl_none')}</div>`}${sp}</div>
     ${m.ps.length ? `<div class="acct-box"><div class="acct-head"><strong>${t('pl_prev_title')}</strong>${ac && ac.balance > 0 ? `<span class="acct-debt">${t('acct_prev')} <b>${money(ac.balance)}</b></span>` : ''}</div>${m.ps.map(prevHTML).join('')}</div>` : ''}
     ${wal}<div id="moneySum" class="money-sum">${sumHTML(m)}</div>`;
 }
@@ -544,7 +608,8 @@ const moneyHTML = () => `<div id="planBox">${planBoxInner()}</div>`;
 /* تحديث الأرقام فقط (أثناء الكتابة) دون إعادة بناء الحقول فلا يضيع التركيز */
 function moneyUpdate() {
   const m = moneyTotals(), act = document.activeElement;
-  $$('#planBox .pl-line[data-key]').forEach(row => { const l = m.ls.find(x => x.key === row.dataset.key); if (!l) return; const pi = $('[data-input=lpay]', row); if (pi && pi !== act) pi.value = l.payStr; const lf = $('.pl-left', row); if (lf) { lf.textContent = money(l.left); lf.style.color = l.left > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'; } const h = $('.pl-hint', row); if (h && !l.cont) h.textContent = sessHint(l); const nd = $('.pl-nd', row); if (nd && l.hasNext) nd.innerHTML = nextTxt(l); });
+  $$('#planBox .pl-line[data-key]').forEach(row => { const l = m.ls.find(x => x.key === row.dataset.key); if (!l) return; const pn = $('.pl-paynow', row); if (pn) pn.textContent = money(l.pay); const lf = $('.pl-left', row); if (lf) { lf.textContent = money(l.left); lf.style.color = l.left > 0 ? 'var(--danger-soft,#e8607a)' : 'var(--success,#2e9e6b)'; } const h = $('.pl-hint', row); if (h && !l.cont) h.textContent = sessHint(l); const nd = $('.pl-nd', row); if (nd && l.hasNext) nd.innerHTML = nextTxt(l); });
+  const si = $('[data-input=spay]'); if (si && si !== act && S.sessPay == null) si.value = String(m.ls.amt); const sh = $('#spayHint'); if (sh) sh.textContent = m.ls.excess > 0 ? t('pl_excess', { a: money(m.ls.excess) }) : t('pl_spay_hint', { a: money(m.ls.sugg) });
   const sm = $('#moneySum'); if (sm) sm.innerHTML = sumHTML(m); const wl = $('#walLine'); if (wl) wl.textContent = S.useWal && m.w > 0 ? '− ' + money(m.w) : '';
 }
 function recalc() { const b = $('#planBox'); if (!b) return; if (b.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return moneyUpdate(); b.innerHTML = planBoxInner(); moneyUpdate(); }
@@ -768,6 +833,21 @@ function teethMapHTML(records) {
   const chart = set => `<div class="teeth-chart"><div class="arch">${half(set.up)}</div><div class="arch-sep"></div><div class="arch">${half(set.lo)}</div></div>`;
   return `<div class="hist-teeth"><div class="ht-head"><b>${t('teeth_map')}</b></div>${colLegend(st)}${chart(TEETH.adult)}${has(TEETH.child) ? chart(TEETH.child) : ''}</div>`;
 }
+/* خطط العلاج متعددة الحصص (والتقويم) في سجل المريض: عدد الحصص، المبالغ، التواريخ، وجدول الأسلاك لكل حصة */
+function plansHistHTML(recs, dd) {
+  const pm = new Map();
+  for (const x of recs) for (const l of x.lines || []) { const o = pm.get(l.plan) || { id: l.plan, tr: l.treatment, th: l.tooth, sessions: l.sessions, total: 0, ss: [] }; if (l.no === 1) o.total = l.total || 0; o.sessions = Math.max(o.sessions, l.sessions || 1); if (l.paid != null) { o.paid = l.paid; o.rem = l.remaining; o.open = l.open; } o.ss.push({ no: l.no, at: x.finishedAt, rec: x.id, ortho: l.ortho }); pm.set(l.plan, o); }
+  const pays = recs.flatMap(x => x.payments || []);
+  const cards = [...pm.values()].filter(p => p.sessions > 1 || p.ss.some(z => z.ortho)).map(p => {
+    const orth = p.ss.some(z => z.ortho), ss = p.ss.slice().sort((a, b) => a.no - b.no), done = Math.max(...ss.map(z => z.no));
+    const paidIn = z => r2c(pays.filter(q => q.pl === p.id && q.vid === z.rec).reduce((a, q) => a + (+q.amt || 0), 0));
+    const rows = ss.map(z => { const o = z.ortho || {}; return `<tr><td class="o-n">${z.no}</td><td dir="ltr">${esc(new Date(z.at).toLocaleDateString('en-CA'))}</td><td>${money(paidIn(z))}</td>${orth ? `<td>${wireTxt(o.upPrev, o.up)}</td><td>${wireTxt(o.loPrev, o.lo)}</td><td dir="ltr">${o.next ? esc(o.next) : '—'}</td>${orthoNoteCells(o)}` : ''}</tr>`; }).join('');
+    return `<div class="hist-plan"><div class="hp-head"><span class="hi-tbadge">${p.th ? esc(p.th) + ' · ' : ''}${esc(treatLabel(p.tr))}</span><span class="pl-badge cont">${t('hp_sessions', { n: done, m: p.sessions })}</span>${p.open === false && done < p.sessions ? `<span class="pl-badge">${t('hp_closed')}</span>` : ''}</div>
+      <div class="hp-sum"><div>${t('pl_total')}<b>${money(p.total)}</b></div><div>${t('paid_l')}<b>${money(p.paid != null ? p.paid : 0)}</b></div><div>${t('rem_l')}<b style="color:var(${p.rem > 0 ? '--danger-soft,#e8607a' : '--success,#2e9e6b'})">${money(p.rem != null ? p.rem : 0)}</b></div></div>
+      <div class="ortho"><div class="ortho-scroll"><table><thead><tr><th>#</th><th>${t('ortho_date')}</th><th>${t('hp_paid_in')}</th>${orth ? `<th>${t('ortho_up')}</th><th>${t('ortho_lo')}</th><th>${t('ortho_next')}</th><th>${t('ortho_notes_up')}</th><th>${t('ortho_notes_lo')}</th>` : ''}</tr></thead><tbody>${rows}</tbody></table></div></div></div>`;
+  });
+  return cards.length ? `<div class="hist-plans"><div class="ht-head"><b>${t('hp_title')}</b></div>${cards.join('')}</div>` : '';
+}
 /* سجل المريض الكامل: من أول زيارة إلى آخرها */
 async function showHistory(name, year) {
   const body = $('#historyBody'); body.innerHTML = `<div class="hint" style="text-align:center;padding:20px">…</div>`; openModal('historyModal');
@@ -790,6 +870,7 @@ async function showHistory(name, year) {
     return `<div class="hist-item"><div class="hi-date">${t('hist_visit_n', { n })} · ${dt(x.finishedAt)}${x.followUp ? ' · ' + t('follow_b') : ''}</div>
       <div class="hi-treat">${t('treat_l')} ${lineBadges(x, 'hi-tbadge')}</div>
       <div class="hi-line">${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ${t('reason_s')}: ${esc(reasonL(x.reason))}</div>
+      ${(x.lines || []).filter(l => l.ortho).map(l => `<div class="hi-line hi-ortho">🦷 ${t('ortho_up')}: ${wireTxt(l.ortho.upPrev, l.ortho.up)} · ${t('ortho_lo')}: ${wireTxt(l.ortho.loPrev, l.ortho.lo)}${l.ortho.next ? ` · ${t('ortho_next')}: <span dir="ltr">${esc(l.ortho.next)}</span>` : ''}${l.ortho.notesUp ? `<div class="hi-notes">📝 ${t('ortho_up')}: ${esc(l.ortho.notesUp)}</div>` : ''}${l.ortho.notesLo ? `<div class="hi-notes">📝 ${t('ortho_lo')}: ${esc(l.ortho.notesLo)}</div>` : ''}${l.ortho.notes && !l.ortho.notesUp && !l.ortho.notesLo ? `<div class="hi-notes">📝 ${esc(l.ortho.notes)}</div>` : ''}</div>`).join('')}
       ${x.price != null ? `<div class="hi-line hi-money">${t('due_l')} ${money(x.price)} · ${t('paid_l')} ${money(x.paid)}${x.remaining > 0 ? ` · <b style="color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(x.remaining)}</b>` : ` · <b style="color:var(--success,#2e9e6b)">${t('paid_full')}</b>`}</div>` : ''}
       ${own || extra ? `<div class="hi-line">${t('pays_l')}${own}${extra ? `<div class="pay-chips">${extra}</div>` : ''}</div>` : ''}
       ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}
@@ -800,11 +881,12 @@ async function showHistory(name, year) {
   const walBox = `<div class="hist-wallet"><div><b>${t('wal_title')}</b> <span class="hw-bal">${money(r.wallet ? r.wallet.bal : 0)}</span></div>
     <div class="hw-btns"><button type="button" class="btn-action btn-green" data-act="walDeposit" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_dep')}</button>${r.wallet && r.wallet.bal > 0 ? `<button type="button" class="btn-action btn-yellow" data-act="walOut" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_out')}</button>` : ''}</div></div>`;
   body.innerHTML = `<div class="hist-sum"><div class="hs-name">${esc(r.name)}</div>
-      <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div>
+      <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎️ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div>
       <div class="hist-stats"><div>${t('hist_visits')}<b>${r.visits}</b></div><div>${t('hist_first')}<b>${dd(r.firstVisit)}</b></div><div>${t('hist_last')}<b>${dd(r.lastVisit)}</b></div>
       ${r.due ? `<div>${t('total_due')}<b>${money(r.due)}</b></div><div>${t('total_paid')}<b>${money(r.paid)}</b></div>` : ''}${r.balance ? `<div>${t('total_debt')}<b style="color:var(--danger-soft,#e8607a)">${money(r.balance)}</b></div>` : ''}</div></div>
     ${walBox}
     ${teethMapHTML(r.records)}
+    ${plansHistHTML(r.records, dd)}
     <div class="hist-tl">${cur}${items || (cur ? '' : `<div class="hint">${t('hist_none')}</div>`)}</div>`;
   hydrate(body);
 }
@@ -846,8 +928,29 @@ function syncSchedule() {
 /* ===================== المواعيد ===================== */
 const localDay = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 const dayDiff = (a, b) => Math.round((Date.parse(a + 'T00:00:00Z') - Date.parse(b + 'T00:00:00Z')) / 864e5);
+/* ===== الحجز عبر الإنترنت: رابط للمرضى + قائمة الطلبات + الإعدادات ===== */
+const bookLink = () => location.origin + '/book/' + ((S.me && S.me.code) || '');
+const bkDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString(settings.lang === 'en' ? 'en' : 'ar-u-nu-latn', { weekday: 'short', day: 'numeric', month: 'short' }); } catch (e) { return d; } };
+const bkTime = tm => { let [h, m] = tm.split(':').map(Number); const ap = settings.lang === 'en' ? (h >= 12 ? 'PM' : 'AM') : (h >= 12 ? 'م' : 'ص'); h = h % 12 || 12; return h + ':' + String(m).padStart(2, '0') + ' ' + ap; };
+function renderBookings() {
+  const box = $('#bookArea'); if (!box || !S.me || S.me.role !== 'doctor') return;
+  const bk = S.booking || {}, td = localDay(), list = (S.bookings || []).filter(x => x.date >= td || x.status === 'pending'), pend = list.filter(x => x.status === 'pending').length;
+  const sig = JSON.stringify([bk.enabled, list, settings.lang, S.me.code]); if (box._sig === sig) return; box._sig = sig;
+  const rows = list.map(x => `<div class="bk-row st-${esc(x.status)}"><div class="bk-when"><b>${esc(bkDate(x.date))}</b><span dir="ltr">${esc(bkTime(x.time))}</span></div>
+    <div class="bk-who"><b>${esc(x.name)}</b> <a href="tel:${esc(x.phone)}" dir="ltr">${esc(x.phone)}</a>${x.note ? `<div class="bk-note">📝 ${esc(x.note)}</div>` : ''}<span class="pl-badge ${x.status === 'ok' ? 'cont' : ''}">${t(x.status === 'ok' ? 'bk_ok' : x.status === 'no' ? 'bk_no' : 'bk_pending')}</span></div>
+    <div class="bk-acts">${x.status !== 'ok' ? `<button type="button" class="btn-action btn-green" data-act="bkSet" data-id="${esc(x.id)}" data-s="ok">✅ ${t('bk_accept')}</button>` : ''}${x.status !== 'no' ? `<button type="button" class="btn-action btn-red" data-act="bkSet" data-id="${esc(x.id)}" data-s="no">✕ ${t('bk_reject')}</button>` : ''}<button type="button" class="btn-action" data-act="bkDel" data-id="${esc(x.id)}" aria-label="${esc(t('tr_del'))}">🗑️</button></div></div>`).join('');
+  box.innerHTML = `<div class="book-card"><div class="book-h">🔗 ${t('bk_req')}${pend ? ` <span class="pl-badge cont">${pend}</span>` : ''}<button type="button" class="btn-action" style="margin-inline-start:auto" data-act="openSet" data-m="set_bookingModal">⚙️ ${t('bk_setup')}</button></div>
+    ${bk.enabled ? `<div class="book-linkrow"><input type="text" readonly dir="ltr" value="${esc(bookLink())}"><button type="button" class="btn-action" data-act="bkCopy">${t('copy')}</button></div>` : `<div class="hint">${t('bk_off')}</div>`}
+    ${rows || (bk.enabled ? `<div class="hint">${t('bk_none')}</div>` : '')}</div>`;
+}
+function syncBooking() {
+  const f = $('form[data-form=booking]'), b = S.booking; if (!f || !b || !S.me || S.me.role !== 'doctor') return;
+  $('.bkEnabled', f).checked = !!b.enabled; $('.bkFrom', f).value = b.from; $('.bkTo', f).value = b.to; $('.bkAhead', f).value = b.ahead; $('.bkPer', f).value = b.per; $('.bkLink', f).value = bookLink();
+  $('.bkSlot', f).innerHTML = [10, 15, 20, 30, 45, 60, 90].map(n => `<option value="${n}" ${n === b.slot ? 'selected' : ''}>${n} ${t('bk_min')}</option>`).join('');
+  $('.bkDays', f).innerHTML = t('days_full').map((n, i) => `<label style="display:flex;align-items:center;gap:6px;font-size:13px;background:var(--surface-sunk);padding:6px 12px;border-radius:999px"><input type="checkbox" value="${i}" style="width:auto" ${(b.days || []).includes(i) ? 'checked' : ''}>${esc(n)}</label>`).join('');
+}
 function renderAppts() {
-  const box = $('#apptsArea'); if (!box) return;
+  const box = $('#apptsArea'); if (!box) return; renderBookings();
   const td = localDay(), list = S.appts || [], due = list.filter(a => a.date <= td), cnt = $('#apptCount'), ban = $('#apptBanner');
   cnt.textContent = due.length; cnt.classList.toggle('zero', !due.length);
   if (ban) { const bh = due.length ? `<span>📅 <b>${t('ap_banner', { n: due.length })}</b> ${esc(due.slice(0, 3).map(a => a.name).join('، '))}${due.length > 3 ? '…' : ''}</span><button type="button" class="btn-action btn-red" data-act="docTab" data-tab="appts">${t('ap_view')}</button>` : ''; if (ban._h !== bh) { ban._h = bh; ban.innerHTML = bh; ban.hidden = !due.length; } }
@@ -999,6 +1102,7 @@ const ACT = {
     if (m === 'set_pricesModal') { const f = $('form[data-form=prices]'); delete f.dataset.dirty; renderPriceForm(); }
     if (m === 'set_backupModal') { protectUI(); if (window.abUI) abUI(); }
     if (m === 'set_scheduleModal') { S.schedSig = ''; syncSchedule(); }
+    if (m === 'set_bookingModal') syncBooking();
     openModal(m);
   }, closeLightbox: () => $('#lightboxModal').classList.remove('active'),
   lightbox: async el => { try { LB.rec = el.dataset.rec; LB.img = el.dataset.img; $('#lightboxImg').src = await imgBlobUrl(el.dataset.rec, el.dataset.img); lbReset(); $('#lightboxModal').classList.add('active'); } catch (e) {} },
@@ -1024,26 +1128,23 @@ const ACT = {
   teethClear() { S.teeth.clear(); $$('.tooth-btn.on').forEach(x => x.classList.remove('on')); $('#teethSum').innerHTML = teethSumText(); recalc(); },
   useWal(el) { S.useWal = el.checked; recalc(); },
   lineDel(el) { S.removed.add(el.dataset.key); recalc(); },
-  lineSess(el) { const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const o = S.lov[l.key] = S.lov[l.key] || {}; o.sessions = Math.min(MAXS, Math.max(1, l.sessions + (+el.dataset.v))); delete o.pay; recalc(); },
+  lineSess(el) { const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const o = S.lov[l.key] = S.lov[l.key] || {}; o.sessions = Math.min(MAXS, Math.max(1, l.sessions + (+el.dataset.v))); S.sessPay = null; recalc(); },
   lineGap(el) { const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const o = S.lov[l.key] = S.lov[l.key] || {}; o.gap = Math.min(365, Math.max(0, l.gap + (+el.dataset.v))); moneyUpdate(); },   // ➕/➖ يوم على موعد الحصة القادمة
   /* إضافة حصة إلى علاج جارٍ أثناء المعاينة (مثلاً العلاج يحتاج حصة أخرى) */
   async sessAdd(el) {
     if (!await run(() => api('POST', `/api/plans/${el.dataset.id}/sessions`, { delta: 1 }))) return; toast(t('pl_sess_added'), 'success');
-    const a = S.patients.find(p => p.status === 'in'); if (a) { for (const o of Object.values(S.lov)) delete o.pay; loadAccount(a); }
+    const a = S.patients.find(p => p.status === 'in'); if (a) { S.sessPay = null; loadAccount(a); }
   },
   /* حذف حصة زائدة من علاج جارٍ (لا تنزل الحصص عن الحصة الحالية) */
   async sessDel(el) {
     if (!await run(() => api('POST', `/api/plans/${el.dataset.id}/sessions`, { delta: -1 }))) return; toast(t('pl_sess_removed'), 'success');
-    const a = S.patients.find(p => p.status === 'in'); if (a) { for (const o of Object.values(S.lov)) delete o.pay; loadAccount(a); }
+    const a = S.patients.find(p => p.status === 'in'); if (a) { S.sessPay = null; loadAccount(a); }
   },
   /* المريض غائب عند حلول دوره: إلى آخر الصف */
   async requeue(el) {
     if (!await run(() => api('POST', `/api/patients/${el.dataset.id}/requeue`))) return; toast(t('t_requeued'), 'success'); refresh();
   },
-  lpayQuick(el) {
-    const l = consLines().find(x => x.key === el.dataset.key); if (!l) return; const cap = l.cont ? l.cap : l.tot, v = el.dataset.v;
-    (S.lov[l.key] = S.lov[l.key] || {}).pay = v === 'all' ? String(cap) : v === 'half' ? String(r2c(cap / 2)) : '0'; recalc();
-  },
+  spayQuick(el) { const ls = consLines(), v = el.dataset.v; S.sessPay = v === 'all' ? String(r2c(ls.reduce((x, l) => x + l.cap, 0))) : v === 'zero' ? '0' : null; recalc(); const i = $('[data-input=spay]'); if (i) i.value = String(consLines().amt); },
   dpayAll(el) { const i = prevItems().find(x => String(x.id) === el.dataset.id); if (i) { S.dpay[i.id] = String(i.rem); recalc(); } },
   /* متابعة خطة جارية اليوم: نضيف سنّها وعلاجها للاختيار، ونخفي بنوداً جانبية لا يريدها الطبيب من تقاطع الاختيارين */
   planGo(el) {
@@ -1068,10 +1169,15 @@ const ACT = {
   async walOut(el) { return walMove(el, 'out'); },
   treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); if (i < 0) unRemove('', v); recalc(); },
   async finish(el) {
-    const m = moneyTotals(), r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { today: localDay(), lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay, gap: l.gap } : { tooth: l.th, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay, gap: l.gap }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, notes: ($('#consultNotes') || {}).value || '', patientNote: ($('#patientNote') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
+    const m = moneyTotals(); if (!await finishSummary(el.dataset.id, m)) return;   // شاشة التأكيد: الرفض يُبقي الطبيب في المعاينة ليعدّل
+    const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { today: localDay(), lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay, gap: l.gap, ortho: orthoSend(l) } : { tooth: l.th, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay, gap: l.gap, ortho: orthoSend(l) }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, notes: ($('#consultNotes') || {}).value || '', patientNote: ($('#patientNote') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
   },
   copyCode: () => copyText(S.me.code || ''),
+  bkCopy: () => { copyText(bookLink()); toast(t('bk_copied'), 'success'); },
+  bkOpen: () => { window.open(bookLink(), '_blank', 'noopener'); },
+  async bkSet(el) { el.disabled = true; const r = await run(() => api('PATCH', `/api/bookings/${el.dataset.id}`, { status: el.dataset.s })); if (!r) el.disabled = false; else refresh(); },
+  async bkDel(el) { if (!await appConfirm(t('bk_del_q'))) return; if (await run(() => api('DELETE', `/api/bookings/${el.dataset.id}`))) refresh(); },
   async delNurse(el) { if (await appConfirm(t('c_del_nurse')) && await run(() => api('DELETE', `/api/nurses/${el.dataset.id}`))) { toast(t('t_deleted'), 'info'); loadNurses(); } },
   editNurse(el) { const n = S.nurses.find(x => x.id === el.dataset.id); if (!n) return; $('#editNurseId').value = n.id; $('#editNurseName').value = n.name; $('#editNursePhone').value = n.phone || ''; $('#editNursePass').value = ''; openModal('editNurseModal'); },
   editArchive(el) {
@@ -1106,9 +1212,10 @@ const ACT = {
     if (r === 'today') a = b = iso(now);
     else if (r === 'yesterday') { const y = new Date(now); y.setDate(y.getDate() - 1); a = b = iso(y); }
     else if (r === 'week') { const w = new Date(now); w.setDate(w.getDate() - w.getDay()); a = iso(w); b = iso(now); }  // الأسبوع يبدأ الأحد
+    if (r === 'clear') for (const id of ['aName', 'aYear', 'aGender', 'aTooth', 'aTreat', 'aMoney']) { const f = $('#' + id); if (f) f.value = ''; }  // مسح كل الفلاتر والإدخالات
     $('#aFrom').value = a; $('#aTo').value = b; loadArchive(true);
   },
-  addTreat(el) { const f = el.closest('form'); const row = document.createElement('div'); row.innerHTML = treatRowHTML('', null); const n = row.firstElementChild; $('.priceRows', f).insertBefore(n, $('.priceRows .hint', f)); f.dataset.dirty = '1'; $('.treat-name', n).focus(); n.scrollIntoView({ block: 'center' }); },
+  addTreat(el) { const f = el.closest('form'), pre = el.dataset.preset === 'ortho'; const row = document.createElement('div'); row.innerHTML = treatRowHTML('', pre ? { sessions: 12, gap: 30, ortho: true } : null); if (pre) $('.treat-name', row).value = t('ortho_name'); const n = row.firstElementChild; $('.priceRows', f).insertBefore(n, $('.priceRows .hint', f)); f.dataset.dirty = '1'; $('.treat-name', n).focus(); n.scrollIntoView({ block: 'center' }); },
   delTreat(el) { const f = el.closest('form'); if ($$('.treat-row', f).length <= 1) return toast(t('tr_last'), 'warning'); el.closest('.treat-row').remove(); f.dataset.dirty = '1'; },
   moveTreat(el) { const row = el.closest('.treat-row'), f = el.closest('form'), d = +el.dataset.d, sib = d < 0 ? row.previousElementSibling : row.nextElementSibling; if (!sib || !sib.classList.contains('treat-row')) return; if (d < 0) sib.before(row); else sib.after(row); f.dataset.dirty = '1'; },
   setLed: el => { if (LEDS[el.dataset.led]) { settings.ledColor = el.dataset.led; applySettings(); } },
@@ -1123,7 +1230,7 @@ const ACT = {
     const i = document.createElement('input'); i.type = 'file'; i.accept = '.json,application/json';
     i.onchange = async () => {
       const f = i.files[0]; if (!f || !await appConfirm(t('c_restore'))) return;
-      let txt = ''; const r = await run(async () => api('POST', '/api/restore', undefined, { text: (txt = await f.text()) })); if (r) { restoreUi(txt); toast(t('restored', { p: r.patients, a: r.archive }), 'success'); refresh(); loadArchive(true); }
+      let txt = ''; const r = await run(async () => api('POST', '/api/restore', undefined, { text: (txt = await f.text()) })); if (r) { restoreUi(txt); toast(t('restored', { p: r.patients, a: r.archive }), 'success'); await reloadMe(); loadArchive(true); }
     }; i.click();
   },
   async toggleProtect() {
@@ -1143,7 +1250,8 @@ document.addEventListener('input', e => {
   if (el.dataset.input === 'age') updateAge(el.dataset.pre);
   else if (el.dataset.input === 'archive') loadArchive(true);
   else if (el.dataset.input === 'ltotal') { (S.lov[el.dataset.key] = S.lov[el.dataset.key] || {}).total = el.value; moneyUpdate(); }
-  else if (el.dataset.input === 'lpay') { (S.lov[el.dataset.key] = S.lov[el.dataset.key] || {}).pay = el.value; moneyUpdate(); }
+  else if (el.dataset.input === 'oin') { const o = S.lov[el.dataset.key] = S.lov[el.dataset.key] || {}; if (el.dataset.wire) { const v = wireFmt(el.value); if (v !== el.value) el.value = v; } (o.ortho = o.ortho || {})[el.dataset.f] = el.value; }
+  else if (el.dataset.input === 'spay') { S.sessPay = el.value === '' ? null : el.value; moneyUpdate(); }
   else if (el.dataset.input === 'dpay') { S.dpay[el.dataset.id] = el.value; moneyUpdate(); }
 });
 document.addEventListener('change', e => {
@@ -1196,7 +1304,9 @@ document.addEventListener('submit', async e => {
       if (!name) { toast(t('tr_empty_name'), 'danger'); return; }
       const key = orig && name === treatLabel(orig) ? orig : name;   // الاسم الافتراضي غير المعدَّل يحتفظ بمفتاحه الأصلي
       if (seen.has(key.toLowerCase())) { toast(t('e_duplicate'), 'danger'); return; } seen.add(key.toLowerCase());
-      treatments.push(key); (list[key] = list[key] || {}).sessions = Math.min(MAXS, Math.max(1, parseInt($('.treat-sess', row).value) || 1)); { const g = parseInt($('.treat-gap', row).value); list[key].gap = Number.isInteger(g) ? Math.min(365, Math.max(0, g)) : 7; } list[key].col = { on: $('.treat-col-on', row).checked, part: $('.treat-col-part', row).value, done: $('.treat-col-done', row).value }; $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
+      treatments.push(key); (list[key] = list[key] || {}).sessions = Math.min(MAXS, Math.max(1, parseInt($('.treat-sess', row).value) || 1));
+      { const oc = $('.treat-ortho', row); if (list[key].sessions < 6) { oc.checked = false; list[key].ortho = false; } else { if (list[key].sessions >= 6 && !oc.checked && row.dataset.oset !== '1') { oc.checked = (await appDialog({ msg: t('ortho_q', { n: name, s: list[key].sessions }), okL: t('ortho_yes'), noL: t('ortho_no') })) === true; row.dataset.oset = '1'; } if (oc.checked) list[key].ortho = true; else if (row.dataset.oset === '1') list[key].ortho = false; } }   // علاج ≥ 6 حصص: نسأل مرة واحدة هل هو تقويم
+      { const g = parseInt($('.treat-gap', row).value); list[key].gap = Number.isInteger(g) ? Math.min(365, Math.max(0, g)) : 7; } list[key].col = { on: $('.treat-col-on', row).checked, part: $('.treat-col-part', row).value, done: $('.treat-col-done', row).value }; $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
     }
     if (!treatments.length) { toast(t('tr_last'), 'danger'); return; }
     const r = await run(() => api('PUT', '/api/prices', { currency: $('.priceCur', f).value, list, treatments }));
@@ -1206,6 +1316,11 @@ document.addEventListener('submit', async e => {
     if (enabled && !days.length) { toast(t('e_invalid_input'), 'danger'); return; }
     const r = await run(() => api('PUT', '/api/schedule', { enabled, days, from: $('.schedFrom', f).value, to: $('.schedTo', f).value, tz: -new Date().getTimezoneOffset() }));
     if (r) { S.schedule = r; S.schedSig = ''; syncSchedule(); toast(t('t_sched_saved'), 'success'); }
+  } else if (kind === 'booking') {
+    const days = $$('.bkDays input:checked', f).map(x => +x.value), enabled = $('.bkEnabled', f).checked;
+    if (enabled && !days.length) { toast(t('e_invalid_input'), 'danger'); return; }
+    const r = await run(() => api('PUT', '/api/booking', { enabled, days, from: $('.bkFrom', f).value, to: $('.bkTo', f).value, slot: +$('.bkSlot', f).value, ahead: +$('.bkAhead', f).value, per: +$('.bkPer', f).value, tz: -new Date().getTimezoneOffset() }));
+    if (r) { S.booking = r; toast(t('bk_saved'), 'success'); renderBookings(); closeModals(); }
   } else if (kind === 'changePass') {
     if (await run(() => api('POST', '/api/account/password', { oldPassword: $('.oldPass', f).value, newPassword: $('.newPass', f).value }))) { f.reset(); toast(t('t_saved'), 'success'); }
   }
