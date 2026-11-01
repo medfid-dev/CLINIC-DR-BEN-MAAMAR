@@ -317,11 +317,11 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await vis({ lines: [{ plan: plan46, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].no === 3 && r.j.lines[0].sessions === 4 && (await acct()).plans.some(p => p.id === plan46 && p.open), 'الحصة 3 من 4 ما زالت مفتوحة بعد الإضافة');
       r = await vis({ lines: [{ plan: plan46, pay: 1000 }] }); ok(r.s === 200 && r.j.lines[0].no === 4 && (await acct()).plans.length === 0, 'الحصة 4 تُكمل الخطة');
       /* حتى 20 حصة + حذف حصة مضافة (لا تنزل عن الحصص المنجزة) */
-      r = await vis({ lines: [{ tooth: '36', treatment: 'تقويم', total: 4000, sessions: 60, pay: 4000 }] }); const plan20 = r.j.lines[0].plan; ok(r.s === 200 && r.j.lines[0].sessions === 60, 'خطة بستين حصة');
-      r = await vis({ lines: [{ tooth: '37', treatment: 'تقويم', total: 100, sessions: 61, pay: 100 }] }); ok(r.s === 400 || (r.s === 200 && r.j.lines[0].sessions === 1), 'أكثر من 60 حصة مرفوض');
-      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: 1 }); ok(r.s === 409, 'لا إضافة فوق 60 حصة');
-      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 59, 'حذف حصة (59)');
-      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 58, 'حذف حصة أخرى (58)');
+      r = await vis({ lines: [{ tooth: '36', treatment: 'تقويم', total: 4000, sessions: 20, pay: 4000 }] }); const plan20 = r.j.lines[0].plan; ok(r.s === 200 && r.j.lines[0].sessions === 20, 'خطة بعشرين حصة');
+      r = await vis({ lines: [{ tooth: '37', treatment: 'تقويم', total: 100, sessions: 21, pay: 100 }] }); ok(r.s === 400 || (r.s === 200 && r.j.lines[0].sessions === 1), 'أكثر من 20 حصة مرفوض');
+      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: 1 }); ok(r.s === 409, 'لا إضافة فوق 20 حصة');
+      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 19, 'حذف حصة (19)');
+      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 18, 'حذف حصة أخرى (18)');
       r = await J('POST', `/api/plans/aaaaaaaaaa/sessions`, B, { delta: 1 }); ok(r.s === 404, 'خطة غير موجودة');
       r = await vis({ lines: [{ tooth: '47', treatment: 'تقويم', total: 0, sessions: 99, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].sessions === 1, 'عدد حصص غير صالح يصير 1'); await J('POST', `/api/plans/${r.j.lines[0].plan}/close`, B);
       r = await J('PUT', '/api/prices', B, { currency: 'DA', treatments: ['حشوة', 'علاج عصب', 'تقويم'], list: { 'حشوة': { base: 1500, sessions: 1 }, 'علاج عصب': { base: 6000, sessions: 3 }, 'تقويم': { sessions: 99 } } });

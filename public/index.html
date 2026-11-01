@@ -32,7 +32,7 @@
 <!-- مهام الطبيب للممرضة -->
 <div id="tasksModal" class="modal-overlay">
   <div class="modal-card">
-    <div class="modal-head"><h4 data-i18n="task_title">📌 مهمة للممرضة</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="إغلاق">✕</button></div>
+    <div class="modal-head"><h4 data-i18n="task_title">📌 مهمة للممرضة</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="sendTask" autocomplete="off">
       <div class="form-group"><label data-i18n="task_to_l">إرسال إلى:</label><select id="taskTo"></select></div>
       <div class="form-group"><textarea id="taskText" maxlength="300" rows="3" required data-i18n-ph="task_ph" placeholder="اكتب المهمة…"></textarea></div>
@@ -232,7 +232,7 @@
         <button type="button" class="btn-action" data-act="archiveRange" data-r="today" data-i18n="today">اليوم</button>
         <button type="button" class="btn-action" data-act="archiveRange" data-r="yesterday" data-i18n="yesterday">أمس</button>
         <button type="button" class="btn-action" data-act="archiveRange" data-r="week" data-i18n="this_week">هذا الأسبوع</button>
-        <button type="button" class="btn-action" data-act="archiveRange" data-r="clear" data-i18n="clear_day">مسح ✕</button>
+        <button type="button" class="btn-action" data-act="archiveRange" data-r="clear" data-i18n="clear_day">مسح ✖</button>
       </div>
     </div>
     <div style="font-size:13px;color:var(--primary-sage);font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between"><span data-i18n="match_results">النتائج المطابقة:</span><span id="archiveResultCount" style="color:var(--warning-warm)">0</span><span id="archiveSum" style="margin-inline-start:14px;color:var(--orange)"></span></div>
@@ -359,14 +359,14 @@
 <!-- سجل المريض الكامل -->
 <div id="historyModal" class="modal-overlay">
   <div class="modal-card settings-modal history-card">
-    <div class="modal-head"><h4 data-i18n="hist_title">📋 سجل المريض</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="إغلاق">✕</button></div>
+    <div class="modal-head"><h4 data-i18n="hist_title">📋 سجل المريض</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <div id="historyBody"></div>
   </div>
 </div>
 <!-- نافذة إعدادات: clinic -->
 <div id="set_clinicModal" class="modal-overlay">
   <div class="modal-card settings-modal">
-    <div class="modal-head"><h4 data-i18n="set_clinic">بيانات العيادة</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="إغلاق">✕</button></div>
+    <div class="modal-head"><h4 data-i18n="set_clinic">بيانات العيادة</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="clinicInfo">
       <div class="form-group"><label data-i18n="clinic_name">اسم العيادة:</label><input type="text" class="setClinicName" maxlength="80" required></div>
       <div class="form-group"><label data-i18n="doc_name">اسم الطبيب:</label><input type="text" class="setDoctorName" maxlength="80" required></div>
@@ -377,7 +377,7 @@
 <!-- نافذة إعدادات: schedule -->
 <div id="set_scheduleModal" class="modal-overlay">
   <div class="modal-card settings-modal">
-    <div class="modal-head"><h4 data-i18n="set_schedule">تسجيل الممرضة للمرضى</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="إغلاق">✕</button></div>
+    <div class="modal-head"><h4 data-i18n="set_schedule">تسجيل الممرضة للمرضى</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="schedule">
       <div class="settings-item"><div><strong data-i18n="sched_enable">تقييد وقت التسجيل</strong><div class="hint" data-i18n="sched_enable_sub">عند الإيقاف تسجّل الممرضة في أي وقت</div></div>
         <label class="toggle-switch"><input type="checkbox" class="schedEnabled"><span class="slider"></span></label></div>
@@ -393,13 +393,12 @@
 <!-- نافذة إعدادات: prices -->
 <div id="set_pricesModal" class="modal-overlay">
   <div class="modal-card settings-modal">
-    <div class="modal-head"><h4 data-i18n="set_prices">💰 الحصص والأسعار</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="إغلاق">✕</button></div>
+    <div class="modal-head"><h4 data-i18n="set_prices">💰 الحصص والأسعار</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="prices">
       <div class="hint" style="margin-bottom:6px" data-i18n="prices_hint">سعر كل علاج. يظهر تلقائياً في المعاينة ويمكنك تعديله لكل مريض.</div>
       <div class="hint" style="margin-bottom:10px" data-i18n="tr_hint">أضف علاجاتك أو عدّل أسماءها وأسعارها أو احذفها. تظهر هذه القائمة في واجهة المعاينة.</div>
       <div class="priceRows"></div>
       <button type="button" class="btn-action btn-green" style="margin-top:6px" data-act="addTreat" data-i18n="tr_add">＋ إضافة علاج</button>
-      <button type="button" class="btn-action btn-green" style="margin-top:6px" data-act="addTreat" data-preset="ortho" data-i18n="tr_add_ortho">＋ إضافة علاج التقويم</button>
       <div class="form-group" style="margin-top:10px"><label data-i18n="currency_l">العملة (اختياري):</label><input type="text" class="priceCur" maxlength="10" placeholder="دج / ر.س / $"></div>
       <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
     </form>
@@ -408,7 +407,7 @@
 <!-- نافذة إعدادات: pass -->
 <div id="set_passModal" class="modal-overlay">
   <div class="modal-card settings-modal">
-    <div class="modal-head"><h4 data-i18n="chg_pass">تغيير كلمة المرور</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="إغلاق">✕</button></div>
+    <div class="modal-head"><h4 data-i18n="chg_pass">تغيير كلمة المرور</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="changePass">
       <input type="password" class="oldPass" autocomplete="current-password" required data-i18n-ph="old_pass">
       <input type="password" class="newPass" autocomplete="new-password" minlength="8" required data-i18n-ph="new_pass">
@@ -420,7 +419,7 @@
 <!-- نافذة إعدادات: قاعدة الأدوية -->
 <div id="set_drugsModal" class="modal-overlay">
   <div class="modal-card settings-modal">
-    <div class="modal-head"><h4 data-i18n="set_drugs">قاعدة الأدوية 💊</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="إغلاق">✕</button></div>
+    <div class="modal-head"><h4 data-i18n="set_drugs">قاعدة الأدوية 💊</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <div class="hint" id="drugsInfo" style="font-weight:600"></div>
     <input type="file" id="drugsFile" accept=".xlsx,.xlsm,.csv,.json,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,application/json,text/plain" hidden>
     <div style="display:flex;gap:10px;margin-top:12px">
@@ -433,7 +432,7 @@
 <!-- نافذة إعدادات: backup -->
 <div id="set_backupModal" class="modal-overlay">
   <div class="modal-card settings-modal">
-    <div class="modal-head"><h4 data-i18n="set_backup">النسخ الاحتياطي</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="إغلاق">✕</button></div>
+    <div class="modal-head"><h4 data-i18n="set_backup">النسخ الاحتياطي</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <div style="display:flex;gap:10px;margin-top:10px">
       <button type="button" class="btn-action btn-green" style="flex:1;padding:12px" data-act="exportData" data-i18n="export_data">تصدير نسخة 📥</button>
       <button type="button" class="btn-action btn-yellow" style="flex:1;padding:12px" data-act="importData" data-i18n="import_data">استعادة 📤</button>
