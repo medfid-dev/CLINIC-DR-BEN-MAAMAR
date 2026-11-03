@@ -13,6 +13,8 @@ Object.assign(L.ar, {
   ab_ask: 'ينصح باختيار مجلد على هذا الجهاز لتُحفظ فيه نسخة احتياطية يومية تلقائياً (آخر 14 يوماً). اختيار المجلد الآن؟', ab_ask_ok: 'اختيار مجلد', ab_ask_no: 'لاحقاً (تنزيل ملف)',
   ab_empty: '⚠️ تنبيه: سجلات الأرشيف على الخادم فارغة بينما كانت آخر نسخة تحوي {n} سجلاً. قد تكون البيانات مُسحت من الخادم (مثلاً بعد تحديث الاستضافة).\nلم أستبدل أي نسخة قديمة. استعدها من الإعدادات ← النسخ الاحتياطي ← «استعادة» باختيار آخر ملف نسخة.'
 });
+Object.assign(L.ar, { ab_open_q: 'تأكيد: أخذ النسخة الاحتياطية اليومية عند أول فتح للتطبيق كل يوم (بدل وقت محدد)؟' });
+Object.assign(L.en, { ab_open_q: 'Confirm: take the daily backup on the first app open each day (instead of a fixed time)?' });
 Object.assign(L.ar, { ab_last_note: '✅ آخر نسخة احتياطية: {d} — {n} سجلاً — {w}', ab_where_dir: 'في مجلد «{f}»', ab_where_dl: 'ملف نُزِّل على الجهاز', ab_next: '⏭️ النسخة القادمة: {d}', ab_next_open: 'عند أول فتح للتطبيق {d}', ab_none_note: '⚠️ لم تؤخذ أي نسخة احتياطية بعد' });
 Object.assign(L.en, { ab_last_note: '✅ Last backup: {d} — {n} records — {w}', ab_where_dir: 'in folder "{f}"', ab_where_dl: 'downloaded file', ab_next: '⏭️ Next backup: {d}', ab_next_open: 'on first open {d}', ab_none_note: '⚠️ No backup has been taken yet' });
 Object.assign(L.en, {
@@ -118,7 +120,7 @@ Object.assign(L.en, {
   Object.assign(ACT, {
     abToggle() { setCfg({ on: !cfg().on }); abUI(); if (cfg().on) tick(); },
     async abPick() { if (await pickFolder()) { toast(t('t_saved'), 'success'); abUI(); runBackup(true); } },
-    abTimeClear() { setCfg({ time: '' }); nextTry = 0; toast(t('ab_time_set'), 'success'); abUI(); tick(true); },
+    async abTimeClear() { if (!await appConfirm(t('ab_open_q'))) return; setCfg({ time: '' }); nextTry = 0; toast(t('ab_time_set'), 'success'); abUI(); tick(true); },
     abNow() { runBackup(true); }
   });
   inject(); abUI();

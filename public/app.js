@@ -150,8 +150,8 @@ Object.assign(L.ar, { pl_next_appt: 'موعد الحصة القادمة' });
 Object.assign(L.en, { pl_next_appt: 'Next session' });
 Object.assign(L.ar, { pnote_l: '💬 ملاحظة للمريض (تظهر في تذكرته بعد المعاينة)', pnote_ph: 'مثال: لا تأكل لمدة ساعتين، تناول الدواء بعد الأكل…' });
 Object.assign(L.en, { pnote_l: '💬 Note for the patient (shown on their ticket after the visit)', pnote_ph: 'e.g. Do not eat for 2 hours, take the medicine after meals…' });
-Object.assign(L.ar, { tab_appts: 'المواعيد 📅', ap_gap_l: 'أيام حتى الحصة القادمة', ap_banner: '{n} مريض حان موعد حصته:', ap_view: 'فتح المواعيد', ap_late: 'متأخر {n} يوم', ap_today: 'اليوم', ap_in: 'بعد {n} يوم', ap_day: 'يوم', ap_date: 'موعد الحصة', ap_del: 'حذف', ap_del_q: 'حذف هذا الموعد من القائمة؟', ap_deleted: 'حُذف الموعد', ap_due_h: 'حان موعدهم', ap_up_h: 'مواعيد قادمة', ap_empty: 'لا توجد مواعيد. يُسجَّل موعد الحصة التالية تلقائياً عند إنهاء حصة يبقى بعدها حصص.', ap_hint: 'يبقى المريض في «حان موعدهم» حتى يُنجز حصته، أو احذفه من القائمة يدوياً. عدد الأيام الافتراضي يُضبط من الإعدادات ← الحصص والأسعار.' });
-Object.assign(L.en, { tab_appts: 'Appointments 📅', ap_gap_l: 'Days until next session', ap_banner: '{n} patient(s) due:', ap_view: 'Open appointments', ap_late: '{n} day(s) overdue', ap_today: 'Today', ap_in: 'in {n} day(s)', ap_day: 'day', ap_date: 'Session date', ap_del: 'Delete', ap_del_q: 'Remove this appointment from the list?', ap_deleted: 'Appointment removed', ap_due_h: 'Due now', ap_up_h: 'Upcoming', ap_empty: 'No appointments. The next session date is set automatically when a session is finished and more remain.', ap_hint: 'A patient stays under "Due now" until the session is done, or remove them manually. The default gap is set in Settings → Sessions & prices.' });
+Object.assign(L.ar, { set_appt: 'العمل بالمواعيد', set_appt_sub: 'تقييد تسجيل الممرضة بالمواعيد في أيام تحدّدها', appt_enable: 'التقيّد بالمواعيد', appt_enable_sub: 'عند الإيقاف تسجّل الممرضة كما هو معتاد', appt_days: 'أيام العمل بالمواعيد فقط:', appt_hint: 'في هذه الأيام لا تستطيع الممرضة تسجيل إلا المرضى الذين حلّ موعدهم (اليوم أو قبله) في قائمة المواعيد، أما أنت فتسجّل أي مريض. يُحدَّد الموعد بعد المعاينة (أيام الانتظار في ملخص نهاية المعاينة) ويمكنك تعديله من تبويب المواعيد. في بقية الأيام يبقى العمل كما هو.', appt_saved: 'تم حفظ إعدادات المواعيد ✅', appt_gate_h: '🗓️ اليوم للمواعيد فقط', appt_gate_hint: 'سجّل المريض من قائمة المواعيد المستحقة أدناه. لا يمكن تسجيل مريض ليس له موعد.', appt_gate_empty: 'لا توجد مواعيد مستحقة اليوم', appt_reg: '➕ تسجيل', appt_registered: '✓ مسجّل', e_appt_only: 'اليوم مخصص للمواعيد: لا يمكن تسجيل مريض ليس له موعد مستحق', e_already_registered: 'هذا المريض مسجّل بالفعل في قائمة الانتظار', cont_title: '🔁 لدى المريض حصة سابقة غير مكتملة', cont_btn: '▶ متابعة الحصة السابقة', ap_search: '🔍 بحث في المواعيد: الاسم، الهاتف، السن، العلاج، التاريخ...', tab_appts: 'المواعيد 📅', ap_gap_l: 'أيام حتى الحصة القادمة', ap_banner: '{n} مريض حان موعد حصته:', ap_view: 'فتح المواعيد', ap_late: 'متأخر {n} يوم', ap_today: 'اليوم', ap_in: 'بعد {n} يوم', ap_day: 'يوم', ap_date: 'موعد الحصة', ap_del: 'حذف', ap_del_q: 'حذف هذا الموعد من القائمة؟', ap_deleted: 'حُذف الموعد', ap_due_h: 'حان موعدهم', ap_up_h: 'مواعيد قادمة', ap_empty: 'لا توجد مواعيد. يُسجَّل موعد الحصة التالية تلقائياً عند إنهاء حصة يبقى بعدها حصص.', ap_hint: 'يبقى المريض في «حان موعدهم» حتى يُنجز حصته، أو احذفه من القائمة يدوياً. عدد الأيام الافتراضي يُضبط من الإعدادات ← الحصص والأسعار.' });
+Object.assign(L.en, { set_appt: 'Appointments mode', set_appt_sub: 'Limit nurse registration to appointments on days you choose', appt_enable: 'Appointments only', appt_enable_sub: 'When off, nurses register as usual', appt_days: 'Appointment-only days:', appt_hint: 'On these days the nurse can only register patients whose appointment is due (today or earlier) in the appointments list. You can register anyone. The appointment is set after the visit (waiting days in the finish summary) and can be edited from the Appointments tab. On other days nothing changes.', appt_saved: 'Appointment settings saved ✅', appt_gate_h: '🗓️ Appointments only today', appt_gate_hint: 'Register the patient from the due appointments below. Patients without an appointment cannot be registered.', appt_gate_empty: 'No appointments due today', appt_reg: '➕ Register', appt_registered: '✓ Registered', e_appt_only: 'Appointments only today: this patient has no due appointment', e_already_registered: 'This patient is already in the waiting list', cont_title: '🔁 This patient has an unfinished previous session', cont_btn: '▶ Continue previous session', ap_search: '🔍 Search appointments: name, phone, tooth, treatment, date...', tab_appts: 'Appointments 📅', ap_gap_l: 'Days until next session', ap_banner: '{n} patient(s) due:', ap_view: 'Open appointments', ap_late: '{n} day(s) overdue', ap_today: 'Today', ap_in: 'in {n} day(s)', ap_day: 'day', ap_date: 'Session date', ap_del: 'Delete', ap_del_q: 'Remove this appointment from the list?', ap_deleted: 'Appointment removed', ap_due_h: 'Due now', ap_up_h: 'Upcoming', ap_empty: 'No appointments. The next session date is set automatically when a session is finished and more remain.', ap_hint: 'A patient stays under "Due now" until the session is done, or remove them manually. The default gap is set in Settings → Sessions & prices.' });
 Object.assign(L.ar, { pl_del_sess: 'حذف حصة', pl_sess_removed: 'حُذفت حصة من العلاج ✅', requeue: 'إلى آخر الصف', t_requeued: 'نُقل المريض إلى آخر قائمة الانتظار ↩️' });
 Object.assign(L.en, { pl_del_sess: 'Remove a session', pl_sess_removed: 'Session removed from the treatment ✅', requeue: 'Send to end of queue', t_requeued: 'Patient moved to the end of the queue ↩️' });
 Object.assign(L.ar, { col_on_l: 'تلوين السن', col_part_l: 'أثناء العلاج', col_done_l: 'عند الاكتمال', col_hint: 'لكل علاج: لون السن أثناء العلاج (حصص متبقية) ولونه عند اكتمال الحصص، ويظهران في مخطط الأسنان بالمعاينة وفي سجل المريض.' });
@@ -277,7 +277,7 @@ function forceLogout(silent) {
 /* ===================== المزامنة الفورية ===================== */
 function applyState(st, force) {
   if (!force && st.serverTime < S.stamp) return;
-  S.stamp = st.serverTime; S.patients = st.patients; S.tasks = st.tasks || []; S.skipRequests = st.skipRequests || []; S.appts = st.appts || []; S.bookings = st.bookings || []; if (st.booking) S.booking = st.booking; if (st.schedule) S.schedule = st.schedule;
+  S.stamp = st.serverTime; S.patients = st.patients; S.tasks = st.tasks || []; S.skipRequests = st.skipRequests || []; S.appts = st.appts || []; S.bookings = st.bookings || []; if (st.booking) S.booking = st.booking; if (st.schedule) S.schedule = st.schedule; if (st.apptMode) S.apptMode = st.apptMode;
 }
 async function connect() {
   if (S.es) { S.es.close(); S.es = null; }
@@ -324,12 +324,12 @@ function renderAll() {
 const busy = () => S.patients.some(p => p.status === 'in');
 function patientMeta(p) { return `${t('sex')}: ${esc(genderL(p.gender))} | ${t('birth')}: ${p.birthYear} (${p.age} ${t('years_short')}) | ${t('tooth')}: ${esc(p.tooth)}`; }
 function renderNurseList() {
-  const list = $('#nursePatientList'), isBusy = busy(), nWait = S.patients.filter(p => p.status === 'waiting').length; let rank = 1;
+  const list = $('#nursePatientList'), isBusy = busy(), wIds = S.patients.filter(p => p.status === 'waiting').map(p => p.id); let rank = 1;   // زر «إلى آخر الصف» لا يظهر لآخر مريض ولا لمريض وحيد
   list.innerHTML = S.patients.length ? S.patients.map(p => {
     const inRoom = p.status === 'in';
     const act = inRoom ? `<span style="font-size:12px;color:var(--warning-warm);font-weight:600">${t('in_room')}</span>`
       : `<button type="button" class="btn-action btn-green ${isBusy ? 'btn-disabled' : ''}" ${isBusy ? 'disabled' : ''} data-act="enter" data-id="${p.id}">🟢 ${t('enter')}</button>`;
-    const extra = inRoom ? '' : `${nWait > 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button>`;
+    const extra = inRoom ? '' : `${wIds.indexOf(p.id) > -1 && wIds.indexOf(p.id) < wIds.length - 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button>`;
     return `<li class="patient-card ${inRoom ? 'in-doctor' : ''}"><div><span class="queue-badge">${inRoom ? t('doctor_word') : '#' + rank++}</span><strong style="font-size:15px">${esc(p.name)}</strong> <span class="badge">${esc(reasonL(p.reason))}</span>
       <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo}</div></div>
       <div class="actions">${act}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>${extra}</div></li>`;
@@ -339,7 +339,7 @@ function renderDocWaiting() {
   const w = S.patients.filter(p => p.status === 'waiting'), list = $('#docWaitingList'); let r = 1;
   const html = w.length ? w.map(p => `<li class="patient-card${p.debt > 0 ? ' has-debt' : p.wallet > 0 ? ' has-wallet' : ''}" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> <span class="badge">${esc(reasonL(p.reason))}</span>${p.debt > 0 ? ` <span class="badge debt-badge">⚠️ ${t('rem_l')} ${money(p.debt)}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div></div>
-    <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button>${w.length > 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
+    <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button>${w.indexOf(p) < w.length - 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
     <button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('empty_wait')}</li>`;
   if (list._h !== html) { list._h = html; list.innerHTML = html; }
@@ -359,7 +359,7 @@ function consStickInit(area) {
 function renderConsultation() {
   const area = $('#consultationArea'), a = S.patients.find(p => p.status === 'in');
   $('#consultationNavBtn').classList.toggle('has-patient', !!a);
-  const sig = a ? a.id + ':' + a.images.join(',') + ':' + settings.lang + ':' + a.reason : '';
+  const sig = a ? a.id + ':' + a.images.join(',') + ':' + settings.lang + ':' + a.reason + ':' + [a.name, a.birthYear, a.gender, a.phone, a.tooth].join('~') : '';   // أي تعديل لبيانات المريض يُعيد رسم شاشة المعاينة فوراً
   if (area.dataset.sig === sig) return;
   const samePid = area.dataset.pid === (a ? a.id : ''), notes = samePid && $('#consultNotes') ? $('#consultNotes').value : '', pnote = samePid && $('#patientNote') ? $('#patientNote').value : '';
   if (!samePid) { S.treatments = [(a && REASON_TREAT[a.reason]) || 'أخرى']; if (a) teethInit(a); moneyReset(); if (window.rxReset) rxReset(a); }
@@ -374,6 +374,7 @@ function renderConsultation() {
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;font-size:13px">
         <div>${t('tooth_l')} <strong>${esc(a.tooth)}</strong></div><div>${t('gender_l')} <strong>${esc(genderL(a.gender))}</strong></div>
         <div>${t('birth_l')} <strong>${a.birthYear} (${a.age} ${t('years_short')})</strong></div><div>${t('phone_l')} <strong>${esc(a.phone || t('not_set'))}</strong></div><div>${t('wait_l')} <strong data-wait="${a.createdAt}">${waitText(a.createdAt)}</strong></div></div></div>
+      <div id="contBar">${contBarHTML()}</div>
       <div style="background:var(--surface-sunk);border:1px dashed var(--border-calm);padding:16px;border-radius:12px;margin-bottom:20px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:8px">${t('xrays')}</label>
         <div class="patient-images-container">${imgs}</div>
         <div style="display:flex;gap:10px;margin-top:12px"><button type="button" class="btn-action btn-green" style="flex:1" data-act="openCamera" data-id="${a.id}">${t('cam_live')}</button><button type="button" class="btn-action btn-yellow" style="flex:1" data-act="pickFile" data-id="${a.id}">${t('upload_gal')}</button></div></div>
@@ -515,9 +516,11 @@ function finishSummary(pid, m) {
     }).join('');
     const prev = m.ps.filter(x => x.pay > 0).map(x => row(`${x.th ? esc(x.th) + ' · ' : ''}${esc(treatLabel(x.tr))} <small>(${t('pl_prev_title')})</small>`, money(x.pay))).join('');
     const age = pt.birthYear ? `${new Date().getFullYear() - pt.birthYear} ${t('years_short')}` : '';
+    const durMin = Math.max(1, Math.round((Date.now() - (pt.startedAt || Date.now())) / 6e4));   // نفس معادلة الخادم لمدة المعاينة المحفوظة في الأرشيف
     const el = document.createElement('div'); el.className = 'modal-overlay active'; el.style.zIndex = 30000;
     el.innerHTML = `<div class="modal-card fs-card" role="dialog" aria-modal="true"><h3 class="fs-title">📋 ${t('fs_title')}</h3>
       <div class="fs-pat"><b>${esc(pt.name || '')}</b><span>${[age, pt.gender ? esc(genderL(pt.gender)) : '', pt.phone ? '☎️ <span dir="ltr">' + esc(pt.phone) + '</span>' : '', pt.ticketNo ? t('ticket_no') + ' ' + pt.ticketNo : ''].filter(Boolean).join(' · ')}</span></div>
+      <div class="fs-dur">⏱ ${t('dur_l')}: <b>${fmtMin(durMin)}</b></div>
       <div class="fs-sec">${t('fs_treat')}</div>${lines || `<div class="hint">${t('pl_none')}</div>`}${prev ? `<div class="fs-item"><div class="fs-it-h"><b>${t('fs_prev_pay')}</b></div>${prev}</div>` : ''}
       ${notes ? `<div class="fs-sec">${t('notes_l')}</div><div class="fs-notes">${esc(notes)}</div>` : ''}
       <div class="fs-tot">${row(t('pl_sum_today'), money(m.due))}${row(t('pl_sum_paid'), money(m.pay))}${m.w > 0 ? row('🏺 ' + t('pl_sum_wal'), money(m.w), 'fs-sub2') + row('💵 ' + t('pl_sum_cash'), money(m.cash), 'fs-sub2') : ''}${row(t('pl_sum_after'), money(m.after), m.after > 0 ? 'fs-bad fs-big' : 'fs-ok fs-big')}</div>
@@ -582,6 +585,21 @@ function lineHTML(l) {
     <div class="pl-row pl-sess"><label>${t('pl_sess_n')}</label><span class="pl-stepper"><button type="button" data-act="lineSess" data-key="${k}" data-v="-1" aria-label="-">−</button><b>${l.sessions}</b><button type="button" data-act="lineSess" data-key="${k}" data-v="1" aria-label="+">+</button></span></div>
     <div class="pl-hint" id="plh">${hint}</div>${orthoHTML(l)}${pay}</div>`;
 }
+/* شريط أعلى المعاينة: خطط علاج جارية (حصص سابقة) لم تُضَف لمعاينة اليوم، مع موعدها وزر المتابعة */
+function contBarHTML() {
+  const ac = S.account; if (!ac || !ac.key) return '';
+  const open = prevItems().filter(i => i.open); if (!open.length) return '';
+  const td = localDay(), ap = S.appts || [];
+  const rows = open.map(i => {
+    const a = ap.find(x => x.name === ac.key.name && String(x.birthYear) === String(ac.key.year) && x.treatment === i.tr && String(x.tooth || '') === String(i.th || ''));
+    let when = '';
+    if (a) { const d = dayDiff(a.date, td), st = d < 0 ? t('ap_late', { n: -d }) : d === 0 ? t('ap_today') : t('ap_in', { n: d }), cls = d < 0 ? 'late' : d === 0 ? 'today' : 'soon'; when = `<span class="appt-chip ${cls}">${st}</span> <span dir="ltr">📅 ${esc(a.date)}</span>`; }
+    return `<div class="cont-row"><div class="cont-info">${plBadge(i.th, i.tr)}<span class="pl-badge cont">${t('pl_next_session', { n: i.next, m: i.sessions })}</span>${when ? `<div class="cont-when">${when}</div>` : ''}</div>
+      <button type="button" class="btn-action btn-green" data-act="planGo" data-id="${esc(i.id)}">${t('cont_btn')}</button></div>`;
+  }).join('');
+  return `<div class="cont-bar"><div class="cont-h">${t('cont_title')}</div>${rows}</div>`;
+}
+function contBarUpdate() { const b = $('#contBar'); if (!b) return; const h = contBarHTML(); if (b._h !== h) { b._h = h; b.innerHTML = h; } }
 function prevHTML(i) {
   const id = esc(i.id), title = plBadge(i.th, i.tr) + (i.open ? `<span class="pl-badge cont">${t('pl_next_session', { n: i.next, m: i.sessions })}</span>` : '');
   return `<div class="pl-line pl-prev" data-id="${id}"><div class="pl-head">${title}</div>
@@ -612,7 +630,7 @@ function moneyUpdate() {
   const si = $('[data-input=spay]'); if (si && si !== act && S.sessPay == null) si.value = String(m.ls.amt); const sh = $('#spayHint'); if (sh) sh.textContent = m.ls.excess > 0 ? t('pl_excess', { a: money(m.ls.excess) }) : t('pl_spay_hint', { a: money(m.ls.sugg) });
   const sm = $('#moneySum'); if (sm) sm.innerHTML = sumHTML(m); const wl = $('#walLine'); if (wl) wl.textContent = S.useWal && m.w > 0 ? '− ' + money(m.w) : '';
 }
-function recalc() { const b = $('#planBox'); if (!b) return; if (b.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return moneyUpdate(); b.innerHTML = planBoxInner(); moneyUpdate(); }
+function recalc() { const b = $('#planBox'); if (!b) return; contBarUpdate(); if (b.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return moneyUpdate(); b.innerHTML = planBoxInner(); moneyUpdate(); }
 /* مفاتيح بنود محذوفة يدوياً تعود إن اختار الطبيب السن أو العلاج من جديد */
 const unRemove = (th, tr) => { for (const k of [...S.removed]) { const [a, b] = k.split('|'); if ((th && a === th) || (tr && b === tr)) S.removed.delete(k); } };
 async function loadAccount(a) {
@@ -915,6 +933,7 @@ function updateRegGate() {
   b.style.display = open ? 'none' : 'block';
   if (!open) b.textContent = t('reg_closed', { d: s.days.map(i => t('days_full')[i]).join('، '), a: s.from, b: s.to });
   const btn = $('form[data-form=addPatient][data-pre=pn] button[type=submit]'); if (btn) btn.disabled = !open;
+  renderApptGate();
 }
 setInterval(updateRegGate, 30000);
 function syncSchedule() {
@@ -924,6 +943,63 @@ function syncSchedule() {
   S.schedSig = sig;
   $('.schedEnabled', form).checked = s.enabled; $('.schedFrom', form).value = s.from; $('.schedTo', form).value = s.to;
   $('.schedDays', form).innerHTML = t('days_full').map((n, i) => `<label style="display:flex;align-items:center;gap:6px;font-size:13px;background:var(--surface-sunk);padding:6px 12px;border-radius:999px"><input type="checkbox" value="${i}" style="width:auto" ${s.days.includes(i) ? 'checked' : ''}>${esc(n)}</label>`).join('');
+}
+/* ===================== العمل بالمواعيد (إعدادات الطبيب + قائمة الممرضة) ===================== */
+/* يوم/ساعة العيادة بنفس معادلة الخادم (إزاحة tz المحفوظة عند الإعداد) */
+const apptClock = () => { const d = new Date(Date.now() + ((S.apptMode && S.apptMode.tz) || 0) * 6e4); return { day: d.toISOString().slice(0, 10), dow: d.getUTCDay() }; };
+const apptModeOn = () => !!(S.apptMode && S.apptMode.enabled && (S.apptMode.days || []).includes(apptClock().dow));
+const pKey = (n, y) => String(n).trim().toLowerCase() + '|' + y;
+function renderApptGate() {
+  const form = $('form[data-form=addPatient][data-pre=pn]'); if (!form || !S.me || S.me.role !== 'nurse') return;
+  const on = apptModeOn(); let g = $('#apptGate');
+  form.style.display = on ? 'none' : '';
+  if (!on) { if (g) g.remove(); return; }
+  if (!g) { g = document.createElement('div'); g.id = 'apptGate'; g.className = 'appt-gate'; form.insertAdjacentElement('beforebegin', g); }
+  const td = apptClock().day, open = schedOpenNow(S.schedule), here = new Set(S.patients.map(p => pKey(p.name, p.birthYear)));
+  const groups = new Map(); for (const a of (S.appts || []).filter(x => x.date <= td)) { const k = pKey(a.name, a.birthYear); if (!groups.has(k)) groups.set(k, { k, a, items: [] }); groups.get(k).items.push(a); }
+  const rows = [...groups.values()];
+  const sig = JSON.stringify([rows.map(r => [r.k, r.items.map(i => [i.id, i.date])]), [...here], open, td, settings.lang]); if (g._sig === sig) return; g._sig = sig;
+  g.innerHTML = `<div class="ag-h">${t('appt_gate_h')}</div><div class="ag-hint">${t('appt_gate_hint')}</div>` + (rows.length ? rows.map(r => {
+    const a = r.a, d = dayDiff(r.items.reduce((m, i) => i.date < m ? i.date : m, a.date), td), st = d < 0 ? t('ap_late', { n: -d }) : t('ap_today'), cls = d < 0 ? 'late' : 'today', reg = here.has(r.k);
+    return `<div class="ag-row${reg ? ' done' : ''}"><div class="ag-info"><b>${esc(a.name)}</b> <span class="ag-meta">${YEAR - a.birthYear} ${t('years_short')}${a.phone ? ' · <span dir="ltr">' + esc(a.phone) + '</span>' : ''}</span>
+      <div class="ag-tr">${r.items.map(i => plBadge(i.tooth, i.treatment) + `<span class="pl-badge cont">${t('pl_next_session', { n: i.no, m: i.sessions })}</span>`).join(' ')}</div><span class="appt-chip ${cls}">${st}</span></div>
+      ${reg ? `<span class="ag-ok">${t('appt_registered')}</span>` : `<button type="button" class="btn-action btn-green" data-act="apptReg" data-id="${esc(a.id)}" ${open ? '' : 'disabled'}>${t('appt_reg')}</button>`}</div>`;
+  }).join('') : `<div class="ag-empty">${t('appt_gate_empty')}</div>`);
+}
+function ensureApptModal() {
+  if ($('#set_apptModal')) return;
+  const m = document.createElement('div'); m.id = 'set_apptModal'; m.className = 'modal-overlay';
+  m.innerHTML = `<div class="modal-card" style="text-align:start"><h5 style="margin-bottom:12px;color:var(--primary-sage)">📅 <span data-i18n="set_appt"></span></h5>
+    <form data-form="apptMode">
+      <div class="settings-item"><div><strong data-i18n="appt_enable"></strong><div class="hint" data-i18n="appt_enable_sub"></div></div><label class="toggle-switch"><input type="checkbox" class="apptEnabled"><span class="slider"></span></label></div>
+      <div class="form-group" style="margin-top:12px"><label data-i18n="appt_days"></label><div class="apptDays" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div></div>
+      <button type="submit" class="btn-action" data-i18n="save"></button>
+      <div class="hint" style="margin-top:10px" data-i18n="appt_hint"></div>
+      <button type="button" class="btn-action btn-red" style="margin-top:10px" data-act="closeModal" data-i18n="cancel"></button>
+    </form></div>`;
+  document.body.appendChild(m);
+}
+function syncApptMode() {
+  const f = $('form[data-form=apptMode]'); if (!f || !S.me || S.me.role !== 'doctor') return; const m = S.apptMode || { enabled: false, days: [] };
+  $('.apptEnabled', f).checked = !!m.enabled;
+  $('.apptDays', f).innerHTML = t('days_full').map((n, i) => `<label style="display:flex;align-items:center;gap:6px;font-size:13px;background:var(--surface-sunk);padding:6px 12px;border-radius:999px"><input type="checkbox" value="${i}" style="width:auto" ${(m.days || []).includes(i) ? 'checked' : ''}>${esc(n)}</label>`).join('');
+}
+/* تبويب/بطاقة «العمل بالمواعيد» في الإعدادات: تُنسخ من بطاقة «تسجيل الممرضة» لتطابق شكل الإعدادات، وإلا تُضاف بطاقة بسيطة */
+function injectApptSettings() {
+  if (!S.me || S.me.role !== 'doctor') return; ensureApptModal();
+  $$('#doctorScreen .settings-container-box').forEach(box => {
+    if ($('[data-m="set_apptModal"]', box)) return;
+    const base = $('[data-act="openSet"][data-m="set_scheduleModal"]', box); let el;
+    if (base) {
+      el = base.cloneNode(true); el.dataset.m = 'set_apptModal'; el.removeAttribute('id');
+      const tg = [el, ...$$('[data-i18n]', el)].filter(x => x.dataset.i18n); tg.forEach((x, i) => { if (i === 0) x.dataset.i18n = 'set_appt'; else if (i === 1) x.dataset.i18n = 'set_appt_sub'; else x.remove(); });
+      if (!tg.length) el.textContent = t('set_appt');
+      base.insertAdjacentElement('afterend', el);
+    } else {
+      el = document.createElement('div'); el.className = 'settings-card doc-only'; el.innerHTML = `<button type="button" class="btn-action" data-act="openSet" data-m="set_apptModal">📅 <span data-i18n="set_appt"></span></button>`; box.appendChild(el);
+    }
+  });
+  translate();
 }
 /* ===================== المواعيد ===================== */
 const localDay = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
@@ -954,6 +1030,9 @@ function renderAppts() {
   const td = localDay(), list = S.appts || [], due = list.filter(a => a.date <= td), cnt = $('#apptCount'), ban = $('#apptBanner');
   cnt.textContent = due.length; cnt.classList.toggle('zero', !due.length);
   if (ban) { const bh = due.length ? `<span>📅 <b>${t('ap_banner', { n: due.length })}</b> ${esc(due.slice(0, 3).map(a => a.name).join('، '))}${due.length > 3 ? '…' : ''}</span><button type="button" class="btn-action btn-red" data-act="docTab" data-tab="appts">${t('ap_view')}</button>` : ''; if (ban._h !== bh) { ban._h = bh; ban.innerHTML = bh; ban.hidden = !due.length; } }
+  let sb = $('#apptSearch');   // خانة البحث خارج #apptsArea كي لا تُعاد كتابتها ولا يفقد المستخدم مؤشّر الكتابة
+  if (!sb) { sb = document.createElement('input'); sb.type = 'search'; sb.id = 'apptSearch'; sb.className = 'appt-search'; sb.autocomplete = 'off'; sb.dataset.input = 'apptq'; sb.value = S.apptQ || ''; box.insertAdjacentElement('beforebegin', sb); }
+  sb.placeholder = t('ap_search');
   if (box.contains(document.activeElement) && document.activeElement.matches('input')) return;
   const miniTeeth = a => {   // مخطط أسنان صغير يبيّن السن المعالج (بلون العلاج أثناء الحصص)
     const n = String(a.tooth || ''); if (!ALL_TEETH.has(n)) return '';
@@ -968,8 +1047,12 @@ function renderAppts() {
       <div class="note-line appt-when"><span class="appt-chip ${cls}">${st}</span> <input type="date" class="appt-date" data-change="apptDate" data-id="${a.id}" value="${a.date}" aria-label="${esc(t('ap_date'))}">${a.phone ? ` · <a href="tel:${esc(a.phone)}" dir="ltr">📞 ${esc(a.phone)}</a>` : ''}</div>${miniTeeth(a)}</div>
       <div class="actions"><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="-1">➖ ${t('ap_day')}</button><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="1">➕ ${t('ap_day')}</button><button type="button" class="btn-action btn-red" data-act="apptDel" data-id="${a.id}" title="${esc(t('ap_del'))}">🗑 ${t('ap_del')}</button></div></li>`;
   };
-  const up = list.filter(a => a.date > td);
-  const html = (list.length ? (due.length ? `<h3 class="appt-h due">🔔 ${t('ap_due_h')} (${due.length})</h3><ul class="patient-list">${due.map(row).join('')}</ul>` : '') + (up.length ? `<h3 class="appt-h">🗓 ${t('ap_up_h')} (${up.length})</h3><ul class="patient-list">${up.map(row).join('')}</ul>` : '') : `<div class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('ap_empty')}</div>`) + `<p class="note-line" style="margin-top:12px">${t('ap_hint')}</p>`;
+  const nq = x => String(x == null ? '' : x).toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').trim();
+  const qs = nq(S.apptQ).split(/\s+/).filter(Boolean);
+  const hay = a => nq([a.name, a.phone, a.tooth, a.treatment, treatLabel(a.treatment), a.date, a.birthYear].join(' '));
+  const shown = qs.length ? list.filter(a => { const h = hay(a); return qs.every(w => h.includes(w)); }) : list;
+  const dueS = shown.filter(a => a.date <= td), up = shown.filter(a => a.date > td);
+  const html = (shown.length ? (dueS.length ? `<h3 class="appt-h due">🔔 ${t('ap_due_h')} (${dueS.length})</h3><ul class="patient-list">${dueS.map(row).join('')}</ul>` : '') + (up.length ? `<h3 class="appt-h">🗓 ${t('ap_up_h')} (${up.length})</h3><ul class="patient-list">${up.map(row).join('')}</ul>` : '') : `<div class="patient-card" style="justify-content:center;color:var(--text-muted)">${list.length ? t('no_results') : t('ap_empty')}</div>`) + `<p class="note-line" style="margin-top:12px">${t('ap_hint')}</p>`;
   if (box._h !== html) { box._h = html; box.innerHTML = html; }
 }
 function docTab(tab) {
@@ -987,7 +1070,7 @@ function nurseTab(tab) {
 /* ===================== الإعدادات ===================== */
 function renderSettingsBoxes() {
   const tpl = $('#settingsTemplate').innerHTML;
-  $$('.settings-container-box').forEach(b => { b.innerHTML = tpl; }); S.schedSig = ''; renderPriceForm();
+  $$('.settings-container-box').forEach(b => { b.innerHTML = tpl; }); S.schedSig = ''; renderPriceForm(); injectApptSettings();
   $$('.setClinicName').forEach(i => { i.value = S.me.clinicName; }); $$('.setDoctorName').forEach(i => { i.value = S.me.role === 'doctor' ? S.me.name : ''; });
 }
 function translate() {
@@ -1088,6 +1171,11 @@ function download(blob, name) { const a = document.createElement('a'); a.href = 
 /* ===================== الأفعال (تفويض الأحداث) ===================== */
 const ACT = {
   authMode: el => authMode(el.dataset.mode), logout, closeAlert: el => el.parentElement.remove(),
+  async apptReg(el) {
+    el.disabled = true; lastOwnAdd = Date.now();
+    const r = await run(() => api('POST', '/api/patients', { apptId: el.dataset.id })); if (!r) { el.disabled = false; refresh(); return; }
+    toast(t('t_registered'), 'success'); await refresh(); if (settings.autoQr) showQr(r.id);
+  },
   async apptShift(el) { if (await run(() => api('PUT', `/api/appts/${el.dataset.id}`, { delta: +el.dataset.d }))) refresh(); },
   async apptDel(el) { if (!await appConfirm(t('ap_del_q'))) return; if (await run(() => api('DELETE', `/api/appts/${el.dataset.id}`))) { toast(t('ap_deleted'), 'success'); refresh(); } },
   docTab: el => docTab(el.dataset.tab), nurseTab: el => nurseTab(el.dataset.tab),
@@ -1103,6 +1191,7 @@ const ACT = {
     if (m === 'set_backupModal') { protectUI(); if (window.abUI) abUI(); }
     if (m === 'set_scheduleModal') { S.schedSig = ''; syncSchedule(); }
     if (m === 'set_bookingModal') syncBooking();
+    if (m === 'set_apptModal') { ensureApptModal(); syncApptMode(); translate(); }
     openModal(m);
   }, closeLightbox: () => $('#lightboxModal').classList.remove('active'),
   lightbox: async el => { try { LB.rec = el.dataset.rec; LB.img = el.dataset.img; $('#lightboxImg').src = await imgBlobUrl(el.dataset.rec, el.dataset.img); lbReset(); $('#lightboxModal').classList.add('active'); } catch (e) {} },
@@ -1249,6 +1338,7 @@ document.addEventListener('input', e => {
   const el = e.target;
   if (el.dataset.input === 'age') updateAge(el.dataset.pre);
   else if (el.dataset.input === 'archive') loadArchive(true);
+  else if (el.dataset.input === 'apptq') { S.apptQ = el.value; renderAppts(); }
   else if (el.dataset.input === 'ltotal') { (S.lov[el.dataset.key] = S.lov[el.dataset.key] || {}).total = el.value; moneyUpdate(); }
   else if (el.dataset.input === 'oin') { const o = S.lov[el.dataset.key] = S.lov[el.dataset.key] || {}; if (el.dataset.wire) { const v = wireFmt(el.value); if (v !== el.value) el.value = v; } (o.ortho = o.ortho || {})[el.dataset.f] = el.value; }
   else if (el.dataset.input === 'spay') { S.sessPay = el.value === '' ? null : el.value; moneyUpdate(); }
@@ -1316,6 +1406,11 @@ document.addEventListener('submit', async e => {
     if (enabled && !days.length) { toast(t('e_invalid_input'), 'danger'); return; }
     const r = await run(() => api('PUT', '/api/schedule', { enabled, days, from: $('.schedFrom', f).value, to: $('.schedTo', f).value, tz: -new Date().getTimezoneOffset() }));
     if (r) { S.schedule = r; S.schedSig = ''; syncSchedule(); toast(t('t_sched_saved'), 'success'); }
+  } else if (kind === 'apptMode') {
+    const days = $$('.apptDays input:checked', f).map(x => +x.value), enabled = $('.apptEnabled', f).checked;
+    if (enabled && !days.length) { toast(t('e_invalid_input'), 'danger'); return; }
+    const r = await run(() => api('PUT', '/api/appt-mode', { enabled, days, tz: -new Date().getTimezoneOffset() }));
+    if (r) { S.apptMode = r; syncApptMode(); updateRegGate(); toast(t('appt_saved'), 'success'); closeModals(); }
   } else if (kind === 'booking') {
     const days = $$('.bkDays input:checked', f).map(x => +x.value), enabled = $('.bkEnabled', f).checked;
     if (enabled && !days.length) { toast(t('e_invalid_input'), 'danger'); return; }
