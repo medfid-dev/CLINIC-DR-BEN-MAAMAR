@@ -118,7 +118,8 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     r = await J('GET', '/api/suggest?q=' + encodeURIComponent('مريض1'), B); ok(r.s === 200 && r.j.length === 0, 'الاقتراحات معزولة بين العيادات');
     r = await J('GET', '/api/suggest?q=' + encodeURIComponent('م'), A); ok(r.s === 200 && r.j.length === 0, 'حرف واحد لا يُقترح');
     r = await J('GET', '/api/suggest?q=abc'); ok(r.s === 401, 'الاقتراحات تتطلب دخولاً');
-    r = await J('GET', '/api/suggest?q=' + encodeURIComponent('يض1'), A); ok(r.s === 200 && r.j.length === 0, 'الاقتراحات تطابق من بداية الاسم فقط');
+    r = await J('GET', '/api/suggest?q=' + encodeURIComponent('ري'), A); ok(r.s === 200 && r.j.length === 0, 'حرفان من وسط الاسم لا يُقترحان');
+    r = await J('GET', '/api/suggest?q=' + encodeURIComponent('يض1'), A); ok(r.s === 200 && r.j.length >= 1, 'ثلاثة أحرف فأكثر من وسط الاسم تُقترح');
     r = await J('PUT', '/api/prices', N, { currency: 'دج', list: { 'قلع': 1000 } }); ok(r.s === 403, 'الممرضة لا تعدّل الأسعار');
     r = await J('PUT', '/api/prices', A, { currency: 'دج', list: { 'قلع': '1500.505', 'غير معروف': 5, 'عصب': -1, 'أخرى': 'abc' } }); ok(r.s === 200 && r.j.currency === 'دج' && r.j.list['قلع'].base === 1500.51 && Object.values(r.j.list).filter(v => v.base != null).length === 1, 'حفظ الأسعار مع تنقية القيم غير الصالحة');
     r = await J('GET', '/api/state', A); ok(r.j.me.prices.list['قلع'].base === 1500.51, 'الطبيب يرى قائمة الأسعار');
@@ -215,6 +216,7 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       const pw = v1.r.j.payments.find(p => p.m === 'w'), pc = v1.r.j.payments.find(p => !p.m);
       ok(pw && pw.amt === 3000 && pw.vid === v1.id && pw.vn === 1 && pc && pc.amt === 1000, 'كل دفعة تحمل الحصة التي دُفعت فيها ونوعها (وعاء/نقد)');
       ok(await wal() === 0, 'الوعاء بعد الاقتطاع = 0');
+      r = await J('GET', '/api/archive?name=' + q, B); ok(r.j.paidSum === 4000, 'المحصَّل = 1000 نقداً + 3000 مقتطعة من الوعاء (دون الإيداع نفسه)');
       /* حصة ثانية (متابعة): دفع 1000 نقداً يسدّد باقي الحصة الأولى ويُسجَّل أنه دُفع في الحصة 2 */
       const v2 = await fin({ price: 0, paid: 1500, followUp: true }); ok(v2.r.s === 200 && v2.r.j.paid === 0, 'حصة المتابعة بلا سعر');
       r = await J('GET', `/api/history?name=${q}&year=${YR}`, B); const h = r.j, a1 = h.records.find(z => z.id === v1.id);
@@ -316,12 +318,12 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('POST', `/api/plans/${plan46}/sessions`, B, { delta: 1 }); ok(r.s === 200 && r.j.sessions === 4, 'إضافة حصة (4)'); r = await J('POST', `/api/plans/${plan46}/sessions`, N, { delta: 1 }); ok(r.s === 401 || r.s === 403, 'الإضافة للطبيب فقط');
       r = await vis({ lines: [{ plan: plan46, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].no === 3 && r.j.lines[0].sessions === 4 && (await acct()).plans.some(p => p.id === plan46 && p.open), 'الحصة 3 من 4 ما زالت مفتوحة بعد الإضافة');
       r = await vis({ lines: [{ plan: plan46, pay: 1000 }] }); ok(r.s === 200 && r.j.lines[0].no === 4 && (await acct()).plans.length === 0, 'الحصة 4 تُكمل الخطة');
-      /* حتى 20 حصة + حذف حصة مضافة (لا تنزل عن الحصص المنجزة) */
-      r = await vis({ lines: [{ tooth: '36', treatment: 'تقويم', total: 4000, sessions: 20, pay: 4000 }] }); const plan20 = r.j.lines[0].plan; ok(r.s === 200 && r.j.lines[0].sessions === 20, 'خطة بعشرين حصة');
-      r = await vis({ lines: [{ tooth: '37', treatment: 'تقويم', total: 100, sessions: 21, pay: 100 }] }); ok(r.s === 400 || (r.s === 200 && r.j.lines[0].sessions === 1), 'أكثر من 20 حصة مرفوض');
-      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: 1 }); ok(r.s === 409, 'لا إضافة فوق 20 حصة');
-      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 19, 'حذف حصة (19)');
-      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 18, 'حذف حصة أخرى (18)');
+      /* حتى 60 حصة + حذف حصة مضافة (لا تنزل عن الحصص المنجزة) */
+      r = await vis({ lines: [{ tooth: '36', treatment: 'تقويم', total: 4000, sessions: 60, pay: 4000 }] }); const plan20 = r.j.lines[0].plan; ok(r.s === 200 && r.j.lines[0].sessions === 60, 'خطة بستين حصة');
+      r = await vis({ lines: [{ tooth: '37', treatment: 'تقويم', total: 100, sessions: 61, pay: 100 }] }); ok(r.s === 400 || (r.s === 200 && r.j.lines[0].sessions === 1), 'أكثر من 60 حصة مرفوض');
+      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: 1 }); ok(r.s === 409, 'لا إضافة فوق 60 حصة');
+      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 59, 'حذف حصة (59)');
+      r = await J('POST', `/api/plans/${plan20}/sessions`, B, { delta: -1 }); ok(r.s === 200 && r.j.sessions === 58, 'حذف حصة أخرى (58)');
       r = await J('POST', `/api/plans/aaaaaaaaaa/sessions`, B, { delta: 1 }); ok(r.s === 404, 'خطة غير موجودة');
       r = await vis({ lines: [{ tooth: '47', treatment: 'تقويم', total: 0, sessions: 99, pay: 0 }] }); ok(r.s === 200 && r.j.lines[0].sessions === 1, 'عدد حصص غير صالح يصير 1'); await J('POST', `/api/plans/${r.j.lines[0].plan}/close`, B);
       r = await J('PUT', '/api/prices', B, { currency: 'DA', treatments: ['حشوة', 'علاج عصب', 'تقويم'], list: { 'حشوة': { base: 1500, sessions: 1 }, 'علاج عصب': { base: 6000, sessions: 3 }, 'تقويم': { sessions: 99 } } });

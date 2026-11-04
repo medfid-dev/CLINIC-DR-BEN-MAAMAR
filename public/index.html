@@ -229,9 +229,9 @@
       <select id="aMoney" data-input="archive"><option value="" data-i18n="money_all">الكل (مدينون ودائنون وغيرهم)</option><option value="debtors" data-i18n="money_debtors">🔴 المدينون (عليهم متبقٍّ)</option><option value="creditors" data-i18n="money_creditors">🟢 الدائنون (رصيدهم في الوعاء)</option></select>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <label style="flex:1;min-width:130px;font-size:12px;color:var(--text-secondary)"><span data-i18n="from_l">من</span>
-          <input type="date" id="aFrom" data-input="archive" style="width:100%"></label>
+          <span class="ymd-pick live" style="display:block"><span class="ymd-show" dir="ltr">YYYY/MM/DD</span><input type="date" id="aFrom" data-input="archive" style="width:100%"></span></label>
         <label style="flex:1;min-width:130px;font-size:12px;color:var(--text-secondary)"><span data-i18n="to_l">إلى</span>
-          <input type="date" id="aTo" data-input="archive" style="width:100%"></label>
+          <span class="ymd-pick live" style="display:block"><span class="ymd-show" dir="ltr">YYYY/MM/DD</span><input type="date" id="aTo" data-input="archive" style="width:100%"></span></label>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button type="button" class="btn-action" data-act="archiveRange" data-r="today" data-i18n="today">اليوم</button>
@@ -258,9 +258,9 @@
       </div>
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
         <label style="flex:1;min-width:130px;font-size:12px;color:var(--text-secondary)"><span data-i18n="from_l">من</span>
-          <input type="date" id="sFrom" data-input="stats" style="width:100%"></label>
+          <span class="ymd-pick live" style="display:block"><span class="ymd-show" dir="ltr">YYYY/MM/DD</span><input type="date" id="sFrom" data-input="stats" style="width:100%"></span></label>
         <label style="flex:1;min-width:130px;font-size:12px;color:var(--text-secondary)"><span data-i18n="to_l">إلى</span>
-          <input type="date" id="sTo" data-input="stats" style="width:100%"></label>
+          <span class="ymd-pick live" style="display:block"><span class="ymd-show" dir="ltr">YYYY/MM/DD</span><input type="date" id="sTo" data-input="stats" style="width:100%"></span></label>
         <button type="button" class="btn-action" data-act="statsExport" data-i18n="st_export">تصدير CSV ⬇️</button>
       </div>
     </div>
@@ -354,6 +354,7 @@
     <h5 style="margin-bottom:8px;color:var(--primary-sage)" data-i18n="set_manage">إدارة العيادة</h5>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_clinicModal"><span class="sl-ic">🏥</span><span class="sl-tx" data-i18n="set_clinic"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_scheduleModal"><span class="sl-ic">🕒</span><span class="sl-tx" data-i18n="set_schedule"></span><span class="sl-ar">‹</span></button>
+    <button type="button" class="settings-link" data-act="openSet" data-m="set_reasonsModal"><span class="sl-ic">📋</span><span class="sl-tx" data-i18n="set_reasons"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_pricesModal"><span class="sl-ic">💰</span><span class="sl-tx" data-i18n="set_prices"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link gen-only" data-act="openSet" data-m="set_medModal"><span class="sl-ic">🩺</span><span class="sl-tx" data-i18n="set_med"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_drugsModal"><span class="sl-ic">💊</span><span class="sl-tx" data-i18n="set_drugs"></span><span class="sl-ar">‹</span></button>
@@ -397,6 +398,17 @@
   </div>
 </div>
 <!-- نافذة إعدادات: prices -->
+<div id="set_reasonsModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="set_reasons">قائمة أسباب الزيارة (العلاجات)</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
+    <form data-form="reasons">
+      <div class="hint" style="margin-bottom:10px" data-i18n="reasons_hint"></div>
+      <div class="rs-list"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px"><button type="button" class="btn-action" data-act="rsAdd" data-i18n="rs_add">➕ إضافة سبب</button><button type="button" class="btn-action btn-yellow" data-act="rsReset" data-i18n="rs_reset">↺ استعادة الافتراضي</button></div>
+      <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
+    </form>
+  </div>
+</div>
 <div id="set_pricesModal" class="modal-overlay">
   <div class="modal-card settings-modal">
     <div class="modal-head"><h4 data-i18n="set_prices">💰 الحصص والأسعار</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>

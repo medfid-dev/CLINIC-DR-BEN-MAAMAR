@@ -72,7 +72,7 @@ function lines(series) {
 function heatmap(heat) {
   const max = Math.max(1, ...heat.flat()), days = t('days_full');
   let h = '<div class="st-heat"><div class="hd"></div>' + Array.from({ length: 24 }, (_, i) => `<div class="hd">${i % 3 === 0 ? i : ''}</div>`).join('');
-  heat.forEach((row, d) => { h += `<div class="hd dn">${esc(days[d])}</div>` + row.map((v, hr) => `<div class="hc${v ? ' on' : ''}" style="--o:${v ? (.15 + .85 * v / max).toFixed(2) : 0}" title="${esc(days[d])} ${hr}:00 — ${v}"></div>`).join(''); });
+  WEEK_ORDER.forEach(d => { const row = heat[d]; h += `<div class="hd dn">${esc(days[d])}</div>` + row.map((v, hr) => `<div class="hc${v ? ' on' : ''}" style="--o:${v ? (.15 + .85 * v / max).toFixed(2) : 0}" title="${esc(days[d])} ${hr}:00 — ${v}"></div>`).join(''); });
   return h + '</div>';
 }
 const ROWS_PERM = [[18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28], [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38]];
@@ -146,7 +146,7 @@ function renderStats() {
     out.push(card(t('st_trend_money'), lines(ser) + (ser.length > 1 ? `<div class="st-xl"><span>${esc(lab[0])}</span><span>${esc(lab[lab.length - 1])}</span></div>` : '')));
 
     /* الأوقات */
-    out.push(card(t('st_weekday'), cols(d.weekday.map(x => x.visits), days.map(x => String(x).slice(0, 3)), 1)));
+    out.push(card(t('st_weekday'), cols(WEEK_ORDER.map(i => d.weekday[i].visits), WEEK_ORDER.map(i => String(days[i]).slice(0, 3)), 1)));
     out.push(card(t('st_hours'), cols(d.hours, d.hours.map(h => String(h)), 3)));
     out.push(card(t('st_heat'), heatmap(d.heat)));
 
@@ -210,7 +210,7 @@ function statsCsv() {
   sec(t('st_visits')); [['st_visits', s.visits], ['st_patients', s.patients], ['st_billed', s.billed], ['st_collected', s.collected], ['st_outstanding', s.outstanding], ['st_avg_bill', s.avgBill], ['st_avg_wait', s.avgWait], ['st_avg_dur', s.avgDuration], ['st_followups', s.followUps], ['st_free', s.freeVisits], ['st_images', s.images]].forEach(([k, v]) => add(t(k), v));
   sec(t('st_trend_visits')); add('date', t('st_visits'), t('st_billed'), t('st_collected')); d.series.forEach(x => add(x.k, x.visits, x.billed, x.collected));
   sec(t('st_treat')); add(t('st_c_treat'), t('st_c_visits'), t('st_c_billed'), t('st_c_paid'), t('st_c_debt'), t('st_c_avg'), t('st_c_dur')); d.treatments.forEach(x => add(treatLabel(x.name), x.visits, x.billed, x.paid, x.debt, x.avgPrice, x.avgDuration));
-  sec(t('st_weekday')); t('days_full').forEach((n, i) => add(n, d.weekday[i].visits, d.weekday[i].billed));
+  sec(t('st_weekday')); WEEK_ORDER.forEach(i => add(t('days_full')[i], d.weekday[i].visits, d.weekday[i].billed));
   sec(t('st_hours')); d.hours.forEach((v, h) => add(h + ':00', v));
   sec(t('st_ages')); d.ages.forEach(a => add(a.to >= 200 ? a.from + '+' : a.from + '-' + a.to, a.visits, a.billed));
   sec(t('st_gender')); ['ذكر', 'أنثى'].forEach(g => add(genderL(g), d.gender[g].visits, d.gender[g].billed));
@@ -226,7 +226,7 @@ ACT.statsRange = el => {
   const st = ST(), r = el.dataset.r, iso = x => x.toLocaleDateString('en-CA'), now = new Date(); let a = '', b = iso(now);
   if (r === 'today') a = b; else if (r === '7' || r === '30') { const x = new Date(now); x.setDate(x.getDate() - (+r - 1)); a = iso(x); }
   else if (r === 'month') a = iso(new Date(now.getFullYear(), now.getMonth(), 1)); else if (r === 'year') a = iso(new Date(now.getFullYear(), 0, 1)); else { a = ''; b = ''; }
-  $('#sFrom').value = a; $('#sTo').value = b; st.r = r; st.data = null; loadStats();
+  $('#sFrom').value = a; $('#sTo').value = b; if (typeof syncYmd === 'function') syncYmd(); st.r = r; st.data = null; loadStats();
 };
 ACT.statsExport = () => { const csv = statsCsv(); if (!csv) return; download(new Blob([csv], { type: 'text/csv;charset=utf-8' }), 'clinic_stats_' + new Date().toISOString().slice(0, 10) + '.csv'); };
 document.addEventListener('change', e => { const el = e.target; if (el && el.dataset && el.dataset.input === 'stats') { const st = ST(); st.r = 'custom'; st.data = null; loadStats(); } });
