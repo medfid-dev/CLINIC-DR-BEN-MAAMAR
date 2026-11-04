@@ -194,7 +194,7 @@ function renderStats() {
   const db = d.debt;
   out.push(card(t('st_debt_sec'), db.total ? `<div class="st-kpis sm">${kpi(t('st_debt_total'), `<span class="st-neg">${esc(money(db.total))}</span>`)}${kpi(t('st_debtors'), stN(db.count))}</div>
     <h6>${esc(t('st_aging'))}</h6>${hbars(['0–30', '31–60', '61–90', '90+'].map((l, i) => ({ label: l + ' ' + t('st_days'), v: db.aging[i] })), i => esc(money(i.v) || '0'))}
-    <h6>${esc(t('st_top_debtors'))}</h6>${stTable([t('st_c_pat'), t('st_c_phone'), t('st_c_bal'), t('st_since')], db.top.map(x => [`<b>${esc(x.name)}</b> <small>${x.birthYear}</small>`, esc(x.phone || '—'), `<span class="st-neg">${esc(money(x.balance))}</span>`, esc(new Date(x.since).toLocaleDateString(locale()))]))}` : `<div class="st-note">✅ ${esc(t('st_debt_total'))}: 0</div>`, 'wide'));
+    <h6>${esc(t('st_top_debtors'))}</h6>${stTable([t('st_c_pat'), t('st_c_phone'), t('st_c_bal'), t('st_since')], db.top.map(x => [`<b>${esc(x.name)}</b> ${vcB(x.vc)} <small>${x.birthYear}</small>`, esc(x.phone || '—'), `<span class="st-neg">${esc(money(x.balance))}</span>`, esc(new Date(x.since).toLocaleDateString(locale()))]))}` : `<div class="st-note">✅ ${esc(t('st_debt_total'))}: 0</div>`, 'wide'));
 
   const ov = d.overall;
   out.push(card(t('st_overall'), `<div class="st-kpis sm">${kpi(t('st_all_visits'), stN(ov.visits))}${kpi(t('st_all_pats'), stN(ov.patients))}${kpi(t('st_first'), ov.firstVisit ? esc(stTs(ov.firstVisit, tz)) : '—')}${kpi(t('st_nurses_n'), stN(ov.nurses))}${kpi(t('st_treats_n'), stN(ov.treatments))}</div>`));

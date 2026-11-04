@@ -93,6 +93,8 @@
     <input type="hidden" id="editNurseId">
     <div class="form-group"><label data-i18n="nurse_fullname">اسم الممرضة:</label><input type="text" id="editNurseName" maxlength="60" required></div>
     <div class="form-group"><label data-i18n="lbl_phone_s">رقم الهاتف:</label><input type="tel" id="editNursePhone" maxlength="25"></div>
+    <div style="display:flex;gap:10px"><div class="form-group" style="flex:1"><label data-i18n="pay_day_l">يوم صرف الراتب (1-31):</label><input type="number" id="editNursePayDay" min="1" max="31" step="1" inputmode="numeric"></div>
+    <div class="form-group" style="flex:1"><label data-i18n="pay_salary_l">مبلغ الراتب:</label><input type="number" id="editNurseSalary" min="0" step="any" inputmode="decimal"></div></div>
     <div class="form-group"><label data-i18n="new_pass_opt">كلمة مرور جديدة (اتركها فارغة لعدم التغيير):</label><input type="password" id="editNursePass" autocomplete="new-password" minlength="6" placeholder="••••••••"></div>
     <div style="display:flex;gap:10px;margin-top:20px">
       <button type="submit" class="btn-primary" data-i18n="save">حفظ ✅</button>
@@ -148,6 +150,8 @@
     <form id="formRegister" data-form="register" style="display:none" autocomplete="on">
       <div class="form-group"><label data-i18n="clinic_name">اسم العيادة:</label><input type="text" id="rClinic" maxlength="80" required></div>
       <div class="form-group"><label data-i18n="doc_name">اسم الطبيب الكامل:</label><input type="text" id="rDoctor" maxlength="80" required></div>
+      <div class="form-group"><label data-i18n="spec_l">التخصص الطبي:</label><select id="rSpecialty"><option value="dental" data-i18n="sp_dental">طب وجراحة الأسنان</option><option value="general" data-i18n="sp_general">طب عام</option><option value="pediatrics" data-i18n="sp_pediatrics">طب الأطفال</option><option value="gyneco" data-i18n="sp_gyneco">النساء والتوليد</option><option value="internal" data-i18n="sp_internal">الأمراض الباطنية</option><option value="cardio" data-i18n="sp_cardio">أمراض القلب</option><option value="derma" data-i18n="sp_derma">الأمراض الجلدية</option><option value="eye" data-i18n="sp_eye">طب العيون</option><option value="ent" data-i18n="sp_ent">أنف وأذن وحنجرة</option><option value="ortho" data-i18n="sp_ortho">جراحة العظام والمفاصل</option><option value="psych" data-i18n="sp_psych">الطب النفسي</option><option value="other" data-i18n="sp_other">تخصص آخر</option></select>
+        <div class="hint" data-i18n="spec_hint">يُحدَّد مرة واحدة عند إنشاء الحساب. غير طب الأسنان: يُزال مخطط الأسنان ورقم السن وكل ما يخص الأسنان.</div></div>
       <div class="form-group"><label data-i18n="username">اسم المستخدم:</label><input type="text" id="rUser" autocomplete="username" autocapitalize="none" spellcheck="false" dir="ltr" pattern="[A-Za-z0-9._@\-]{3,40}" required>
         <div class="hint" data-i18n="username_hint">3–40 حرفاً لاتينياً/أرقاماً (مثل dr.ahmed)</div></div>
       <div class="form-group"><label data-i18n="pass">كلمة المرور:</label><input type="password" id="rPass" autocomplete="new-password" minlength="8" required>
@@ -172,13 +176,12 @@
     <button type="button" class="tab-btn tab-appts" data-act="docTab" data-tab="appts"><span data-i18n="tab_appts">المواعيد 📅</span> <span id="apptCount" class="count-badge zero">0</span></button>
     <button type="button" class="tab-btn" id="consultationNavBtn" data-act="docTab" data-tab="consultation" data-i18n="tab_consult">المعاينة 🩺</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="addPatientDoc" data-i18n="tab_add">تسجيل ➕</button>
-    <button type="button" class="tab-btn" data-act="docTab" data-tab="nurses" data-i18n="tab_nurses">الممرضات 👩‍⚕️</button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="nurses"><span data-i18n="tab_nurses">الممرضات 👩‍⚕️</span> <span id="payCount" class="count-badge zero">0</span></button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="archive" data-i18n="tab_archive">الأرشيف 📁</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="stats" data-i18n="tab_stats">الإحصائيات 📊</button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="settingsDoc" data-i18n="tab_settings">الإعدادات ⚙️</button>
   </div>
 
-  <div id="apptBanner" class="appt-banner" hidden></div>
   <div id="waitingTab" class="tab-content active"><ul id="docWaitingList" class="patient-list"></ul></div>
   <div id="apptsTab" class="tab-content"><div id="apptsArea"></div></div>
   <div id="consultationTab" class="tab-content"><div id="consultationArea"></div></div>
@@ -201,6 +204,8 @@
       <div class="form-group"><input type="text" id="newNurseName" maxlength="60" required data-i18n-ph="nurse_fullname"></div>
       <div class="form-group"><input type="tel" id="newNursePhone" maxlength="25" data-i18n-ph="lbl_phone_s"></div>
       <div class="form-group"><input type="password" id="newNursePass" minlength="6" autocomplete="new-password" required data-i18n-ph="nurse_pass"></div>
+      <div style="display:flex;gap:10px"><div class="form-group" style="flex:1"><input type="number" id="newNursePayDay" min="1" max="31" step="1" inputmode="numeric" data-i18n-ph="pay_day_ph"></div>
+      <div class="form-group" style="flex:1"><input type="number" id="newNurseSalary" min="0" step="any" inputmode="decimal" data-i18n-ph="pay_salary_ph"></div></div>
       <button type="submit" class="btn-primary" data-i18n="btn_add_nurse">إضافة ممرضة جديدة 👩‍⚕️</button>
     </form>
     <ul id="nursesList" class="patient-list"></ul>
@@ -215,7 +220,7 @@
         <select id="aGender" data-input="archive" style="flex:1"><option value="" data-i18n="all_genders">جميع الأجناس</option><option value="ذكر" data-i18n="male">ذكر</option><option value="أنثى" data-i18n="female">أنثى</option></select>
       </div>
       <div style="display:flex;gap:10px">
-        <input type="text" id="aTooth" data-input="archive" style="flex:1" data-i18n-ph="search_tooth">
+        <input type="text" id="aTooth" class="dental-only" data-input="archive" style="flex:1" data-i18n-ph="search_tooth">
         <select id="aTreat" data-input="archive" style="flex:1">
           <option value="" data-i18n="all_treat">جميع العلاجات</option><option value="قلع" data-i18n="tr_ext">قلع</option><option value="عصب" data-i18n="tr_endo">علاج عصب</option>
           <option value="استشارة" data-i18n="tr_cons">استشارة</option><option value="تركيب" data-i18n="tr_pros">تركيب</option><option value="تبييض" data-i18n="tr_white">تبييض</option><option value="أخرى" data-i18n="tr_other">أخرى</option>
@@ -350,6 +355,7 @@
     <button type="button" class="settings-link" data-act="openSet" data-m="set_clinicModal"><span class="sl-ic">🏥</span><span class="sl-tx" data-i18n="set_clinic"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_scheduleModal"><span class="sl-ic">🕒</span><span class="sl-tx" data-i18n="set_schedule"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_pricesModal"><span class="sl-ic">💰</span><span class="sl-tx" data-i18n="set_prices"></span><span class="sl-ar">‹</span></button>
+    <button type="button" class="settings-link gen-only" data-act="openSet" data-m="set_medModal"><span class="sl-ic">🩺</span><span class="sl-tx" data-i18n="set_med"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_drugsModal"><span class="sl-ic">💊</span><span class="sl-tx" data-i18n="set_drugs"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_passModal"><span class="sl-ic">🔑</span><span class="sl-tx" data-i18n="chg_pass"></span><span class="sl-ar">‹</span></button>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_backupModal"><span class="sl-ic">💾</span><span class="sl-tx" data-i18n="set_backup"></span><span class="sl-ar">‹</span></button>
@@ -400,6 +406,18 @@
       <div class="priceRows"></div>
       <button type="button" class="btn-action btn-green" style="margin-top:6px" data-act="addTreat" data-i18n="tr_add">＋ إضافة علاج</button>
       <div class="form-group" style="margin-top:10px"><label data-i18n="currency_l">العملة (اختياري):</label><input type="text" class="priceCur" maxlength="10" placeholder="دج / ر.س / $"></div>
+      <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
+    </form>
+  </div>
+</div>
+<!-- نافذة إعدادات: الشكاوى والتشخيصات الجاهزة (لغير الأسنان) -->
+<div id="set_medModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="set_med">الشكاوى والتشخيصات الجاهزة</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
+    <form data-form="medLists">
+      <div class="hint" style="margin-bottom:8px" data-i18n="med_lists_hint"></div>
+      <div class="form-group"><label data-i18n="med_cl_l">الشكاوى الرئيسية الشائعة:</label><textarea class="medCl" rows="6" maxlength="6000"></textarea></div>
+      <div class="form-group"><label data-i18n="med_dl_l">التشخيصات الشائعة:</label><textarea class="medDl" rows="6" maxlength="6000"></textarea></div>
       <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
     </form>
   </div>

@@ -999,3 +999,28 @@ body:not(.light-mode) .patient-highlight-box.has-wallet strong{color:#7FE0AE!imp
 .appt-banner{flex-wrap:nowrap;gap:8px;margin:0 0 8px;padding:5px 10px;font-size:12.5px;line-height:1.3;border-width:1px;border-radius:10px}
 .appt-banner>span{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .appt-banner .btn-action{flex:0 0 auto;width:auto;padding:3px 10px;font-size:12px;min-height:0;line-height:1.4;border-radius:8px;white-space:nowrap}
+
+/* ===== تعميم التخصصات: نزع واجهة الأسنان لغير طب الأسنان ===== */
+body.no-dental .dental-only,body.no-dental .ortho-on,body.no-dental .col-on,body.no-dental .col-pick,body.no-dental .teeth-chart,body.no-dental .appt-teeth{display:none!important}
+.med-box{margin:14px 0;padding:14px;border:1px solid var(--border-calm);border-radius:14px;background:var(--surface-card)}
+.med-title{font-weight:700;font-size:15px;margin-bottom:10px;color:var(--primary-sage)}
+.med-sub{font-size:13px;font-weight:600;color:var(--text-secondary);margin:6px 0}
+.med-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.med-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px}
+.med-f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--text-secondary)}
+.med-f input{width:100%}
+.med-alert{margin-bottom:10px}
+body:not(.no-dental) .gen-only{display:none!important}
+.med-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.med-chip{border:1px solid var(--border-calm);background:var(--surface-sunk);color:inherit;border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer;font-family:inherit}
+.med-chip:active{transform:scale(.96)}
+
+/* حذف دواء من الوصفة: زر أكبر وأوضح ليسهل الضغط عليه (جوال/حاسوب) */
+.rx-lbtn{gap:4px}
+.rx-lbtn button{min-width:36px;min-height:36px;font-size:15px}
+.rx-lbtn button.rx-x{font-size:17px!important;padding:6px 10px!important;background:color-mix(in srgb,#e8607a 16%,transparent);border-radius:10px}
+.rx-lbtn button.rx-x:hover{background:color-mix(in srgb,#e8607a 30%,transparent)!important}
+
+/* دائرة خضراء: عدد زيارات المريض بجانب اسمه */
+.vc{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#2e9e6b;color:#fff;font-size:12px;font-weight:700;line-height:1;margin-inline:4px;vertical-align:middle;flex:none;font-variant-numeric:tabular-nums}
+.cons-stick-in .vc,.hs-name .vc{margin-inline-start:8px}

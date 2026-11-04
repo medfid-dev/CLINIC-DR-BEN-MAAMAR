@@ -35,7 +35,7 @@ Object.assign(L.en, {
   const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
   const nowHM = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
   let nextTry = 0, ticking = false;
-  const fmt = ts => new Date(ts).toLocaleString(locale(), { dateStyle: 'full', timeStyle: 'short' });
+  const fmt = ts => ymdHM(ts);
   /* موعد آخر استحقاق: بلا وقت محدد = بداية اليوم (أول فتح)؛ وبوقت محدد = آخر مرة مرّ فيها هذا الوقت. النسخة مستحقة إن لم تُؤخذ منذ ذلك الموعد */
   const lastTs = c => c.lastTs || (c.last ? Date.parse(c.last + 'T00:00:00') : 0);
   function occurrence(c) { const d = new Date(); if (TIME.test(c.time || '')) { const [h, m] = c.time.split(':'); d.setHours(+h, +m, 0, 0); if (d.getTime() > Date.now()) d.setDate(d.getDate() - 1); } else d.setHours(0, 0, 0, 0); return d.getTime(); }
@@ -102,7 +102,7 @@ Object.assign(L.en, {
     const ti = b.querySelector('#abTime'); if (ti && document.activeElement !== ti) ti.value = TIME.test(c.time || '') ? c.time : '';
     const lt = lastTs(c), where = c.where && c.where.startsWith('dir:') ? t('ab_where_dir', { f: c.where.slice(4) }) : t('ab_where_dl'), nx = nextDue(c);
     const note = b.querySelector('#abNote'); note.textContent = lt ? t('ab_last_note', { d: fmt(lt), n: c.n >= 0 ? c.n : '؟', w: c.where ? where : '' }).replace(/ — $/, '') : t('ab_none_note'); note.style.color = lt ? 'var(--accent-mint,#3FA66B)' : 'var(--danger-soft,#D6455D)';
-    b.querySelector('#abStat').textContent = `${c.on ? t('ab_next', { d: TIME.test(c.time || '') ? fmt(nx) : t('ab_next_open', { d: new Date(nx).toLocaleDateString(locale(), { dateStyle: 'full' }) }) }) + ' · ' : ''}${t('ab_time')}: ${TIME.test(c.time || '') ? c.time : t('ab_time_open')} · ${t('ab_folder')}: ${h ? h.name : t('ab_dl')}`;
+    b.querySelector('#abStat').textContent = `${c.on ? t('ab_next', { d: TIME.test(c.time || '') ? fmt(nx) : t('ab_next_open', { d: ymd(nx) }) }) + ' · ' : ''}${t('ab_time')}: ${TIME.test(c.time || '') ? c.time : t('ab_time_open')} · ${t('ab_folder')}: ${h ? h.name : t('ab_dl')}`;
   }
   window.abUI = abUI;
   function inject() {
