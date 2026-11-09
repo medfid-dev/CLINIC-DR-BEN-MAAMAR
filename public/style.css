@@ -1034,6 +1034,18 @@ body:not(.no-dental) .gen-only{display:none!important}
 /* دائرة خضراء: عدد زيارات المريض بجانب اسمه */
 .vc{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#2e9e6b;color:#fff;font-size:12px;font-weight:700;line-height:1;margin-inline:4px;vertical-align:middle;flex:none;font-variant-numeric:tabular-nums}
 .cons-stick-in .vc,.hs-name .vc{margin-inline-start:8px}
+
+/* إعدادات العلاج المبسّطة: السعر وعدد الحصص ظاهران، والباقي تحت «خيارات متقدمة» */
+.treat-row .adv{margin-top:6px}.treat-row .adv>summary{cursor:pointer;font-size:12px;color:var(--text-secondary);padding:6px 2px;list-style:none}.treat-row .adv>summary::-webkit-details-marker{display:none}.treat-row .adv[open]>summary{margin-bottom:6px}
+.sess-row.main-row .price-main input{width:110px}.price-grid.adv-grid{grid-template-columns:repeat(4,1fr);margin-top:6px}
+
+/* موعد حصة لعلاج آخر بعد الاستشارة */
+.nx-box{margin-top:12px;padding:10px 12px;border:1px dashed var(--border-calm);border-radius:14px;background:var(--surface-sunk)}
+.nx-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.nx-row select{flex:1;min-width:150px}.nx-row input[type=text]{width:120px}
+.nx-row .pl-stepper b{min-width:28px;text-align:center}.nx-date{margin-top:6px;font-size:13px;color:var(--text-secondary)}.nx-box [hidden]{display:none!important}
+
+.sess-row .flat-on{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)}.sess-row .flat-on input{width:auto}
+
 .ymd-pick{position:relative;display:inline-block;vertical-align:middle}
 .ymd-show{display:inline-block;padding:6px 14px;border:1px solid var(--border,#cfd8d3);border-radius:10px;background:var(--surface-sunk,#f3f6f4);font-weight:700;font-size:14px;letter-spacing:.3px;white-space:nowrap}
 .ymd-pick > input{position:absolute;inset:0;width:100%;height:100%;min-width:0;padding:0;opacity:0;cursor:pointer}
@@ -1046,3 +1058,6 @@ body:not(.no-dental) .gen-only{display:none!important}
 .rs-row .rs-treat{flex:1.4 1 150px;min-width:0}
 .rs-btns{display:flex;gap:6px;flex:0 0 auto}
 .rs-b{min-width:38px;padding:8px 10px;font-size:15px;font-weight:700}
+
+/* جنس مُعرَّف تلقائياً من الاسم */
+select.gender-auto{border-color:var(--primary,#2e9e6b);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary,#2e9e6b) 25%,transparent)}

@@ -190,6 +190,9 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
 
     console.log('الحساب المالي والدفع على دفعات');
     r = await J('PUT', '/api/prices', B, { currency: 'دج', list: { 'علاج عصب': { base: 3000, front: 2500, pre: 3500, molar: 5000, bad: 9 } } }); ok(r.s === 200 && r.j.list['علاج عصب'].molar === 5000 && r.j.list['علاج عصب'].bad === undefined, 'أسعار حسب نوع السن');
+    ok(r.s === 200 && r.j.list['علاج عصب'] && r.j.list['علاج عصب'].sessions === 2, 'عدد حصص العصب الافتراضي = 2');
+    r = await J('PUT', '/api/prices', B, { currency: 'دج', treatments: ['استشارة', 'قلع', 'علاج عصب'], list: { 'استشارة': { base: 300 }, 'قلع': { base: 1000 }, 'علاج عصب': { base: 3000, flat: true } } }); ok(r.s === 200 && r.j.list['استشارة'].flat === true && r.j.list['قلع'].flat === false && r.j.list['علاج عصب'].flat === true, 'السعر الثابت: الاستشارة ثابتة افتراضياً، والقلع لا، والمحفوظ صراحةً يُحترم');
+    r = await J('PUT', '/api/prices', B, { currency: 'دج', treatments: ['استشارة'], list: { 'استشارة': { base: 300, flat: false } } }); ok(r.s === 200 && r.j.list['استشارة'].flat === false && r.j.list['استشارة'].base === 300, 'يمكن إلغاء السعر الثابت للاستشارة');
     { const st = (await J('GET', '/api/state', B)).j; const inRoom = st.patients.find(z => z.status === 'in'); if (inRoom) await J('POST', `/api/patients/${inRoom.id}/finish`, B, { treatment: 'x' });
       const mk = async () => { const q = await J('POST', '/api/patients', B, pat('مريض مالي', { birthYear: 1985 })); const e = await J('POST', `/api/patients/${q.j.id}/enter`, B); return q.j.id; };
       let id = await mk();
@@ -267,6 +270,14 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       /* أيام الانتظار التي يختارها الطبيب في نافذة المعاينة (➕/➖) تُطبَّق على موعد الحصة القادمة */
       r = await vis({ today: '2026-10-30', lines: [{ tooth: '46', treatment: 'علاج عصب', total: 6000, sessions: 2, pay: 0, gap: 3 }] }); l = await ap(); ok(r.s === 200 && l.some(x => x.tooth === '46' && x.date === '2026-11-02'), 'الموعد يتبع الأيام التي عدّلها الطبيب (3 أيام)');
       r = await vis({ today: '2026-10-30', lines: [{ tooth: '47', treatment: 'علاج عصب', total: 6000, sessions: 2, pay: 0, gap: 999 }] }); l = await ap(); ok(l.some(x => x.tooth === '47' && x.date === '2026-11-09'), 'قيمة أيام غير صالحة تُهمَل ويُستعمل الافتراضي');
+      /* استشارة (بلا بنود) + موعد لعلاج آخر (قلع): موعد مستقل بلا خطة */
+      r = await vis({ today: '2026-10-30', lines: [], next: [{ treatment: 'قلع', tooth: '16', gap: 3 }] }); l = await ap(); ok(r.s === 200 && l.some(x => x.treatment === 'قلع' && x.tooth === '16' && x.date === '2026-11-02' && x.sessions === 1), 'استشارة + موعد قلع بعد 3 أيام (موعد مستقل)');
+      r = await vis({ today: '2026-10-30', lines: [], next: [{ treatment: 'غير موجود', gap: 3 }, 5, null] }); l = await ap(); ok(r.s === 200 && !l.some(x => x.treatment === 'غير موجود'), 'علاج غير معروف أو مدخل فاسد في next يُهمَل');
+      r = await vis({ today: '2026-10-30', lines: [{ tooth: '16', treatment: 'قلع', total: 1000, sessions: 1, pay: 1000 }] }); l = await ap(); ok(r.s === 200 && !l.some(x => x.treatment === 'قلع'), 'إنجاز القلع يحذف موعده المستقل');
+      /* علاج واحد لعدة أسنان (تركيب لفكّين): بند واحد وسجل واحد وموعد واحد */
+      r = await vis({ today: '2026-10-30', lines: [{ tooth: '16', teeth: ['16', '46', '99', 'x'], treatment: 'علاج عصب', total: 5000, sessions: 2, pay: 1000 }] }); l = await ap();
+      ok(r.s === 200 && r.j.lines.length === 1 && JSON.stringify(r.j.lines[0].teeth) === JSON.stringify(['16', '46']) && r.j.tooth.includes('16') && r.j.tooth.includes('46') && r.j.price === 5000, 'تركيب لفكّين: بند واحد يحمل السنين (الأسنان الفاسدة تُهمَل) والسعر مرة واحدة');
+      ok(l.filter(x => x.tooth === '16 46').length === 1, 'موعد واحد فقط لعلاج الفكّين (لا موعدان)');
     }
     console.log('خطة العلاج لكل سن (حصة أو حصتان)');
     { const NM = 'مريض الخطة', YR = 1980, q = encodeURIComponent(NM);

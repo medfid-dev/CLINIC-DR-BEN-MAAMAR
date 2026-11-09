@@ -128,7 +128,8 @@ function orthoHist(rs) {
   return out;
 }
 const DEF_GAP = 7;
-const defSess = tr => /عصب|root|endo/i.test(tr) ? 2 : 1;   // افتراض للعلاجات التي لم يُضبط عدد حصصها بعد
+const defFlat = tr => /استشارة|consult|تركيب|prosth/i.test(tr);   // علاج واحد مهما كان عدد الأسنان: سعر وموعد وسجل واحد (الاستشارة والتركيب افتراضياً)
+const defSess = tr => /عصب|root|endo/i.test(tr) ? 2 : 1;   // العصب حصتان افتراضياً وغيره حصة واحدة؛ يُغيَّر لكل علاج من «الحصص والأسعار»
 /* ألوان السن لكل علاج: on = مفعّل، part = أثناء العلاج (حصص متبقية)، done = عند اكتمال حصصه */
 const HEX = /^#[0-9a-f]{6}$/i, NEUTRAL_TR = /استشارة|تبييض|أخرى|consult|whiten|other/i, EXT_TR = /قلع|extract/i;
 const defCol = tr => EXT_TR.test(tr) ? { on: true, part: '#d64545', done: '#d64545' } : { on: !NEUTRAL_TR.test(tr), part: '#f2b705', done: '#2e9e6b' };
@@ -137,13 +138,13 @@ const cleanCol = (v, tr) => { if (!v || typeof v !== 'object') return null; cons
 function toothItems(rs) {
   const out = [];
   for (const r of [...rs].sort((x, y) => (x.finishedAt || 0) - (y.finishedAt || 0))) {
-    if (r.lines && r.lines.length) { for (const l of r.lines) if (FDI.has(String(l.tooth))) out.push({ tooth: String(l.tooth), treatment: l.treatment, no: l.no || 1, sessions: l.sessions || 1, at: r.finishedAt }); }
+    if (r.lines && r.lines.length) { for (const l of r.lines) for (const tth of (l.teeth && l.teeth.length ? l.teeth : [l.tooth])) if (FDI.has(String(tth))) out.push({ tooth: String(tth), treatment: l.treatment, no: l.no || 1, sessions: l.sessions || 1, at: r.finishedAt }); }
     else for (const n of cleanTeeth(r.teeth)) for (const tr of treatmentsOf(r)) out.push({ tooth: n, treatment: tr, no: 1, sessions: 1, at: r.finishedAt });
   }
   return out.slice(-400);
 }
-const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } const sn = cleanSess(v.sessions); if (sn) o.sessions = sn; const gp = cleanGap(v.gap); if (gp != null) o.gap = gp; const cc = cleanCol(v.col, k); if (cc) o.col = cc; if (typeof v.ortho === 'boolean') o.ortho = v.ortho; } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
-const pricesOf = c => { const tr = treatsOf(c), list = normList(c.prices && c.prices.list, tr); for (const k of tr) list[k] = { ...(list[k] || {}), sessions: (list[k] && list[k].sessions) || defSess(k), gap: (list[k] && list[k].gap != null) ? list[k].gap : DEF_GAP, col: (list[k] && list[k].col) || defCol(k) }; return { currency: (c.prices && c.prices.currency) || '', list, treatments: tr }; };
+const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } const sn = cleanSess(v.sessions); if (sn) o.sessions = sn; const gp = cleanGap(v.gap); if (gp != null) o.gap = gp; const cc = cleanCol(v.col, k); if (cc) o.col = cc; if (typeof v.ortho === 'boolean') o.ortho = v.ortho; if (typeof v.flat === 'boolean') o.flat = v.flat; } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
+const pricesOf = c => { const tr = treatsOf(c), list = normList(c.prices && c.prices.list, tr); for (const k of tr) list[k] = { ...(list[k] || {}), sessions: (list[k] && list[k].sessions) || defSess(k), flat: (list[k] && typeof list[k].flat === 'boolean') ? list[k].flat : defFlat(k), gap: (list[k] && list[k].gap != null) ? list[k].gap : DEF_GAP, col: (list[k] && list[k].col) || defCol(k) }; return { currency: (c.prices && c.prices.currency) || '', list, treatments: tr }; };
 /* أسماء العلاجات: 1–30 اسماً فريداً (بلا حساسية لحالة الأحرف)، كل اسم حتى 40 حرفاً */
 function normTreatments(a) {
   if (!Array.isArray(a)) throw httpErr(400, 'invalid_input');
@@ -186,12 +187,12 @@ const walletView = (c, k) => { const w = walletOf(c, k); return { bal: w ? w.bal
 const PLAN_ID = /^[a-f0-9]{10}$/;
 function plansOf(c, k) {
   const m = new Map(), mine = c.archive.filter(r => r.lines && patKey(r) === k);
-  for (const r of mine) for (const l of r.lines) if (l.no === 1) m.set(l.plan, { id: l.plan, tooth: l.tooth || '', treatment: l.treatment, total: l.total || 0, sessions: l.sessions || 1, closed: !!l.closed, rec: r, line: l, done: 1, at: r.finishedAt });
+  for (const r of mine) for (const l of r.lines) if (l.no === 1) m.set(l.plan, { id: l.plan, tooth: l.tooth || '', ...(l.teeth ? { teeth: l.teeth } : {}), treatment: l.treatment, total: l.total || 0, sessions: l.sessions || 1, closed: !!l.closed, rec: r, line: l, done: 1, at: r.finishedAt });
   for (const r of mine) for (const l of r.lines) { const p = m.get(l.plan); if (p && l.no > p.done) p.done = l.no; }
   for (const p of m.values()) { p.paid = r2((p.rec.payments || []).reduce((x, y) => x + (y.pl === p.id ? (+y.amt || 0) : 0), 0)); p.remaining = r2(Math.max(0, p.total - p.paid)); p.open = !p.closed && p.done < p.sessions; }
   return m;
 }
-const planView = p => ({ id: p.id, tooth: p.tooth, treatment: p.treatment, total: p.total, sessions: p.sessions, done: p.done, paid: p.paid, remaining: p.remaining, open: p.open, rec: p.rec.id, at: p.at });
+const planView = p => ({ id: p.id, tooth: p.tooth, ...(p.teeth ? { teeth: p.teeth } : {}), treatment: p.treatment, total: p.total, sessions: p.sessions, done: p.done, paid: p.paid, remaining: p.remaining, open: p.open, rec: p.rec.id, at: p.at });
 /* ---------- المواعيد: موعد الحصة القادمة لكل خطة علاج مفتوحة ----------
    c.appts = [{ id, plan, k, name, birthYear, phone, tooth, treatment, date:'YYYY-MM-DD' }]
    يُنشأ الموعد تلقائياً عند إنهاء حصة تبقّى بعدها حصص (التاريخ = يوم الحصة + أيام الانتظار من الإعدادات)،
@@ -201,9 +202,10 @@ const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toI
 function apptsView(c) {
   const out = [], cache = new Map(), vcm = visitCountMap(c);
   for (const a of c.appts || []) {
+    if (a.solo) { out.push({ id: a.id, name: a.name, birthYear: a.birthYear, phone: a.phone || '', tooth: a.tooth || '', treatment: a.treatment, no: 1, sessions: 1, date: a.date, vc: vcm.get(a.k) || 0 }); continue; }   // موعد مستقل لعلاج آخر (مثل القلع بعد استشارة): لا يرتبط بخطة
     let pm = cache.get(a.k); if (!pm) { pm = plansOf(c, a.k); cache.set(a.k, pm); }
     const p = pm.get(a.plan); if (!p || !p.open) continue;
-    out.push({ id: a.id, name: a.name, birthYear: a.birthYear, phone: a.phone || '', tooth: p.tooth, treatment: p.treatment, no: p.done + 1, sessions: p.sessions, date: a.date, vc: vcm.get(a.k) || 0 });
+    out.push({ id: a.id, name: a.name, birthYear: a.birthYear, phone: a.phone || '', tooth: p.teeth ? p.teeth.join(' ') : p.tooth, treatment: p.treatment, no: p.done + 1, sessions: p.sessions, date: a.date, vc: vcm.get(a.k) || 0 });
   }
   return out.sort((x, y) => x.date < y.date ? -1 : x.date > y.date ? 1 : 0);
 }
@@ -239,7 +241,7 @@ function syncLines(rec, price, replacedPay) {
   if (replacedPay) { let left = paidOf(rec); const t = (rec.payments[0] || {}).t || rec.finishedAt; rec.payments = []; for (const l of ch) { const x = Math.min(left, l.total || 0); if (x > 0) { rec.payments.push({ t, amt: x, vid: rec.id, pl: l.plan }); left = r2(left - x); } } }
 }
 /* بنود الخطة المستعادة من نسخة احتياطية */
-const cleanLinesIn = a => (Array.isArray(a) ? a : []).slice(0, 24).filter(l => l && PLAN_ID.test(String(l.plan)) && typeof l.treatment === 'string' && l.treatment.trim()).map(l => ({ plan: l.plan, no: Math.min(MAX_SESS, Math.max(1, parseInt(l.no) || 1)), sessions: cleanSess(l.sessions) || 1, tooth: FDI.has(String(l.tooth)) ? String(l.tooth) : '', treatment: str(l.treatment, 40).trim(), ...(parseInt(l.no) === 1 || !l.no ? { total: num(l.total) || 0 } : {}), ...(l.closed ? { closed: true } : {}), ...(l.ortho && typeof l.ortho === 'object' ? { ortho: cleanOrtho(l.ortho, true) } : {}) }));
+const cleanLinesIn = a => (Array.isArray(a) ? a : []).slice(0, 24).filter(l => l && PLAN_ID.test(String(l.plan)) && typeof l.treatment === 'string' && l.treatment.trim()).map(l => ({ plan: l.plan, no: Math.min(MAX_SESS, Math.max(1, parseInt(l.no) || 1)), sessions: cleanSess(l.sessions) || 1, tooth: FDI.has(String(l.tooth)) ? String(l.tooth) : '', ...(Array.isArray(l.teeth) && cleanTeeth(l.teeth).length > 1 ? { teeth: cleanTeeth(l.teeth).slice(0, 32) } : {}), treatment: str(l.treatment, 40).trim(), ...(parseInt(l.no) === 1 || !l.no ? { total: num(l.total) || 0 } : {}), ...(l.closed ? { closed: true } : {}), ...(l.ortho && typeof l.ortho === 'object' ? { ortho: cleanOrtho(l.ortho, true) } : {}) }));
 /* ما دُفع من الوعاء لسجل ما يرجع إليه عند حذف السجل أو استبدال دفعاته */
 function unwallet(c, k, rec, t) { const w = (rec.payments || []).reduce((x, p) => x + (p.m === 'w' ? (+p.amt || 0) : 0), 0); wMove(c, k, 'back', r2(w), t, { rid: rec.id }); }
 /* رقم الحصة لكل سجل (حسب المريض) وربط الدفعات القديمة بالحصة التي دُفعت فيها */
@@ -260,7 +262,7 @@ function paysView(a, x) {
 function linesView(a, x) {
   if (!a.lines || !a.lines.length) return [];
   const pm = x ? (x.pm || (x.pm = new Map())) : null, plans = x ? (pm.get(patKey(a)) || (pm.set(patKey(a), plansOf(x.c, patKey(a))), pm.get(patKey(a)))) : null;
-  return a.lines.map(l => { const p = plans && plans.get(l.plan); return { plan: l.plan, no: l.no, sessions: l.sessions, tooth: l.tooth || '', treatment: l.treatment, ...(l.no === 1 ? { total: l.total || 0 } : {}), ...(l.ortho ? { ortho: l.ortho } : {}), ...(p ? { paid: p.paid, remaining: p.remaining, open: p.open, done: p.done } : {}) }; });
+  return a.lines.map(l => { const p = plans && plans.get(l.plan); return { plan: l.plan, no: l.no, sessions: l.sessions, tooth: l.tooth || '', ...(l.teeth ? { teeth: l.teeth } : {}), treatment: l.treatment, ...(l.no === 1 ? { total: l.total || 0 } : {}), ...(l.ortho ? { ortho: l.ortho } : {}), ...(p ? { paid: p.paid, remaining: p.remaining, open: p.open, done: p.done } : {}) }; });
 }
 function archiveView(a, x) {
   const me = x && x.info.n.get(a.id);
@@ -343,7 +345,7 @@ function ticketView(c, token) {
   if (a) {
     const fresh = now() - a.finishedAt < TICKET_DONE_MS, out = { ...base, state: fresh ? 'done' : 'expired', ticketNo: a.ticketNo, firstName: a.name.split(/\s+/)[0] };
     /* ما تم للمريض اليوم (علاجه فقط — لا أسعار ولا ديون ولا ملاحظات الطبيب السريرية) */
-    if (fresh) out.visit = { treats: (a.lines && a.lines.length ? a.lines.map(l => ({ n: l.treatment, th: l.tooth || '', no: l.no || 1, m: l.sessions || 1 })) : treatmentsOf(a).map(n => ({ n, th: '', no: 1, m: 1 }))).slice(0, 12), rx: !!(a.rx && a.rx.length), note: a.patientNote || '' };
+    if (fresh) out.visit = { treats: (a.lines && a.lines.length ? a.lines.map(l => ({ n: l.treatment, th: l.teeth ? l.teeth.join(' ') : (l.tooth || ''), no: l.no || 1, m: l.sessions || 1 })) : treatmentsOf(a).map(n => ({ n, th: '', no: 1, m: 1 }))).slice(0, 12), rx: !!(a.rx && a.rx.length), note: a.patientNote || '' };
     return out;
   }
   return { ...base, state: 'unknown' };
@@ -949,11 +951,11 @@ async function api(req, res, url) {
           const pay = Math.max(0, num(z.pay) || 0);
           if (z.plan !== undefined && z.plan !== null && z.plan !== '') {
             const p = typeof z.plan === 'string' && PLAN_ID.test(z.plan) ? pm.get(z.plan) : null; if (!p) throw httpErr(404, 'not_found'); if (!p.open) throw httpErr(409, 'plan_closed'); if (seenPl.has(p.id)) throw httpErr(400, 'invalid_input'); seenPl.add(p.id);
-            lines.push({ plan: p.id, no: p.done + 1, sessions: p.sessions, tooth: p.tooth, treatment: p.treatment, ...orthoPart(z) }); gaps.set(p.id, cleanGap(z.gap)); tg.push({ rec: p.rec, plan: p.id, cap: p.remaining, pay });
+            lines.push({ plan: p.id, no: p.done + 1, sessions: p.sessions, tooth: p.tooth, ...(p.teeth ? { teeth: p.teeth } : {}), treatment: p.treatment, ...orthoPart(z) }); gaps.set(p.id, cleanGap(z.gap)); tg.push({ rec: p.rec, plan: p.id, cap: p.remaining, pay });
           } else {
             const treatment = str(z.treatment, 40).trim().replace(/\s+/g, ' '), tooth = z.tooth ? String(z.tooth) : ''; if (!treatment || (tooth && !FDI.has(tooth))) throw httpErr(400, 'invalid_input');
-            const total = num(z.total) || 0, sessions = cleanSess(z.sessions) || 1, id = rid(5);
-            lines.push({ plan: id, no: 1, sessions, tooth, treatment, total, ...orthoPart(z) }); gaps.set(id, cleanGap(z.gap)); tg.push({ rec: entry, plan: id, cap: total, pay });
+            const total = num(z.total) || 0, sessions = cleanSess(z.sessions) || 1, id = rid(5), tx = [...new Set([tooth, ...cleanTeeth(z.teeth)].filter(Boolean))].slice(0, 32);   // علاج واحد لعدة أسنان: بند واحد يحمل كل الأسنان
+            lines.push({ plan: id, no: 1, sessions, tooth: tooth || tx[0] || '', ...(tx.length > 1 ? { teeth: tx } : {}), treatment, total, ...orthoPart(z) }); gaps.set(id, cleanGap(z.gap)); tg.push({ rec: entry, plan: id, cap: total, pay });
           }
         }
         for (const z of (Array.isArray(b.debts) ? b.debts : []).slice(0, 40)) {
@@ -961,14 +963,18 @@ async function api(req, res, url) {
           if (z.plan) { const p = typeof z.plan === 'string' ? pm.get(z.plan) : null; if (!p) throw httpErr(404, 'not_found'); tg.push({ rec: p.rec, plan: p.id, cap: p.remaining, pay }); }
           else { const o = typeof z.rec === 'string' ? c.archive.find(y => y.id === z.rec && patKey(y) === k) : null; if (!o) throw httpErr(404, 'not_found'); tg.push({ rec: o, plan: null, cap: remOf(o), pay }); }
         }
-        const price = r2(lines.reduce((x, l) => x + (l.no === 1 ? l.total : 0), 0)), treats = [...new Set(lines.map(l => l.treatment))], tts = [...new Set(lines.map(l => l.tooth).filter(Boolean))];
+        const price = r2(lines.reduce((x, l) => x + (l.no === 1 ? l.total : 0), 0)), treats = [...new Set(lines.map(l => l.treatment))], tts = [...new Set(lines.flatMap(l => l.teeth || [l.tooth]).filter(Boolean))];
         Object.assign(entry, { price, paid: 0, payments: [], lines, followUp: !lines.some(l => l.no === 1), treatment: treats.length ? str(treats.join(' + '), 200) : 'استشارة', ...(treats.length ? { treatments: treats, items: treats.map(n => ({ name: n, price: r2(lines.reduce((x, l) => x + (l.no === 1 && l.treatment === n ? l.total : 0), 0)) })) } : {}) });
         delete entry.teeth; delete entry.tooth; if (tts.length) { entry.teeth = tts; entry.tooth = tts.join(' '); } else entry.tooth = pt.tooth;
         c.patients = c.patients.filter(z => z !== pt); c.archive.unshift(entry);
         /* مواعيد الحصص القادمة: يُحذف موعد البنود المنجَزة اليوم، ثم يُنشأ موعد لكل بند تبقّت له حصص */
-        { const today = cleanDate(b.today) || new Date(t).toISOString().slice(0, 10), pl = pricesOf(c).list; c.appts = (c.appts || []).filter(x => !(x.k === k && (x.date <= today || lines.some(l => l.plan === x.plan))));   // المريض حضر وأنهى معاينته: يُحذف من المواعيد كل موعد حلّ له (حتى لو لم يتابع نفس الخطة)
+        { const today = cleanDate(b.today) || new Date(t).toISOString().slice(0, 10), pl = pricesOf(c).list; c.appts = (c.appts || []).filter(x => !(x.k === k && (x.date <= today || lines.some(l => l.plan === x.plan) || (x.solo && lines.some(l => l.treatment === x.treatment)))));   // المريض حضر وأنهى معاينته: يُحذف من المواعيد كل موعد حلّ له (حتى لو لم يتابع نفس الخطة)
           for (const l of lines) if (l.ortho && l.no < l.sessions) l.ortho.next = addDays(today, gaps.get(l.plan) != null ? gaps.get(l.plan) : (pl[l.treatment] && pl[l.treatment].gap != null) ? pl[l.treatment].gap : DEF_GAP);
-          for (const l of lines) if (l.no < l.sessions) c.appts.push({ id: rid(5), plan: l.plan, k, name: pt.name, birthYear: pt.birthYear, phone: pt.phone || '', tooth: l.tooth, treatment: l.treatment, date: addDays(today, gaps.get(l.plan) != null ? gaps.get(l.plan) : (pl[l.treatment] && pl[l.treatment].gap != null) ? pl[l.treatment].gap : DEF_GAP) });
+          for (const l of lines) if (l.no < l.sessions) c.appts.push({ id: rid(5), plan: l.plan, k, name: pt.name, birthYear: pt.birthYear, phone: pt.phone || '', tooth: l.teeth ? l.teeth.join(' ') : l.tooth, treatment: l.treatment, date: addDays(today, gaps.get(l.plan) != null ? gaps.get(l.plan) : (pl[l.treatment] && pl[l.treatment].gap != null) ? pl[l.treatment].gap : DEF_GAP) });
+          for (const n of (Array.isArray(b.next) ? b.next : []).slice(0, 3)) {   // موعد حصة لعلاج آخر (اختياري): { treatment, tooth, gap }
+            if (!n || typeof n !== 'object') continue; const tr = typeof n.treatment === 'string' ? n.treatment : ''; if (!tr || !pl[tr]) continue;
+            const g = Number.isInteger(n.gap) ? Math.min(365, Math.max(0, n.gap)) : (pl[tr].gap != null ? pl[tr].gap : DEF_GAP);
+            c.appts.push({ id: rid(5), plan: rid(5), solo: 1, k, name: pt.name, birthYear: pt.birthYear, phone: pt.phone || '', tooth: str(n.tooth, 20), treatment: tr, date: addDays(today, g) }); }
           pruneAppts(c); }
         /* المبلغ الفعلي لكل هدف لا يتجاوز متبقيه (أكثر من ذلك لا يُقبل)؛ الوعاء يُغطّي منها بالترتيب والباقي نقداً */
         for (const g of tg) { if (g.rec === entry) g.cap = Math.min(g.cap, entry.price); g.amt = Math.min(g.pay, g.cap); }
@@ -1346,7 +1352,7 @@ async function api(req, res, url) {
     c.wallets = W;
     if (b.booking && typeof b.booking === 'object') { try { c.booking = normBooking(b.booking); } catch (e) {} }
     c.bookings = (Array.isArray(b.bookings) ? b.bookings : []).slice(0, 1000).filter(x => x && cleanDate(x.date) && /^([01]\d|2[0-3]):[0-5]\d$/.test(String(x.time)) && str(x.name, 80)).map(x => ({ id: /^[a-f0-9]{10}$/.test(String(x.id)) ? x.id : rid(5), name: str(x.name, 80), phone: str(x.phone, 25), date: x.date, time: x.time, note: str(x.note, 200), status: ['pending', 'ok', 'no'].includes(x.status) ? x.status : 'pending', createdAt: +x.createdAt || now() }));
-    c.appts = (Array.isArray(b.appts) ? b.appts : []).slice(0, 2000).filter(x => x && PLAN_ID.test(String(x.id)) && PLAN_ID.test(String(x.plan)) && typeof x.k === 'string' && x.k.length <= 120 && cleanDate(x.date)).map(x => ({ id: x.id, plan: x.plan, k: x.k, name: str(x.name, 80), birthYear: parseInt(x.birthYear) || 0, phone: str(x.phone, 25), tooth: str(x.tooth, 20), treatment: str(x.treatment, 40), date: x.date }));
+    c.appts = (Array.isArray(b.appts) ? b.appts : []).slice(0, 2000).filter(x => x && PLAN_ID.test(String(x.id)) && PLAN_ID.test(String(x.plan)) && typeof x.k === 'string' && x.k.length <= 120 && cleanDate(x.date)).map(x => ({ id: x.id, plan: x.plan, k: x.k, name: str(x.name, 80), birthYear: parseInt(x.birthYear) || 0, phone: str(x.phone, 25), tooth: str(x.tooth, 20), treatment: str(x.treatment, 40), date: x.date, ...(x.solo ? { solo: 1 } : {}) }));
     c.patients = P; c.archive = A; RT(c).skip.clear(); broadcast(c); return send(res, 200, { patients: P.length, archive: A.length });
   }
   throw httpErr(404, 'not_found');
