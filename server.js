@@ -327,8 +327,9 @@ function stateFor(c, role, nurseId) {
   for (const [k, v] of r.skip) if (v.ts < t - 6e5 || !c.patients.some(p => p.id === k && p.status === 'waiting')) r.skip.delete(k);
   /* المتبقي على المريض (للطبيب فقط؛ الممرضة لا ترى أي مبالغ) */
   let owe = null; if (role === 'doctor' && c.patients.length) { owe = new Map(); for (const o of c.archive) { const d = remOf(o); if (d > 0) owe.set(patKey(o), r2((owe.get(patKey(o)) || 0) + d)); } }
-  const vcm = visitCountMap(c);
-  return { patients: c.patients.map(p => { const v = { ...patientView(p), vc: vcm.get(patKey(p)) || 0 }, d = owe && owe.get(patKey(p)); const w = role === 'doctor' ? wbal(c, patKey(p)) : 0, pf = role === 'doctor' && c.profiles ? c.profiles[patKey(p)] : null; return { ...v, ...(pf ? { med: pf } : {}), ...(d ? { debt: d } : {}), ...(w > 0 ? { wallet: w } : {}) }; }), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), bookings: bookingsView(c), booking: bookOf(c), tasks: role ? tasksFor(c, role, nurseId) : [], apptMode: apptModeOf(c), reasons: reasonsOf(c), ...(role === 'doctor' ? { pay: payListOf(c) } : {}), ...(role === 'doctor' ? { appts: apptsView(c) } : apptModeOf(c).enabled ? { appts: apptsForNurse(c) } : {}) };
+  const vcm = visitCountMap(c), apm = new Map();   // أقدم موعد مفتوح لكل مريض (لإظهار تأخره عن موعده)
+  if (c.patients.length) for (const x of apptsView(c)) { const k = patKey(x); if (!apm.has(k) || x.date < apm.get(k)) apm.set(k, x.date); }
+  return { patients: c.patients.map(p => { const v = { ...patientView(p), vc: vcm.get(patKey(p)) || 0, ...(apm.has(patKey(p)) ? { ap: apm.get(patKey(p)) } : {}) }, d = owe && owe.get(patKey(p)); const w = role === 'doctor' ? wbal(c, patKey(p)) : 0, pf = role === 'doctor' && c.profiles ? c.profiles[patKey(p)] : null; return { ...v, ...(pf ? { med: pf } : {}), ...(d ? { debt: d } : {}), ...(w > 0 ? { wallet: w } : {}) }; }), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), bookings: bookingsView(c), booking: bookOf(c), tasks: role ? tasksFor(c, role, nurseId) : [], apptMode: apptModeOf(c), reasons: reasonsOf(c), ...(role === 'doctor' ? { pay: payListOf(c) } : {}), ...(role === 'doctor' ? { appts: apptsView(c) } : apptModeOf(c).enabled ? { appts: apptsForNurse(c) } : {}) };
 }
 function ticketView(c, token) {
   const i = c.patients.findIndex(p => p.ticket === token);
@@ -1172,12 +1173,11 @@ async function api(req, res, url) {
     let walSum = 0;
     if (money === 'debtors') all = all.filter(r => remOf(r) > 0);
     else if (money === 'creditors') { const seen = new Set(); all = all.filter(r => { const k = patKey(r); if (seen.has(k) || !(wbal(a.clinic, k) > 0)) return false; seen.add(k); walSum = r2(walSum + wbal(a.clinic, k)); return true; }); }
-    /* المحصَّل = كل ما سُدِّد في الفترة عن أي زيارة (بتاريخ الدفع نفسه): نقداً + المقتطع من الوعاء. إيداعات الوعاء واسترجاعاته نفسها لا تُحسب. دون تاريخ = كل الفترات. */
-    const inR = t => (!d0 || t >= d0) && (!d1 || t < d1); let collected = 0, walCut = 0;
-    { const base = money === 'debtors' ? nd.filter(r => remOf(r) > 0) : nd;
-      for (const r of base) for (const q2 of paysOf(r)) if (inR(+q2.t || r.finishedAt)) { { collected = r2(collected + (+q2.amt || 0)); if (q2.m === 'w') walCut = r2(walCut + (+q2.amt || 0)); } } }
-    collected = Math.max(0, collected);
-    return send(res, 200, { total: all.length, walCut, ...(money === 'creditors' ? { walSum } : {}), sum: r2(all.reduce((x, r) => x + dueOf(r), 0)), paidSum: collected, debt: r2(all.reduce((x, r) => x + remOf(r), 0)), items: all.slice(off, off + lim).map(r => ({ ...archiveView(r, X), patDebt: owe.get(patKey(r)) || 0 })) });
+    /* المستحق = مجموع أثمان علاجات السجلات المعروضة · المحصَّل = مجموع ما قُبض فعلاً عن هذه السجلات (نقداً + المقتطع من الوعاء؛ إيداعات الوعاء نفسها لا تُحسب) · المتبقي = المستحق − المحصَّل. الأرقام الثلاثة على المجموعة نفسها فتتطابق دائماً. */
+    let collected = 0, walCut = 0;
+    for (const r of all) { collected = r2(collected + paidOf(r)); for (const q2 of paysOf(r)) if (q2.m === 'w') walCut = r2(walCut + (+q2.amt || 0)); }
+    const dueSum = r2(all.reduce((x, r) => x + dueOf(r), 0)); collected = Math.min(Math.max(0, collected), dueSum);
+    return send(res, 200, { total: all.length, walCut, ...(money === 'creditors' ? { walSum } : {}), sum: dueSum, paidSum: collected, debt: r2(dueSum - collected), items: all.slice(off, off + lim).map(r => ({ ...archiveView(r, X), patDebt: owe.get(patKey(r)) || 0 })) });
   }
   /* أرشيف الوصفات (طبيب فقط): كل سجل منتهٍ له وصفة، الأحدث أولاً */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})$/);

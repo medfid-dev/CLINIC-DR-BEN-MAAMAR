@@ -205,6 +205,7 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       const rec = r.j.records.find(z => z.remaining > 0); r = await J('POST', `/api/archive/${rec.id}/payment`, B, { amount: 5000 }); ok(r.s === 200 && r.j.remaining === 0 && r.j.paid === 5000 && r.j.payments.length === 3, 'دفعة مباشرة تُقصّ عند المتبقي');
       r = await J('POST', `/api/archive/${rec.id}/payment`, B, { amount: 10 }); ok(r.s === 409, 'لا دفعة على سجل مسدَّد');
       r = await J('GET', '/api/archive?name=' + encodeURIComponent('مريض مالي'), B); ok(r.j.sum === 5000 && r.j.paidSum === 5000 && r.j.debt === 0, 'إجماليات الأرشيف: مستحق/محصَّل/متبقٍ'); }
+      r = await J('GET', '/api/archive', B); ok(Math.abs(r.j.sum - r.j.paidSum - r.j.debt) < 0.01 && r.j.paidSum <= r.j.sum, 'المتبقي = المستحق − المحصَّل دائماً');
 
     console.log('وعاء المريض وسجل الدفعات');
     { const NM = 'مريض الوعاء', YR = 1991, q = encodeURIComponent(NM);

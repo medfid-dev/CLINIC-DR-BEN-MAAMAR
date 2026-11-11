@@ -132,7 +132,9 @@ Object.assign(L.ar, { set_reasons: 'قائمة أسباب الزيارة (الع
 Object.assign(L.en, { set_reasons: 'Visit reasons list (treatments)', reasons_hint: 'This is the dropdown nurses see when registering a patient. Rename, add, delete and reorder items; changes reach nurse devices instantly. «Suggested treatment» is added automatically when the consultation starts.', rs_name_ph: 'Reason / treatment name', rs_treat_none: 'Suggested treatment: (none)', rs_add: '➕ Add reason', rs_reset: '↺ Restore defaults', rs_saved: 'List saved — nurses get it instantly ✅', rs_min: 'Add at least one reason', rs_up: 'Up', rs_down: 'Down', rs_del: 'Delete' });
 /* الأسبوع يبدأ السبت وينتهي الجمعة: ترتيب العرض لأيام JS (0=الأحد … 6=السبت)؛ التخزين والمنطق كما هما */
 const WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
-const vcB = n => n == null ? '' : `<span class="vc" title="${esc(t('hist_visits'))}">${+n || 0}</span>`;
+const vcB = (n, ap) => n == null ? '' : `<span class="vc" title="${esc(t('hist_visits'))}">${+n || 0}</span>${lateB(ap)}`;
+/* مريض متأخر عن موعد حصته: دائرة حمراء بجوار الخضراء بعدد أيام التأخر بالسالب (مثل -15) */
+const lateB = ap => { if (!ap || typeof localDay !== 'function') return ''; const d = Math.round((Date.parse(ap + 'T00:00:00Z') - Date.parse(localDay() + 'T00:00:00Z')) / 864e5); return d < 0 ? `<span class="vc vc-late" dir="ltr" title="${esc(t('ap_late', { n: -d }))}">${d}</span>` : ''; };
 Object.assign(L.ar, { pay_day_ph: 'يوم صرف الراتب من الشهر (1-31) — اختياري', pay_salary_ph: 'مبلغ الراتب — اختياري', pay_day_l: 'يوم صرف الراتب (1-31):', pay_salary_l: 'مبلغ الراتب:', pay_dur: ['يوم واحد', 'يومين', '{n} أيام', '{n} يوماً'], pay_in: '💰 الراتب بعد {n}', pay_tomorrow: '⏰ الراتب غداً', pay_today: '⏰ اليوم موعد الراتب', pay_late: '⚠️ الراتب متأخر {n}', pay_paid_next: '✅ دُفع هذا الشهر · القادم بعد {n}', pay_every: 'يوم {d} من كل شهر', pay_mark: 'تم دفع الراتب ✅', pay_mark_q: 'تأكيد: هل دفعتَ راتب «{n}» لهذه الدورة؟', t_pay_marked: 'سُجّل دفع الراتب ✅', pay_due_title: '💰 موعد راتب ممرضة', pay_due_tomorrow: 'راتب {n} غداً', pay_due_today: 'اليوم موعد راتب {n}', pay_due_late: 'راتب {n} متأخر {d}' });
 Object.assign(L.en, { pay_day_ph: 'Salary day of month (1-31) — optional', pay_salary_ph: 'Salary amount — optional', pay_day_l: 'Salary day (1-31):', pay_salary_l: 'Salary amount:', pay_dur: ['1 day', '2 days', '{n} days', '{n} days'], pay_in: '💰 Salary in {n}', pay_tomorrow: '⏰ Salary due tomorrow', pay_today: '⏰ Salary due today', pay_late: '⚠️ Salary {n} late', pay_paid_next: '✅ Paid this month · next in {n}', pay_every: 'Day {d} of every month', pay_mark: 'Salary paid ✅', pay_mark_q: 'Confirm: did you pay «{n}» for this cycle?', t_pay_marked: 'Salary payment recorded ✅', pay_due_title: '💰 Nurse salary due', pay_due_tomorrow: '{n}\'s salary is due tomorrow', pay_due_today: '{n}\'s salary is due today', pay_due_late: '{n}\'s salary is {d} late' });
 /* رواتب الممرضات: عدد الأيام حتى الصرف بتوقيت جهاز الطبيب. days: موجب متبقٍ، 0 اليوم، سالب متأخر */
@@ -227,8 +229,8 @@ Object.assign(L.ar, { spec_l: 'التخصص الطبي:', spec_hint: 'يُحدَ
 Object.assign(L.ar, { set_med: '🩺 الشكاوى والتشخيصات الجاهزة', med_lists_hint: 'اكتب كل عنصر في سطر. تظهر كأزرار اختيار سريع في المعاينة، ويمكنك تعديل النص أو الكتابة بحرية هناك.', med_cl_l: 'الشكاوى الرئيسية الشائعة:', med_dl_l: 'التشخيصات الشائعة:', med_lists_saved: 'تم حفظ القوائم ✅', med_quick: 'اختيار سريع' });
 Object.assign(L.en, { set_med: '🩺 Preset complaints & diagnoses', med_lists_hint: 'One item per line. They appear as quick-pick buttons in the consultation; you can still edit the text or type freely there.', med_cl_l: 'Common chief complaints:', med_dl_l: 'Common diagnoses:', med_lists_saved: 'Lists saved ✅', med_quick: 'Quick pick' });
 Object.assign(L.en, { spec_l: 'Medical specialty:', spec_hint: 'Set once when the account is created. Non-dental: the tooth chart, tooth number and all dental features are removed.', sp_dental: 'Dentistry & oral surgery', sp_general: 'General practice', sp_pediatrics: 'Pediatrics', sp_gyneco: 'Obstetrics & gynecology', sp_internal: 'Internal medicine', sp_cardio: 'Cardiology', sp_derma: 'Dermatology', sp_eye: 'Ophthalmology', sp_ent: 'ENT', sp_ortho: 'Orthopedics', sp_psych: 'Psychiatry', sp_other: 'Other specialty', med_title: 'Examination details', med_complaint: 'Chief complaint', med_diag: 'Diagnosis', med_vitals: 'Vital signs', med_w: 'Weight (kg)', med_h: 'Height (cm)', med_bp: 'Blood pressure', med_t: 'Temp (°C)', med_hr: 'Pulse', med_allergy: 'Allergies', med_chronic: 'Chronic conditions', med_saved_note: 'Allergies and chronic conditions are saved in the patient file and shown as an alert on every visit.', med_alert: 'Medical alert', med_v: 'Vitals' });
-Object.assign(L.ar, { sum_hint: 'المستحق والمتبقي: لزيارات الفترة المعروضة. المحصَّل: كل ما سُدِّد في هذه الفترة عن أي زيارة (نقداً + المقتطع من الوعاء)، ولا يشمل إيداعات الوعاء نفسها.' });
-Object.assign(L.en, { sum_hint: 'Due & outstanding: for visits in the shown period. Collected: everything paid in this period for any visit (cash + deducted from wallet); wallet deposits themselves are not counted.' });
+Object.assign(L.ar, { sum_hint: 'المستحق: مجموع أثمان العلاجات المعروضة. المحصَّل: مجموع ما قُبض عنها (نقداً + المقتطع من الوعاء، دون إيداعات الوعاء نفسها). المتبقي = المستحق − المحصَّل.' });
+Object.assign(L.en, { sum_hint: 'Due: total price of the treatments shown. Collected: total received for them (cash + deducted from wallet; wallet deposits themselves not counted). Outstanding = Due − Collected.' });
 const locale = () => (settings.lang === 'en' ? 'en-GB' : 'ar-u-nu-latn');
 
 /* ===================== أدوات الواجهة ===================== */
@@ -409,14 +411,14 @@ function renderNurseList() {
     const act = inRoom ? `<span style="font-size:12px;color:var(--warning-warm);font-weight:600">${t('in_room')}</span>`
       : `<button type="button" class="btn-action btn-green ${isBusy ? 'btn-disabled' : ''}" ${isBusy ? 'disabled' : ''} data-act="enter" data-id="${p.id}">🟢 ${t('enter')}</button>`;
     const extra = inRoom ? '' : `${wIds.indexOf(p.id) > -1 && wIds.indexOf(p.id) < wIds.length - 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button>`;
-    return `<li class="patient-card ${inRoom ? 'in-doctor' : ''}"><div><span class="queue-badge">${inRoom ? t('doctor_word') : '#' + rank++}</span><strong style="font-size:15px">${esc(p.name)}</strong> ${vcB(p.vc)} <span class="badge">${esc(reasonL(p.reason))}</span>
+    return `<li class="patient-card ${inRoom ? 'in-doctor' : ''}"><div><span class="queue-badge">${inRoom ? t('doctor_word') : '#' + rank++}</span><strong style="font-size:15px">${esc(p.name)}</strong> ${vcB(p.vc, p.ap)} <span class="badge">${esc(reasonL(p.reason))}</span>
       <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo}</div></div>
       <div class="actions">${act}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>${extra}</div></li>`;
   }).join('') : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('empty_today')}</li>`;
 }
 function renderDocWaiting() {
   const w = S.patients.filter(p => p.status === 'waiting'), list = $('#docWaitingList'); let r = 1;
-  const html = w.length ? w.map(p => `<li class="patient-card${p.debt > 0 ? ' has-debt' : p.wallet > 0 ? ' has-wallet' : ''}" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> ${vcB(p.vc)} <span class="badge">${esc(reasonL(p.reason))}</span>${p.debt > 0 ? ` <span class="badge debt-badge">⚠️ ${t('rem_l')} ${money(p.debt)}</span>` : ''}
+  const html = w.length ? w.map(p => `<li class="patient-card${p.debt > 0 ? ' has-debt' : p.wallet > 0 ? ' has-wallet' : ''}" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> ${vcB(p.vc, p.ap)} <span class="badge">${esc(reasonL(p.reason))}</span>${p.debt > 0 ? ` <span class="badge debt-badge">⚠️ ${t('rem_l')} ${money(p.debt)}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div></div>
     <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button>${w.indexOf(p) < w.length - 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
     <button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button></div></li>`).join('')
@@ -459,14 +461,14 @@ function renderConsultation() {
   const sig = a ? a.id + ':' + a.images.join(',') + ':' + settings.lang + ':' + a.reason + ':' + [a.name, a.birthYear, a.gender, a.phone, a.tooth].join('~') : '';   // أي تعديل لبيانات المريض يُعيد رسم شاشة المعاينة فوراً
   if (area.dataset.sig === sig) return;
   const samePid = area.dataset.pid === (a ? a.id : ''), notes = samePid && $('#consultNotes') ? $('#consultNotes').value : '', pnote = samePid && $('#patientNote') ? $('#patientNote').value : '';
-  if (!samePid) { S.treatments = [(a && REASON_TREAT[a.reason]) || 'أخرى']; if (a && DENT()) teethInit(a); S.med = a && a.med ? { allergies: a.med.allergies || '', chronic: a.med.chronic || '' } : {}; moneyReset(); if (window.rxReset) rxReset(a); }
+  if (!samePid) { S.wizStep = 1; S.treatments = [(a && REASON_TREAT[a.reason]) || 'أخرى']; if (a && DENT()) teethInit(a); S.med = a && a.med ? { allergies: a.med.allergies || '', chronic: a.med.chronic || '' } : {}; moneyReset(); if (window.rxReset) rxReset(a); }
   S.treatments = S.treatments.filter(v => treatList().includes(v)); if (!S.treatments.length) S.treatments = [treatList().includes('أخرى') ? 'أخرى' : treatList()[0]];
   if (!a) { area.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);background:var(--surface-card);border-radius:16px">${t('empty_room')}</div>`; }
   else {
     const imgs = a.images.length ? a.images.map(id => `<div class="thumb-box"><img data-rec="${a.id}" data-img="${id}" data-act="lightbox" alt=""><button type="button" class="del-img" data-act="delImage" data-id="${a.id}" data-img="${id}">✕</button></div>`).join('') : `<span style="font-size:12px;color:var(--text-muted)">${t('no_images')}</span>`;
     const owed = Math.max(a.debt || 0, (S.account && S.account.balance) || 0);
-    area.innerHTML = `<div class="consultation-card"><div class="cons-stick" aria-hidden="true"><div class="cons-stick-in">👤 ${esc(a.name)} ${vcB(a.vc)}</div></div><div id="contBar">${contBarHTML()}</div>${owed > 0 ? `<div class="debt-alert">⚠️ ${t('debt_note', { x: money(owed) })}</div>` : ''}<div class="patient-highlight-box${owed > 0 ? ' has-debt' : (a.wallet > 0 || wBal() > 0) ? ' has-wallet' : ''}">
-      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:20px;font-weight:600">${t('consult_patient')} ${esc(a.name)} ${vcB(a.vc)}</div><span style="display:flex;gap:8px;align-items:center"><button type="button" class="btn-action btn-green" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}">${t('hist_title')}</button><button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${a.id}">✏️ ${t('edit')}</button><span style="background:var(--orange);padding:4px 14px;border-radius:20px;font-weight:600;font-size:13px">${t('ticket_no')} ${a.ticketNo}</span></span></div>
+    area.innerHTML = `<div class="consultation-card"><div class="cons-stick" aria-hidden="true"><div class="cons-stick-in">👤 ${esc(a.name)} ${vcB(a.vc, a.ap)}</div></div><div id="contBar">${contBarHTML()}</div>${owed > 0 ? `<div class="debt-alert">⚠️ ${t('debt_note', { x: money(owed) })}</div>` : ''}${wizOpen()}<div class="patient-highlight-box${owed > 0 ? ' has-debt' : (a.wallet > 0 || wBal() > 0) ? ' has-wallet' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:20px;font-weight:600">${t('consult_patient')} ${esc(a.name)} ${vcB(a.vc, a.ap)}</div><span style="display:flex;gap:8px;align-items:center"><button type="button" class="btn-action btn-green" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}">${t('hist_title')}</button><button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${a.id}">✏️ ${t('edit')}</button><span style="background:var(--orange);padding:4px 14px;border-radius:20px;font-weight:600;font-size:13px">${t('ticket_no')} ${a.ticketNo}</span></span></div>
       <div style="margin-top:10px;padding:10px 14px;border-radius:12px;background:var(--surface-card);border-inline-start:5px solid var(--orange);font-size:15px">${t('reason_l')} <strong style="font-size:17px">${esc(reasonL(a.reason))}</strong></div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;font-size:13px">
         ${DENT() ? `<div>${t('tooth_l')} <strong>${esc(a.tooth)}</strong></div>` : ''}<div>${t('gender_l')} <strong>${esc(genderL(a.gender))}</strong></div>
@@ -475,15 +477,15 @@ function renderConsultation() {
       <div style="background:var(--surface-sunk);border:1px dashed var(--border-calm);padding:16px;border-radius:12px;margin-bottom:20px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:8px">${t('xrays')}</label>
         <div class="patient-images-container">${imgs}</div>
         <div style="display:flex;gap:10px;margin-top:12px"><button type="button" class="btn-action btn-green" style="flex:1" data-act="openCamera" data-id="${a.id}">${t('cam_live')}</button><button type="button" class="btn-action btn-yellow" style="flex:1" data-act="pickFile" data-id="${a.id}">${t('upload_gal')}</button></div></div>
-      ${teethHTML()}
+      </section><section class="wiz-step" data-s="2">${teethHTML()}
       <label style="font-size:13px;font-weight:600;color:var(--text-secondary)">${t('pick_treat')}</label><div class="hint" style="margin:2px 0 6px">${t('pick_treat_multi')}</div>
       <div class="treatment-grid">${treatList().map(v => `<div class="treatment-item ${S.treatments.includes(v) ? 'selected' : ''}" role="checkbox" aria-checked="${S.treatments.includes(v)}" data-act="treat" data-v="${esc(v)}">${esc(treatLabel(v))}</div>`).join('')}</div>
-      ${moneyHTML()}${nxHTML()}
+      ${perToothHTML()}</section><section class="wiz-step" data-s="3">${moneyHTML()}${nxHTML()}</section><section class="wiz-step" data-s="4">
       ${window.rxHTML ? rxHTML() : ''}
       <textarea id="consultNotes" maxlength="2000" placeholder="${esc(t('notes_ph'))}" style="height:80px;margin-bottom:12px"></textarea>
       <label style="font-size:13px;font-weight:600;color:var(--text-secondary)">${t('pnote_l')}</label>
       <textarea id="patientNote" maxlength="300" placeholder="${esc(t('pnote_ph'))}" style="height:56px;margin:4px 0 15px"></textarea>
-      <button type="button" class="btn-primary btn-green" data-act="finish" data-id="${a.id}" style="padding:16px;font-size:16px">${t('finish')}</button></div>`;
+      </section>${wizNav(a)}</div></div>`;
     if (notes) $('#consultNotes').value = notes; if (pnote) $('#patientNote').value = pnote;
     recalc(); if (!samePid) loadAccount(a);
     hydrate(area); if (window.rxMount) rxMount(a); consStickInit(area);
@@ -768,7 +770,7 @@ function moneyUpdate() {
   const si = $('[data-input=spay]'); if (si && si !== act && S.sessPay == null) si.value = String(m.ls.amt); const sh = $('#spayHint'); if (sh) sh.textContent = m.ls.excess > 0 ? t('pl_excess', { a: money(m.ls.excess) }) : t('pl_spay_hint', { a: money(m.ls.sugg) });
   const sm = $('#moneySum'); if (sm) sm.innerHTML = sumHTML(m); const wl = $('#walLine'); if (wl) wl.textContent = S.useWal && m.w > 0 ? '− ' + money(m.w) : '';
 }
-function recalc() { const b = $('#planBox'); if (!b) return; contBarUpdate(); if (b.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return moneyUpdate(); b.innerHTML = planBoxInner(); moneyUpdate(); }
+function recalc() { const b = $('#planBox'); if (!b) return; contBarUpdate(); ptUpdate(); if (b.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return moneyUpdate(); b.innerHTML = planBoxInner(); moneyUpdate(); }
 /* مفاتيح بنود محذوفة يدوياً تعود إن اختار الطبيب السن أو العلاج من جديد */
 const unRemove = (th, tr) => { for (const k of [...S.removed]) { const [a, b] = k.split('|'); if ((th && a === th) || (tr && b === tr)) S.removed.delete(k); } };
 async function loadAccount(a) {
@@ -925,7 +927,7 @@ function loadArchive(reset = true) {
 function renderArchive() {
   $('#archiveResultCount').textContent = S.archive.total; $('#archiveSum').innerHTML = S.archive.walSum ? `🏺 ${t('money_wal_sum')} <b>${money(S.archive.walSum)}</b>` : (S.archive.sum || S.archive.paidSum) ? `<span title="${esc(t('sum_hint'))}">${t('total_due')} <b>${money(S.archive.sum)}</b> · ${t('total_paid')} <b style="color:var(--success,#2e9e6b)">${money(S.archive.paidSum)}</b>${S.archive.debt ? ` · ${t('total_debt')} <b style="color:var(--danger-soft,#e8607a)">${money(S.archive.debt)}</b>` : ''}</span>` : '';
   const l = $('#archiveList');
-  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card${a.remaining > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc)} ${lineBadges(a, 'badge')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(a.price)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}${a.followUp ? ` <span class="badge">${t('follow_b')}</span>` : ''}
+  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card${a.remaining > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc, a.ap)} ${lineBadges(a, 'badge')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(a.price)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}${a.followUp ? ` <span class="badge">${t('follow_b')}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} ${DENT() ? ` | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong>` : ''}</div>
     ${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(a, a) : ''}
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
@@ -1007,6 +1009,8 @@ function plansHistHTML(recs, dd) {
   return cards.length ? `<div class="hist-plans"><div class="ht-head"><b>${t('hp_title')}</b></div>${cards.join('')}</div>` : '';
 }
 /* سجل المريض الكامل: من أول زيارة إلى آخرها */
+Object.assign(L.ar, { hv_tab_visits: 'الزيارات', hv_tab_plans: 'خطط العلاج', hv_tab_pays: 'المدفوعات', hv_tab_media: 'الصور والوصفات', hv_debt: 'عليه دين', hv_no_debt: 'لا ديون ✓', hv_no_plans: 'لا توجد علاجات متعددة الحصص لهذا المريض.', hv_no_pays: 'لا توجد دفعات مسجّلة بعد.', hv_no_media: 'لا توجد صور أو وصفات بعد.', hv_c_date: 'التاريخ', hv_c_amt: 'المبلغ', hv_c_for: 'عن علاج', hv_c_how: 'الطريقة' });
+Object.assign(L.en, { hv_tab_visits: 'Visits', hv_tab_plans: 'Treatment plans', hv_tab_pays: 'Payments', hv_tab_media: 'Images & prescriptions', hv_debt: 'Owes', hv_no_debt: 'No balance due ✓', hv_no_plans: 'No multi-session treatments for this patient.', hv_no_pays: 'No payments recorded yet.', hv_no_media: 'No images or prescriptions yet.', hv_c_date: 'Date', hv_c_amt: 'Amount', hv_c_for: 'For', hv_c_how: 'Method' });
 async function showHistory(name, year) {
   const body = $('#historyBody'); body.innerHTML = `<div class="hint" style="text-align:center;padding:20px">…</div>`; openModal('historyModal');
   const r = await run(() => api('GET', '/api/history?name=' + encodeURIComponent(name) + '&year=' + encodeURIComponent(year)));
@@ -1020,32 +1024,40 @@ async function showHistory(name, year) {
   const wlog = (r.wallet ? r.wallet.log : []).filter(e => e.k === 'dep' || e.k === 'out');
   const trName = x => esc(x.lines && x.lines.length ? x.lines.map(l => (lTeeth(l).length ? lTeeth(l).join(' ') + ' ' : '') + l.treatment).join(' + ') : (x.treatments ? x.treatments.join(' + ') : x.treatment));
   /* خط زمني واحد: كل حصة (العلاج بارز) ومعها مدفوعاتها، وبينها حركات الوعاء المستقلة */
-  const visitHTML = (x, n) => {
-    const own = x.payments && x.payments.length ? payChips(x.payments, x.id) : '';
-    const recv = r.records.flatMap((y, j) => y.id !== x.id ? (y.payments || []).filter(q => q.vid === x.id).map(q => `<span class="pay-chip${q.m === 'w' ? ' w' : ''}"><b class="${q.m === 'w' ? 'wal-tag' : 'cash-tag'}">${payLbl(q)}</b>: <b>${money(q.amt)}</b> · ${t('pay_recv', { n: j + 1, tr: trName(y) })}</span>`) : []);
-    const dep = wlog.filter(e => e.vid === x.id).map(e => `<span class="pay-chip dep"><b class="wal-tag">${t('pay_dep')}</b>: <b>${money(e.amt)}</b></span>`);
-    const extra = recv.concat(dep).join('');
-    return `<div class="hist-item"><div class="hi-date">${t('hist_visit_n', { n })} · ${dt(x.finishedAt)}${x.followUp ? ' · ' + t('follow_b') : ''}</div>
-      <div class="hi-treat">${t('treat_l')} ${lineBadges(x, 'hi-tbadge')}</div>
+  const visitHTML = (x, n, open) => {
+    const rem = x.price != null ? (x.remaining > 0 ? `<span class="hv-bd no">${t('rem_l')} ${money(x.remaining)}</span>` : `<span class="hv-bd ok">${t('paid_full')}</span>`) : '';
+    return `<details class="hv-card"${open ? ' open' : ''}><summary><span class="hv-d">${dd(x.finishedAt)}</span><span class="hv-t">${lineBadges(x, 'hi-tbadge')}${x.followUp ? `<span class="hv-bd">${t('follow_b')}</span>` : ''}</span>${rem}</summary>
+      <div class="hv-body">
+      ${x.price != null ? `<div class="hv-m3"><div>${t('due_l')}<b>${money(x.price)}</b></div><div>${t('paid_l')}<b>${money(x.paid)}</b></div><div>${t('rem_l')}<b class="${x.remaining > 0 ? 'neg' : 'pos'}">${money(x.remaining)}</b></div></div>` : ''}
       <div class="hi-line">${DENT() ? `${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ` : ''}${t('reason_s')}: ${esc(reasonL(x.reason))}</div>${medLineHTML(x)}
       ${(x.lines || []).filter(l => l.ortho).map(l => `<div class="hi-line hi-ortho">🦷 ${t('ortho_up')}: ${wireTxt(l.ortho.upPrev, l.ortho.up)} · ${t('ortho_lo')}: ${wireTxt(l.ortho.loPrev, l.ortho.lo)}${l.ortho.next ? ` · ${t('ortho_next')}: <span dir="ltr">${esc(ymdS(l.ortho.next))}</span>` : ''}${l.ortho.notesUp ? `<div class="hi-notes">📝 ${t('ortho_up')}: ${esc(l.ortho.notesUp)}</div>` : ''}${l.ortho.notesLo ? `<div class="hi-notes">📝 ${t('ortho_lo')}: ${esc(l.ortho.notesLo)}</div>` : ''}${l.ortho.notes && !l.ortho.notesUp && !l.ortho.notesLo ? `<div class="hi-notes">📝 ${esc(l.ortho.notes)}</div>` : ''}</div>`).join('')}
-      ${x.price != null ? `<div class="hi-line hi-money">${t('due_l')} ${money(x.price)} · ${t('paid_l')} ${money(x.paid)}${x.remaining > 0 ? ` · <b style="color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(x.remaining)}</b>` : ` · <b style="color:var(--success,#2e9e6b)">${t('paid_full')}</b>`}</div>` : ''}
-      ${own || extra ? `<div class="hi-line">${t('pays_l')}${own}${extra ? `<div class="pay-chips">${extra}</div>` : ''}</div>` : ''}
-      ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}
-      <div class="hi-line" style="font-size:11px">${t('wait_s')} ${fmtMin(x.waitMin)} · ${t('dur_l')} ${fmtMin(x.durationMin)}</div></div>`;
+      ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(x, r) : ''}</div></details>`;
   };
-  const walOnly = e => `<div class="hist-item hi-wal"><div class="hi-date">${dt(e.t)}</div><div class="hi-line hi-money">${e.k === 'out' ? t('pay_out') : t('pay_dep')}: ${e.k === 'out' ? '−' : ''}<b>${money(e.amt)}</b> · ${t('pay_dep_manual')}</div></div>`;
-  const items = r.records.map((x, i) => ({ t: x.finishedAt, h: visitHTML(x, i + 1) })).concat(wlog.filter(e => !vis.has(e.vid)).map(e => ({ t: e.t, h: walOnly(e) }))).sort((p, q) => q.t - p.t).map(z => z.h).join('');
   const walBox = `<div class="hist-wallet"><div><b>${t('wal_title')}</b> <span class="hw-bal">${money(r.wallet ? r.wallet.bal : 0)}</span></div>
     <div class="hw-btns"><button type="button" class="btn-action btn-green" data-act="walDeposit" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_dep')}</button>${r.wallet && r.wallet.bal > 0 ? `<button type="button" class="btn-action btn-yellow" data-act="walOut" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_out')}</button>` : ''}</div></div>`;
-  body.innerHTML = `<div class="hist-sum"><div class="hs-name">${esc(r.name)} ${vcB(r.visits)}</div>
-      <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎️ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div>
-      <div class="hist-stats"><div>${t('hist_visits')}<b>${r.visits}</b></div><div>${t('hist_first')}<b>${dd(r.firstVisit)}</b></div><div>${t('hist_last')}<b>${dd(r.lastVisit)}</b></div>
-      ${r.due ? `<div>${t('total_due')}<b>${money(r.due)}</b></div><div>${t('total_paid')}<b>${money(r.paid)}</b></div>` : ''}${r.balance ? `<div>${t('total_debt')}<b style="color:var(--danger-soft,#e8607a)">${money(r.balance)}</b></div>` : ''}</div></div>
-    ${walBox}
+  const hk = name + '|' + year; if (S._hk !== hk) { S._hk = hk; S.histTab = 'visits'; }
+  const tab = S.histTab || 'visits';
+  const visits = r.records.map((x, i) => ({ x, n: i + 1 })).sort((p, q) => (q.x.finishedAt || 0) - (p.x.finishedAt || 0)).map((o, k) => visitHTML(o.x, o.n, k === 0)).join('');
+  const ledger = r.records.flatMap((x, i) => (x.payments || []).map(p => ({ t: p.t, amt: +p.amt || 0, w: p.m === 'w', fr: trName(x) + ' · ' + t('hist_visit_n', { n: i + 1 }), hw: payLbl(p) + ' · ' + payWhere(p, x.id) })))
+    .concat(wlog.map(e => ({ t: e.t, amt: e.k === 'out' ? -(+e.amt || 0) : (+e.amt || 0), w: true, fr: '—', hw: e.k === 'out' ? t('pay_out') : t('pay_dep') })))
+    .sort((p, q) => (q.t || 0) - (p.t || 0));
+  const ledgerHTML = ledger.length ? `<div class="hv-scroll"><table class="hv-tbl"><thead><tr><th>${t('hv_c_date')}</th><th>${t('hv_c_amt')}</th><th>${t('hv_c_for')}</th><th>${t('hv_c_how')}</th></tr></thead><tbody>${ledger.map(z => `<tr${z.w ? ' class="w"' : ''}><td>${dd(z.t)}</td><td><b>${z.amt < 0 ? '−' : ''}${money(Math.abs(z.amt))}</b></td><td>${z.fr}</td><td>${z.hw}</td></tr>`).join('')}</tbody></table></div>` : `<div class="hint">${t('hv_no_pays')}</div>`;
+  const totals = r.due ? `<div class="hv-tot"><span>${t('total_due')} <b>${money(r.due)}</b></span><span>${t('total_paid')} <b>${money(r.paid)}</b></span>${r.balance ? `<span class="neg">${t('total_debt')} <b>${money(r.balance)}</b></span>` : ''}</div>` : '';
+  const media = (r.current && r.current.images && r.current.images.length ? [`<div class="hv-media"><div class="hv-md">${t('hist_cur')}</div>${imgs(r.current)}</div>`] : [])
+    .concat(r.records.filter(x => (x.images && x.images.length) || (x.rx && x.rx.length)).sort((p, q) => (q.finishedAt || 0) - (p.finishedAt || 0)).map(x => `<div class="hv-media"><div class="hv-md">${dd(x.finishedAt)} · ${trName(x)}</div>${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}</div>`)).join('');
+  const debt = +r.balance || 0, wb = r.wallet ? +r.wallet.bal || 0 : 0;
+  const debtBox = debt > 0 ? `<div class="hv-debt no"><span>${t('hv_debt')}</span><b>${money(debt)}</b></div>` : (r.due ? `<div class="hv-debt ok"><span>${t('hv_no_debt')}</span></div>` : '');
+  const tb = (k, lbl) => `<button type="button" class="hv-tab${tab === k ? ' on' : ''}" data-act="histTab" data-tab="${k}">${lbl}</button>`;
+  const pane = (k, h) => `<div class="hv-pn${tab === k ? ' on' : ''}" id="hv_${k}">${h}</div>`;
+  body.innerHTML = `<div class="hist-sum"><div class="hv-head"><div class="hv-who"><div class="hs-name">${esc(r.name)} ${vcB(r.visits)}</div>
+      <div class="hs-meta">${t('sex')}: <strong>${esc(genderL(r.gender))}</strong> | ${t('birth')}: <strong>${r.birthYear}</strong> (${new Date().getFullYear() - r.birthYear} ${t('years_short')})${r.phone ? ` | ☎️ <span dir="ltr">${esc(r.phone)}</span>` : ''}</div></div>${debtBox}</div>
+      <div class="hv-facts"><span>${t('hist_visits')}: <b>${r.visits}</b></span><span>${t('hist_last')}: <b>${dd(r.lastVisit)}</b></span>${wb ? `<span>${t('wal_bal_b')}: <b>${money(wb)}</b></span>` : ''}</div></div>
     ${DENT() ? teethMapHTML(r.records) : ''}
-    ${plansHistHTML(r.records, dd)}
-    <div class="hist-tl">${cur}${items || (cur ? '' : `<div class="hint">${t('hist_none')}</div>`)}</div>`;
+    <div class="hv-tabs">${tb('visits', t('hv_tab_visits'))}${tb('plans', t('hv_tab_plans'))}${tb('pays', t('hv_tab_pays'))}${tb('media', t('hv_tab_media'))}</div>
+    ${pane('visits', cur + (visits || (cur ? '' : `<div class="hint">${t('hist_none')}</div>`)))}
+    ${pane('plans', plansHistHTML(r.records, dd) || `<div class="hint">${t('hv_no_plans')}</div>`)}
+    ${pane('pays', walBox + totals + ledgerHTML)}
+    ${pane('media', media || `<div class="hint">${t('hv_no_media')}</div>`)}`;
   hydrate(body);
 }
 async function loadNurses() { const r = await run(() => api('GET', '/api/nurses')); if (r) { S.nurses = r; renderNurses(); renderPayBadge(); } }
@@ -1101,7 +1113,7 @@ function renderApptGate() {
   const sig = JSON.stringify([rows.map(r => [r.k, r.items.map(i => [i.id, i.date])]), [...here], open, td, settings.lang]); if (g._sig === sig) return; g._sig = sig;
   g.innerHTML = `<div class="ag-h">${t('appt_gate_h')}</div><div class="ag-hint">${t('appt_gate_hint')}</div>` + (rows.length ? rows.map(r => {
     const a = r.a, d = dayDiff(r.items.reduce((m, i) => i.date < m ? i.date : m, a.date), td), st = d < 0 ? t('ap_late', { n: -d }) : t('ap_today'), cls = d < 0 ? 'late' : 'today', reg = here.has(r.k);
-    return `<div class="ag-row${reg ? ' done' : ''}"><div class="ag-info"><b>${esc(a.name)}</b> ${vcB(a.vc)} <span class="ag-meta">${YEAR - a.birthYear} ${t('years_short')}${a.phone ? ' · <span dir="ltr">' + esc(a.phone) + '</span>' : ''}</span>
+    return `<div class="ag-row${reg ? ' done' : ''}"><div class="ag-info"><b>${esc(a.name)}</b> ${vcB(a.vc, a.ap)} <span class="ag-meta">${YEAR - a.birthYear} ${t('years_short')}${a.phone ? ' · <span dir="ltr">' + esc(a.phone) + '</span>' : ''}</span>
       <div class="ag-tr">${r.items.map(i => plBadge(i.tooth, i.treatment) + `<span class="pl-badge cont">${t('pl_next_session', { n: i.no, m: i.sessions })}</span>`).join(' ')}</div><span class="appt-chip ${cls}">${st}</span></div>
       ${reg ? `<span class="ag-ok">${t('appt_registered')}</span>` : `<button type="button" class="btn-action btn-green" data-act="apptReg" data-id="${esc(a.id)}" ${open ? '' : 'disabled'}>${t('appt_reg')}</button>`}</div>`;
   }).join('') : `<div class="ag-empty">${t('appt_gate_empty')}</div>`);
@@ -1183,7 +1195,7 @@ function renderAppts() {
   };
   const row = a => {
     const d = dayDiff(a.date, td), st = d < 0 ? t('ap_late', { n: -d }) : d === 0 ? t('ap_today') : t('ap_in', { n: d }), cls = d < 0 ? 'late' : d === 0 ? 'today' : 'soon';
-    return `<li class="patient-card appt-card ${cls}"><div><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc)} <span class="badge">${a.tooth ? esc(a.tooth) + ' · ' : ''}${esc(treatLabel(a.treatment))}</span> <span class="badge">${t('pl_session_n', { n: a.no, m: a.sessions })}</span>
+    return `<li class="patient-card appt-card ${cls}"><div><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc, a.ap)} <span class="badge">${a.tooth ? esc(a.tooth) + ' · ' : ''}${esc(treatLabel(a.treatment))}</span> <span class="badge">${t('pl_session_n', { n: a.no, m: a.sessions })}</span>
       <div class="note-line appt-when"><span class="appt-chip ${cls}">${st}</span> <span class="ymd-pick"><span class="ymd-show" dir="ltr">📅 ${esc(ymdS(a.date))}</span><input type="date" class="appt-date" data-change="apptDate" data-id="${a.id}" value="${a.date}" aria-label="${esc(t('ap_date'))}"></span>${a.phone ? ` · <a href="tel:${esc(a.phone)}" dir="ltr">📞 ${esc(a.phone)}</a>` : ''}</div>${miniTeeth(a)}</div>
       <div class="actions"><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="-1">➖ ${t('ap_day')}</button><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="1">➕ ${t('ap_day')}</button><button type="button" class="btn-action btn-red" data-act="apptDel" data-id="${a.id}" title="${esc(t('ap_del'))}">🗑 ${t('ap_del')}</button></div></li>`;
   };
@@ -1320,6 +1332,7 @@ const ACT = {
   async apptDel(el) { if (!await appConfirm(t('ap_del_q'))) return; if (await run(() => api('DELETE', `/api/appts/${el.dataset.id}`))) { toast(t('ap_deleted'), 'success'); refresh(); } },
   docTab: el => docTab(el.dataset.tab), nurseTab: el => nurseTab(el.dataset.tab),
   closeModal: closeModals,
+  histTab(el) { S.histTab = el.dataset.tab; const root = el.closest('#historyBody'); if (!root) return; root.querySelectorAll('.hv-tab').forEach(b => b.classList.toggle('on', b === el)); root.querySelectorAll('.hv-pn').forEach(q => q.classList.toggle('on', q.id === 'hv_' + el.dataset.tab)); },
   openTasks,
   taskQuick(el) { const ta = $('#taskText'); ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + ' ' : '') + t(el.dataset.k); ta.focus(); },
   async taskDone(el) { el.disabled = true; const r = await run(() => api('POST', `/api/tasks/${el.dataset.id}/done`)); if (!r) { el.disabled = false; return; } S.tasks = S.tasks.filter(k => k.id !== el.dataset.id); renderTasks(); refresh(); },
@@ -1335,6 +1348,7 @@ const ACT = {
   rsDel(el) { const r = el.closest('.rs-row'); if (r) r.remove(); },
   rsReset() { const d = DENT(); reasonsFill((d ? REASONS_D : REASONS_G).map(r => ({ name: r[0], treat: (d ? RT_D : RT_G)[r[0]] || '' }))); },
   openSet(el) {
+    if (el.dataset.m === 'set_aboutModal') aboutFill();
     if (el.dataset.m === 'set_reasonsModal') reasonsFill(REASONS.map(r => ({ name: r[0], treat: REASON_TREAT[r[0]] || '' })));
     if (el.dataset.m === 'set_medModal') { const f = $('form[data-form=medLists]'); if (f) { const ml = (S.me && S.me.medLists) || {}; $('.medCl', f).value = (ml.complaints || []).join('\n'); $('.medDl', f).value = (ml.diagnoses || []).join('\n'); } }
     const m = el.dataset.m; if (m === 'set_clinicModal') { $$('.setClinicName').forEach(i => { i.value = S.me.clinicName; }); $$('.setDoctorName').forEach(i => { i.value = S.me.name; }); }
@@ -1409,6 +1423,8 @@ const ACT = {
   },
   async walDeposit(el) { return walMove(el, 'dep'); },
   async walOut(el) { return walMove(el, 'out'); },
+  wiz(el) { wizGo(el.dataset.s ? +el.dataset.s : (S.wizStep || 1) + (+el.dataset.d || 0)); },
+  toothTr(el) { const k = lineKey(el.dataset.th, el.dataset.v); if (S.removed.has(k)) S.removed.delete(k); else S.removed.add(k); recalc(); },
   treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); if (i < 0) unRemove('', v); recalc(); },
   async finish(el) {
     const m = moneyTotals(); if (!await finishSummary(el.dataset.id, m)) return;   // شاشة التأكيد: الرفض يُبقي الطبيب في المعاينة ليعدّل
@@ -1722,3 +1738,82 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => { const el = e.target; if (el && el.id && /^p[dn]Gender$/.test(el.id) && e.isTrusted) { el.dataset.manual = '1'; el.classList.remove('gender-auto'); } });
 document.addEventListener('reset', e => { $$('select[id$=Gender]', e.target).forEach(s => { delete s.dataset.manual; s.dataset.auto = ''; s.classList.remove('gender-auto'); }); });
+
+
+/* ===================== عن البرنامج ===================== */
+const APP_VER = 'v123';
+Object.assign(L.ar, { set_about: 'عن البرنامج' });
+Object.assign(L.en, { set_about: 'About' });
+const ABOUT = {
+  ar: { name: 'عيادتي الذكية', tag: 'عيادتك… بين يديك', intro: 'نظام متكامل لإدارة العيادة من الهاتف أو الحاسوب. يربط الطبيب والممرضة في الوقت الحقيقي، ويعمل كتطبيق على الشاشة الرئيسية دون تثبيت معقّد، بالعربية والإنجليزية.',
+    ver: 'النسخة', feats: [
+    ['⏱️', 'قائمة انتظار فورية', 'تسجّل الممرضة المريض فيظهر عند الطبيب في لحظته، مع تنبيهات وإشعارات نظام تصل حتى والتطبيق مغلق.'],
+    ['🎫', 'تذكرة QR للمريض', 'يتابع دوره من هاتفه دون أن تظهر له بيانات غيره أو الأسعار.'],
+    ['🧠', 'تعرّف تلقائي على الجنس', 'يُحدَّد الجنس من الاسم عند التسجيل مع إمكانية التعديل.'],
+    ['🩺', 'المعاينة والملف الطبي', 'سجل المريض والصور والأشعة (تكبير وتدوير وحفظ)، ومخطط الأسنان بألوان العلاجات، وتخصيص لأي تخصص طبي.'],
+    ['🦷', 'خطط علاج ومواعيد', 'حصص وأسعار لكل علاج، تقويم بجدول الأسلاك، علاج واحد لعدة أسنان، ومواعيد تُحسب تلقائياً مع شريط «متابعة العلاج».'],
+    ['💰', 'حسابات مالية', 'دفع على دفعات، وعاء مسبق الدفع، مدينون ودائنون، وأرشيف بالمستحق والمحصَّل والمتبقي.'],
+    ['💊', 'وصفات طبية', 'مصمّم تخطيط بالسحب والإفلات، وبحث بالأسماء التجارية في قائمة الأدوية الجزائرية (Nomenclature)، وطباعة بالمقاس المناسب.'],
+    ['📊', 'إحصائيات', 'تقارير الزيارات والإيرادات والأيام والساعات.'],
+    ['💾', 'نسخ احتياطي تلقائي', 'نسخة يومية تشمل كل شيء، واستعادة كاملة، وحماية الأرشيف بكلمة مرور.'],
+    ['🎨', 'واجهة مخصّصة', 'لون واحد يولّد الواجهة كلها (فاتح وداكن)، والتواريخ بصيغة YYYY/MM/DD.']],
+    quote: 'الطبيب لا يحتاج أن يكون في العيادة… ليعرف ما يحدث فيها.' },
+  en: { name: 'My Smart Clinic', tag: 'Your clinic… in your hands', intro: 'An all-in-one clinic management system for phone or desktop. It links doctor and nurse in real time and runs as a home-screen app with no complicated setup, in Arabic and English.',
+    ver: 'Version', feats: [
+    ['⏱️', 'Live waiting queue', 'The nurse registers a patient and the doctor sees it instantly, with alerts and system notifications even when the app is closed.'],
+    ['🎫', 'Patient QR ticket', 'Patients follow their turn from their phone without seeing anyone else’s data or prices.'],
+    ['🧠', 'Automatic gender detection', 'Gender is guessed from the name at registration and can be changed.'],
+    ['🩺', 'Consultation & medical file', 'Patient record, images and X-rays (zoom, rotate, save), a colour-coded dental chart, and support for any specialty.'],
+    ['🦷', 'Treatment plans & appointments', 'Sessions and prices per treatment, orthodontic wire table, one treatment for several teeth, and auto-scheduled appointments with a follow-up bar.'],
+    ['💰', 'Finance', 'Instalment payments, prepaid patient wallet, debtors and creditors, and an archive with due, collected and outstanding.'],
+    ['💊', 'Prescriptions', 'Drag-and-drop layout designer, brand-name search in the Algerian drug nomenclature, and print at the right paper size.'],
+    ['📊', 'Statistics', 'Visits, revenue, weekdays and hours.'],
+    ['💾', 'Automatic backup', 'Daily full backup, complete restore, and password-protected archive.'],
+    ['🎨', 'Custom look', 'One colour drives the whole UI (light and dark); dates as YYYY/MM/DD.']],
+    quote: 'The doctor doesn’t need to be at the clinic… to know what is happening in it.' }
+};
+function aboutFill() {
+  const a = ABOUT[settings.lang === 'en' ? 'en' : 'ar'], b = $('#set_aboutModal .about-body'); if (!b) return;
+  b.innerHTML = `<div class="ab-hero"><div class="ab-name">${esc(a.name)}</div><div class="ab-ver">${esc(a.ver)} <b dir="ltr">${APP_VER}</b></div><div class="ab-tag">${esc(a.tag)}</div></div>
+    <p class="ab-intro">${esc(a.intro)}</p>
+    <ul class="ab-list">${a.feats.map(f => `<li><span class="ab-ic">${f[0]}</span><div><strong>${esc(f[1])}</strong><div class="hint">${esc(f[2])}</div></div></li>`).join('')}</ul>
+    <div class="ab-quote">“${esc(a.quote)}”</div>`;
+}
+
+
+/* ===================== معاينة بخطوات (فحص ← علاج ← دفع ← تأكيد) ===================== */
+Object.assign(L.ar, { wz_1: 'الفحص', wz_2: 'العلاج', wz_3: 'الدفع', wz_4: 'التأكيد', wz_next: 'التالي: {n}', wz_back: 'السابق', wz_pt_title: 'حدّد علاج كل سن', wz_pt_hint: 'اضغط الشريحة لتفعيل العلاج لهذا السن أو إلغائه (دون التأثير على بقية الأسنان).' });
+Object.assign(L.en, { wz_1: 'Exam', wz_2: 'Treatment', wz_3: 'Payment', wz_4: 'Confirm', wz_next: 'Next: {n}', wz_back: 'Back', wz_pt_title: 'Set the treatment for each tooth', wz_pt_hint: 'Tap a chip to apply or remove that treatment for this tooth only.' });
+const WZ_N = 4;
+function wizBarHTML() {
+  const cur = S.wizStep || 1;
+  return [1, 2, 3, 4].map(i => `<button type="button" class="wiz-seg${i < cur ? ' done' : ''}${i === cur ? ' on' : ''}" data-act="wiz" data-s="${i}" aria-current="${i === cur ? 'step' : 'false'}"><i></i><span>${i} ${esc(t('wz_' + i))}</span></button>`).join('');
+}
+function wizNavHTML(a) {
+  const cur = S.wizStep || 1;
+  return `${cur > 1 ? `<button type="button" class="wiz-back" data-act="wiz" data-d="-1">${esc(t('wz_back'))}</button>` : ''}` +
+    (cur < WZ_N ? `<button type="button" class="wiz-next" data-act="wiz" data-d="1">${esc(t('wz_next', { n: t('wz_' + (cur + 1)) }))}</button>`
+      : `<button type="button" class="wiz-next wiz-finish" data-act="finish" data-id="${a ? a.id : ''}">${esc(t('finish'))}</button>`);
+}
+const wizOpen = () => `<div class="cons-wiz" data-step="${S.wizStep || 1}"><div class="wiz-bar" id="wizBar">${wizBarHTML()}</div><section class="wiz-step" data-s="1">`;
+const wizNav = a => `<div class="wiz-nav" id="wizNav" data-id="${a.id}">${wizNavHTML(a)}</div>`;
+function wizGo(n) {
+  const w = $('.cons-wiz'); if (!w) return;
+  S.wizStep = Math.max(1, Math.min(WZ_N, n | 0 || 1)); w.dataset.step = S.wizStep;
+  $('#wizBar').innerHTML = wizBarHTML(); const nv = $('#wizNav'); nv.innerHTML = wizNavHTML({ id: nv.dataset.id });
+  if (S.wizStep === 2 || S.wizStep === 3) recalc();
+  const top = w.getBoundingClientRect().top + window.scrollY - 70; window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+}
+/* علاج كل سن على حدة: شرائح تُفعَّل/تُلغى لكل سن (تُضبط S.removed) */
+function perToothHTML() {
+  const teeth = [...S.teeth].sort(), trs = S.treatments.filter(v => !flatOf(v));
+  if (!DENT() || teeth.length < 2 || !trs.length) return '<div id="ptBox"></div>';
+  return `<div id="ptBox" class="pt-box"><div class="pt-title">${esc(t('wz_pt_title'))}</div><div class="hint">${esc(t('wz_pt_hint'))}</div>` + teeth.map(th =>
+    `<div class="pt-row"><span class="pt-th">${esc(th)}</span><span class="pt-chips">${trs.map(v => { const on = !S.removed.has(lineKey(th, v)); return `<button type="button" class="pt-chip${on ? ' on' : ''}" aria-pressed="${on}" data-act="toothTr" data-th="${esc(th)}" data-v="${esc(v)}">${esc(treatLabel(v))}</button>`; }).join('')}</span></div>`).join('') + '</div>';
+}
+function ptUpdate() { const b = $('#ptBox'); if (b) b.outerHTML = perToothHTML(); }
+
+
+/* كلمات قصيرة لشريط تبويبات الطبيب (الأيقونة منفصلة في HTML) */
+Object.assign(L.ar, { tab_waiting_s: 'الانتظار', tab_appts_s: 'المواعيد', tab_consult_s: 'المعاينة', tab_add_s: 'تسجيل', tab_nurses_s: 'الممرضات', tab_archive_s: 'الأرشيف', tab_stats_s: 'الإحصاء', tab_set_s: 'الإعدادات' });
+Object.assign(L.en, { tab_waiting_s: 'Waiting', tab_appts_s: 'Appts', tab_consult_s: 'Consult', tab_add_s: 'Register', tab_nurses_s: 'Nurses', tab_archive_s: 'Archive', tab_stats_s: 'Stats', tab_set_s: 'Settings' });

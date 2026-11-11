@@ -172,14 +172,14 @@
     <button type="button" class="btn-action btn-red" data-act="logout" data-i18n="logout">خروج</button></div>
   </div>
   <div class="nav-tabs">
-    <button type="button" class="tab-btn active" data-act="docTab" data-tab="waiting"><span data-i18n="tab_waiting">الانتظار</span> <span id="waitingCount" class="count-badge zero">0</span></button>
-    <button type="button" class="tab-btn tab-appts" data-act="docTab" data-tab="appts"><span data-i18n="tab_appts">المواعيد 📅</span> <span id="apptCount" class="count-badge zero">0</span></button>
-    <button type="button" class="tab-btn" id="consultationNavBtn" data-act="docTab" data-tab="consultation" data-i18n="tab_consult">المعاينة 🩺</button>
-    <button type="button" class="tab-btn" data-act="docTab" data-tab="addPatientDoc" data-i18n="tab_add">تسجيل ➕</button>
-    <button type="button" class="tab-btn" data-act="docTab" data-tab="nurses"><span data-i18n="tab_nurses">الممرضات 👩‍⚕️</span> <span id="payCount" class="count-badge zero">0</span></button>
-    <button type="button" class="tab-btn" data-act="docTab" data-tab="archive" data-i18n="tab_archive">الأرشيف 📁</button>
-    <button type="button" class="tab-btn" data-act="docTab" data-tab="stats" data-i18n="tab_stats">الإحصائيات 📊</button>
-    <button type="button" class="tab-btn" data-act="docTab" data-tab="settingsDoc" data-i18n="tab_settings">الإعدادات ⚙️</button>
+    <button type="button" class="tab-btn active" data-act="docTab" data-tab="waiting"><span class="tb-ic" aria-hidden="true">👥</span><span class="tb-tx" data-i18n="tab_waiting_s">الانتظار</span> <span id="waitingCount" class="count-badge zero">0</span></button>
+    <button type="button" class="tab-btn tab-appts" data-act="docTab" data-tab="appts"><span class="tb-ic" aria-hidden="true">📅</span><span class="tb-tx" data-i18n="tab_appts_s">المواعيد</span> <span id="apptCount" class="count-badge zero">0</span></button>
+    <button type="button" class="tab-btn" id="consultationNavBtn" data-act="docTab" data-tab="consultation"><span class="tb-ic" aria-hidden="true">🩺</span><span class="tb-tx" data-i18n="tab_consult_s">المعاينة</span></button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="addPatientDoc"><span class="tb-ic" aria-hidden="true">➕</span><span class="tb-tx" data-i18n="tab_add_s">تسجيل</span></button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="nurses"><span class="tb-ic" aria-hidden="true">👩‍⚕️</span><span class="tb-tx" data-i18n="tab_nurses_s">الممرضات</span> <span id="payCount" class="count-badge zero">0</span></button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="archive"><span class="tb-ic" aria-hidden="true">📁</span><span class="tb-tx" data-i18n="tab_archive_s">الأرشيف</span></button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="stats"><span class="tb-ic" aria-hidden="true">📊</span><span class="tb-tx" data-i18n="tab_stats_s">الإحصاء</span></button>
+    <button type="button" class="tab-btn" data-act="docTab" data-tab="settingsDoc"><span class="tb-ic" aria-hidden="true">⚙️</span><span class="tb-tx" data-i18n="tab_set_s">الإعدادات</span></button>
   </div>
 
   <div id="waitingTab" class="tab-content active"><ul id="docWaitingList" class="patient-list"></ul></div>
@@ -350,6 +350,10 @@
       <button type="button" class="btn-action installBtn" data-act="installApp" data-i18n="install">تثبيت</button></div>
   </div>
 
+  <div class="settings-card">
+    <button type="button" class="settings-link" data-act="openSet" data-m="set_aboutModal"><span class="sl-ic">ℹ️</span><span class="sl-tx" data-i18n="set_about"></span><span class="sl-ar">‹</span></button>
+  </div>
+
   <div class="settings-card doc-only">
     <h5 style="margin-bottom:8px;color:var(--primary-sage)" data-i18n="set_manage">إدارة العيادة</h5>
     <button type="button" class="settings-link" data-act="openSet" data-m="set_clinicModal"><span class="sl-ic">🏥</span><span class="sl-tx" data-i18n="set_clinic"></span><span class="sl-ar">‹</span></button>
@@ -398,6 +402,12 @@
   </div>
 </div>
 <!-- نافذة إعدادات: prices -->
+<div id="set_aboutModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="set_about">عن البرنامج</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
+    <div class="about-body"></div>
+  </div>
+</div>
 <div id="set_reasonsModal" class="modal-overlay">
   <div class="modal-card settings-modal">
     <div class="modal-head"><h4 data-i18n="set_reasons">قائمة أسباب الزيارة (العلاجات)</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>

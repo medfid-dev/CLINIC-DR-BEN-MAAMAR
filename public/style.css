@@ -1061,3 +1061,97 @@ body:not(.no-dental) .gen-only{display:none!important}
 
 /* جنس مُعرَّف تلقائياً من الاسم */
 select.gender-auto{border-color:var(--primary,#2e9e6b);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary,#2e9e6b) 25%,transparent)}
+
+/* عن البرنامج */
+.ab-hero{text-align:center;padding:10px 0 6px}.ab-name{font-size:24px;font-weight:800;color:var(--primary-sage)}.ab-ver{margin-top:4px;font-size:13px;color:var(--text-secondary)}.ab-ver b{background:var(--surface-sunk);padding:2px 10px;border-radius:99px;margin-inline-start:4px}.ab-tag{margin-top:6px;font-size:14px;font-weight:700}
+.ab-intro{margin:12px 0;line-height:1.8;font-size:14px}.ab-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}.ab-list li{display:flex;gap:10px;align-items:flex-start;background:var(--surface-sunk);border-radius:12px;padding:10px 12px}.ab-ic{font-size:20px;line-height:1.3}
+.ab-quote{margin-top:14px;text-align:center;font-weight:700;font-size:14px;color:var(--primary-sage);line-height:1.8}
+
+/* تاريخ الشريط العلوي: خط أكبر وأوضح (يظهر أيضاً على الجوال) */
+.led-days{font-size:19px;font-weight:700;margin-top:6px}
+.clk.led .clk-date{font-size:17px;font-weight:700;margin-top:3px;opacity:1;letter-spacing:.3px}
+@media(max-width:520px){
+ .led-days{font-size:18px}
+ .clk.led .clk-date{display:block;font-size:16px}
+}
+
+/* ===== معاينة بخطوات ===== */
+.wiz-bar{display:flex;gap:6px;margin:4px 0 14px}
+.wiz-seg{flex:1;display:flex;flex-direction:column;gap:5px;align-items:center;background:none;border:0;padding:0;cursor:pointer;font-family:inherit;min-height:44px;justify-content:flex-end}
+.wiz-seg i{display:block;height:6px;width:100%;border-radius:3px;background:var(--border-calm,#d8d5f0)}
+.wiz-seg span{font-size:12px;font-weight:700;color:var(--text-secondary)}
+.wiz-seg.done i{background:var(--green,#1f9d6a)}
+.wiz-seg.on i{background:var(--orange,#e8663d)}
+.wiz-seg.on span{color:var(--text-primary,inherit);font-weight:800}
+.cons-wiz .wiz-step{display:none}
+.cons-wiz[data-step="1"] .wiz-step[data-s="1"],.cons-wiz[data-step="2"] .wiz-step[data-s="2"],.cons-wiz[data-step="3"] .wiz-step[data-s="3"],.cons-wiz[data-step="4"] .wiz-step[data-s="4"]{display:block}
+.wiz-nav{position:sticky;bottom:12px;z-index:8;display:flex;gap:10px;padding:10px;margin-top:14px;background:var(--surface-card,#fff);border-radius:18px;box-shadow:0 -6px 18px rgba(44,42,107,.18)}
+.wiz-back,.wiz-next{height:50px;border-radius:14px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer}
+.wiz-back{flex:1;border:1.5px solid var(--border-calm,#cfcbe9);background:var(--surface-card,#fff);color:var(--primary-sage,#2c2a6b)}
+.wiz-next{flex:2;border:0;background:var(--orange,#e8663d);color:#fff}
+.wiz-finish{background:var(--green,#1f9d6a)}
+@media(max-width:700px){.wiz-nav{bottom:calc(72px + env(safe-area-inset-bottom))}}
+.pt-box{margin:14px 0;background:var(--surface-sunk,#f6f5fd);border-radius:14px;padding:12px}
+.pt-title{font-weight:800;font-size:14px}
+.pt-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+.pt-th{min-width:38px;height:32px;border-radius:9px;background:var(--primary-sage,#2c2a6b);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.pt-chips{display:flex;gap:6px;flex-wrap:wrap}
+.pt-chip{min-height:40px;padding:6px 14px;border-radius:99px;border:1.5px solid var(--border-calm,#cfcbe9);background:var(--surface-card,#fff);color:var(--text-secondary);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.pt-chip.on{background:var(--primary-sage,#2c2a6b);border-color:var(--primary-sage,#2c2a6b);color:#fff}
+
+/* ===== شريط التبويبات (الطبيب): صف واحد، أيقونة فوق كلمة قصيرة، بلا تمرير على الهاتف ===== */
+#doctorScreen .tab-btn{flex-direction:row;gap:6px}
+#doctorScreen .tab-btn .tb-ic{font-size:15px;line-height:1}
+@media(min-width:701px){.nav-tabs{flex-wrap:wrap;overflow-x:visible}}
+@media(max-width:700px){
+ #doctorScreen{--navh:70px}#nurseScreen{--navh:66px}
+ .screen{padding-bottom:calc(var(--navh,84px) + 22px + env(safe-area-inset-bottom))}
+ #doctorScreen .nav-tabs{display:flex;gap:2px;overflow:visible;padding:5px 3px calc(5px + env(safe-area-inset-bottom))}
+ #doctorScreen .tab-btn{flex:1 1 0;min-width:0;min-height:52px;padding:5px 0;font-size:clamp(9px,2.75vw,10.5px);line-height:1.15;white-space:nowrap;flex-direction:column;gap:3px;border-radius:12px}
+ #doctorScreen .tab-btn .tb-ic{font-size:20px}
+ #doctorScreen .tab-btn .count-badge{position:absolute;top:2px;inset-inline-start:2px;margin:0;min-width:16px;height:16px;padding:0 4px;font-size:10px;line-height:16px}
+ .wiz-nav{bottom:calc(var(--navh,72px) + 8px + env(safe-area-inset-bottom))}
+ body[data-role=doctor] #taskFab{bottom:calc(84px + env(safe-area-inset-bottom));width:48px;height:48px;font-size:21px}
+ body[data-role=doctor]:has(#consultationTab.active .wiz-nav) #taskFab{bottom:calc(164px + env(safe-area-inset-bottom))}
+}
+.vc.vc-late{background:#E5233B;margin-inline-start:4px;min-width:26px}
+
+/* ===== سجل المريض: رأس + مخطط أسنان ثابت + تبويبات (v124) ===== */
+.hv-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hv-who{flex:1;min-width:160px}
+.hv-debt{border-radius:12px;padding:8px 14px;text-align:center;font-size:12px;display:flex;flex-direction:column;gap:2px}
+.hv-debt b{font-size:18px}
+.hv-debt.no{background:color-mix(in srgb,var(--danger-soft,#e8607a) 16%,transparent);color:var(--danger-soft,#e8607a)}
+.hv-debt.ok{background:color-mix(in srgb,var(--success,#2e9e6b) 16%,transparent);color:var(--success,#2e9e6b);font-size:13px;font-weight:600}
+.hv-facts{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--text-secondary)}
+.hv-facts b{color:var(--text-primary,inherit);font-weight:600}
+.hv-tabs{display:flex;gap:2px;margin:12px 0;border-bottom:1px solid var(--border-calm);overflow-x:auto}
+.hv-tab{background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:9px 12px;font:inherit;font-size:13.5px;color:var(--text-secondary);cursor:pointer;white-space:nowrap}
+.hv-tab.on{color:var(--text-primary,inherit);font-weight:700;border-bottom-color:var(--primary-sage)}
+.hv-pn{display:none}.hv-pn.on{display:block}
+.hv-card{background:var(--surface-sunk);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.hv-card>summary{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;list-style:none}
+.hv-card>summary::-webkit-details-marker{display:none}
+.hv-card>summary:after{content:"▾";color:var(--text-secondary);font-size:12px}
+.hv-card[open]>summary:after{content:"▴"}
+.hv-d{font-size:12px;color:var(--text-secondary);min-width:78px;direction:ltr;text-align:start}
+.hv-t{flex:1;display:flex;flex-wrap:wrap;gap:6px}
+.hv-t .hi-tbadge{font-size:12px;padding:2px 10px}
+.hv-bd{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--surface-card);white-space:nowrap}
+.hv-bd.no{background:color-mix(in srgb,var(--danger-soft,#e8607a) 16%,transparent);color:var(--danger-soft,#e8607a)}
+.hv-bd.ok{background:color-mix(in srgb,var(--success,#2e9e6b) 16%,transparent);color:var(--success,#2e9e6b)}
+.hv-body{padding:2px 12px 12px;border-top:1px solid var(--border-calm)}
+.hv-m3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 4px}
+.hv-m3>div{background:var(--surface-card);border-radius:10px;padding:6px 10px;font-size:11.5px;color:var(--text-secondary)}
+.hv-m3 b{display:block;font-size:14px;color:var(--text-primary,inherit)}
+.hv-m3 b.neg,.hv-tot .neg{color:var(--danger-soft,#e8607a)}
+.hv-m3 b.pos{color:var(--success,#2e9e6b)}
+.hv-scroll{overflow-x:auto}
+.hv-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.hv-tbl th{font-weight:600;font-size:12px;color:var(--text-secondary);text-align:start;padding:6px 6px;border-bottom:1px solid var(--border-calm)}
+.hv-tbl td{padding:8px 6px;border-bottom:1px solid var(--border-calm);vertical-align:top}
+.hv-tbl tr.w td:nth-child(2){color:#3b82c4}
+.hv-tot{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;margin:0 0 10px}
+.hv-media{background:var(--surface-sunk);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.hv-md{font-size:12px;color:var(--text-secondary);margin-bottom:4px}
+.hv-pn .hist-wallet{margin:0 0 12px}
