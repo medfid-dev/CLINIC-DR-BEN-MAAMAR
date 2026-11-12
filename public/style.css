@@ -1102,7 +1102,7 @@ select.gender-auto{border-color:var(--primary,#2e9e6b);box-shadow:0 0 0 2px colo
 /* ===== شريط التبويبات (الطبيب): صف واحد، أيقونة فوق كلمة قصيرة، بلا تمرير على الهاتف ===== */
 #doctorScreen .tab-btn{flex-direction:row;gap:6px}
 #doctorScreen .tab-btn .tb-ic{font-size:15px;line-height:1}
-@media(min-width:701px){.nav-tabs{flex-wrap:wrap;overflow-x:visible}}
+@media(min-width:701px){.nav-tabs{flex-wrap:nowrap;overflow-x:visible}.nav-tabs .tab-btn{flex:1 1 0;min-width:0;padding:10px 6px;font-size:clamp(11px,1.25vw,13px);gap:4px}#doctorScreen .tab-btn .tb-ic{font-size:clamp(13px,1.3vw,15px)}}
 @media(max-width:700px){
  #doctorScreen{--navh:70px}#nurseScreen{--navh:66px}
  .screen{padding-bottom:calc(var(--navh,84px) + 22px + env(safe-area-inset-bottom))}
@@ -1221,3 +1221,12 @@ select.gender-auto{border-color:var(--primary,#2e9e6b);box-shadow:0 0 0 2px colo
  body[data-role=doctor]:has(#consultationTab.active .wiz-nav) #taskFab{bottom:calc(var(--navh,70px) + 86px + env(safe-area-inset-bottom));inset-inline-end:10px;width:42px;height:42px;font-size:18px;opacity:.92}
 }
 .bk-who a{white-space:nowrap}
+
+/* ===== أرقام للاتصال داخل المهام ===== */
+.tcalls{display:flex;flex-direction:column;gap:6px;margin:8px 0 6px}
+.tcall{display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.45);color:inherit;text-decoration:none;font-weight:700;padding:10px 12px;border-radius:14px;min-height:44px}
+.tcall bdi{font-variant-numeric:tabular-nums;opacity:.95}
+.tcall:active{transform:scale(.98)}
+.tcall-d{font-size:13px;margin-top:3px;opacity:.9}
+.task-calls .chip-x{background:none;border:0;color:inherit;cursor:pointer;padding:0 2px;font-size:12px}
+.task-calls .suggest-box{position:absolute;inset-inline:0;top:100%;z-index:5}

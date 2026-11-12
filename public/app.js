@@ -191,6 +191,10 @@ Object.assign(L.ar, { fs_title: 'ملخص نهاية المعاينة', fs_treat
 Object.assign(L.en, { debt_note: 'Note: this patient has an unpaid balance of {x}', pay_recv: 'paid the debt of session {n} ({tr})', wal_chk: 'Pay from wallet', rc_price: 'This session price', rc_wallet: 'From wallet', rc_cash: 'Cash', rc_left: 'Left for this session', rc_to_debt: 'Excess pays an earlier debt', rc_to_wal: 'Excess goes to wallet', rc_all_debt: 'Total patient debt after', pay_src_q: 'Pay {a} — from where?', pay_ledger: '💵 Payments ledger', pay_for: 'for session', pay_same: 'same session', pay_in_visit: 'in session {n} ({d})', pay_later: 'later, from archive', pay_cash: 'Cash payment', pay_wallet: 'From wallet', pay_cut_wal: 'Deducted from wallet', snd_test: 'Preview sounds', snd_names: ['New patient', 'Patient entered', 'Consultation finished', 'New task', 'Task done', 'Skip request', 'Request denied', 'Patient turn'], paid_full: 'Fully paid', follow_b: 'Follow-up session', wal_bal_b: 'Wallet balance', treat_l: 'Treatment:', pay_dep: 'Wallet deposit', pay_out: 'Cash refund from wallet', pay_dep_in: 'during session {n} ({d})', pay_dep_manual: 'direct deposit',
   wal_title: 'Patient wallet', wal_bal: 'Balance:', wal_use: 'Deduct from wallet', wal_dep: 'Deposit to wallet', wal_out: 'Cash refund', wal_dep_q: 'Amount to deposit in the patient wallet:', wal_out_q: 'Amount refunded in cash to the patient:', wal_saved: 'Wallet updated ✅', wal_excess: 'The excess {x} goes to the patient wallet', wal_after: 'Wallet balance after this session:', pay_from_wal_q: 'Pay from the patient wallet (balance {w})?\nOK = wallet · Cancel = cash', e_wallet_empty: 'The wallet is empty', e_wallet_short: 'Amount exceeds the wallet balance', hist_wallet: 'Wallet' });
 Object.assign(L.en, { fs_title: 'Consultation summary', fs_treat: 'Treatment', fs_prev_pay: 'Previous balance payment', fs_ok: 'Confirm & finish', fs_back: 'Back to edit', hp_title: 'Treatments spanning several sessions', hp_sessions: 'Session {n} of {m}', hp_closed: 'Ended', hp_paid_in: 'Paid', ortho_l: 'Orthodontic', ortho_name: 'Orthodontics', ortho_q: 'Treatment “{n}” has {s} sessions or more.\nIs it orthodontic treatment? (a wire table will show in the consultation)', ortho_yes: 'Yes, orthodontic', ortho_no: 'No', ortho_title: 'Orthodontic table', ortho_up: 'Upper jaw', ortho_lo: 'Lower jaw', ortho_prev: 'Previous wire', ortho_today: 'Today’s wire', ortho_notes: 'Notes', ortho_notes_ph: 'Notes for this session…', ortho_hist: 'Orthodontic sessions history', ortho_date: 'Date', ortho_next: 'Next appt.', ortho_none: 'No previous orthodontic sessions for this patient.', tr_add_ortho: '＋ Add orthodontics', pl_pay_session: 'Amount the patient paid today', pl_suggest: 'Suggested', pl_spay_hint: 'Enter what the patient actually paid. It is applied to the treatments in order: first, then second, and so on. Suggested: {a}', pl_excess: 'The amount is {a} more than what is due; the excess will not be counted.', pat_debt: 'Patient debt', pl_title: 'Today’s treatments', pl_none: 'No treatment added yet. Pick the tooth and treatment type above.', pl_session_n: 'Session {n} of {m}', pl_total: 'Full treatment price (all sessions)', pl_sess_1: 'One session', pl_sess_2: 'Two sessions', pl_split_hint: 'Treatment over {m} sessions: {a} is suggested today, the rest in the next sessions. You can change the amount.', pl_one_hint: 'Single-session treatment: the full price is suggested today.', pl_pay_now: 'Paid for this treatment today', pl_left_after: 'Left on this treatment after today', pl_all: 'All', pl_half: 'Half', pl_zero: '0', pl_del: 'Remove this treatment', pl_prev_title: 'From earlier visits: balance & unfinished treatments', pl_next_session: 'Next: session {n} of {m}', pl_go: '▶ Continue this treatment today', pl_close: 'End treatment', pl_close_q: 'End this treatment? No more sessions will be expected, and anything unpaid stays as a debt the patient can settle later.', pl_closed_t: 'Treatment ended', pl_tr_missing: 'The treatment "{n}" is not in your treatment list; add it in settings first', pl_sum_today: 'Price of new treatments today', pl_sum_paid: 'Paid today', pl_sum_wal: 'From wallet', pl_sum_cash: 'Cash', pl_sum_after: 'Patient balance after this visit', e_plan_closed: 'This treatment has finished all its sessions or was ended' });
+Object.assign(L.ar, { bk_wa: 'رسائل واتساب للمرضى', bk_wa_sub: 'تأكيد الحجز مع رمز QR، ثم رسالة عند كل تقدّم في الدور', bk_wa_off: 'غير مفعّلة على الخادم بعد (تحتاج WA_TOKEN و WA_PHONE_ID — راجع README)' });
+Object.assign(L.en, { bk_wa: 'WhatsApp messages to patients', bk_wa_sub: 'Booking confirmation with QR code, then a message each time their turn moves up', bk_wa_off: 'Not enabled on the server yet (needs WA_TOKEN and WA_PHONE_ID — see README)' });
+Object.assign(L.ar, { tc_label: '📞 أرقام للاتصال (اختياري)', tc_ph: 'ابحث باسم المريض أو رقمه…', tc_appts: '＋ مرضى المواعيد المستحقة', tc_none: 'لا مواعيد مستحقة بأرقام هواتف', tc_call: 'اتصال', tc_need: 'اكتب مهمة أو أضف مريضاً للاتصال', tc_nophone: 'لا يوجد رقم هاتف لهذا المريض' });
+Object.assign(L.en, { tc_label: '📞 Numbers to call (optional)', tc_ph: 'Search patient name or number…', tc_appts: '＋ Patients with due appointments', tc_none: 'No due appointments with phone numbers', tc_call: 'Call', tc_need: 'Write a task or add a patient to call', tc_nophone: 'This patient has no phone number' });
 Object.assign(L.ar, { bk_qr_title: 'رمز QR لصفحة الحجز', bk_qr_slip: 'امسح الرمز لحجز موعد أو الانضمام لطابور اليوم من بيتك', bk_today: 'طابور اليوم (من البيت)', set_booking: 'الحجز عبر الإنترنت', bk_enable: 'تفعيل الحجز عبر الإنترنت', bk_enable_sub: 'يستطيع المرضى اختيار يوم وساعة من صفحة الحجز', bk_link: 'رابط صفحة الحجز (شاركه مع المرضى):', bk_open: 'فتح', bk_days: 'أيام الحجز:', bk_slot: 'مدة الموعد', bk_ahead: 'الحجز حتى (يوم)', bk_per: 'حجوزات للموعد الواحد', bk_hint: 'تظهر الطلبات في تبويب المواعيد، ويصلك إشعار عند كل طلب جديد. الموعد المرفوض يعود متاحاً للآخرين.', bk_saved: 'تم حفظ إعدادات الحجز', bk_req: 'طلبات الحجز عبر الإنترنت', bk_none: 'لا توجد طلبات حجز قادمة.', bk_off: 'الحجز عبر الإنترنت مغلق', bk_setup: 'إعدادات الحجز', bk_pending: 'بانتظار التأكيد', bk_ok: 'مؤكَّد', bk_no: 'مرفوض', bk_accept: 'تأكيد', bk_reject: 'رفض', bk_del_q: 'حذف طلب الحجز هذا؟', bk_copied: 'تم نسخ الرابط', bk_new: 'طلب حجز جديد', bk_min: 'د' });
 Object.assign(L.en, { bk_qr_title: 'Booking page QR code', bk_qr_slip: 'Scan to book a visit or join today\u2019s queue from home', bk_today: 'Today\u2019s queue (from home)', set_booking: 'Online booking', bk_enable: 'Enable online booking', bk_enable_sub: 'Patients pick a day and time on the booking page', bk_link: 'Booking page link (share it with patients):', bk_open: 'Open', bk_days: 'Booking days:', bk_slot: 'Slot length', bk_ahead: 'Book up to (days)', bk_per: 'Bookings per slot', bk_hint: 'Requests appear in the Appointments tab and you get a notification for each one. A declined slot becomes available again.', bk_saved: 'Booking settings saved', bk_req: 'Online booking requests', bk_none: 'No upcoming booking requests.', bk_off: 'Online booking is off', bk_setup: 'Booking settings', bk_pending: 'Awaiting confirmation', bk_ok: 'Confirmed', bk_no: 'Declined', bk_accept: 'Confirm', bk_reject: 'Decline', bk_del_q: 'Delete this booking request?', bk_copied: 'Link copied', bk_new: 'New booking request', bk_min: 'min' });
 Object.assign(L.ar, { ortho_wire_up: 'سلك العلوي', ortho_wire_lo: 'سلك السفلي', ortho_notes_up: 'ملاحظات العلوي', ortho_notes_lo: 'ملاحظات السفلي', ortho_notes_ph: 'ملاحظات…' });
@@ -497,7 +501,7 @@ function renderTasks() {
     S.tasksSeen = new Set(list.map(k => k.id).concat([...(S.tasksSeen || [])]));
     if (box.dataset.sig === sig) return; box.dataset.sig = sig;
     const doc = t('hero_doc', { n: S.me.doctorName || '' }), newIds = new Set(fresh.map(k => k.id));
-    box.innerHTML = list.map(k => `<div class="tbub${newIds.has(k.id) ? ' is-new' : ''}" role="alert"><div class="tbub-av">🩺</div><div class="tbub-body"><div class="tbub-from">${esc(doc)} · ${taskTime(k.createdAt)}</div><div class="tbub-text">${esc(k.text)}</div><button type="button" class="tbub-ok" data-act="taskDone" data-id="${k.id}">${t('task_ok')}</button></div></div>`).join('');
+    box.innerHTML = list.map(k => `<div class="tbub${newIds.has(k.id) ? ' is-new' : ''}" role="alert"><div class="tbub-av">🩺</div><div class="tbub-body"><div class="tbub-from">${esc(doc)} · ${taskTime(k.createdAt)}</div><div class="tbub-text">${esc(k.text)}</div>${callsHtml(k, true)}<button type="button" class="tbub-ok" data-act="taskDone" data-id="${k.id}">${t('task_ok')}</button></div></div>`).join('');
     box.scrollTop = box.scrollHeight; return;
   }
   box.innerHTML = ''; box.dataset.sig = '';
@@ -506,12 +510,34 @@ function renderTasks() {
 }
 function renderTaskList() {
   const ul = $('#taskList'); if (!ul) return;
-  ul.innerHTML = (S.tasks || []).length ? S.tasks.map(k => `<li class="task-item${k.done ? ' done' : ''}"><div class="ti-main"><div class="ti-text">${esc(k.text)}</div><div class="ti-meta">${k.done ? '✅ ' + esc(t('task_done_by', { n: k.doneBy })) + ' · ' + taskTime(k.doneAt) : '⏳ ' + esc(t('task_pending'))} · ${esc(k.to ? t('task_to_n', { n: k.toName || '—' }) : t('task_all'))} · ${taskTime(k.createdAt)}</div></div><button type="button" class="btn-action btn-red" data-act="taskDel" data-id="${k.id}" title="${esc(t('task_del'))}" aria-label="${esc(t('task_del'))}">✕</button></li>`).join('') : `<li class="task-empty">${t('task_empty')}</li>`;
+  ul.innerHTML = (S.tasks || []).length ? S.tasks.map(k => `<li class="task-item${k.done ? ' done' : ''}"><div class="ti-main"><div class="ti-text">${esc(k.text)}</div>${callsHtml(k, false)}<div class="ti-meta">${k.done ? '✅ ' + esc(t('task_done_by', { n: k.doneBy })) + ' · ' + taskTime(k.doneAt) : '⏳ ' + esc(t('task_pending'))} · ${esc(k.to ? t('task_to_n', { n: k.toName || '—' }) : t('task_all'))} · ${taskTime(k.createdAt)}</div></div><button type="button" class="btn-action btn-red" data-act="taskDel" data-id="${k.id}" title="${esc(t('task_del'))}" aria-label="${esc(t('task_del'))}">✕</button></li>`).join('') : `<li class="task-empty">${t('task_empty')}</li>`;
 }
+/* أرقام مرضى للاتصال داخل المهمة: للممرضة روابط اتصال مباشر tel:، وللطبيب قائمة نصية */
+const telHref = p => 'tel:' + String(p).replace(/[^\d+]/g, '');
+function callsHtml(k, links) {
+  if (!k.calls || !k.calls.length) return '';
+  return `<div class="tcalls">${k.calls.map(c => links ? `<a class="tcall" href="${esc(telHref(c.phone))}"><span>📞 ${esc(c.name)}</span><bdi dir="ltr">${esc(c.phone)}</bdi></a>` : `<div class="tcall-d">📞 ${esc(c.name)} · <bdi dir="ltr">${esc(c.phone)}</bdi></div>`).join('')}</div>`;
+}
+S.taskCalls = [];
+function renderTaskCalls() {
+  const box = $('#taskCallSel'); if (!box) return;
+  box.innerHTML = S.taskCalls.map((c, i) => `<span class="chip on">📞 ${esc(c.name)} <bdi dir="ltr">${esc(c.phone)}</bdi> <button type="button" class="chip-x" data-act="taskCallDel" data-i="${i}" aria-label="x">✕</button></span>`).join('');
+}
+function addTaskCall(c) {
+  if (!c || !c.phone) { toast(t('tc_nophone'), 'danger'); return; }
+  const d = String(c.phone).replace(/\D/g, ''); if (S.taskCalls.some(x => x.phone.replace(/\D/g, '') === d) || S.taskCalls.length >= 15) return;
+  S.taskCalls.push({ name: c.name, phone: c.phone });
+}
+let tcTimer = 0, tcData = [];
+document.addEventListener('input', e => {
+  if (e.target.id !== 'taskCallQ') return; const q = e.target.value.trim(), ul = $('#taskCallRes'); clearTimeout(tcTimer);
+  if (q.length < 2) { ul.hidden = true; return; }
+  tcTimer = setTimeout(async () => { try { const r = await api('GET', '/api/suggest?q=' + encodeURIComponent(q)); if (e.target.value.trim() !== q) return; tcData = r; ul.innerHTML = r.map((x, i) => `<li data-act="taskCallPick" data-i="${i}"><strong>${esc(x.name)}</strong><span>${x.phone ? '<bdi dir="ltr">' + esc(x.phone) + '</bdi>' : esc(t('tc_nophone'))}</span></li>`).join(''); ul.hidden = !r.length; } catch (x) { ul.hidden = true; } }, 200);
+});
 async function openTasks() {
   const sel = $('#taskTo'), keep = sel.value;
   $('#taskChips').innerHTML = [1, 2, 3, 4].map(i => `<button type="button" class="chip" data-act="taskQuick" data-k="task_q${i}">${esc(t('task_q' + i))}</button>`).join('');
-  sel.innerHTML = `<option value="all">${esc(t('task_all'))}</option>`; renderTaskList(); openModal('tasksModal');
+  sel.innerHTML = `<option value="all">${esc(t('task_all'))}</option>`; renderTaskList(); renderTaskCalls(); openModal('tasksModal');
   try { const ns = await api('GET', '/api/nurses'); sel.innerHTML = `<option value="all">${esc(t('task_all'))}</option>` + ns.map(n => `<option value="${esc(n.id)}">${esc(n.name)}</option>`).join(''); if ([...sel.options].some(o => o.value === keep)) sel.value = keep; } catch (e) {}
 }
 /* ===== الأسعار والحساب المالي ===== */
@@ -1170,9 +1196,20 @@ function renderBookings() {
     ${bk.enabled ? `<div class="book-linkrow"><input type="text" readonly dir="ltr" value="${esc(bookLink())}"><button type="button" class="btn-action" data-act="bkCopy">${t('copy')}</button><button type="button" class="btn-action" data-act="bkQr">QR</button></div>` : `<div class="hint">${t('bk_off')}</div>`}
     ${rows || (bk.enabled ? `<div class="hint">${t('bk_none')}</div>` : '')}</div>`;
 }
+const WA_ST = { APPROVED: '✅ معتمد', PENDING: '⏳ قيد المراجعة', REJECTED: '❌ مرفوض', PAUSED: '⏸ متوقف', DISABLED: '⛔ معطّل' };
+function waShow(v) {
+  const m = $('#set_whatsappModal'); if (!m || !v) return; S.booking = { ...(S.booking || {}), waReady: v.connected };
+  $('.waState', m).textContent = v.connected ? `✅ مرتبط${v.number ? ': ' + v.number : ''}${v.name ? ' — ' + v.name : ''}${v.viaEnv ? ' (من إعدادات الخادم)' : ''}` : 'غير مرتبط بعد';
+  if (v.number && !$('.waNum', m).value) $('.waNum', m).value = v.number; if (v.wabaId && !$('.waWaba', m).value) $('.waWaba', m).value = v.wabaId;
+  $('.waTok', m).placeholder = v.hasToken ? '•••••••• (محفوظ — اتركه فارغاً للإبقاء عليه)' : 'EAAG…';
+  $('.waAfter', m).style.display = v.hasToken ? '' : 'none';
+  const st = v.tplStatus || {}, names = [v.tplNotice, v.tplTicket].filter(Boolean);
+  $('.waTplState', m).textContent = !names.length ? 'لم تُنشأ القوالب بعد.' : names.map(n => `${n}: ${WA_ST[st[n]] || (st[n] || 'غير معروف')}`).join('  •  ') + (v.publicUrl ? '' : '  — ⚠️ عيّن PUBLIC_URL (https) على الخادم ليصل رمز QR');
+}
+async function waLoad() { const m = $('#set_whatsappModal'); if (!m) return; const v = await run(() => api('GET', '/api/wa/status').catch(() => api('GET', '/api/wa'))); if (v) waShow(v); }
 function syncBooking() {
   const f = $('form[data-form=booking]'), b = S.booking; if (!f || !b || !S.me || S.me.role !== 'doctor') return;
-  $('.bkEnabled', f).checked = !!b.enabled; $('.bkFrom', f).value = b.from; $('.bkTo', f).value = b.to; $('.bkAhead', f).value = b.ahead; $('.bkPer', f).value = b.per; $('.bkLink', f).value = bookLink();
+  $('.bkEnabled', f).checked = !!b.enabled; $('.bkWa', f).checked = b.wa !== false; $('.bkWaHint', f).textContent = b.waReady ? t('bk_wa_sub') : t('bk_wa_off'); $('.bkFrom', f).value = b.from; $('.bkTo', f).value = b.to; $('.bkAhead', f).value = b.ahead; $('.bkPer', f).value = b.per; $('.bkLink', f).value = bookLink();
   $('.bkSlot', f).innerHTML = [10, 15, 20, 30, 45, 60, 90].map(n => `<option value="${n}" ${n === b.slot ? 'selected' : ''}>${n} ${t('bk_min')}</option>`).join('');
   $('.bkDays', f).innerHTML = WEEK_ORDER.map(i => [i, t('days_full')[i]]).map(([i, n]) => `<label style="display:flex;align-items:center;gap:6px;font-size:13px;background:var(--surface-sunk);padding:6px 12px;border-radius:999px"><input type="checkbox" value="${i}" style="width:auto" ${(b.days || []).includes(i) ? 'checked' : ''}>${esc(n)}</label>`).join('');
 }
@@ -1330,6 +1367,20 @@ const ACT = {
   async apptShift(el) { if (await run(() => api('PUT', `/api/appts/${el.dataset.id}`, { delta: +el.dataset.d }))) refresh(); },
   async apptDel(el) { if (!await appConfirm(t('ap_del_q'))) return; if (await run(() => api('DELETE', `/api/appts/${el.dataset.id}`))) { toast(t('ap_deleted'), 'success'); refresh(); } },
   docTab: el => docTab(el.dataset.tab), nurseTab: el => nurseTab(el.dataset.tab),
+  waOpen() { closeModals(); openModal('set_whatsappModal'); waLoad(); },
+  async waSave() {
+    const m = $('#set_whatsappModal'), body = { number: $('.waNum', m).value.trim(), wabaId: $('.waWaba', m).value.trim(), token: $('.waTok', m).value.trim() };
+    const r = await run(() => api('PUT', '/api/wa', body)); if (!r) return;
+    if (r.ok === false) { toast(r.error === 'number_not_found' ? 'الرقم غير موجود في هذا الحساب' + (r.detail ? ': ' + r.detail : '') : r.error === 'no_numbers' ? 'لا يوجد رقم مضاف لهذا الحساب' : 'تعذّر الربط: ' + r.error, 'danger'); return; }
+    $('.waTok', m).value = ''; waShow(r); toast('تم ربط واتساب ✅ — أنشئ القوالب الآن', 'success'); syncBooking();
+  },
+  async waTemplates() { const r = await run(() => api('POST', '/api/wa/templates')); if (!r) return; waShow(r); toast(r.ok ? 'أُرسلت القوالب للاعتماد، حدّث الحالة بعد قليل' : 'تعذّر إنشاء القوالب: ' + r.error, r.ok ? 'success' : 'danger'); },
+  async waRefresh() { const r = await run(() => api('GET', '/api/wa/status')); if (r) waShow(r); },
+  async waTest() { const to = $('#set_whatsappModal .waTestNum').value.trim(); const r = await run(() => api('POST', '/api/wa/test', { to })); if (r) toast(r.ok ? 'أُرسلت رسالة التجربة' : 'فشل: ' + r.error, r.ok ? 'success' : 'danger'); },
+  async waOff() { if (!await appConfirm('فصل ربط واتساب؟ ستتوقف الرسائل.')) return; const r = await run(() => api('DELETE', '/api/wa')); if (r) { waShow(r); syncBooking(); } },
+  taskCallPick(el) { const x = tcData[+el.dataset.i]; addTaskCall(x); $('#taskCallQ').value = ''; $('#taskCallRes').hidden = true; renderTaskCalls(); },
+  taskCallDel(el) { S.taskCalls.splice(+el.dataset.i, 1); renderTaskCalls(); },
+  taskCallAppts() { const td = localDay(), n0 = S.taskCalls.length; for (const a of (S.appts || []).filter(x => x.date <= td && x.phone)) addTaskCall(a); renderTaskCalls(); if (S.taskCalls.length === n0) toast(t('tc_none'), 'danger'); },
   closeModal: closeModals,
   histTab(el) { S.histTab = el.dataset.tab; const root = el.closest('#historyBody'); if (!root) return; root.querySelectorAll('.hv-tab').forEach(b => b.classList.toggle('on', b === el)); root.querySelectorAll('.hv-pn').forEach(q => q.classList.toggle('on', q.id === 'hv_' + el.dataset.tab)); },
   openTasks,
@@ -1528,8 +1579,8 @@ document.addEventListener('submit', async e => {
     jset('cc_last', { u: $('#lUser').value.trim() });
     try { await afterLogin(await api('POST', '/api/login/doctor', { username: $('#lUser').value, password: $('#lPass').value }, { anon: true })); } catch (x) { authError(x); }
   } else if (kind === 'sendTask') {
-    const text = $('#taskText').value.trim(); if (!text) return;
-    if (await run(() => api('POST', '/api/tasks', { text, to: $('#taskTo').value }))) { $('#taskText').value = ''; toast(t('task_sent'), 'success'); await refresh(); renderTaskList(); }
+    const text = $('#taskText').value.trim(); if (!text && !S.taskCalls.length) { toast(t('tc_need'), 'danger'); return; }
+    if (await run(() => api('POST', '/api/tasks', { text, to: $('#taskTo').value, calls: S.taskCalls }))) { $('#taskText').value = ''; S.taskCalls = []; renderTaskCalls(); toast(t('task_sent'), 'success'); await refresh(); renderTaskList(); }
   } else if (kind === 'loginNurse') {
     jset('cc_last_n', { c: $('#nCode').value.trim(), n: $('#nName').value.trim() });
     try { await afterLogin(await api('POST', '/api/login/nurse', { code: $('#nCode').value, name: $('#nName').value, password: $('#nPass').value }, { anon: true })); } catch (x) { authError(x); }
@@ -1593,7 +1644,7 @@ document.addEventListener('submit', async e => {
   } else if (kind === 'booking') {
     const days = $$('.bkDays input:checked', f).map(x => +x.value), enabled = $('.bkEnabled', f).checked;
     if (enabled && !days.length) { toast(t('e_invalid_input'), 'danger'); return; }
-    const r = await run(() => api('PUT', '/api/booking', { enabled, days, from: $('.bkFrom', f).value, to: $('.bkTo', f).value, slot: +$('.bkSlot', f).value, ahead: +$('.bkAhead', f).value, per: +$('.bkPer', f).value, tz: -new Date().getTimezoneOffset() }));
+    const r = await run(() => api('PUT', '/api/booking', { wa: $('.bkWa', f).checked, enabled, days, from: $('.bkFrom', f).value, to: $('.bkTo', f).value, slot: +$('.bkSlot', f).value, ahead: +$('.bkAhead', f).value, per: +$('.bkPer', f).value, tz: -new Date().getTimezoneOffset() }));
     if (r) { S.booking = r; toast(t('bk_saved'), 'success'); renderBookings(); closeModals(); }
   } else if (kind === 'changePass') {
     if (await run(() => api('POST', '/api/account/password', { oldPassword: $('.oldPass', f).value, newPassword: $('.newPass', f).value }))) { f.reset(); toast(t('t_saved'), 'success'); }

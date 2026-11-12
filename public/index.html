@@ -35,8 +35,12 @@
     <div class="modal-head"><h4 data-i18n="task_title">📌 مهمة للممرضة</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
     <form data-form="sendTask" autocomplete="off">
       <div class="form-group"><label data-i18n="task_to_l">إرسال إلى:</label><select id="taskTo"></select></div>
-      <div class="form-group"><textarea id="taskText" maxlength="300" rows="3" required data-i18n-ph="task_ph" placeholder="اكتب المهمة…"></textarea></div>
+      <div class="form-group"><textarea id="taskText" maxlength="300" rows="3" data-i18n-ph="task_ph" placeholder="اكتب المهمة…"></textarea></div>
       <div class="task-chips" id="taskChips"></div>
+      <div class="form-group task-calls"><label data-i18n="tc_label">📞 أرقام للاتصال (اختياري)</label>
+        <div style="position:relative"><input type="text" id="taskCallQ" data-i18n-ph="tc_ph" placeholder="ابحث باسم المريض أو رقمه…" autocomplete="off"><ul id="taskCallRes" class="suggest-box" hidden></ul></div>
+        <div id="taskCallSel" class="task-chips"></div>
+        <button type="button" class="chip" data-act="taskCallAppts" data-i18n="tc_appts">＋ مرضى المواعيد المستحقة</button></div>
       <button type="submit" class="btn-primary btn-green" data-i18n="task_send">إرسال المهمة</button>
     </form>
     <h4 style="margin:16px 0 8px;font-size:14px" data-i18n="task_list_t">المهام المرسلة</h4>
@@ -385,6 +389,32 @@
     </form>
   </div>
 </div>
+<!-- نافذة ربط واتساب (الطبيب) -->
+<div id="set_whatsappModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4>ربط واتساب العيادة 💬</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
+    <div class="hint waState" style="font-weight:700;margin-bottom:10px"></div>
+    <div class="form-group"><label>رقم واتساب العيادة</label><input type="tel" class="waNum" dir="ltr" placeholder="0550 12 34 56"></div>
+    <div class="form-group"><label>معرّف حساب واتساب للأعمال (WhatsApp Business Account ID)</label><input type="text" class="waWaba" dir="ltr" inputmode="numeric" autocomplete="off"></div>
+    <div class="form-group"><label>رمز الوصول الدائم (Access Token)</label><input type="password" class="waTok" dir="ltr" autocomplete="off"></div>
+    <button type="button" class="btn-action" data-act="waSave">ربط وحفظ ✅</button>
+    <div class="waAfter" style="display:none;margin-top:14px">
+      <div class="hint">القوالب المعتمدة (واتساب يشترط قالباً معتمداً لمراسلة المرضى):</div>
+      <div class="waTplState hint" style="margin:6px 0;font-weight:700"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn-action" data-act="waTemplates">إنشاء القوالب وإرسالها للاعتماد</button><button type="button" class="btn-action" data-act="waRefresh">🔄 تحديث الحالة</button></div>
+      <div class="form-group" style="margin-top:12px"><label>رسالة تجربة إلى رقم:</label><div style="display:flex;gap:8px"><input type="tel" class="waTestNum" dir="ltr" placeholder="رقمك الشخصي"><button type="button" class="btn-action" data-act="waTest">إرسال</button></div></div>
+      <button type="button" class="btn-action btn-red" data-act="waOff" style="margin-top:6px">فصل الربط</button>
+    </div>
+    <details style="margin-top:14px"><summary style="cursor:pointer;font-weight:700">كيف أحصل على المعرّف والرمز؟ (مرة واحدة)</summary>
+      <ol class="hint" style="padding-inline-start:20px;line-height:1.9">
+        <li>ادخل developers.facebook.com وأنشئ تطبيقاً من نوع «Business» وأضف منتج WhatsApp.</li>
+        <li>في WhatsApp ← API Setup أضف رقم العيادة وأكّده برمز SMS، وانسخ «WhatsApp Business Account ID».</li>
+        <li>من business.facebook.com ← إعدادات الأعمال ← المستخدمون ← مستخدمو النظام: أنشئ مستخدم نظام (مسؤول)، اربطه بالتطبيق وبالحساب، ثم «إنشاء رمز» بصلاحيتي whatsapp_business_management و whatsapp_business_messaging (بدون انتهاء).</li>
+        <li>ألصق الرقم والمعرّف والرمز هنا ثم «ربط وحفظ»، ثم «إنشاء القوالب»، وانتظر حالة «معتمد» (دقائق إلى ساعات).</li>
+      </ol></details>
+  </div>
+</div>
+
 <!-- نافذة إعدادات: schedule -->
 <div id="set_bookingModal" class="modal-overlay">
   <div class="modal-card settings-modal">
@@ -392,6 +422,9 @@
     <form data-form="booking">
       <div class="settings-item"><div><strong data-i18n="bk_enable">تفعيل الحجز عبر الإنترنت</strong><div class="hint" data-i18n="bk_enable_sub">يستطيع المرضى اختيار يوم وساعة من صفحة الحجز</div></div>
         <label class="toggle-switch"><input type="checkbox" class="bkEnabled"><span class="slider"></span></label></div>
+      <div class="settings-item"><div><strong data-i18n="bk_wa">رسائل واتساب للمرضى</strong><div class="hint bkWaHint">تأكيد الحجز مع رمز QR، ثم رسالة عند كل تقدّم في الدور</div></div>
+        <label class="toggle-switch"><input type="checkbox" class="bkWa"><span class="slider"></span></label></div>
+      <button type="button" class="btn-action" data-act="waOpen" style="margin:8px 0 4px">🔗 ربط رقم واتساب العيادة</button>
       <div class="form-group" style="margin-top:12px"><label data-i18n="bk_link">رابط صفحة الحجز (شاركه مع المرضى):</label><input type="text" class="bkLink" readonly dir="ltr"></div>
       <div class="form-group"><label data-i18n="bk_days">أيام الحجز:</label><div class="bkDays" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div></div>
       <div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label data-i18n="sched_from">من الساعة:</label><input type="time" class="bkFrom" required></div>

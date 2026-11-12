@@ -18,6 +18,8 @@ const THIS_YEAR = () => new Date().getFullYear();
 
 fs.mkdirSync(path.join(DATA_DIR, 'img'), { recursive: true });
 const webpush = require('./push').create({ dataDir: DATA_DIR, subject: process.env.VAPID_SUBJECT || (/^https:/.test(PUBLIC_URL) ? PUBLIC_URL : 'mailto:admin@example.com'), extraHosts: (process.env.PUSH_EXTRA_HOSTS || '').split(',') });
+const WAM = require('./whatsapp'); WAM.setLogger(m => console.error(m));   // واتساب: يُضبط لكل عيادة من الإعدادات (أو من متغيّرات WA_*)
+const waOf = c => WAM.make(c && c.wa);
 
 /* ---------- قاعدة البيانات (ملف JSON بكتابة ذرّية) ---------- */
 const DB_FILE = path.join(DATA_DIR, 'db.json');
@@ -320,7 +322,7 @@ function pruneTasks(c) { if (!c.tasks) return; const t = now(); c.tasks = c.task
 function tasksFor(c, role, nurseId) {
   pruneTasks(c); const nm = id => { const n = c.nurses.find(z => z.id === id); return n ? n.name : ''; };
   return (c.tasks || []).filter(k => role === 'doctor' || (!k.done && (!k.to || k.to === nurseId)))
-    .map(k => ({ id: k.id, text: k.text, to: k.to || null, toName: k.to ? nm(k.to) : '', createdAt: k.createdAt, done: !!k.done, doneAt: k.doneAt || null, doneBy: k.doneBy || '' }));
+    .map(k => ({ id: k.id, text: k.text, to: k.to || null, toName: k.to ? nm(k.to) : '', createdAt: k.createdAt, done: !!k.done, doneAt: k.doneAt || null, doneBy: k.doneBy || '', ...(k.calls && k.calls.length ? { calls: k.calls } : {}) }));
 }
 function stateFor(c, role, nurseId) {
   const r = RT(c), t = now();
@@ -350,6 +352,40 @@ function ticketView(c, token) {
     return out;
   }
   return { ...base, state: 'unknown' };
+}
+
+
+/* ---------- رسائل واتساب للمرضى (حجز عبر الإنترنت): تأكيد + QR، ثم رسالة عند كل تقدّم في الدور ---------- */
+const waOn = c => waOf(c).enabled && bookOf(c).wa !== false;
+const pubBase = c => PUBLIC_URL || (c && c.baseUrl) || '';
+function rememberBase(c, req) {   // من طلب موثّق للطبيب/الممرض فقط (لا من زائر عام)
+  if (PUBLIC_URL) return; const o = String(req.headers.origin || '');
+  c.baseUrl = /^https?:\/\/[A-Za-z0-9.-]+(:\d+)?$/.test(o) ? o : (/^[A-Za-z0-9.-]+(:\d+)?$/.test(String(req.headers.host || '')) ? (TRUST_PROXY || req.headers['x-forwarded-proto'] === 'https' ? 'https://' : 'http://') + req.headers.host : c.baseUrl);
+}
+const waPhoneKey = (c, ph) => waOf(c).num(ph);
+function waConfirm(c, pt) {
+  if (!waOn(c) || !pt.phone) return; pt.wa = 1;
+  const v = ticketView(c, pt.ticket), base = pubBase(c), link = base ? base + '/t/' + pt.ticket : '';
+  pt.waLast = v.state === 'in' ? 'in' : 'w' + v.ahead;
+  const text = `✅ تم تأكيد تسجيلك في ${c.name}.\nرقم تذكرتك: ${pt.ticketNo}\n` + (v.state === 'in' ? 'حان دورك الآن، تفضّل بالدخول.' : (v.ahead ? `عدد المرضى قبلك: ${v.ahead}` + (v.estMin ? ` (الانتظار التقريبي ${v.estMin} دقيقة)` : '') : 'أنت التالي في الدور.')) + (link ? `\nامسح رمز QR أو افتح الرابط لمتابعة دورك لحظة بلحظة:\n${link}` : '') + '\nوسنراسلك هنا عند كل تقدّم في دورك.';
+  const W = waOf(c);
+  if (base && /^https:/.test(base)) W.sendTicket(pt.phone, pt.name.split(/\s+/)[0], text, base + '/wa/qr/' + pt.ticket + '.png'); else W.sendText(pt.phone, pt.name.split(/\s+/)[0], text);
+}
+function waSync(c) {   // يُستدعى عند كل بث: يراسل من تقدّم دوره
+  if (!c.patients.some(p => p.wa)) return; const W = waOf(c); if (!W.enabled) return;
+  const on = waOn(c); let ahead = 0;
+  for (const p of c.patients) {
+    const st = p.status === 'in' ? 'in' : 'w' + ahead, prev = p.waLast;
+    if (p.status === 'waiting') ahead++;
+    if (!p.wa) continue;
+    if (prev === undefined) { p.waLast = st; continue; }
+    if (st === prev) continue;
+    p.waLast = st;
+    if (!on || !p.phone) continue;
+    const first = p.name.split(/\s+/)[0], a = st === 'in' ? -1 : +st.slice(1), pa = prev === 'in' ? -1 : +prev.slice(1);
+    if (a === -1) W.sendText(p.phone, first, '🩺 حان دورك الآن، تفضّل بالدخول إلى غرفة المعاينة.');
+    else if (a < pa) W.sendText(p.phone, first, a === 0 ? '🔔 أنت التالي! يرجى التواجد قرب غرفة المعاينة.' : a === 1 ? '⏳ تبقّى مريض واحد قبلك.' : `⏳ تبقّى ${a} مرضى قبلك.`);
+  }
 }
 
 /* ---------- البث الفوري (SSE) ---------- */
@@ -401,6 +437,7 @@ function broadcast(c, notify, extraTokens) {
   for (const s of r.streams) {
     try { sse(s.res, 'state', { ...st, tasks: tasksFor(c, s.role, s.nurseId) }); if (notify && (!notify.to || notify.to === s.role) && (!notify.nurseId || notify.nurseId === s.nurseId)) sse(s.res, 'notify', notify.data); } catch (e) {}
   }
+  try { waSync(c); } catch (e) { console.error('wa: ' + e.message); }
   const toks = new Set(c.patients.map(p => p.ticket).concat(extraTokens || []));
   for (const t of toks) { const set = ticketStreams.get(t); if (set) for (const res of set) try { sse(res, 'ticket', ticketView(c, t)); } catch (e) {} }
   save();
@@ -709,8 +746,8 @@ function dropClinic(c) {
 
 /* ---------- المسارات ---------- */
 /* ===== الحجز عبر الإنترنت: المريض يختار يوماً وساعة من صفحة /book/<رمز العيادة> ويصل الطلب للطبيب ===== */
-const DEF_BOOK = { enabled: false, days: [0, 1, 2, 3, 4, 6], from: '09:00', to: '17:00', slot: 30, ahead: 21, per: 1, tz: 0 };
-const bookOf = c => ({ ...DEF_BOOK, ...(c.booking || {}) });
+const DEF_BOOK = { wa: true, enabled: false, days: [0, 1, 2, 3, 4, 6], from: '09:00', to: '17:00', slot: 30, ahead: 21, per: 1, tz: 0 };
+const bookOf = c => ({ ...DEF_BOOK, ...(c.booking || {}), waReady: waOf(c).enabled });
 function normBooking(b) {
   const T = /^([01]\d|2[0-3]):[0-5]\d$/;
   if (!b || typeof b !== 'object') throw httpErr(400, 'invalid_input');
@@ -719,7 +756,7 @@ function normBooking(b) {
   if (!T.test(from) || !T.test(to) || from >= to || !Number.isInteger(tz) || tz < -840 || tz > 840) throw httpErr(400, 'invalid_input');
   if (![10, 15, 20, 30, 45, 60, 90].includes(slot) || !(ahead >= 1 && ahead <= 60) || !(per >= 1 && per <= 5)) throw httpErr(400, 'invalid_input');
   const enabled = b.enabled === true; if (enabled && !days.length) throw httpErr(400, 'invalid_input');
-  return { enabled, days, from, to, slot, ahead, per, tz };
+  return { enabled, days, from, to, slot, ahead, per, tz, wa: b.wa !== false };
 }
 const hhmm = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 const toMin = s => +s.slice(0, 2) * 60 + +s.slice(3);
@@ -775,6 +812,7 @@ async function api(req, res, url) {
           const rec = { id: rid(5), tok: b64u(9), kind: 'today', name: v.name, phone: v.phone, birthYear: v.birthYear, gender: v.gender, reason: v.reason, note: str(b.note, 200), date: td, time: '', status: 'pending', createdAt: now() };
           (c.bookings = c.bookings || []).push(rec); pruneBookings(c); save();
           broadcast(c, { data: { type: 'booking', kind: 'today', name: v.name, date: td, time: '' } });
+          if (waOn(c)) waOf(c).sendText(v.phone, v.name.split(/\s+/)[0], `📩 تم استلام طلب انضمامك إلى طابور اليوم في ${c.name}. سنؤكد لك هنا فور موافقة العيادة، ومعه رمز QR لمتابعة دورك.`);
           return send(res, 200, { ok: true, kind: 'today', ref: rec.id + '.' + rec.tok });
         }
         const name = str(b.name, 80), phone = str(b.phone, 25), note = str(b.note, 200), date = cleanDate(b.date), time = typeof b.time === 'string' ? b.time : '';
@@ -786,11 +824,46 @@ async function api(req, res, url) {
         const rec = { id: rid(5), tok: b64u(9), name, phone, date, time, note, status: 'pending', createdAt: now() };
         (c.bookings = c.bookings || []).push(rec); pruneBookings(c); save();
         broadcast(c, { data: { type: 'booking', name, date, time } });
+        if (waOn(c)) waOf(c).sendText(phone, name.split(/\s+/)[0], `📩 تم استلام طلب موعدك في ${c.name}: ${date} الساعة ${time}. سنؤكد لك هنا فور موافقة العيادة.`);
         return send(res, 200, { ok: true, date, time, ref: rec.id + '.' + rec.tok });
       }
     } }
+
+  /* ---- ربط واتساب من داخل التطبيق (الطبيب فقط). الرمز السرّي لا يُرجَع للمتصفح أبداً ---- */
+  if (p === '/api/wa' || p.startsWith('/api/wa/')) {
+    const a = authOf(req, ['doctor']), c = a.clinic;
+    const view = () => { const w = c.wa || {}, W = waOf(c); return { connected: W.enabled, viaEnv: !c.wa && W.enabled, number: w.display || w.number || '', name: w.name || '', wabaId: w.wabaId || '', hasToken: !!w.token, cc: w.cc || '', tplNotice: w.tplNotice || '', tplTicket: w.tplTicket || '', tplImage: w.tplImage !== false, tplStatus: w.tplStatus || {}, publicUrl: !!pubBase(c) && /^https:/.test(pubBase(c)) }; };
+    if (m === 'GET' && p === '/api/wa') return send(res, 200, view());
+    rate('wa:' + c.id, 40, 36e5);
+    if (m === 'DELETE' && p === '/api/wa') { delete c.wa; save(); broadcast(c); return send(res, 200, view()); }
+    if (m === 'PUT' && p === '/api/wa') {
+      const b = await readJSON(req, 4e3), old = c.wa || {};
+      const token = typeof b.token === 'string' && b.token.trim() ? b.token.trim() : old.token || '', wabaId = String(b.wabaId || '').replace(/\D/g, ''), number = str(b.number, 25), cc = String(b.cc || '').replace(/\D/g, '').slice(0, 4) || '213';
+      if (!/^[\w.-]{20,700}$/.test(token) || wabaId.length < 5 || wabaId.length > 25) throw httpErr(400, 'invalid_input');
+      const W = WAM.make({ token, wabaId, cc, phoneId: '0' }), r = await W.resolvePhone(number);
+      if (r.error) return send(res, 200, { ok: false, error: r.error, detail: (r.numbers || []).join(' ، ') });
+      c.wa = { ...old, token, wabaId, cc, number, display: r.display, name: r.name, phoneId: r.phoneId }; rememberBase(c, req); save(); broadcast(c);
+      return send(res, 200, { ok: true, ...view() });
+    }
+    if (!c.wa || !c.wa.token) throw httpErr(400, 'wa_not_configured');
+    if (m === 'POST' && p === '/api/wa/templates') {
+      const W = waOf(c), r = await W.ensureTemplates();
+      c.wa.tplNotice = r.noticeName; c.wa.tplTicket = r.ticketName; c.wa.tplImage = !!r.image; c.wa.tplStatus = {}; save();
+      const ok = r.notice.ok && r.ticket.ok; return send(res, 200, { ok, error: ok ? '' : (r.notice.error || r.ticket.error), ...view() });
+    }
+    if (m === 'GET' && p === '/api/wa/status') {
+      const w = c.wa, names = [w.tplNotice, w.tplTicket].filter(Boolean); if (names.length) { const r = await waOf(c).templateStatus(names); if (!r.error) { c.wa.tplStatus = r.status; save(); } }
+      return send(res, 200, view());
+    }
+    if (m === 'POST' && p === '/api/wa/test') {
+      const b = await readJSON(req, 1e3), W = waOf(c), to = W.num(b.to); if (!to) throw httpErr(400, 'invalid_input');
+      const pg = await W.ping(); if (!pg.ok) return send(res, 200, { ok: false, error: pg.error });
+      W.sendText(to, 'تجربة', `هذه رسالة تجربة من ${c.name} — الربط يعمل ✅`); return send(res, 200, { ok: true });
+    }
+    throw httpErr(404, 'not_found');
+  }
   /* ---- حجز المواعيد (للطبيب والممرض) ---- */
-  if (m === 'PUT' && p === '/api/booking') { const a = authOf(req, ['doctor']); a.clinic.booking = normBooking(await readJSON(req)); broadcast(a.clinic); return send(res, 200, bookOf(a.clinic)); }
+  if (m === 'PUT' && p === '/api/booking') { const a = authOf(req, ['doctor']); a.clinic.booking = normBooking(await readJSON(req)); rememberBase(a.clinic, req); broadcast(a.clinic); return send(res, 200, bookOf(a.clinic)); }
   { const mk = p.match(/^\/api\/bookings\/([a-f0-9]{10})$/);
     if (mk) {
       const a = authOf(req, ['doctor', 'nurse']), c = a.clinic, rec = (c.bookings || []).find(x => x.id === mk[1]); if (!rec) throw httpErr(404, 'not_found');
@@ -806,7 +879,16 @@ async function api(req, res, url) {
             broadcast(c, { to: a.role === 'doctor' ? 'nurse' : 'doctor', data: { type: 'add', name: pt.name } });
           }
         }
-        rec.status = b.status; save(); broadcast(c); return send(res, 200, { ok: true }); }
+        rememberBase(c, req);
+        const wasSent = rec.waSent; rec.status = b.status; save(); broadcast(c);
+        if (waOn(c) && rec.phone && b.status !== 'pending' && wasSent !== b.status) {   // رسالة واحدة لكل حالة (لا تكرار)
+          rec.waSent = b.status; const first = rec.name.split(/\s+/)[0];
+          if (b.status === 'ok' && rec.kind === 'today') { const pt = c.patients.find(q => q.ticket === rec.ticket); if (pt) { if (!pt.wa) waConfirm(c, pt); else rec.waSent = wasSent; } }
+          else if (b.status === 'ok') waOf(c).sendText(rec.phone, first, `✅ تم تأكيد موعدك في ${c.name}: ${rec.date} الساعة ${rec.time}. عند وصولك سيسجّلك الاستقبال وسنرسل لك هنا رمز QR لمتابعة دورك لحظة بلحظة.`);
+          else waOf(c).sendText(rec.phone, first, `نعتذر، تعذّر قبول طلبك في ${c.name}. يرجى التواصل مع العيادة أو اختيار موعد آخر.`);
+          save();
+        }
+        return send(res, 200, { ok: true }); }
     } }
 
   if (m === 'POST' && p === '/api/register') {
@@ -929,6 +1011,10 @@ async function api(req, res, url) {
     const pt = { id: rid(6), ticket: b64u(18), ticketNo: nextTicketNo(c), ...v, images: [], status: 'waiting', createdAt: now(), startedAt: null, createdBy: a.role, createdByName: a.nurse ? a.nurse.name : '' };
     c.patients.push(pt); idx.ticket.set(pt.ticket, c.id);
     broadcast(c, { to: 'doctor', exclude: a.key, data: { type: 'add', name: pt.name } });
+    if (waOn(c) && pt.phone) {   // مريض حجز موعداً عبر الإنترنت وحضر اليوم: يصله QR ويتابع دوره
+      const k = waPhoneKey(c, pt.phone), td = bookNow(bookOf(c)).day, bk = k && (c.bookings || []).find(x => x.kind !== 'today' && x.status === 'ok' && x.date === td && !x.ticket && waPhoneKey(c, x.phone) === k);
+      if (bk) { bk.ticket = pt.ticket; rememberBase(c, req); waConfirm(c, pt); save(); }
+    }
     return send(res, 201, patientView(pt));
   }
   mt = p.match(/^\/api\/patients\/([a-f0-9]{12})(?:\/(enter|skip|requeue|finish|images))?(?:\/([a-f0-9]{16}))?$/);
@@ -1237,11 +1323,14 @@ async function api(req, res, url) {
   /* الممرضات (طبيب فقط) */
   /* مهام الطبيب للممرضة */
   if (p === '/api/tasks' && m === 'POST') {
-    const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req), text = str(b.text, 300); let to = null;
+    const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req); let text = str(b.text, 300), to = null;
+    /* أرقام مرضى ليتصل بهم الممرضة: اسم + هاتف، حتى 15 رقماً بلا تكرار */
+    const seenPh = new Set(), calls = (Array.isArray(b.calls) ? b.calls : []).map(x => ({ name: str(x && x.name, 80), phone: str(x && x.phone, 25) })).filter(x => x.name && /^[0-9+\-\s()]{6,25}$/.test(x.phone) && !seenPh.has(x.phone.replace(/\D/g, '')) && seenPh.add(x.phone.replace(/\D/g, ''))).slice(0, 15);
+    if (!text && calls.length) text = '📞 اتصل بهؤلاء المرضى:';
     if (!text) throw httpErr(400, 'invalid_input');
     if (b.to && b.to !== 'all') { const n = c.nurses.find(z => z.id === b.to); if (!n) throw httpErr(404, 'not_found'); to = n.id; }
     c.tasks = c.tasks || []; pruneTasks(c); if (c.tasks.filter(k => !k.done).length >= 30) throw httpErr(429, 'limit');
-    const k = { id: rid(6), text, to, createdAt: now(), done: false }; c.tasks.unshift(k);
+    const k = { id: rid(6), text, to, createdAt: now(), done: false, ...(calls.length ? { calls } : {}) }; c.tasks.unshift(k);
     broadcast(c, { to: 'nurse', ...(to ? { nurseId: to } : {}), data: { type: 'task', text, pid: k.id } });
     return send(res, 201, { ok: true, id: k.id });
   }
@@ -1399,6 +1488,9 @@ const server = http.createServer(async (req, res) => {
   try {
     if (url.pathname.startsWith('/api/')) return await api(req, res, url);
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
+    { const mq = url.pathname.match(/^\/wa\/qr\/([A-Za-z0-9_-]{10,40})\.png$/);   // صورة QR التذكرة (يجلبها واتساب)
+      if (mq) { const cid = idx.ticket.get(mq[1]), c = cid && db.clinics[cid]; if (!c || !pubBase(c)) { res.writeHead(404); return res.end(); }
+        const png = WAM.qrPng(pubBase(c) + '/t/' + mq[1]); res.writeHead(200, { 'Content-Type': 'image/png', 'Content-Length': png.length, 'Cache-Control': 'public, max-age=3600', 'X-Robots-Tag': 'noindex' }); return res.end(png); } }
     if (/^\/t\/[A-Za-z0-9_-]+$/.test(url.pathname)) return serveFile(req, res, path.join(PUBLIC_DIR, 'ticket.html'), { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
     if (/^\/book\/[A-Za-z0-9]{4,12}$/.test(url.pathname)) return serveFile(req, res, path.join(PUBLIC_DIR, 'book.html'), { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
     if (url.pathname === '/owner' || url.pathname === '/owner/') return serveFile(req, res, path.join(PUBLIC_DIR, 'owner.html'), { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
