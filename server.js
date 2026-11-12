@@ -801,7 +801,7 @@ async function api(req, res, url) {
       if (m === 'POST') {
         rate('bkp:' + ip, 6, 36e5); rate('bkc:' + c.id, 300, 36e5);
         const b = await readJSON(req, 10e3), bk = bookOf(c); if (!bk.enabled) throw httpErr(403, 'closed');
-        if (b && b.kind === 'today') {   // انضمام لطابور اليوم من البيت: يصل طلباً للعيادة، وعند القبول تُنشأ تذكرة
+        if (b && b.kind === 'today') {   // تسجيل في قائمة اليوم من البيت: يصل طلباً للعيادة، وعند القبول تُنشأ تذكرة
           const v = validatePatient({ name: b.name, birthYear: b.birthYear, gender: b.gender, reason: b.reason, phone: b.phone });
           if (!v || v.name.length < 2 || !/^[0-9+\-\s()]{6,25}$/.test(v.phone)) throw httpErr(400, 'invalid_input');
           let open_ = false; try { open_ = scheduleOpen(c); } catch (e) {} if (!open_) throw httpErr(403, 'registration_closed');
@@ -812,7 +812,7 @@ async function api(req, res, url) {
           const rec = { id: rid(5), tok: b64u(9), kind: 'today', name: v.name, phone: v.phone, birthYear: v.birthYear, gender: v.gender, reason: v.reason, note: str(b.note, 200), date: td, time: '', status: 'pending', createdAt: now() };
           (c.bookings = c.bookings || []).push(rec); pruneBookings(c); save();
           broadcast(c, { data: { type: 'booking', kind: 'today', name: v.name, date: td, time: '' } });
-          if (waOn(c)) waOf(c).sendText(v.phone, v.name.split(/\s+/)[0], `📩 تم استلام طلب انضمامك إلى طابور اليوم في ${c.name}. سنؤكد لك هنا فور موافقة العيادة، ومعه رمز QR لمتابعة دورك.`);
+          if (waOn(c)) waOf(c).sendText(v.phone, v.name.split(/\s+/)[0], `📩 تم استلام طلب تسجيلك في قائمة اليوم في ${c.name}. سنؤكد لك هنا فور موافقة العيادة، ومعه رمز QR لمتابعة دورك.`);
           return send(res, 200, { ok: true, kind: 'today', ref: rec.id + '.' + rec.tok });
         }
         const name = str(b.name, 80), phone = str(b.phone, 25), note = str(b.note, 200), date = cleanDate(b.date), time = typeof b.time === 'string' ? b.time : '';
