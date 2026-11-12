@@ -511,6 +511,29 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await J('GET', '/api/archive?limit=50', RD); ok(r.j.items.find(x => x.name === 'مريض وصفة').rx.length === 3, 'الاستعادة تحفظ وصفات الأرشيف');
       const old = { ...bk.j }; delete old.rxBasket; delete old.rxDrugs; await J('POST', '/api/restore', RD, old); r = await J('GET', '/api/rx', RD); ok(r.j.basket.length === 1, 'استعادة نسخة قديمة (بلا سلة) لا تمسح السلة الحالية'); }
 
+    console.log('الحجز من البيت (صفحة /book)');
+    { const rg = await J('POST', '/api/register', null, { clinicName: 'عيادة الحجز', doctorName: 'د. حجز', username: 'booker', password: 'password1' }), A = rg.j.token, N = (await J('POST', '/api/nurses', A, { name: 'نورة', phone: '0771', password: 'nurse123' }), (await J('POST', '/api/login/nurse', null, { code: (await J('GET', '/api/state', A)).j.me.code, name: 'نورة', password: 'nurse123' })).j.token), code = (await J('GET', '/api/state', A)).j.me.code; let r2 = await J('GET', '/api/book/' + code); ok(r2.s === 200 && r2.j.open === false, 'الحجز مغلق افتراضياً');
+      r2 = await J('POST', '/api/book/' + code, null, { kind: 'today', name: 'زائر', phone: '0550111222', birthYear: 1990, gender: 'ذكر', reason: 'استشارة' }); ok(r2.s === 403, 'رفض الطلب والحجز مغلق');
+      r2 = await J('PUT', '/api/booking', A, { enabled: true, days: [0, 1, 2, 3, 4, 5, 6], from: '09:00', to: '17:00', slot: 30, ahead: 10, per: 1, tz: 0 }); ok(r2.s === 200, 'تفعيل الحجز');
+      r2 = await J('GET', '/api/book/' + code); ok(r2.j.open === true && Array.isArray(r2.j.reasons) && r2.j.reasons.length > 0 && typeof r2.j.today === 'boolean', 'الصفحة العامة تعرض الأسباب وحالة طابور اليوم');
+      ok(!JSON.stringify(r2.j).includes('ahmed') && !('patients' in r2.j), 'الصفحة العامة لا تكشف بيانات داخلية');
+      r2 = await J('POST', '/api/book/' + code, null, { kind: 'today', name: 'ع', phone: '12', birthYear: 1990 }); ok(r2.s === 400, 'رفض بيانات طابور ناقصة');
+      r2 = await J('POST', '/api/book/' + code, null, { kind: 'today', name: 'زائر الطابور', phone: '0550111222', birthYear: 1985, gender: 'أنثى', reason: 'استشارة' }); ok(r2.s === 200 && /^[a-f0-9]{10}\.[\w-]{12}$/.test(r2.j.ref), 'طلب انضمام لطابور اليوم يعيد مرجع المتابعة');
+      const ref = r2.j.ref;
+      r2 = await J('POST', '/api/book/' + code, null, { kind: 'today', name: 'زائر الطابور', phone: '0550111222', birthYear: 1985, gender: 'أنثى', reason: 'استشارة' }); ok(r2.s === 409, 'منع تكرار طلب نفس الهاتف في اليوم');
+      let st = (await J('GET', '/api/state', A)).j; ok(!st.patients.some(q => q.name === 'زائر الطابور'), 'الطلب لا يدخل الطابور قبل القبول');
+      const bk = st.bookings.find(x => x.kind === 'today'); ok(bk && bk.status === 'pending' && bk.birthYear === 1985 && !('tok' in bk), 'الطلب يظهر للطبيب دون السرّ');
+      r2 = await J('GET', '/api/book/' + code + '?ref=' + ref); ok(r2.j.status === 'pending' && !r2.j.ticket, 'حالة الطلب: بانتظار التأكيد');
+      r2 = await J('GET', '/api/book/' + code + '?ref=' + ref.split('.')[0] + '.wrongsecret1'); ok(r2.j.status === 'gone', 'مرجع بسرّ خاطئ لا يكشف شيئاً');
+      r2 = await J('PATCH', '/api/bookings/' + bk.id, N, { status: 'ok' }); ok(r2.s === 200, 'قبول الطلب (ممرضة)');
+      st = (await J('GET', '/api/state', A)).j; const pq = st.patients.find(q => q.name === 'زائر الطابور'); ok(pq && pq.status === 'waiting' && pq.gender === 'أنثى', 'القبول ينشئ مريضاً في قائمة الانتظار');
+      r2 = await J('GET', '/api/book/' + code + '?ref=' + ref); ok(r2.j.status === 'ok' && r2.j.ticket && r2.j.ticket.length > 10, 'المريض يتلقى رابط التذكرة بعد القبول');
+      r2 = await J('PATCH', '/api/bookings/' + bk.id, A, { status: 'ok' }); st = (await J('GET', '/api/state', A)).j; ok(st.patients.filter(q => q.name === 'زائر الطابور').length === 1, 'تكرار القبول لا يكرّر المريض');
+      const day = Object.keys((await J('GET', '/api/book/' + code)).j.slots)[0], tm = (await J('GET', '/api/book/' + code)).j.slots[day][0];
+      r2 = await J('POST', '/api/book/' + code, null, { name: 'حاجز موعد', phone: '0660222333', date: day, time: tm }); ok(r2.s === 200 && r2.j.ref, 'حجز موعد يعيد مرجعاً أيضاً');
+      r2 = await J('POST', '/api/book/' + code, null, { name: 'آخر', phone: '0660999888', date: day, time: tm }); ok(r2.s === 409, 'الموعد المحجوز لا يُحجز مرتين');
+      const pg = await fetch(base + '/book/' + code); const html = await pg.text(); ok(pg.status === 200 && html.includes('book.js'), 'صفحة /book تُخدَّم');
+      ok((await fetch(base + '/book.js')).status === 200 && (await fetch(base + '/book.css')).status === 200, 'ملفات صفحة الحجز متاحة'); }
     console.log('مالك التطبيق: الموافقة على الحسابات ومراقبتها');
     { let r = await J('POST', '/api/owner/login', null, { password: 'wrong' }); ok(r.s === 401, 'كلمة مرور مالك خاطئة تُرفض');
       r = await J('GET', '/api/owner/clinics'); ok(r.s === 401, 'قائمة الحسابات تتطلب دخول المالك');

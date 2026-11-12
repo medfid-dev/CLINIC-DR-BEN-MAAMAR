@@ -1155,3 +1155,69 @@ select.gender-auto{border-color:var(--primary,#2e9e6b);box-shadow:0 0 0 2px colo
 .hv-media{background:var(--surface-sunk);border-radius:12px;padding:10px 12px;margin-bottom:8px}
 .hv-md{font-size:12px;color:var(--text-secondary);margin-bottom:4px}
 .hv-pn .hist-wallet{margin:0 0 12px}
+
+/* ===== الشريط العلوي في صف واحد دائماً (اسم العيادة | الساعة + اليوم + التاريخ | خروج) ===== */
+#doctorScreen>.hero.hero,#nurseScreen>.hero.hero{flex-wrap:nowrap;gap:12px}
+.hero-id{flex:1 1 0;min-width:0;padding-inline-end:0}
+.hero-clinic{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-doc{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-side{flex:0 0 auto;width:auto;justify-content:flex-end;position:relative;gap:12px;flex-wrap:nowrap}
+.hero-side .btn-action{position:static;white-space:nowrap}
+.clk.led{display:flex;flex-direction:row;align-items:baseline;gap:12px;width:auto;margin:0;text-align:start;white-space:nowrap}
+.clk.led .clk-hm{font-size:30px}
+.led-days,.clk.led .clk-date{margin-top:0;font-size:16px}
+.led-days:empty,.clk.led .clk-date:empty{display:none}
+@media(max-width:700px){
+ .clk.led{gap:8px}
+ .clk.led .clk-hm{font-size:24px}.clk.led .clk-s{font-size:12px}
+ .led-days,.clk.led .clk-s{display:none}
+ .clk.led .clk-date{display:block;font-size:13px}
+ .hero-clinic{font-size:16px}
+ .hero-doc{font-size:11px}
+ .hero-side{gap:8px}
+ .hero-side .btn-action{padding:5px 10px;font-size:12px}
+}
+@media(max-width:420px){
+ .clk.led .clk-date{display:none}
+}
+
+/* ===== شاشة المعاينة v125: رأس ثابت واحد (الاسم + الخطوات) + بطاقة مريض مدمجة + شريط تنقّل سفلي بلا تداخل ===== */
+.consultation-card{padding:0 22px 14px;overflow:visible}
+.consultation-card>#contBar:empty{display:none}
+.consultation-card>.debt-alert{position:static;box-shadow:none;margin:14px 0 0;top:auto}
+.consultation-card>#contBar{padding-top:14px}
+/* الرأس الثابت */
+.cons-head{position:sticky;top:var(--hero-h,64px);z-index:7;margin:0 -22px 14px;padding:10px 22px 8px;background:var(--surface-card,#fff);border-bottom:1px solid var(--border-calm,#d8d5f0);box-shadow:0 8px 14px -12px rgba(20,15,70,.45)}
+.screen.hero-gone .cons-head{top:0}
+.ch-row{display:flex;align-items:center;gap:8px;min-width:0}
+.ch-name{flex:1 1 auto;min-width:0;font-size:18px;font-weight:800;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-name .vc{margin-inline-start:6px}
+.ch-tk{flex:0 0 auto;background:var(--orange,#e8663d);color:#fff;border-radius:99px;padding:3px 11px;font-size:12px;font-weight:800;white-space:nowrap}
+.ch-btn{flex:0 0 auto;width:38px;height:38px;border-radius:12px;border:1.5px solid var(--border-calm,#cfcbe9);background:var(--surface-sunk,#f6f5fd);font-size:17px;line-height:1;cursor:pointer;padding:0;color:var(--text-primary)}
+.cons-head .wiz-bar{margin:8px 0 0;gap:5px}
+.cons-head .wiz-seg{min-height:0;gap:3px}
+.cons-head .wiz-seg i{height:5px}
+.cons-head .wiz-seg span{font-size:12px}
+/* بطاقة المريض المدمجة (بدل الصندوق الداكن الكبير) */
+.pt-card{background:var(--surface-sunk,#f6f5fd);border:1.5px solid var(--border-calm,#d8d5f0);border-inline-start:5px solid var(--orange,#e8663d);border-radius:14px;padding:12px 14px;margin-bottom:14px;color:var(--text-primary)}
+.pt-card.has-debt{border-color:#D6455D;background:color-mix(in srgb,#D6455D 9%,var(--surface-card,#fff))}
+.pt-card.has-wallet{border-color:#2e9e6b;background:color-mix(in srgb,#2e9e6b 9%,var(--surface-card,#fff))}
+.pc-reason{font-size:15px;color:var(--text-secondary)}
+.pc-reason strong{font-size:18px;color:var(--text-primary)}
+.pc-info{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pc-i{background:var(--surface-card,#fff);border:1px solid var(--border-calm,#d8d5f0);border-radius:99px;padding:4px 11px;font-size:13px;color:var(--text-secondary);white-space:nowrap}
+.pc-i b{color:var(--text-primary);font-weight:800}
+/* شريط التنقّل السفلي: ملاصق، بخلفية صلبة، والمحتوى يمرّ تحته دون أن يُحجب نهائياً */
+.cons-wiz{padding-bottom:4px}
+.wiz-nav{margin:16px -22px 0;padding:10px 22px;border-radius:16px 16px 0 0;background:var(--surface-card,#fff);border-top:1px solid var(--border-calm,#d8d5f0);box-shadow:0 -8px 16px -10px rgba(44,42,107,.35)}
+.wiz-back,.wiz-next{height:48px}
+.wiz-finish{white-space:normal;line-height:1.25;font-size:15px}
+@media(max-width:700px){
+ .consultation-card{padding:0 14px 10px;border-radius:18px}
+ .cons-head{margin:0 -14px 12px;padding:8px 14px 6px}
+ .wiz-nav{bottom:-30px;margin-inline:-14px;padding:8px 14px;box-shadow:0 8px 0 var(--surface-card,#fff),0 -8px 16px -10px rgba(44,42,107,.35)}
+ .ch-name{font-size:16px}
+ .pc-reason strong{font-size:16px}
+ body[data-role=doctor]:has(#consultationTab.active .wiz-nav) #taskFab{bottom:calc(var(--navh,70px) + 86px + env(safe-area-inset-bottom));inset-inline-end:10px;width:42px;height:42px;font-size:18px;opacity:.92}
+}
+.bk-who a{white-space:nowrap}

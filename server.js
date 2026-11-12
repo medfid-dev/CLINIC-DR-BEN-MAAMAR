@@ -737,7 +737,7 @@ function bookAvail(c) {
   }
   return out;
 }
-const bookingsView = c => { pruneBookings(c); return (c.bookings || []).slice().sort((a, b) => (a.date + a.time) < (b.date + b.time) ? -1 : 1).map(x => ({ id: x.id, name: x.name, phone: x.phone, date: x.date, time: x.time, note: x.note || '', status: x.status, createdAt: x.createdAt })); };
+const bookingsView = c => { pruneBookings(c); return (c.bookings || []).slice().sort((a, b) => (a.date + a.time) < (b.date + b.time) ? -1 : 1).map(x => ({ id: x.id, kind: x.kind === 'today' ? 'today' : 'appt', name: x.name, phone: x.phone, date: x.date, time: x.time || '', note: x.note || '', status: x.status, createdAt: x.createdAt, ...(x.kind === 'today' ? { birthYear: x.birthYear, gender: x.gender, reason: x.reason } : {}) })); };
 
 async function api(req, res, url) {
   const m = req.method, p = url.pathname; let x;
@@ -750,20 +750,43 @@ async function api(req, res, url) {
     if (mb) {
       const cid = idx.code.get(mb[1].toUpperCase()), c = cid && db.clinics[cid];
       if (!c || c.status === 'pending') throw httpErr(404, 'not_found');
-      if (m === 'GET') { rate('bk:' + ip, 120, 6e4); const bk = bookOf(c); return send(res, 200, { clinic: c.name, doctor: c.doctor.name, open: !!bk.enabled, slot: bk.slot, slots: bookAvail(c) }); }
+      if (m === 'GET') {
+        rate('bk:' + ip, 120, 6e4); const bk = bookOf(c), ref = url.searchParams.get('ref');
+        if (ref) {   // متابعة حالة طلب سابق: المعرّف + السرّ معاً، ولا تُكشف بيانات غيره
+          const [rid_, tok] = String(ref).split('.'), rec = (c.bookings || []).find(x => x.id === rid_ && x.tok && x.tok === tok);
+          if (!rec) return send(res, 200, { status: 'gone' });
+          const live = rec.ticket && c.patients.some(q => q.ticket === rec.ticket);
+          return send(res, 200, { status: rec.status, kind: rec.kind === 'today' ? 'today' : 'appt', date: rec.date, time: rec.time || '', ticket: live ? rec.ticket : '' });
+        }
+        const rs = reasonsOf(c); let open_ = false; try { open_ = !!bk.enabled && scheduleOpen(c); } catch (e) {}
+        return send(res, 200, { clinic: c.name, doctor: c.doctor.name, open: !!bk.enabled, slot: bk.slot, slots: bookAvail(c), today: open_, specialty: specOf(c), reasons: (rs ? rs.map(r => r.name) : treatsOf(c)).slice(0, 40) });
+      }
       if (m === 'POST') {
         rate('bkp:' + ip, 6, 36e5); rate('bkc:' + c.id, 300, 36e5);
         const b = await readJSON(req, 10e3), bk = bookOf(c); if (!bk.enabled) throw httpErr(403, 'closed');
+        if (b && b.kind === 'today') {   // انضمام لطابور اليوم من البيت: يصل طلباً للعيادة، وعند القبول تُنشأ تذكرة
+          const v = validatePatient({ name: b.name, birthYear: b.birthYear, gender: b.gender, reason: b.reason, phone: b.phone });
+          if (!v || v.name.length < 2 || !/^[0-9+\-\s()]{6,25}$/.test(v.phone)) throw httpErr(400, 'invalid_input');
+          let open_ = false; try { open_ = scheduleOpen(c); } catch (e) {} if (!open_) throw httpErr(403, 'registration_closed');
+          const td = bookNow(bk).day;
+          if ((c.bookings || []).some(x => x.kind === 'today' && x.phone === v.phone && x.date === td && x.status !== 'no')) throw httpErr(409, 'already_requested');
+          if (c.patients.some(q => patKey(q) === patKey(v))) throw httpErr(409, 'already_registered');
+          if ((c.bookings || []).filter(x => x.status === 'pending').length >= 300) throw httpErr(429, 'rate_limited');
+          const rec = { id: rid(5), tok: b64u(9), kind: 'today', name: v.name, phone: v.phone, birthYear: v.birthYear, gender: v.gender, reason: v.reason, note: str(b.note, 200), date: td, time: '', status: 'pending', createdAt: now() };
+          (c.bookings = c.bookings || []).push(rec); pruneBookings(c); save();
+          broadcast(c, { data: { type: 'booking', kind: 'today', name: v.name, date: td, time: '' } });
+          return send(res, 200, { ok: true, kind: 'today', ref: rec.id + '.' + rec.tok });
+        }
         const name = str(b.name, 80), phone = str(b.phone, 25), note = str(b.note, 200), date = cleanDate(b.date), time = typeof b.time === 'string' ? b.time : '';
         if (name.length < 2 || !/^[0-9+\-\s()]{6,25}$/.test(phone) || !date || !bookSlots(bk).includes(time)) throw httpErr(400, 'invalid_input');
         const free = bookAvail(c)[date]; if (!free || !free.includes(time)) throw httpErr(409, 'slot_taken');
-        const mine = (c.bookings || []).filter(x => x.phone === phone && x.status !== 'no' && x.date >= bookNow(bk).day);
+        const mine = (c.bookings || []).filter(x => x.kind !== 'today' && x.phone === phone && x.status !== 'no' && x.date >= bookNow(bk).day);
         if (mine.length >= 2) throw httpErr(429, 'too_many');
         if ((c.bookings || []).filter(x => x.status === 'pending').length >= 300) throw httpErr(429, 'rate_limited');
-        const rec = { id: rid(5), name, phone, date, time, note, status: 'pending', createdAt: now() };
-        (c.bookings = c.bookings || []).push(rec); pruneBookings(c);
+        const rec = { id: rid(5), tok: b64u(9), name, phone, date, time, note, status: 'pending', createdAt: now() };
+        (c.bookings = c.bookings || []).push(rec); pruneBookings(c); save();
         broadcast(c, { data: { type: 'booking', name, date, time } });
-        return send(res, 200, { ok: true, date, time });
+        return send(res, 200, { ok: true, date, time, ref: rec.id + '.' + rec.tok });
       }
     } }
   /* ---- حجز المواعيد (للطبيب والممرض) ---- */
@@ -772,7 +795,18 @@ async function api(req, res, url) {
     if (mk) {
       const a = authOf(req, ['doctor', 'nurse']), c = a.clinic, rec = (c.bookings || []).find(x => x.id === mk[1]); if (!rec) throw httpErr(404, 'not_found');
       if (m === 'DELETE') { c.bookings = c.bookings.filter(x => x !== rec); broadcast(c); return send(res, 200, { ok: true }); }
-      if (m === 'PATCH') { const b = await readJSON(req, 2e3); if (!['pending', 'ok', 'no'].includes(b.status)) throw httpErr(400, 'invalid_input'); rec.status = b.status; broadcast(c); return send(res, 200, { ok: true }); }
+      if (m === 'PATCH') { const b = await readJSON(req, 2e3); if (!['pending', 'ok', 'no'].includes(b.status)) throw httpErr(400, 'invalid_input'); if (b.status === 'ok' && rec.kind === 'today' && !rec.ticket) {   // قبول طلب «طابور اليوم»: تُنشأ تذكرة ويدخل المريض قائمة الانتظار
+          const v = validatePatient(rec), ex = v && c.patients.find(q => patKey(q) === patKey(v));
+          if (!v) throw httpErr(400, 'invalid_input');
+          if (ex) rec.ticket = ex.ticket;
+          else {
+            if (c.patients.length >= 500) throw httpErr(429, 'limit');
+            const pt = { id: rid(6), ticket: b64u(18), ticketNo: nextTicketNo(c), ...v, images: [], status: 'waiting', createdAt: now(), startedAt: null, createdBy: 'online', createdByName: '' };
+            c.patients.push(pt); idx.ticket.set(pt.ticket, c.id); rec.ticket = pt.ticket;
+            broadcast(c, { to: a.role === 'doctor' ? 'nurse' : 'doctor', data: { type: 'add', name: pt.name } });
+          }
+        }
+        rec.status = b.status; save(); broadcast(c); return send(res, 200, { ok: true }); }
     } }
 
   if (m === 'POST' && p === '/api/register') {

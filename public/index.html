@@ -183,7 +183,7 @@
   </div>
 
   <div id="waitingTab" class="tab-content active"><ul id="docWaitingList" class="patient-list"></ul></div>
-  <div id="apptsTab" class="tab-content"><div id="apptsArea"></div></div>
+  <div id="apptsTab" class="tab-content"><div id="bookArea"></div><div id="apptsArea"></div></div>
   <div id="consultationTab" class="tab-content"><div id="consultationArea"></div></div>
 
   <div id="addPatientDocTab" class="tab-content">
@@ -386,6 +386,24 @@
   </div>
 </div>
 <!-- نافذة إعدادات: schedule -->
+<div id="set_bookingModal" class="modal-overlay">
+  <div class="modal-card settings-modal">
+    <div class="modal-head"><h4 data-i18n="set_booking">الحجز عبر الإنترنت</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
+    <form data-form="booking">
+      <div class="settings-item"><div><strong data-i18n="bk_enable">تفعيل الحجز عبر الإنترنت</strong><div class="hint" data-i18n="bk_enable_sub">يستطيع المرضى اختيار يوم وساعة من صفحة الحجز</div></div>
+        <label class="toggle-switch"><input type="checkbox" class="bkEnabled"><span class="slider"></span></label></div>
+      <div class="form-group" style="margin-top:12px"><label data-i18n="bk_link">رابط صفحة الحجز (شاركه مع المرضى):</label><input type="text" class="bkLink" readonly dir="ltr"></div>
+      <div class="form-group"><label data-i18n="bk_days">أيام الحجز:</label><div class="bkDays" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div></div>
+      <div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label data-i18n="sched_from">من الساعة:</label><input type="time" class="bkFrom" required></div>
+        <div class="form-group" style="flex:1"><label data-i18n="sched_to">إلى الساعة:</label><input type="time" class="bkTo" required></div></div>
+      <div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label data-i18n="bk_slot">مدة الموعد</label><select class="bkSlot"></select></div>
+        <div class="form-group" style="flex:1"><label data-i18n="bk_ahead">الحجز حتى (يوم)</label><input type="number" class="bkAhead" min="1" max="60" required></div>
+        <div class="form-group" style="flex:1"><label data-i18n="bk_per">حجوزات للموعد الواحد</label><input type="number" class="bkPer" min="1" max="5" required></div></div>
+      <button type="submit" class="btn-action" data-i18n="save">حفظ ✅</button>
+      <div class="hint" data-i18n="bk_hint">تظهر الطلبات في تبويب المواعيد، ويصلك إشعار عند كل طلب جديد.</div>
+    </form>
+  </div>
+</div>
 <div id="set_scheduleModal" class="modal-overlay">
   <div class="modal-card settings-modal">
     <div class="modal-head"><h4 data-i18n="set_schedule">تسجيل الممرضة للمرضى</h4><button type="button" class="btn-action btn-red modal-x" data-act="closeModal" aria-label="close">✕</button></div>
