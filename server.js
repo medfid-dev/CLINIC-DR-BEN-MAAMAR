@@ -169,7 +169,7 @@ const dueOf = a => a.price || 0, paidOf = a => a.paid == null ? dueOf(a) : a.pai
 const r2 = v => Math.round(v * 100) / 100;
 const ageOf = p => THIS_YEAR() - p.birthYear;
 function patientView(p) {
-  return { id: p.id, ticket: p.ticket, ticketNo: p.ticketNo, name: p.name, birthYear: p.birthYear, age: ageOf(p), gender: p.gender, reason: p.reason, tooth: p.tooth, phone: p.phone, status: p.status, createdAt: p.createdAt, startedAt: p.startedAt || null, images: (p.images || []).map(i => i.id) };
+  return { id: p.id, ticket: p.ticket, ticketNo: p.ticketNo, name: p.name, birthYear: p.birthYear, age: ageOf(p), gender: p.gender, reason: p.reason, tooth: p.tooth, phone: p.phone, ...(p.apptItems ? { appt: p.apptItems } : {}), status: p.status, createdAt: p.createdAt, startedAt: p.startedAt || null, images: (p.images || []).map(i => i.id) };
 }
 /* الوعاء: رصيد مسبق لكل مريض. wallets[patKey] = { bal, log:[{t, amt, k: dep|use|back|out, vid?}] }
    dep = إيداع (مال داخل) · use = اقتطاع لسداد علاج · back = إرجاع اقتطاع ملغى · out = استرجاع نقدي للمريض */
@@ -801,7 +801,7 @@ async function api(req, res, url) {
       if (m === 'POST') {
         rate('bkp:' + ip, 6, 36e5); rate('bkc:' + c.id, 300, 36e5);
         const b = await readJSON(req, 10e3), bk = bookOf(c); if (!bk.enabled) throw httpErr(403, 'closed');
-        if (b && b.kind === 'today') {   // تسجيل في قائمة اليوم من البيت: يصل طلباً للعيادة، وعند القبول تُنشأ تذكرة
+        if (b && b.kind === 'today') {   // انضمام لطابور اليوم من البيت: يصل طلباً للعيادة، وعند القبول تُنشأ تذكرة
           const v = validatePatient({ name: b.name, birthYear: b.birthYear, gender: b.gender, reason: b.reason, phone: b.phone });
           if (!v || v.name.length < 2 || !/^[0-9+\-\s()]{6,25}$/.test(v.phone)) throw httpErr(400, 'invalid_input');
           let open_ = false; try { open_ = scheduleOpen(c); } catch (e) {} if (!open_) throw httpErr(403, 'registration_closed');
@@ -812,7 +812,7 @@ async function api(req, res, url) {
           const rec = { id: rid(5), tok: b64u(9), kind: 'today', name: v.name, phone: v.phone, birthYear: v.birthYear, gender: v.gender, reason: v.reason, note: str(b.note, 200), date: td, time: '', status: 'pending', createdAt: now() };
           (c.bookings = c.bookings || []).push(rec); pruneBookings(c); save();
           broadcast(c, { data: { type: 'booking', kind: 'today', name: v.name, date: td, time: '' } });
-          if (waOn(c)) waOf(c).sendText(v.phone, v.name.split(/\s+/)[0], `📩 تم استلام طلب تسجيلك في قائمة اليوم في ${c.name}. سنؤكد لك هنا فور موافقة العيادة، ومعه رمز QR لمتابعة دورك.`);
+          if (waOn(c)) waOf(c).sendText(v.phone, v.name.split(/\s+/)[0], `📩 تم استلام طلب انضمامك إلى طابور اليوم في ${c.name}. سنؤكد لك هنا فور موافقة العيادة، ومعه رمز QR لمتابعة دورك.`);
           return send(res, 200, { ok: true, kind: 'today', ref: rec.id + '.' + rec.tok });
         }
         const name = str(b.name, 80), phone = str(b.phone, 25), note = str(b.note, 200), date = cleanDate(b.date), time = typeof b.time === 'string' ? b.time : '';
@@ -995,20 +995,23 @@ async function api(req, res, url) {
 
   /* مرضى اليوم */
   if (m === 'POST' && p === '/api/patients') {
-    const a = authOf(req), c = a.clinic, body = await readJSON(req); let v;
+    const a = authOf(req), c = a.clinic, body = await readJSON(req); let v, apptItems = null;
     if (a.role === 'nurse' && apptActive(c)) {
       /* يوم مواعيد: التسجيل فقط من قائمة المواعيد المستحقة، وبيانات المريض تُؤخذ من الموعد لا من الممرضة */
       if (!scheduleOpen(c)) throw httpErr(403, 'registration_closed');
       const ap = apptsView(c).find(x => x.id === String(body && body.apptId) && x.date <= apptClock(c).day);
       if (!ap) throw httpErr(403, 'appt_only');
       const prev = (c.archive || []).slice().reverse().find(r => patKey(r) === patKey(ap));
-      v = validatePatient({ name: ap.name, birthYear: ap.birthYear, phone: ap.phone, gender: prev ? prev.gender : '', reason: ap.treatment, tooth: ap.tooth });
+      /* كل مواعيد هذا المريض المستحقة اليوم تُحمَل معه إلى المعاينة (علاج + سن لكل موعد) كي لا يضيع منها شيء */
+      const dueAll = apptsView(c).filter(x => patKey(x) === patKey(ap) && x.date <= apptClock(c).day);
+      apptItems = dueAll.map(x => ({ treatment: str(x.treatment, 40), tooth: str(x.tooth, 40) })).slice(0, 6);
+      v = validatePatient({ name: ap.name, birthYear: ap.birthYear, phone: ap.phone, gender: prev ? prev.gender : '', reason: ap.treatment, tooth: [...new Set(dueAll.flatMap(x => String(x.tooth || '').match(/\d{2}/g) || []))].join(' ') || ap.tooth });
       if (v && c.patients.some(p => patKey(p) === patKey(v))) throw httpErr(409, 'already_registered');
     } else v = validatePatient(body);
     if (!v) throw httpErr(400, 'invalid_input');
     if (a.role === 'nurse' && !scheduleOpen(c)) throw httpErr(403, 'registration_closed');
     if (c.patients.length >= 500) throw httpErr(429, 'limit');
-    const pt = { id: rid(6), ticket: b64u(18), ticketNo: nextTicketNo(c), ...v, images: [], status: 'waiting', createdAt: now(), startedAt: null, createdBy: a.role, createdByName: a.nurse ? a.nurse.name : '' };
+    const pt = { id: rid(6), ticket: b64u(18), ticketNo: nextTicketNo(c), ...v, images: [], status: 'waiting', createdAt: now(), startedAt: null, createdBy: a.role, createdByName: a.nurse ? a.nurse.name : '', ...(apptItems && apptItems.length ? { apptItems } : {}) };
     c.patients.push(pt); idx.ticket.set(pt.ticket, c.id);
     broadcast(c, { to: 'doctor', exclude: a.key, data: { type: 'add', name: pt.name } });
     if (waOn(c) && pt.phone) {   // مريض حجز موعداً عبر الإنترنت وحضر اليوم: يصله QR ويتابع دوره

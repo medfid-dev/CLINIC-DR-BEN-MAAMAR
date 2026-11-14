@@ -587,6 +587,9 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     x = await fetch(base + '/%2e%2e/server.js'); ok(x.status !== 200, 'منع تجاوز المسار 2');
     x = await fetch(base + '/data/db.json'); ok(x.status === 404, 'قاعدة البيانات غير مكشوفة');
     ok((await fetch(base + '/')).headers.get('content-security-policy').includes("script-src 'self'"), 'سياسة CSP');
+    { const fs = require('fs'), pth = require('path'), rd = f => fs.readFileSync(pth.join(__dirname, '..', 'public', f), 'utf8');
+      const v1 = (rd('app.js').match(/APP_VER = '(v\d+)'/) || [])[1], v2 = (rd('splash.js').match(/textContent = '(v\d+)'/) || [])[1], v3 = (rd('sw.js').match(/cc-shell-(v\d+)/) || [])[1];
+      ok(v1 && v1 === v2 && v2 === v3, 'رقم النسخة موحّد (عن البرنامج / شاشة البداية / التخزين المؤقت): ' + [v1, v2, v3].join(' ')); }
     console.log(`\nنجحت كل الاختبارات: ${pass}`);
   } catch (e) { console.error('\n✗ فشل:', e.message); process.exitCode = 1; }
   srv.on('exit', () => fs.rmSync(dir, { recursive: true, force: true })); srv.kill(); mock.close();
