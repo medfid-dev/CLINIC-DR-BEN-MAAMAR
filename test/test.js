@@ -95,7 +95,9 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     r = await J('GET', '/api/ticket/../state'); ok(r.s === 401 || r.s === 404, 'لا ثغرة مسار في التذكرة');
     const tEv = []; const acT = await sse(`${base}/api/ticket/${t3}/stream`, (e, d) => tEv.push(d)); await wait(150);
     r = await J('POST', `/api/patients/${p1.id}/finish`, N, { treatment: 'قلع' }); ok(r.s === 403, 'الممرضة لا تنهي المعاينة');
-    r = await J('POST', `/api/patients/${p1.id}/finish`, A, { treatment: 'قلع', notes: 'ملاحظة', teeth: ['16', '55', '99', 'x', '16'], price: '2000', patientNote: 'لا تأكل ساعتين' }); ok(r.s === 200 && JSON.stringify(r.j.teeth) === '["16","55"]' && r.j.tooth === '16 55' && r.j.price === 2000, 'إنهاء المعاينة مع أسنان (FDI بالغ ولبني، تُرفض غير الصالحة)');
+    r = await J('POST', `/api/patients/${p1.id}/finish`, A, { treatment: 'قلع', notes: 'ملاحظة', teeth: ['16', '55', '99', 'x', '16'], price: '2000', patientNote: 'لا تأكل ساعتين', docs: [{ kind: 'leave', title: 'شهادة عطلة مرضية', body: 'راحة 3 أيام' }, { kind: 'zzz', title: 'طلب أشعة', body: 'بانورامي' }, { title: '', body: 'x' }, null], rxHead: { clinic: 'عيادة', lang: 'fr' } }); ok(r.s === 200 && JSON.stringify(r.j.teeth) === '["16","55"]' && r.j.tooth === '16 55' && r.j.price === 2000, 'إنهاء المعاينة مع أسنان (FDI بالغ ولبني، تُرفض غير الصالحة)');
+    ok(Array.isArray(r.j.docs) && r.j.docs.length === 2 && r.j.docs[0].kind === 'leave' && r.j.docs[1].kind === 'custom' && r.j.rxHead && r.j.rxHead.lang === 'fr', 'المستندات الطبية تُحفظ مع المعاينة وتُنظَّف');
+    { const stp = (await J('GET', '/api/state', A)).j.patients.find(x => x.id === p2.id); ok(stp && stp.regBy === 'nurse' && stp.regName === 'فاطمة', 'اسم الممرضة التي سجّلت المريض يظهر في قائمة الانتظار'); ok(r.j.regBy === 'nurse' && r.j.regName === 'فاطمة', 'اسم الممرضة يُحفظ مع السجل في الأرشيف'); }
     await wait(200); ok(tEv.length >= 2 && tEv[tEv.length - 1].state === 'waiting' && tEv[tEv.length - 1].ahead === 1, 'تذكرة 3 تتلقى تحديثاً فورياً عبر البث');
     ok(nEv.some(e => e[1].type === 'finish'), 'الممرضة تُبلَّغ بانتهاء المعاينة');
     r = await J('GET', `/api/ticket/${p1.ticket}`); ok(r.j.state === 'done', 'تذكرة المنتهي: done'); ok(r.j.visit && r.j.visit.treats[0].n === 'قلع' && r.j.visit.rx === false && r.j.visit.note === 'لا تأكل ساعتين', 'تذكرة المنتهي تعرض العلاج المنجز وملاحظة الطبيب للمريض'); ok(!JSON.stringify(r.j).includes('ملاحظة') && !JSON.stringify(r.j).includes('2000') && !('price' in r.j), 'التذكرة لا تكشف ملاحظات الطبيب السريرية ولا الأسعار');
@@ -105,6 +107,8 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     r = await J('GET', `/api/ticket/${t2}`); ok(r.j.state === 'in', 'تذكرة 2: دورك الآن');
     r = await J('GET', '/api/archive?name=مريض1', A); ok(r.j.total === 1 && r.j.items[0].images.length === 1, 'البحث في الأرشيف');
     ok(r.j.items[0].payments.length === 1 && r.j.items[0].payments[0].amt === 2000, 'الدفعة تظهر في سجل الأرشيف');
+    { const all = (await J('GET', '/api/archive', A)).j, g = async v => (await J('GET', '/api/archive?reg=' + encodeURIComponent(v), A)).j.total; const [d, n, o] = [await g('doctor'), await g('nurse'), await g('online')];
+      ok(d + n + o === all.total && Array.isArray(all.regNames), 'فلتر «من سجّل المريض» يقسم الأرشيف دون تداخل أو نقص'); ok(await g('nurse:اسم-غير-موجود') === 0, 'فلتر ممرضة غير موجودة = صفر'); }
     { const iso = d => d.toLocaleDateString('en-CA'), tz = new Date().getTimezoneOffset(), n = new Date(), y = new Date(n.getTime() - 864e5), f = new Date(n.getTime() + 864e5), q = (a, b) => `/api/archive?from=${a}&to=${b}&tz=${tz}`;
       r = await J('GET', q(iso(n), iso(n)), A); ok(r.j.total === 1, 'فلتر اليوم يشمل سجل اليوم');
       r = await J('GET', q(iso(y), iso(y)), A); ok(r.j.total === 0, 'فلتر أمس لا يشمل سجل اليوم');
@@ -477,6 +481,11 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       ok(r.j[0].name === 'Amoxicilline' && r.j[0].dose === '1 gél' && /^[a-f0-9]{12}$/.test(r.j[0].id), 'السلة: تقليم الاسم + حفظ الجرعة الافتراضية + معرّف مولّد');
       ok(r.j[2].name.length === 120 && r.j[2].form.length === 160 && r.j[2].note.length === 200, 'السلة: حدود أطوال الحقول');
       const many = Array.from({ length: 150 }, (_, i) => ({ name: 'دواء' + i })); r = await J('PUT', '/api/rx/basket', RD, { items: many }); ok(r.s === 200 && r.j.length === 100, 'السلة: حدّ 100 دواء');
+      /* المستندات الطبية: قوالب الطبيب (تعديل/حفظ) */
+      r = await J('PUT', '/api/rx/docs', RN, { items: [{ id: 'x1', title: 't', body: 'b' }] }); ok(r.s === 403, 'الممرضة لا تعدّل قوالب المستندات');
+      r = await J('PUT', '/api/rx/docs', RD, { items: [{ id: 'leave_ar', kind: 'leave', title: ' عطلة معدّلة ', body: 'نص {patient} {days}' }, { id: 'ux1', kind: 'bogus', title: 'قالبي', body: 'x'.repeat(5000) }, { id: 'bad id!', title: 'a', body: 'b' }, { title: '', body: 'b' }, null, 7] });
+      ok(r.s === 200 && r.j.length === 3 && r.j[0].title === 'عطلة معدّلة' && r.j[1].kind === 'custom' && r.j[1].body.length === 3000 && /^[a-z0-9_-]+$/i.test(r.j[2].id) && r.j[2].id !== 'bad id!', 'قوالب المستندات: تنظيف المدخلات وحدّ الطول');
+      r = await J('GET', '/api/rx', RD); ok(Array.isArray(r.j.docTpls) && r.j.docTpls.length === 3, 'قوالب المستندات تُعاد مع GET /api/rx');
       r = await J('PUT', '/api/rx/basket', RD, { items: [{ name: 'Ibuprofène', form: 'cp 400 mg', dose: '1 cp', freq: '3 fois/j', dur: '3 j' }] }); const keepId = r.j[0].id;
       r = await J('PUT', '/api/rx/basket', RD, { items: [{ id: keepId, name: 'Ibuprofène', form: 'cp 400 mg', dose: '1 cp', freq: '2 fois/j', dur: '5 j' }] }); ok(r.j[0].id === keepId && r.j[0].freq === '2 fois/j', 'السلة: تحديث دواء موجود يُبقي معرّفه');
       r = await J('GET', '/api/rx', RD2); ok(r.j.basket.length === 0, 'عزل: سلة عيادة أخرى فارغة');

@@ -91,12 +91,16 @@ function rxlRender(lay, T, lines, pat, ts, o) {
       inner = T.logo ? `<img src="${esc(T.logo)}" alt="" style="width:100%;height:100%;object-fit:contain;display:block">` : (o.design ? `<div class="rxl-logoph">LOGO</div>` : '');
     } else {
       st += `font-size:${b.fs || 12}pt;font-weight:${b.b ? 700 : 400};font-style:${b.i ? 'italic' : 'normal'};text-align:${b.al || (dir === 'rtl' ? 'right' : 'left')};color:${b.col || '#000'};direction:${dir};`;
-      if (kind === 'list') {
+      if (kind === 'list' && o.doc) {   // مستند طبي: نص المستند يحلّ محل قائمة الأدوية بنفس الموضع والخط
+        st += `line-height:${b.lh || 1.5};`; inner = `<div style="white-space:pre-wrap">${esc(o.doc.body || '')}</div>`;
+      } else if (kind === 'list') {
         const ls = lines && lines.length ? lines : (o.design ? [{ name: 'Amoxicilline 1g', form: 'cp', dose: '1 cp', freq: '3x/j', dur: '7 j', note: '' }, { name: 'Paracétamol 500mg', form: '', dose: '1 cp', freq: 'si douleur', dur: '3 j', note: '' }] : []);
         st += `line-height:${b.lh || 1.5};`;
         inner = ls.map((l, i) => `<div style="margin-bottom:${b.gap == null ? 4 : b.gap}mm;break-inside:avoid">${b.num === 0 ? '' : (i + 1) + '. '}<b>${esc(l.name)}</b>${l.form ? ` <span style="font-size:.85em">${esc(l.form)}</span>` : ''}${rxPoso(l) ? `<div style="font-size:.88em;margin-inline-start:${b.num === 0 ? 0 : 1.4}em">${esc(rxPoso(l))}</div>` : ''}${l.note ? `<div style="font-size:.8em;font-style:italic;margin-inline-start:${b.num === 0 ? 0 : 1.4}em">${esc(l.note)}</div>` : ''}</div>`).join('');
       } else if (kind === 'free') {
         inner = esc(b.txt || (o.design ? t('rxl_cust') : '')).replace(/\n/g, '<br>');
+      } else if (id === 'title' && o.doc) {
+        inner = esc(o.doc.title || '');
       } else if (id === 'title') {
         inner = `℞ <span style="font-size:.5em;font-weight:400;margin-inline-start:2mm">${esc(L.title)}</span>`;
       } else if (id === 'sign') {
@@ -111,7 +115,7 @@ function rxlRender(lay, T, lines, pat, ts, o) {
     parts.push(`<div class="rb${o.design && RXL.sel === id ? ' sel' : ''}" data-b="${id}" style="${st}">${inner}${o.design ? '<i class="rs"></i>' : ''}</div>`);
   }
   const ff = RXL_FF[lay.ff] ? `font-family:${RXL_FF[lay.ff]};` : '';
-  const z = o.zoom ? `zoom:${Math.min(1, (window.innerWidth - 70) / (lay.w * RXL_PXMM)).toFixed(3)};` : '';
+  const z = o.zoom ? `zoom:${Math.min(1, (o.zw || (window.innerWidth - 70)) / (lay.w * RXL_PXMM)).toFixed(3)};` : '';
   return `<div class="rxl${o.design ? ' rxl-dz' : ''}" style="width:${lay.w}mm;height:${lay.h - (o.design ? 0 : 1)}mm;${ff}${z}">${parts.join('')}</div>`;
 }
 
@@ -122,12 +126,12 @@ rxDocHTML = function (lines, pat, ts, head) {
   const T = rxTpl(head); if (!T.lay) return _rxDocHTML(lines, pat, ts, head);
   return rxlRender(T.lay, T, lines, pat, ts, { zoom: true });
 };
-rxPrintDoc = function (lines, pat, ts, head, layOverride) {
+rxPrintDoc = function (lines, pat, ts, head, layOverride, doc) {
   const T = rxTpl(head), lay = layOverride || T.lay;
   if (!lay) return _rxPrintDoc(lines, pat, ts, head);
-  if (!lines || !lines.length) return toast(t('rx_empty'), 'info');
+  if (!doc && (!lines || !lines.length)) return toast(t('rx_empty'), 'info');
   let box = $('#rxPrint'); if (!box) { box = document.createElement('div'); box.id = 'rxPrint'; document.body.appendChild(box); }
-  box.innerHTML = rxlRender(lay, T, lines, pat, ts);
+  box.innerHTML = rxlRender(lay, T, lines, pat, ts, doc ? { doc } : undefined);
   let st = $('#rxPageSt'); if (st) st.remove(); st = document.createElement('style'); st.id = 'rxPageSt'; st.textContent = `@page{size:${lay.w}mm ${lay.h}mm;margin:0}@media print{html,body{width:${lay.w}mm!important;height:${lay.h}mm!important;margin:0!important;padding:0!important;overflow:hidden!important}}`; document.head.appendChild(st);
   document.body.classList.add('print-rx', 'print-rxl');
   const done = () => { document.body.classList.remove('print-rx', 'print-rxl'); const s = $('#rxPageSt'); if (s) s.remove(); window.removeEventListener('afterprint', done); };

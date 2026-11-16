@@ -1278,3 +1278,43 @@ select.gender-auto{border-color:var(--primary,#2e9e6b);box-shadow:0 0 0 2px colo
 /* v137: حقل المدفوع الواحد يعلو بنود الأسنان عند تعدّد العلاجات ويظهر بارزاً */
 .plan-box>.pl-sesspay{background:color-mix(in srgb,var(--green,#1f9d6a) 12%,var(--surface-card,#fff));border:2px solid var(--green,#1f9d6a);border-radius:16px;padding:10px 12px;margin:6px 0 12px}
 .plan-box>.pl-sesspay label{font-weight:800}
+
+/* ---------- المستندات الطبية (عطلة مرضية، أشعة…) ---------- */
+.doc-open{width:100%;padding:12px;font-size:14px;display:flex;justify-content:center;align-items:center;gap:8px}
+.doc-modal{max-width:1200px;width:97%;max-height:94dvh;overflow:auto;padding:48px 18px 16px;position:relative}
+.doc-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.doc-col{min-width:0}
+.doc-tpls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.doc-tpl{font:inherit;font-size:13px;padding:7px 12px;border-radius:18px;border:1px solid var(--border-calm);background:var(--surface-card);color:inherit;cursor:pointer}
+.doc-tpl.on{border-color:var(--accent,#2f7d6d);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent,#2f7d6d) 25%,transparent);font-weight:700}
+.doc-tpl em{font-style:normal;font-size:10.5px;color:var(--text-muted);margin-inline-start:4px}
+.doc-tpl-new{border-style:dashed}
+.doc-ti{width:100%;box-sizing:border-box;font-size:15px;font-weight:700;margin-bottom:8px}
+.doc-ta{width:100%;box-sizing:border-box;font:inherit;font-size:14px;line-height:1.8;resize:vertical;min-height:200px}
+.doc-vars{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:8px 0}
+.doc-var{font:inherit;font-size:11.5px;padding:3px 9px;border-radius:12px;border:1px solid var(--border-calm);background:var(--surface-sunk);color:inherit;cursor:pointer}
+.doc-fields{display:flex;flex-wrap:wrap;gap:10px;align-items:end;padding:10px;border-radius:10px;background:var(--surface-sunk);margin-bottom:8px}
+.doc-fields>b{width:100%;font-size:12px}
+.doc-f{display:flex;flex-direction:column;gap:3px;font-size:12px}.doc-f-wide{flex:1 1 100%}.doc-f input{font:inherit}
+.doc-tplbtns{display:flex;flex-wrap:wrap;gap:8px}
+.doc-prevbox{background:#fff;color:#000;border:1px solid var(--border-calm);border-radius:8px;padding:14px;max-height:62dvh;overflow:auto}
+.doc-issued{display:flex;flex-direction:column;gap:6px}
+.doc-iss{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:var(--surface-sunk);font-size:12.5px}
+.doc-rec .doc-iss{background:var(--surface-card)}
+.rxp-doctitle{font-size:22px;font-weight:700;text-align:center;margin:16px 0 10px;text-decoration:underline;text-underline-offset:6px}
+.rxp-docbody{white-space:pre-wrap;line-height:1.9;font-size:15px;margin-top:10px}
+@media(max-width:820px){.doc-cols{grid-template-columns:1fr}.doc-modal{width:100%;max-height:100dvh;border-radius:0}}
+@media print{
+  .rxp-doctitle{font-size:20pt;margin:22px 0 14px}
+  .rxp-docbody{font-size:14pt;line-height:2}
+}
+
+.rx-tabs{display:flex;gap:6px;margin:0 0 10px;padding-inline-end:44px;flex:none}
+.rx-tab{font:inherit;font-size:14px;padding:8px 16px;border-radius:10px 10px 0 0;border:1px solid var(--border-calm);background:var(--surface-sunk);color:inherit;cursor:pointer}
+.rx-tab.on{background:var(--surface-card);font-weight:700;border-bottom-color:transparent;box-shadow:inset 0 -3px 0 var(--accent,#2f7d6d)}
+.rx-pane{display:flex;flex-direction:column;flex:1;min-height:0}
+.rx-pane[hidden]{display:none}
+#rxPaneDoc{overflow:auto}
+.doc-prevbox .rxl{background:#fff;position:relative;margin:0 auto;box-shadow:0 0 0 1px var(--border-calm);overflow:hidden}
+.doc-prevbox .rxl .rb{position:absolute;box-sizing:border-box}
+.reg-by{font-size:11.5px;color:var(--text-muted);margin-top:2px}

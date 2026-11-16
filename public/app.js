@@ -34,6 +34,7 @@ const L = {
     xrays: '📷 صور الكشف / الأشعة المرفقة:', no_images: 'لم يتم إرفاق صور بعد.', cam_live: '📷 الكاميرا المباشرة', upload_gal: '📁 رفع من الاستوديو', pick_treat: 'اختر العلاجات المنجزة للمريض:', pick_treat_multi: 'يمكنك تحديد أكثر من علاج، ويُجمع سعرها تلقائياً.', pick_treat_min: 'يجب أن يبقى علاج واحد على الأقل',
     task_title: '📌 مهمة للممرضة', task_to_l: 'إرسال إلى:', task_all: 'كل الممرضات', task_ph: 'اكتب المهمة…', task_send: 'إرسال المهمة', task_sent: 'تم إرسال المهمة ✅', task_list_t: 'المهام المرسلة', task_empty: 'لا توجد مهام بعد', task_pending: 'بانتظار الممرضة', task_done_by: 'أنجزتها: {n}', task_to_n: 'إلى: {n}', task_ok: '✔ تمت المهمة', task_new: 'مهمة جديدة من الطبيب', task_finished: '✅ تمت المهمة', task_del: 'حذف', task_q1: 'تحضير الغرفة', task_q2: 'تعقيم الأدوات', task_q3: 'استدعاء المريض التالي', task_q4: 'تجهيز جهاز الأشعة', task_confirm_del: 'حذف هذه المهمة؟',
     t_ext: '🦷 قلع', t_endo: '🩺 عصب', t_cons: '📋 استشارة', t_pros: '💎 تركيب', t_white: '✨ تبييض', t_other: '📝 أخرى', notes_ph: 'ملاحظات / تشخيص (اختياري)...', finish: '✅ إنهاء المعاينة وحفظ السجل بالأرشيف',
+    reg_nurse: 'سجّلت المريض: {n}', reg_nurse_anon: 'الممرضة', reg_doctor: 'سجّله الطبيب', reg_online: 'حجز إلكتروني من المريض',
     lt1: 'أقل من دقيقة', min_n: '{n} دقيقة', no_nurses: 'لا توجد ممرضات مسجلات حالياً', phone_short: 'الهاتف: {p}', no_results: 'لا توجد نتائج مطابقة', date_l: 'التاريخ:', reason_s: 'السبب', dur_l: 'مدة المعاينة', wait_s: 'الانتظار', notes_l: 'ملاحظات:',
     skip_msg: 'الممرضة تحاول إدخال المريض ({a}) بالرغم من وجود المريض ({b}) قبله في القائمة. هل تسمح بتخطي الدور؟',
     // رسائل
@@ -78,6 +79,7 @@ const L = {
     xrays: '📷 Attached photos / X-rays:', no_images: 'No images attached yet.', cam_live: '📷 Live camera', upload_gal: '📁 Upload from gallery', pick_treat: 'Select the treatments performed:', pick_treat_multi: 'You can select more than one treatment; prices are added up automatically.', pick_treat_min: 'At least one treatment must stay selected',
     task_title: '📌 Task for the nurse', task_to_l: 'Send to:', task_all: 'All nurses', task_ph: 'Write the task…', task_send: 'Send task', task_sent: 'Task sent ✅', task_list_t: 'Sent tasks', task_empty: 'No tasks yet', task_pending: 'Waiting for the nurse', task_done_by: 'Done by: {n}', task_to_n: 'To: {n}', task_ok: '✔ Task done', task_new: 'New task from the doctor', task_finished: '✅ Task completed', task_del: 'Delete', task_q1: 'Prepare the room', task_q2: 'Sterilize instruments', task_q3: 'Call the next patient', task_q4: 'Set up the X-ray unit', task_confirm_del: 'Delete this task?',
     t_ext: '🦷 Extraction', t_endo: '🩺 Root canal', t_cons: '📋 Consult', t_pros: '💎 Prosthetics', t_white: '✨ Whitening', t_other: '📝 Other', notes_ph: 'Notes / diagnosis (optional)...', finish: '✅ Finish consultation & archive record',
+    reg_nurse: 'Registered by: {n}', reg_nurse_anon: 'nurse', reg_doctor: 'Registered by the doctor', reg_online: 'Booked online by the patient',
     lt1: 'under a minute', min_n: '{n} min', no_nurses: 'No nurses registered yet', phone_short: 'Phone: {p}', no_results: 'No matching records', date_l: 'Date:', reason_s: 'Reason', dur_l: 'Consultation', wait_s: 'Waited', notes_l: 'Notes:',
     skip_msg: 'The nurse wants to send in ({a}) although ({b}) is before them in the queue. Allow skipping?',
     t_welcome_new: '🔔 New patient waiting', t_added: 'Added: {n}', t_enter: '🩺 Patient entering', t_entered: 'Patient sent in: {n}', t_done: '✅ Consultation finished!', t_done_msg: 'The doctor finished with {n}. You can send in the next patient.',
@@ -219,6 +221,8 @@ Object.assign(L.ar, { pl_del_sess: 'حذف حصة من هذا العلاج', pl_
 Object.assign(L.en, { pl_del_sess: 'Remove a session from this treatment', pl_sess_removed: 'Session removed from the treatment ✅', requeue: 'Send to end of queue', t_requeued: 'Patient moved to the end of the queue ↩️' });
 Object.assign(L.ar, { col_on_l: 'تلوين السن', col_part_l: 'أثناء العلاج', col_done_l: 'عند الاكتمال', col_hint: 'لكل علاج: لون السن أثناء العلاج (حصص متبقية) ولونه عند اكتمال الحصص، ويظهران في مخطط الأسنان بالمعاينة وفي سجل المريض.' });
 Object.assign(L.en, { col_on_l: 'Color the tooth', col_part_l: 'In progress', col_done_l: 'Completed', col_hint: 'Per treatment: tooth color while sessions remain and once completed; shown in the consultation tooth chart and the patient record.' });
+Object.assign(L.ar, { reg_all: 'كل المسجِّلين (ممرضات وطبيب وإلكترونيًا)', reg_f_doctor: '🧑‍⚕️ سجّلهم الطبيب', reg_f_nurse: '👩‍⚕️ سجّلتهم الممرضات (الكل)', reg_f_online: '🌐 حجز إلكتروني (من المريض)' });
+Object.assign(L.en, { reg_all: 'All registrars (nurses, doctor, online)', reg_f_doctor: '🧑‍⚕️ Registered by the doctor', reg_f_nurse: '👩‍⚕️ Registered by nurses (all)', reg_f_online: '🌐 Online booking (by the patient)' });
 Object.assign(L.ar, { money_all: 'الكل (مدينون ودائنون وغيرهم)', money_debtors: '🔴 المدينون (عليهم متبقٍّ)', money_creditors: '🟢 الدائنون (رصيدهم في الوعاء)', money_wal_sum: 'مجموع أرصدة الوعاء:' });
 Object.assign(L.en, { money_all: 'All (debtors, creditors, others)', money_debtors: '🔴 Debtors (owe a balance)', money_creditors: '🟢 Creditors (wallet balance)', money_wal_sum: 'Total wallet balances:' });
 const errMsg = e => t('e_' + ((e && e.code) || 'server_error')) || t('e_server_error');
@@ -407,6 +411,7 @@ function renderAll() {
   renderTasks(); if (S.me.role === 'nurse') renderNurseList(); else { renderDocWaiting(); renderConsultation(); renderSkip(); renderAppts(); renderPayBadge(); }
 }
 const busy = () => S.patients.some(p => p.status === 'in');
+const regTag = x => !x || !x.regBy ? '' : `<div class="note-line reg-by">🧑‍⚕️ ${x.regBy === 'nurse' ? t('reg_nurse', { n: esc(x.regName || t('reg_nurse_anon')) }) : x.regBy === 'online' ? t('reg_online') : t('reg_doctor')}</div>`;
 function patientMeta(p) { return `${t('sex')}: ${esc(genderL(p.gender))} | ${t('birth')}: ${p.birthYear} (${p.age} ${t('years_short')}) ${DENT() ? ` | ${t('tooth')}: ${esc(p.tooth)}` : ''}`; }
 function renderNurseList() {
   const list = $('#nursePatientList'), isBusy = busy(), wIds = S.patients.filter(p => p.status === 'waiting').map(p => p.id); let rank = 1;   // زر «إلى آخر الصف» لا يظهر لآخر مريض ولا لمريض وحيد
@@ -416,14 +421,14 @@ function renderNurseList() {
       : `<button type="button" class="btn-action btn-green ${isBusy ? 'btn-disabled' : ''}" ${isBusy ? 'disabled' : ''} data-act="enter" data-id="${p.id}">🟢 ${t('enter')}</button>`;
     const extra = inRoom ? '' : `${wIds.indexOf(p.id) > -1 && wIds.indexOf(p.id) < wIds.length - 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button>`;
     return `<li class="patient-card ${inRoom ? 'in-doctor' : ''}"><div><span class="queue-badge">${inRoom ? t('doctor_word') : '#' + rank++}</span><strong style="font-size:15px">${esc(p.name)}</strong> ${vcB(p.vc, p.ap)} <span class="badge">${esc(reasonL(p.reason))}</span>
-      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo}</div></div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo}</div>${regTag(p)}</div>
       <div class="actions">${act}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>${extra}</div></li>`;
   }).join('') : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('empty_today')}</li>`;
 }
 function renderDocWaiting() {
   const w = S.patients.filter(p => p.status === 'waiting'), list = $('#docWaitingList'); let r = 1;
   const html = w.length ? w.map(p => `<li class="patient-card${p.debt > 0 ? ' has-debt' : p.wallet > 0 ? ' has-wallet' : ''}" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> ${vcB(p.vc, p.ap)} <span class="badge">${esc(reasonL(p.reason))}</span>${p.debt > 0 ? ` <span class="badge debt-badge">⚠️ ${t('rem_l')} ${money(p.debt)}</span>` : ''}
-    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div></div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div>${regTag(p)}</div>
     <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button>${w.indexOf(p) < w.length - 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
     <button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('empty_wait')}</li>`;
@@ -946,17 +951,26 @@ $('#globalImageInput').addEventListener('change', async ev => {
 
 /* ===================== الأرشيف والممرضات ===================== */
 function archiveParams(off) {
-  const q = new URLSearchParams({ name: $('#aName').value, year: $('#aYear').value, gender: $('#aGender').value, tooth: $('#aTooth').value, treatment: $('#aTreat').value, money: $('#aMoney').value, from: $('#aFrom').value, to: $('#aTo').value, tz: new Date().getTimezoneOffset(), offset: off, limit: 30 });
+  const q = new URLSearchParams({ name: $('#aName').value, year: $('#aYear').value, gender: $('#aGender').value, tooth: $('#aTooth').value, treatment: $('#aTreat').value, money: $('#aMoney').value, reg: $('#aReg').value, from: $('#aFrom').value, to: $('#aTo').value, tz: new Date().getTimezoneOffset(), offset: off, limit: 30 });
   return q.toString();
 }
 let archTimer, archSeq = 0;
+/* قائمة الممرضات في فلتر «من سجّل المريض» (من أسماء من سجّلن فعلاً في الأرشيف) */
+function fillRegNames(names) {
+  const sel = $('#aReg'); if (!sel || !Array.isArray(names)) return;
+  const key = names.join('|'); if (sel.dataset.names === key) return; sel.dataset.names = key;
+  const keep = sel.value; sel.querySelectorAll('option[data-n]').forEach(o => o.remove());
+  const after = sel.querySelector('option[value="nurse"]');
+  names.slice().reverse().forEach(n => { const o = document.createElement('option'); o.value = 'nurse:' + n; o.dataset.n = '1'; o.textContent = '   ↳ ' + n; after.after(o); });
+  sel.value = [...sel.options].some(o => o.value === keep) ? keep : '';
+}
 function protectUI() { const b = $('#protBtn'); if (b && S.me) { b.textContent = (S.me.protect ? '🔒 ' : '🔓 ') + t(S.me.protect ? 'prot_on' : 'prot_off'); b.classList.toggle('btn-green', !!S.me.protect); } }
 function loadArchive(reset = true) {
   clearTimeout(archTimer);
   archTimer = setTimeout(async () => {
     const seq = ++archSeq, off = reset ? 0 : S.archive.items.length;
     const r = await run(() => api('GET', '/api/archive?' + archiveParams(off))); if (!r || seq !== archSeq) return;
-    S.archive = { total: r.total, walSum: r.walSum, sum: r.sum, paidSum: r.paidSum, debt: r.debt, items: reset ? r.items : S.archive.items.concat(r.items) }; renderArchive();
+    fillRegNames(r.regNames); S.archive = { total: r.total, walSum: r.walSum, sum: r.sum, paidSum: r.paidSum, debt: r.debt, items: reset ? r.items : S.archive.items.concat(r.items) }; renderArchive();
   }, reset ? 250 : 0);
 }
 function renderArchive() {
@@ -964,7 +978,7 @@ function renderArchive() {
   const l = $('#archiveList');
   l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card${a.remaining > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc, a.ap)} ${lineBadges(a, 'badge')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(a.price)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}${a.followUp ? ` <span class="badge">${t('follow_b')}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} ${DENT() ? ` | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong>` : ''}</div>
-    ${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(a, a) : ''}
+    ${regTag(a)}${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(a, a) : ''}
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
     ${a.payments && a.payments.length ? `<div style="margin-top:6px">${payChips(a.payments, a.id)}</div>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:6px">${t('date_l')} ${ymdHM(a.finishedAt)} · ${t('wait_s')} ${fmtMin(a.waitMin)} · <b style="color:var(--primary-sage)">⏱ ${t('dur_l')} ${fmtMin(a.durationMin)}</b></div></div>
@@ -1066,7 +1080,7 @@ async function showHistory(name, year) {
       ${x.price != null ? `<div class="hv-m3"><div>${t('due_l')}<b>${money(x.price)}</b></div><div>${t('paid_l')}<b>${money(x.paid)}</b></div><div>${t('rem_l')}<b class="${x.remaining > 0 ? 'neg' : 'pos'}">${money(x.remaining)}</b></div></div>` : ''}
       <div class="hi-line">${DENT() ? `${t('tooth')}: <strong>${esc(teethOf(x))}</strong> | ` : ''}${t('reason_s')}: ${esc(reasonL(x.reason))}${x.durationMin != null ? ` | ⏱ ${t('dur_l')}: <strong>${fmtMin(x.durationMin)}</strong>` : ''}</div>${medLineHTML(x)}
       ${(x.lines || []).filter(l => l.ortho).map(l => `<div class="hi-line hi-ortho">🦷 ${t('ortho_up')}: ${wireTxt(l.ortho.upPrev, l.ortho.up)} · ${t('ortho_lo')}: ${wireTxt(l.ortho.loPrev, l.ortho.lo)}${l.ortho.next ? ` · ${t('ortho_next')}: <span dir="ltr">${esc(ymdS(l.ortho.next))}</span>` : ''}${l.ortho.notesUp ? `<div class="hi-notes">📝 ${t('ortho_up')}: ${esc(l.ortho.notesUp)}</div>` : ''}${l.ortho.notesLo ? `<div class="hi-notes">📝 ${t('ortho_lo')}: ${esc(l.ortho.notesLo)}</div>` : ''}${l.ortho.notes && !l.ortho.notesUp && !l.ortho.notesLo ? `<div class="hi-notes">📝 ${esc(l.ortho.notes)}</div>` : ''}</div>`).join('')}
-      ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(x, r) : ''}</div></details>`;
+      ${x.notes ? `<div class="hi-notes">${t('notes_l')} ${esc(x.notes)}</div>` : ''}${regTag(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}</div></details>`;
   };
   const walBox = `<div class="hist-wallet"><div><b>${t('wal_title')}</b> <span class="hw-bal">${money(r.wallet ? r.wallet.bal : 0)}</span></div>
     <div class="hw-btns"><button type="button" class="btn-action btn-green" data-act="walDeposit" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_dep')}</button>${r.wallet && r.wallet.bal > 0 ? `<button type="button" class="btn-action btn-yellow" data-act="walOut" data-ctx="hist" data-name="${esc(r.name)}" data-year="${r.birthYear}">${t('wal_out')}</button>` : ''}</div></div>`;
@@ -1079,7 +1093,7 @@ async function showHistory(name, year) {
   const ledgerHTML = ledger.length ? `<div class="hv-scroll"><table class="hv-tbl"><thead><tr><th>${t('hv_c_date')}</th><th>${t('hv_c_amt')}</th><th>${t('hv_c_for')}</th><th>${t('hv_c_how')}</th></tr></thead><tbody>${ledger.map(z => `<tr${z.w ? ' class="w"' : ''}><td>${dd(z.t)}</td><td><b>${z.amt < 0 ? '−' : ''}${money(Math.abs(z.amt))}</b></td><td>${z.fr}</td><td>${z.hw}</td></tr>`).join('')}</tbody></table></div>` : `<div class="hint">${t('hv_no_pays')}</div>`;
   const totals = r.due ? `<div class="hv-tot"><span>${t('total_due')} <b>${money(r.due)}</b></span><span>${t('total_paid')} <b>${money(r.paid)}</b></span>${r.balance ? `<span class="neg">${t('total_debt')} <b>${money(r.balance)}</b></span>` : ''}</div>` : '';
   const media = (r.current && r.current.images && r.current.images.length ? [`<div class="hv-media"><div class="hv-md">${t('hist_cur')}</div>${imgs(r.current)}</div>`] : [])
-    .concat(r.records.filter(x => (x.images && x.images.length) || (x.rx && x.rx.length)).sort((p, q) => (q.finishedAt || 0) - (p.finishedAt || 0)).map(x => `<div class="hv-media"><div class="hv-md">${dd(x.finishedAt)} · ${trName(x)}</div>${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}</div>`)).join('');
+    .concat(r.records.filter(x => (x.images && x.images.length) || (x.rx && x.rx.length) || (x.docs && x.docs.length)).sort((p, q) => (q.finishedAt || 0) - (p.finishedAt || 0)).map(x => `<div class="hv-media"><div class="hv-md">${dd(x.finishedAt)} · ${trName(x)}</div>${imgs(x)}${window.rxRecHTML ? rxRecHTML(x, r) : ''}</div>`)).join('');
   const debt = +r.balance || 0, wb = r.wallet ? +r.wallet.bal || 0 : 0;
   const debtBox = debt > 0 ? `<div class="hv-debt no"><span>${t('hv_debt')}</span><b>${money(debt)}</b></div>` : (r.due ? `<div class="hv-debt ok"><span>${t('hv_no_debt')}</span></div>` : '');
   const tb = (k, lbl) => `<button type="button" class="hv-tab${tab === k ? ' on' : ''}" data-act="histTab" data-tab="${k}">${lbl}</button>`;
@@ -1489,7 +1503,7 @@ const ACT = {
   treat(el) { const v = el.dataset.v, i = S.treatments.indexOf(v); if (i >= 0) { if (S.treatments.length <= 1) return toast(t('pick_treat_min'), 'warning'); S.treatments.splice(i, 1); } else S.treatments.push(v); el.classList.toggle('selected', i < 0); el.setAttribute('aria-checked', String(i < 0)); if (i < 0) unRemove('', v); recalc(); },
   async finish(el) {
     const m = moneyTotals(); if (!await finishSummary(el.dataset.id, m)) return;   // شاشة التأكيد: الرفض يُبقي الطبيب في المعاينة ليعدّل
-    const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { today: localDay(), lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay, gap: l.gap, ortho: orthoSend(l) } : { tooth: l.th, teeth: l.ths && l.ths.length > 1 ? l.ths : undefined, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay, gap: l.gap, ortho: orthoSend(l) }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, next: nxBody(), ...medBody(), notes: ($('#consultNotes') || {}).value || '', patientNote: ($('#patientNote') || {}).value || '', rx: window.rxLines ? rxLines() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
+    const r = await run(() => api('POST', `/api/patients/${el.dataset.id}/finish`, { today: localDay(), lines: m.ls.map(l => l.cont ? { plan: l.plan.id, pay: l.pay, gap: l.gap, ortho: orthoSend(l) } : { tooth: l.th, teeth: l.ths && l.ths.length > 1 ? l.ths : undefined, treatment: l.tr, total: l.tot, sessions: l.sessions, pay: l.pay, gap: l.gap, ortho: orthoSend(l) }), debts: m.ps.filter(x => x.pay > 0).map(x => x.kind === 'rec' ? { rec: x.id, pay: x.pay } : { plan: x.id, pay: x.pay }), wallet: m.w, next: nxBody(), ...medBody(), notes: ($('#consultNotes') || {}).value || '', patientNote: ($('#patientNote') || {}).value || '', rx: window.rxLines ? rxLines() : [], docs: window.docsList ? docsList() : [], rxHead: window.rxHeadSnap ? rxHeadSnap() : undefined })); if (!r) return; if (window.rxDone) rxDone();
     toast(t('t_finished'), 'success'); await refresh(); docTab('waiting');
   },
   copyCode: () => copyText(S.me.code || ''),
@@ -1532,7 +1546,7 @@ const ACT = {
     if (r === 'today') a = b = iso(now);
     else if (r === 'yesterday') { const y = new Date(now); y.setDate(y.getDate() - 1); a = b = iso(y); }
     else if (r === 'week') { const w = new Date(now); w.setDate(w.getDate() - (w.getDay() + 1) % 7); a = iso(w); b = iso(now); }  // الأسبوع يبدأ السبت
-    if (r === 'clear') for (const id of ['aName', 'aYear', 'aGender', 'aTooth', 'aTreat', 'aMoney']) { const f = $('#' + id); if (f) f.value = ''; }  // مسح كل الفلاتر والإدخالات
+    if (r === 'clear') for (const id of ['aName', 'aYear', 'aGender', 'aTooth', 'aTreat', 'aMoney', 'aReg']) { const f = $('#' + id); if (f) f.value = ''; }  // مسح كل الفلاتر والإدخالات
     $('#aFrom').value = a; $('#aTo').value = b; syncYmd(); loadArchive(true);
   },
   addTreat(el) { const f = el.closest('form'), pre = el.dataset.preset === 'ortho'; const row = document.createElement('div'); row.innerHTML = treatRowHTML('', pre ? { sessions: 12, gap: 30, ortho: true } : null); if (pre) $('.treat-name', row).value = t('ortho_name'); const n = row.firstElementChild; $('.priceRows', f).insertBefore(n, $('.priceRows .hint', f)); f.dataset.dirty = '1'; $('.treat-name', n).focus(); n.scrollIntoView({ block: 'center' }); },
@@ -1802,7 +1816,7 @@ document.addEventListener('reset', e => { $$('select[id$=Gender]', e.target).for
 
 
 /* ===================== عن البرنامج ===================== */
-const APP_VER = 'v138';
+const APP_VER = 'v140';
 Object.assign(L.ar, { set_about: 'عن البرنامج' });
 Object.assign(L.en, { set_about: 'About' });
 const ABOUT = {
