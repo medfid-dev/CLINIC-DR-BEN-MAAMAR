@@ -277,6 +277,12 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await vis({ today: '2026-10-30', lines: [{ tooth: '47', treatment: 'علاج عصب', total: 6000, sessions: 2, pay: 0, gap: 999 }] }); l = await ap(); ok(l.some(x => x.tooth === '47' && x.date === '2026-11-09'), 'قيمة أيام غير صالحة تُهمَل ويُستعمل الافتراضي');
       /* استشارة (بلا بنود) + موعد لعلاج آخر (قلع): موعد مستقل بلا خطة */
       r = await vis({ today: '2026-10-30', lines: [], next: [{ treatment: 'قلع', tooth: '16', gap: 3 }] }); l = await ap(); ok(r.s === 200 && l.some(x => x.treatment === 'قلع' && x.tooth === '16' && x.date === '2026-11-02' && x.sessions === 1), 'استشارة + موعد قلع بعد 3 أيام (موعد مستقل)');
+      { /* كل حصة تُحسب دفعتها وحدها في الأرشيف */
+        const r1 = await vis({ today: '2026-10-30', lines: [{ tooth: '15', treatment: 'علاج عصب', total: 10000, sessions: 2, pay: 4000 }] }), plan2 = r1.j.lines[0].plan;
+        const r2x = await vis({ today: '2026-11-06', lines: [{ plan: plan2, pay: 6000 }] });
+        const arc = (await J('GET', '/api/archive?limit=100', B)).j, a1 = arc.items.find(z => z.id === r1.j.id), a2 = arc.items.find(z => z.id === r2x.j.id);
+        ok(a1 && a2 && a1.sessPaid === 4000 && a2.sessPaid === 6000, 'الأرشيف: دفعة كل حصة تُنسب إلى حصتها (4000 ثم 6000)');
+        ok(a1.sessDue === 4000 && a2.sessDue === 6000 && a2.sessPays.length === 1, 'مستحق الحصة = ما قُبض فيها + ما بقي (لا يظهر مستحق الخطة كله في الأولى)'); }
       r = await vis({ today: '2026-10-30', lines: [], next: [{ treatment: 'غير موجود', gap: 3 }, 5, null] }); l = await ap(); ok(r.s === 200 && !l.some(x => x.treatment === 'غير موجود'), 'علاج غير معروف أو مدخل فاسد في next يُهمَل');
       r = await vis({ today: '2026-10-30', lines: [{ tooth: '16', treatment: 'قلع', total: 1000, sessions: 1, pay: 1000 }] }); l = await ap(); ok(r.s === 200 && !l.some(x => x.treatment === 'قلع'), 'إنجاز القلع يحذف موعده المستقل');
       /* علاج واحد لعدة أسنان (تركيب لفكّين): بند واحد وسجل واحد وموعد واحد */

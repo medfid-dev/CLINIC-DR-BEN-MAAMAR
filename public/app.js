@@ -197,7 +197,7 @@ Object.assign(L.ar, { bk_wa: 'رسائل واتساب للمرضى', bk_wa_sub: 
 Object.assign(L.en, { bk_wa: 'WhatsApp messages to patients', bk_wa_sub: 'Booking confirmation with QR code, then a message each time their turn moves up', bk_wa_off: 'Not enabled on the server yet (needs WA_TOKEN and WA_PHONE_ID — see README)' });
 Object.assign(L.ar, { tc_label: '📞 أرقام للاتصال (اختياري)', tc_ph: 'ابحث باسم المريض أو رقمه…', tc_appts: '＋ مرضى المواعيد المستحقة', tc_none: 'لا مواعيد مستحقة بأرقام هواتف', tc_call: 'اتصال', tc_need: 'اكتب مهمة أو أضف مريضاً للاتصال', tc_nophone: 'لا يوجد رقم هاتف لهذا المريض' });
 Object.assign(L.en, { tc_label: '📞 Numbers to call (optional)', tc_ph: 'Search patient name or number…', tc_appts: '＋ Patients with due appointments', tc_none: 'No due appointments with phone numbers', tc_call: 'Call', tc_need: 'Write a task or add a patient to call', tc_nophone: 'This patient has no phone number' });
-Object.assign(L.ar, { bk_qr_title: 'رمز QR لصفحة الحجز', bk_qr_slip: 'امسح الرمز لحجز موعد أو الانضمام لطابور اليوم من بيتك', bk_today: 'طابور اليوم (من البيت)', set_booking: 'الحجز عبر الإنترنت', bk_enable: 'تفعيل الحجز عبر الإنترنت', bk_enable_sub: 'يستطيع المرضى اختيار يوم وساعة من صفحة الحجز', bk_link: 'رابط صفحة الحجز (شاركه مع المرضى):', bk_open: 'فتح', bk_days: 'أيام الحجز:', bk_slot: 'مدة الموعد', bk_ahead: 'الحجز حتى (يوم)', bk_per: 'حجوزات للموعد الواحد', bk_hint: 'تظهر الطلبات في تبويب المواعيد، ويصلك إشعار عند كل طلب جديد. الموعد المرفوض يعود متاحاً للآخرين.', bk_saved: 'تم حفظ إعدادات الحجز', bk_req: 'طلبات الحجز عبر الإنترنت', bk_none: 'لا توجد طلبات حجز قادمة.', bk_off: 'الحجز عبر الإنترنت مغلق', bk_setup: 'إعدادات الحجز', bk_pending: 'بانتظار التأكيد', bk_ok: 'مؤكَّد', bk_no: 'مرفوض', bk_accept: 'تأكيد', bk_reject: 'رفض', bk_del_q: 'حذف طلب الحجز هذا؟', bk_copied: 'تم نسخ الرابط', bk_new: 'طلب حجز جديد', bk_min: 'د' });
+Object.assign(L.ar, { bk_qr_title: 'رمز QR لصفحة الحجز', bk_qr_slip: 'امسح الرمز لحجز موعد أو التسجيل في قائمة اليوم من بيتك', bk_today: 'قائمة اليوم (من البيت)', set_booking: 'الحجز عبر الإنترنت', bk_enable: 'تفعيل الحجز عبر الإنترنت', bk_enable_sub: 'يستطيع المرضى اختيار يوم وساعة من صفحة الحجز', bk_link: 'رابط صفحة الحجز (شاركه مع المرضى):', bk_open: 'فتح', bk_days: 'أيام الحجز:', bk_slot: 'مدة الموعد', bk_ahead: 'الحجز حتى (يوم)', bk_per: 'حجوزات للموعد الواحد', bk_hint: 'تظهر الطلبات في تبويب المواعيد، ويصلك إشعار عند كل طلب جديد. الموعد المرفوض يعود متاحاً للآخرين.', bk_saved: 'تم حفظ إعدادات الحجز', bk_req: 'طلبات الحجز عبر الإنترنت', bk_none: 'لا توجد طلبات حجز قادمة.', bk_off: 'الحجز عبر الإنترنت مغلق', bk_setup: 'إعدادات الحجز', bk_pending: 'بانتظار التأكيد', bk_ok: 'مؤكَّد', bk_no: 'مرفوض', bk_accept: 'تأكيد', bk_reject: 'رفض', bk_del_q: 'حذف طلب الحجز هذا؟', bk_copied: 'تم نسخ الرابط', bk_new: 'طلب حجز جديد', bk_min: 'د' });
 Object.assign(L.en, { bk_qr_title: 'Booking page QR code', bk_qr_slip: 'Scan to book a visit or join today\u2019s queue from home', bk_today: 'Today\u2019s queue (from home)', set_booking: 'Online booking', bk_enable: 'Enable online booking', bk_enable_sub: 'Patients pick a day and time on the booking page', bk_link: 'Booking page link (share it with patients):', bk_open: 'Open', bk_days: 'Booking days:', bk_slot: 'Slot length', bk_ahead: 'Book up to (days)', bk_per: 'Bookings per slot', bk_hint: 'Requests appear in the Appointments tab and you get a notification for each one. A declined slot becomes available again.', bk_saved: 'Booking settings saved', bk_req: 'Online booking requests', bk_none: 'No upcoming booking requests.', bk_off: 'Online booking is off', bk_setup: 'Booking settings', bk_pending: 'Awaiting confirmation', bk_ok: 'Confirmed', bk_no: 'Declined', bk_accept: 'Confirm', bk_reject: 'Decline', bk_del_q: 'Delete this booking request?', bk_copied: 'Link copied', bk_new: 'New booking request', bk_min: 'min' });
 Object.assign(L.ar, { ortho_wire_up: 'سلك العلوي', ortho_wire_lo: 'سلك السفلي', ortho_notes_up: 'ملاحظات العلوي', ortho_notes_lo: 'ملاحظات السفلي', ortho_notes_ph: 'ملاحظات…' });
 Object.assign(L.en, { ortho_wire_up: 'Upper wire', ortho_wire_lo: 'Lower wire', ortho_notes_up: 'Upper notes', ortho_notes_lo: 'Lower notes', ortho_notes_ph: 'Notes…' });
@@ -777,7 +777,7 @@ function nxHTML() {
   const n = nx(), on = !!n.tr;
   return `<div class="nx-box" id="nxBox"><div class="acct-head"><strong>📅 ${t('nx_title')}</strong></div><div class="hint">${t('nx_hint')}</div>
     <div class="nx-row"><select data-input="nxTr" aria-label="${esc(t('nx_title'))}"><option value="">${t('nx_none')}</option>${treatList().map(v => `<option value="${esc(v)}"${n.tr === v ? ' selected' : ''}>${esc(treatLabel(v))}</option>`).join('')}</select>
-      <input type="text" maxlength="20" data-input="nxTh" placeholder="${esc(t('nx_tooth_ph'))}" value="${esc(n.th)}"${on ? '' : ' hidden'}>
+      <input type="text" inputmode="numeric" maxlength="20" autocomplete="off" data-input="nxTh" placeholder="${esc(t('nx_tooth_ph'))}" value="${esc(n.th)}"${on ? '' : ' hidden'}>
       <span class="pl-stepper"${on ? '' : ' hidden'}><button type="button" data-act="nxGap" data-v="-1" aria-label="-">−</button><b id="nxGapV">${nxDays()}</b><button type="button" data-act="nxGap" data-v="1" aria-label="+">+</button></span></div>
     <div class="nx-date" id="nxDate">${nxDateHTML()}</div></div>`;
 }
@@ -816,7 +816,7 @@ function apptLines(a) {
 function teethInit(a) { S.teeth = new Set(String(a.tooth || '').match(/\d{2}/g) ? String(a.tooth).match(/\d{2}/g).filter(x => ALL_TEETH.has(x)) : []); S.teethSet = [...S.teeth].some(x => +x >= 51 && +x <= 85) && ![...S.teeth].some(x => +x <= 48) ? 'child' : (a.age <= 5 ? 'child' : 'adult'); }
 function teethHTML() {
   if (!DENT()) return '';
-  const set = TEETH[S.teethSet], st = statusFromItems((S.account && S.account.teeth) || []), row = arr => arr.map(n => { const o = st.get(String(n)); return `<button type="button" class="tooth-btn${S.teeth.has(String(n)) ? ' on' : ''}${n % 10 >= 6 && S.teethSet === 'adult' ? ' molar' : ''}${toothCls(o)}"${o ? ` title="${esc(o.label)}"` : ''}${toothSty(o)} data-act="tooth" data-n="${n}">${n}</button>`; }).join('');
+  const set = TEETH[S.teethSet], st = statusFromItems((S.account && S.account.teeth) || []), row = arr => arr.map(n => { const o = st.get(String(n)), lk = o && o.ext && !S.teeth.has(String(n)); return `<button type="button" class="tooth-btn${S.teeth.has(String(n)) ? ' on' : ''}${lk ? ' locked' : ''}${n % 10 >= 6 && S.teethSet === 'adult' ? ' molar' : ''}${toothCls(o)}"${o ? ` title="${esc(o.label)}"` : ''}${toothSty(o)}${lk ? ' aria-disabled="true"' : ''} data-act="tooth" data-n="${n}">${n}</button>`; }).join('');
   const half = arr => `<div class="arch-half">${row(arr.slice(0, arr.length / 2))}</div><div class="arch-half">${row(arr.slice(arr.length / 2))}</div>`;
   return `<div class="teeth-box"><div class="teeth-head"><label>${t('teeth_title')}</label><div class="teeth-switch"><button type="button" data-act="teethSet" data-v="adult" class="${S.teethSet === 'adult' ? 'on' : ''}">${t('teeth_perm')}</button><button type="button" data-act="teethSet" data-v="child" class="${S.teethSet === 'child' ? 'on' : ''}">${t('teeth_prim')}</button></div></div>
     <div class="teeth-chart"><div class="teeth-lbl"><span>${t('teeth_ur')}</span><span>${t('teeth_ul')}</span></div><div class="arch">${half(set.up)}</div><div class="arch-sep"></div><div class="arch">${half(set.lo)}</div><div class="teeth-lbl"><span>${t('teeth_lr')}</span><span>${t('teeth_ll')}</span></div></div>
@@ -980,7 +980,7 @@ function renderArchive() {
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} ${DENT() ? ` | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong>` : ''}</div>
     ${regTag(a)}${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(a, a) : ''}
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
-    ${a.payments && a.payments.length ? `<div style="margin-top:6px">${payChips(a.payments, a.id)}</div>` : ''}
+    ${a.sessPays && a.sessPays.length ? `<div class="note-line" style="margin-top:6px">💰 ${t('sess_paid')} <b>${money(a.sessPaid)}</b></div><div style="margin-top:4px">${payChips(a.sessPays, a.id)}</div>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:6px">${t('date_l')} ${ymdHM(a.finishedAt)} · ${t('wait_s')} ${fmtMin(a.waitMin)} · <b style="color:var(--primary-sage)">⏱ ${t('dur_l')} ${fmtMin(a.durationMin)}</b></div></div>
     <div style="display:flex;flex-direction:column;gap:6px">${a.remaining > 0 ? `<button type="button" class="btn-action btn-green" data-act="addPayment" data-id="${a.id}" data-rem="${a.remaining}" data-wallet="${a.wallet || 0}">${t('add_pay')}</button>` : ''}    <button type="button" class="btn-action btn-yellow" data-act="editArchive" data-id="${a.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delArchive" data-id="${a.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('no_results')}</li>`;
@@ -1246,6 +1246,10 @@ function renderAppts() {
   let sb = $('#apptSearch');   // خانة البحث خارج #apptsArea كي لا تُعاد كتابتها ولا يفقد المستخدم مؤشّر الكتابة
   if (!sb) { sb = document.createElement('input'); sb.type = 'search'; sb.id = 'apptSearch'; sb.className = 'appt-search'; sb.autocomplete = 'off'; sb.dataset.input = 'apptq'; sb.value = S.apptQ || ''; box.insertAdjacentElement('beforebegin', sb); }
   sb.placeholder = t('ap_search');
+  let dc = $('#apptDayChips');   // فلتر اليوم: أمس / اليوم / غداً (خارج #apptsArea أيضاً)
+  if (!dc) { dc = document.createElement('div'); dc.id = 'apptDayChips'; dc.className = 'appt-chips'; sb.insertAdjacentElement('afterend', dc); }
+  const cntD = k => list.filter(a => dayDiff(a.date, td) === k).length, curD = S.apptDay || '';
+  dc.innerHTML = [['', t('ap_f_all'), list.length], ['-1', t('ap_f_yest'), cntD(-1)], ['0', t('ap_f_today'), cntD(0)], ['1', t('ap_f_tom'), cntD(1)]].map(([k, l, n]) => `<button type="button" class="chip${curD === k ? ' active' : ''}" data-act="apptDay" data-d="${k}">${esc(l)} <span class="count-badge${n ? '' : ' zero'}">${n}</span></button>`).join('');
   if (box.contains(document.activeElement) && document.activeElement.matches('input')) return;
   const miniTeeth = a => {   // مخطط أسنان صغير يبيّن السن المعالج (بلون العلاج أثناء الحصص)
     const n = String(a.tooth || ''); if (!DENT() || !ALL_TEETH.has(n)) return '';
@@ -1263,7 +1267,8 @@ function renderAppts() {
   const nq = x => String(x == null ? '' : x).toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').trim();
   const qs = nq(S.apptQ).split(/\s+/).filter(Boolean);
   const hay = a => nq([a.name, a.phone, a.tooth, a.treatment, treatLabel(a.treatment), a.date, a.birthYear].join(' '));
-  const shown = qs.length ? list.filter(a => { const h = hay(a); return qs.every(w => h.includes(w)); }) : list;
+  const byQ = qs.length ? list.filter(a => { const h = hay(a); return qs.every(w => h.includes(w)); }) : list;
+  const shown = S.apptDay ? byQ.filter(a => dayDiff(a.date, td) === +S.apptDay) : byQ;
   const dueS = shown.filter(a => a.date <= td), up = shown.filter(a => a.date > td);
   const html = (shown.length ? (dueS.length ? `<h3 class="appt-h due">🔔 ${t('ap_due_h')} (${dueS.length})</h3><ul class="patient-list">${dueS.map(row).join('')}</ul>` : '') + (up.length ? `<h3 class="appt-h">🗓 ${t('ap_up_h')} (${up.length})</h3><ul class="patient-list">${up.map(row).join('')}</ul>` : '') : `<div class="patient-card" style="justify-content:center;color:var(--text-muted)">${list.length ? t('no_results') : t('ap_empty')}</div>`) + `<p class="note-line" style="margin-top:12px">${t('ap_hint')}</p>`;
   if (box._h !== html) { box._h = html; box.innerHTML = html; }
@@ -1272,7 +1277,7 @@ function docTab(tab) {
   if (window.showHero) showHero();
   $$('#doctorScreen .tab-content').forEach(s => s.classList.remove('active')); $$('#doctorScreen .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   $('#' + tab + 'Tab').classList.add('active');
-  if (tab === 'archive') loadArchive(true); if (tab === 'nurses') loadNurses(); if (tab === 'stats' && window.loadStats) { const st = S.stats; if (st) st.data = null; loadStats(); }
+  if (tab === 'archive') loadArchive(true); if (tab === 'nurses') loadNurses(); if (tab === 'quote' && window.qRender) qRender(); if (tab === 'stats' && window.loadStats) { const st = S.stats; if (st) st.data = null; loadStats(); }
 }
 function nurseTab(tab) {
   if (window.showHero) showHero();
@@ -1389,6 +1394,7 @@ const ACT = {
     const r = await run(() => api('POST', '/api/patients', { apptId: el.dataset.id })); if (!r) { el.disabled = false; refresh(); return; }
     toast(t('t_registered'), 'success'); await refresh(); if (settings.autoQr) showQr(r.id);
   },
+  apptDay(el) { S.apptDay = S.apptDay === el.dataset.d ? '' : el.dataset.d; renderAppts(); },
   async apptShift(el) { if (await run(() => api('PUT', `/api/appts/${el.dataset.id}`, { delta: +el.dataset.d }))) refresh(); },
   async apptDel(el) { if (!await appConfirm(t('ap_del_q'))) return; if (await run(() => api('DELETE', `/api/appts/${el.dataset.id}`))) { toast(t('ap_deleted'), 'success'); refresh(); } },
   docTab: el => docTab(el.dataset.tab), nurseTab: el => nurseTab(el.dataset.tab),
@@ -1451,7 +1457,7 @@ const ACT = {
   qrShare: () => { if (S.qrPid === 'book') { navigator.share && navigator.share({ title: S.me.clinicName, url: bookLink() }).catch(() => {}); return; } const p = S.patients.find(x => x.id === S.qrPid); if (p && navigator.share) navigator.share({ title: S.me.clinicName, url: ticketUrl(p) }).catch(() => {}); },
   openCamera: el => openCamera(el.dataset.id), pickFile: el => pickFile(el.dataset.id), snap, closeCamera,
   async delImage(el) { if (await run(() => api('DELETE', `/api/patients/${el.dataset.id}/images/${el.dataset.img}`))) refresh(); },
-  tooth(el) { const n = el.dataset.n; if (S.teeth.has(n)) S.teeth.delete(n); else S.teeth.add(n); el.classList.toggle('on', S.teeth.has(n)); if (S.teeth.has(n)) unRemove(n, ''); $('#teethSum').innerHTML = teethSumText(); recalc(); },
+  tooth(el) { const n = el.dataset.n; if (!S.teeth.has(n)) { const o = statusFromItems((S.account && S.account.teeth) || []).get(n); if (o && o.ext) { toast(t('tooth_ext_lock', { n }), 'danger'); return; } } if (S.teeth.has(n)) S.teeth.delete(n); else S.teeth.add(n); el.classList.toggle('on', S.teeth.has(n)); if (S.teeth.has(n)) unRemove(n, ''); $('#teethSum').innerHTML = teethSumText(); recalc(); },
   teethSet(el) { S.teethSet = el.dataset.v; const box = el.closest('.teeth-box'); box.outerHTML = teethHTML(); },
   soundTest(el) { const k = UISound.names, i = (S.sndI = ((S.sndI == null ? -1 : S.sndI) + 1) % k.length); UISound.play(k[i]); toast((i + 1) + '/' + k.length + ' · ' + (t('snd_names')[i] || k[i]), 'success'); },
   teethClear() { S.teeth.clear(); $$('.tooth-btn.on').forEach(x => x.classList.remove('on')); $('#teethSum').innerHTML = teethSumText(); recalc(); },
@@ -1816,7 +1822,7 @@ document.addEventListener('reset', e => { $$('select[id$=Gender]', e.target).for
 
 
 /* ===================== عن البرنامج ===================== */
-const APP_VER = 'v140';
+const APP_VER = 'v148';
 Object.assign(L.ar, { set_about: 'عن البرنامج' });
 Object.assign(L.en, { set_about: 'About' });
 const ABOUT = {
@@ -1888,5 +1894,11 @@ function ptUpdate() { const b = $('#ptBox'); if (b) b.outerHTML = perToothHTML()
 
 /* كلمات قصيرة لشريط تبويبات الطبيب (الأيقونة منفصلة في HTML) */
 Object.assign(L.ar, { wz_4_s: 'الوصفة والملاحظات' }); Object.assign(L.en, { wz_4_s: 'Prescription & notes' });
+Object.assign(L.ar, { tooth_ext_lock: 'السن {n} مقلوع سابقاً ولا يمكن تحديده مرة أخرى' });
+Object.assign(L.en, { tooth_ext_lock: 'Tooth {n} was already extracted and cannot be selected again' });
+Object.assign(L.ar, { sess_paid: 'المقبوض في هذه الحصة:' });
+Object.assign(L.en, { sess_paid: 'Received in this session:' });
+Object.assign(L.ar, { ap_f_all: 'الكل', ap_f_yest: 'أمس', ap_f_today: 'اليوم', ap_f_tom: 'غداً' });
+Object.assign(L.en, { ap_f_all: 'All', ap_f_yest: 'Yesterday', ap_f_today: 'Today', ap_f_tom: 'Tomorrow' });
 Object.assign(L.ar, { tab_waiting_s: 'الانتظار', tab_appts_s: 'المواعيد', tab_consult_s: 'المعاينة', tab_add_s: 'تسجيل', tab_nurses_s: 'الممرضات', tab_archive_s: 'الأرشيف', tab_stats_s: 'الإحصاء', tab_set_s: 'الإعدادات' });
 Object.assign(L.en, { tab_waiting_s: 'Waiting', tab_appts_s: 'Appts', tab_consult_s: 'Consult', tab_add_s: 'Register', tab_nurses_s: 'Nurses', tab_archive_s: 'Archive', tab_stats_s: 'Stats', tab_set_s: 'Settings' });

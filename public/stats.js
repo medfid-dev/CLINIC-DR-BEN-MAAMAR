@@ -12,10 +12,11 @@ Object.assign(L.ar, {
   st_weekday: 'حسب يوم الأسبوع', st_hours: 'ساعات وصول المرضى', st_heat: 'خريطة الازدحام (يوم × ساعة)', st_treat: 'العلاجات', st_gender: 'الجنس', st_ages: 'الفئات العمرية', st_reasons: 'أسباب الزيارة',
   st_teeth: 'خريطة الأسنان (عدد المعاينات لكل سن)', st_teeth_cat: 'نوع السن', st_jaw: 'الفك', st_side: 'الجهة', st_dent: 'الأسنان', st_upper: 'علوي', st_lower: 'سفلي', st_right: 'أيمن', st_left: 'أيسر', st_perm: 'دائمة', st_prim: 'لبنية', st_no_tooth: 'زيارات بلا سن محدد',
   st_timing: 'الانتظار والمعاينة', st_wait_dist: 'توزيع مدة الانتظار (دقيقة)', st_dur_dist: 'توزيع مدة المعاينة (دقيقة)', st_avg: 'المتوسط', st_median: 'الوسيط', st_max: 'الأطول', st_chair: 'إجمالي وقت الكرسي',
-  st_pat_sec: 'المرضى', st_new: 'مرضى جدد', st_ret: 'مرضى عائدون', st_avg_visits: 'متوسط زيارات المريض', st_freq: 'تكرار الزيارة', st_top_visits: 'الأكثر زيارة', st_top_billed: 'الأعلى مستحقاً', st_reg: 'من سجّل المرضى', st_doctor: 'الطبيب', st_nurse_old: 'ممرضة (قبل التحديث)',
+  st_pat_sec: 'المرضى', st_new: 'مرضى جدد', st_ret: 'مرضى عائدون', st_avg_visits: 'متوسط زيارات المريض', st_freq: 'تكرار الزيارة', st_top_visits: 'الأكثر زيارة', st_top_billed: 'الأعلى مستحقاً', st_reg: 'إحصائيات الممرضات (من سجّل المرضى)', st_doctor: 'الطبيب', st_nurse_old: 'ممرضة (قبل التحديث)',
   st_debt_sec: 'الديون المستحقة (كل الفترات)', st_debt_total: 'إجمالي الديون', st_debtors: 'مرضى عليهم متبقٍّ', st_aging: 'أعمار الديون', st_top_debtors: 'أكبر المدينين', st_since: 'منذ',
   st_overall: 'الإجمالي العام', st_all_visits: 'كل الزيارات', st_all_pats: 'كل المرضى', st_first: 'أول زيارة', st_nurses_n: 'الممرضات', st_treats_n: 'العلاجات المعرّفة',
   st_c_treat: 'العلاج', st_c_visits: 'الزيارات', st_c_share: 'النسبة', st_c_billed: 'المستحق', st_c_paid: 'المدفوع', st_c_debt: 'المتبقي', st_c_avg: 'متوسط السعر', st_c_dur: 'متوسط المدة',
+  st_online: 'الحجز عبر الإنترنت', st_c_who: 'المسجِّل',
   st_c_pat: 'المريض', st_c_phone: 'الهاتف', st_c_bal: 'المتبقي',
   st_i_top: 'أكثر علاج: {a} ({b}% من الزيارات).', st_i_day: 'أكثر الأيام ازدحاماً: {a} ({b} زيارة).', st_i_hour: 'ذروة الوصول عند الساعة {a}:00 تقريباً.', st_i_rate: 'نسبة التحصيل {a}% من المستحق.', st_i_wait: 'متوسط الانتظار {a} دقيقة — فكّر في تنظيم المواعيد.', st_i_debt: 'عليهم متبقٍّ إجمالي {a} ({b} مريضاً).', st_i_up: 'الزيارات {a}% أعلى من الفترة السابقة.', st_i_dn: 'الزيارات {a}% أقل من الفترة السابقة.', st_i_new: 'مرضى جدد: {a}% من مرضى الفترة.'
 });
@@ -32,6 +33,7 @@ Object.assign(L.en, {
   st_debt_sec: 'Outstanding debts (all time)', st_debt_total: 'Total debt', st_debtors: 'Patients owing', st_aging: 'Debt aging', st_top_debtors: 'Largest debtors', st_since: 'since',
   st_overall: 'Overall totals', st_all_visits: 'All visits', st_all_pats: 'All patients', st_first: 'First visit', st_nurses_n: 'Nurses', st_treats_n: 'Defined treatments',
   st_c_treat: 'Treatment', st_c_visits: 'Visits', st_c_share: 'Share', st_c_billed: 'Billed', st_c_paid: 'Paid', st_c_debt: 'Owed', st_c_avg: 'Avg price', st_c_dur: 'Avg time',
+  st_online: 'Online booking', st_c_who: 'Registered by',
   st_c_pat: 'Patient', st_c_phone: 'Phone', st_c_bal: 'Owed',
   st_i_top: 'Top treatment: {a} ({b}% of visits).', st_i_day: 'Busiest day: {a} ({b} visits).', st_i_hour: 'Arrivals peak around {a}:00.', st_i_rate: 'Collection rate is {a}% of billed.', st_i_wait: 'Average wait is {a} min — consider spacing appointments.', st_i_debt: 'Outstanding total {a} across {b} patients.', st_i_up: 'Visits are {a}% higher than the previous period.', st_i_dn: 'Visits are {a}% lower than the previous period.', st_i_new: 'New patients are {a}% of the period’s patients.'
 });
@@ -187,7 +189,10 @@ function renderStats() {
     if (d.rx && d.rx.prescriptions) out.push(card(t('st_rx'), `<div class="st-kpis sm">${kpi(t('st_rx_n'), stN(d.rx.prescriptions), stN(stPc(d.rx.prescriptions, s.visits)) + '%')}${kpi(t('st_rx_lines'), stN(d.rx.lines))}${kpi(t('st_rx_avg'), stN(d.rx.lines / d.rx.prescriptions))}</div><h6>${esc(t('st_rx_top'))}</h6>${hbars(d.rx.top.map(x => ({ label: x.name, v: x.n })))}`));
 
     /* من سجّل */
-    out.push(card(t('st_reg'), hbars(d.registrars.map(r => ({ label: r.role === 'doctor' ? t('st_doctor') : (r.name || t('st_nurse_old')), v: r.n })))));
+    const rgL = r => r.role === 'doctor' ? t('st_doctor') : r.role === 'online' ? t('st_online') : (r.name || t('st_nurse_old')), rgT = d.registrars.reduce((x, r) => x + r.n, 0);
+    out.push(card(t('st_reg'), hbars(d.registrars.map(r => ({ label: rgL(r), v: r.n })), i => stN(i.v) + ' (' + stN(stPc(i.v, rgT), { maximumFractionDigits: 0 }) + '%)') +
+      stTable([t('st_c_who'), t('st_c_visits'), t('st_patients'), t('st_c_billed'), t('st_c_paid'), t('st_c_debt'), t('st_avg_wait'), t('st_avg_dur')],
+        d.registrars.map(r => [`<b>${esc(rgL(r))}</b>`, stN(r.n), stN(r.patients), esc(money(r.billed) || '0'), esc(money(r.paid) || '0'), r.owed ? `<span class="st-neg">${esc(money(r.owed))}</span>` : '—', esc(stMin(r.avgWait)), esc(stMin(r.avgDuration))])), 'wide'));
   }
 
   /* الديون: كل الفترات */
@@ -213,6 +218,7 @@ function statsCsv() {
   sec(t('st_weekday')); WEEK_ORDER.forEach(i => add(t('days_full')[i], d.weekday[i].visits, d.weekday[i].billed));
   sec(t('st_hours')); d.hours.forEach((v, h) => add(h + ':00', v));
   sec(t('st_ages')); d.ages.forEach(a => add(a.to >= 200 ? a.from + '+' : a.from + '-' + a.to, a.visits, a.billed));
+  sec(t('st_reg')); add(t('st_c_who'), t('st_c_visits'), t('st_patients'), t('st_c_billed'), t('st_c_paid'), t('st_c_debt'), t('st_avg_wait'), t('st_avg_dur')); d.registrars.forEach(r => add(r.role === 'doctor' ? t('st_doctor') : r.role === 'online' ? t('st_online') : (r.name || t('st_nurse_old')), r.n, r.patients, r.billed, r.paid, r.owed, r.avgWait, r.avgDuration));
   sec(t('st_gender')); ['ذكر', 'أنثى'].forEach(g => add(genderL(g), d.gender[g].visits, d.gender[g].billed));
   sec(t('st_reasons')); d.reasons.forEach(r => add(reasonL(r.name), r.visits));
   sec(t('st_teeth')); Object.keys(d.teeth.perTooth).sort().forEach(k => add(k, d.teeth.perTooth[k]));

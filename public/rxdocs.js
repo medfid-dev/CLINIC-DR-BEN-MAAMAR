@@ -81,7 +81,7 @@ const docAddDays = (iso, n) => { const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(iso ||
 function docResolve(text, F) {
   const T = rxTpl(), L2 = T.L, pat = RX.pat || {}, age = pat.birthYear ? (new Date().getFullYear() - pat.birthYear) + ' ' + L2.years : '';
   const days = Math.max(1, Math.min(365, parseInt(F.days) || 1)), from = F.from || docTodayISO();
-  const V = { patient: pat.name || '..........', age, date: new Date().toLocaleDateString(L2.loc, { dateStyle: 'long' }), days: String(days), from: docFmt(from, L2.loc), to: docFmt(docAddDays(from, days - 1), L2.loc), diag: (F.diag || '').trim() || '........................', doctor: T.doctor || '..........' };
+  const V = { patient: pat.name || '..........', age, date: new Date().toLocaleDateString(L2.loc, { dateStyle: 'long' }), days: String(days), from: docFmt(from, L2.loc), to: docFmt(docAddDays(from, days - 1), L2.loc), diag: (F.diag || '').trim() || '........................', doctor: String(T.doctor || '').trim() || rxDocName() || '..........' };
   return String(text).replace(/\{(patient|age|date|days|from|to|diag|doctor)\}/g, (_, k) => V[k]).replace(/\s*[（(]\s*[）)]/g, '');
 }
 

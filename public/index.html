@@ -182,6 +182,7 @@
     <button type="button" class="tab-btn" data-act="docTab" data-tab="addPatientDoc"><span class="tb-ic" aria-hidden="true">➕</span><span class="tb-tx" data-i18n="tab_add_s">تسجيل</span></button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="nurses"><span class="tb-ic" aria-hidden="true">👩‍⚕️</span><span class="tb-tx" data-i18n="tab_nurses_s">الممرضات</span> <span id="payCount" class="count-badge zero">0</span></button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="archive"><span class="tb-ic" aria-hidden="true">📁</span><span class="tb-tx" data-i18n="tab_archive_s">الأرشيف</span></button>
+    <button type="button" class="tab-btn dental-only" data-act="docTab" data-tab="quote"><span class="tb-ic" aria-hidden="true">🧾</span><span class="tb-tx" data-i18n="tab_quote_s">التسعير</span></button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="stats"><span class="tb-ic" aria-hidden="true">📊</span><span class="tb-tx" data-i18n="tab_stats_s">الإحصاء</span></button>
     <button type="button" class="tab-btn" data-act="docTab" data-tab="settingsDoc"><span class="tb-ic" aria-hidden="true">⚙️</span><span class="tb-tx" data-i18n="tab_set_s">الإعدادات</span></button>
   </div>
@@ -250,6 +251,7 @@
     <div class="more-row"><button type="button" class="btn-action" id="archiveMore" data-act="archiveMore" style="display:none" data-i18n="load_more">عرض المزيد</button></div>
   </div>
 
+  <div id="quoteTab" class="tab-content"><div id="quoteArea"></div></div>
   <div id="statsTab" class="tab-content">
     <h4 style="margin-bottom:15px;font-size:15px" data-i18n="st_title">الإحصائيات المفصّلة 📊</h4>
     <div class="st-filter">
@@ -543,6 +545,7 @@
 <script src="sounds.js"></script>
 <script src="app.js"></script>
 <script src="stats.js"></script>
+<script src="quote.js"></script>
 <script src="drugs.js"></script>
 <script src="rx.js"></script>
 <script src="rxdocs.js"></script>

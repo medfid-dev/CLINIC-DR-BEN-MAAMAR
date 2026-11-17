@@ -106,6 +106,8 @@ function rxTpl(h) {   // القيم الفعلية = ما عدّله الطبي�
   const v = (k, d) => T[k] == null ? d : T[k];
   return { lang, L, clinic: v('clinic', me.clinicName || ''), doctor: v('doctor', dflt), spec: v('spec', ''), phone: v('phone', ''), address: v('address', ''), logo: T.logo || '' };
 }
+/* اسم الطبيب الافتراضي من حساب الطبيب (يُستعمل حين تكون خانة الطبيب في الترويسة فارغة) */
+function rxDocName() { const me = S.me || {}, nm = String(me.doctorName || me.name || '').trim(), L = RXP_L[rxTpl().lang] || RXP_L.ar; return nm ? (/^(د\.|dr\b)/i.test(nm) ? nm : L.dr + nm) : ''; }
 function rxHeadSnap() { const T = rxTpl(); return { clinic: T.clinic, doctor: T.doctor, spec: T.spec, phone: T.phone, address: T.address, lang: T.lang }; }
 function rxTplSet(patch) {
   const base = RX.tpl || { clinic: null, doctor: null, spec: null, phone: null, address: null, logo: '', lang: rxTpl().lang };

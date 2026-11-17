@@ -261,6 +261,13 @@ function paysView(a, x) {
     return { t: p.t, amt: p.amt, ...(p.m ? { m: p.m } : {}), ...(p.pl ? { pl: p.pl } : {}), vid, ...(v ? { vn: v.n, vat: v.at } : {}) };
   });
 }
+/* دفعات كل حصة على حدة: ما قُبض في زيارة معيّنة (vid) يُنسب إلى سجل تلك الزيارة وإن كان مخزَّناً في سجل الحصة الأولى للخطة */
+function sessIndex(x) {
+  if (x.sess) return x.sess; const m = new Map();
+  for (const r of x.c.archive) for (const p of paysView(r, x)) { const k = p.vid || r.id; let l = m.get(k); if (!l) m.set(k, l = []); l.push(p); }
+  for (const l of m.values()) l.sort((a, b) => a.t - b.t);
+  return (x.sess = m);
+}
 /* بنود الخطة في السجل مع حالة كل خطة الآن (المدفوع/المتبقي) */
 function linesView(a, x) {
   if (!a.lines || !a.lines.length) return [];
@@ -269,7 +276,7 @@ function linesView(a, x) {
 }
 function archiveView(a, x) {
   const me = x && x.info.n.get(a.id);
-  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, treatments: treatmentsOf(a), items: a.items || [], price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: paysView(a, x), ...(x ? { n: me ? me.n : null, wallet: wbal(x.c, patKey(a)), vc: (x.vcm || (x.vcm = visitCountMap(x.c))).get(patKey(a)) || 0 } : {}), followUp: !!a.followUp, lines: linesView(a, x), teeth: a.teeth || [], notes: a.notes || '', ...(a.complaint ? { complaint: a.complaint } : {}), ...(a.diag ? { diag: a.diag } : {}), ...(a.vitals ? { vitals: a.vitals } : {}), rx: a.rx || [], rxHead: a.rxHead || null, docs: a.docs || [], ...regOf(a), createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
+  return { id: a.id, name: a.name, birthYear: a.birthYear, age: ageOf(a), gender: a.gender, reason: a.reason, tooth: a.tooth, phone: a.phone, treatment: a.treatment, treatments: treatmentsOf(a), items: a.items || [], price: a.price == null ? null : a.price, paid: paidOf(a), remaining: remOf(a), payments: paysView(a, x), ...(x ? (() => { const sp = sessIndex(x).get(a.id) || [], sk = r2(sp.reduce((y, p) => y + (+p.amt || 0), 0)); return { sessPays: sp, sessPaid: sk, sessDue: r2(sk + remOf(a)) }; })() : {}), ...(x ? { n: me ? me.n : null, wallet: wbal(x.c, patKey(a)), vc: (x.vcm || (x.vcm = visitCountMap(x.c))).get(patKey(a)) || 0 } : {}), followUp: !!a.followUp, lines: linesView(a, x), teeth: a.teeth || [], notes: a.notes || '', ...(a.complaint ? { complaint: a.complaint } : {}), ...(a.diag ? { diag: a.diag } : {}), ...(a.vitals ? { vitals: a.vitals } : {}), rx: a.rx || [], rxHead: a.rxHead || null, docs: a.docs || [], ...regOf(a), createdAt: a.createdAt, finishedAt: a.finishedAt, waitMin: a.waitMin, durationMin: a.durationMin, images: (a.images || []).map(i => i.id) };
 }
 function nextTicketNo(c) {
   const d = new Date().toLocaleDateString('en-CA');
@@ -653,8 +660,10 @@ function statsFor(c, d0, d1, tz) {
 
   /* من سجّل المرضى (الطبيب أو الممرضة باسمها) */
   const rg = new Map();
-  for (const r of rs) { const role = r.createdBy === 'nurse' ? 'nurse' : 'doctor', name = role === 'nurse' ? (r.createdByName || '') : ''; bump(rg, role + '|' + name, () => ({ role, name, n: 0 })).n++; }
-  const registrars = [...rg.values()].sort((x, y) => y.n - x.n);
+  const rgNew = (role, name) => ({ role, name, n: 0, billed: 0, paid: 0, owed: 0, w: [], d: [], pk: new Set() });
+  for (const r of c.nurses || []) if (r.name) bump(rg, 'nurse|' + r.name, () => rgNew('nurse', r.name));   // كل ممرضة تظهر حتى بلا تسجيلات في الفترة
+  for (const r of rs) { const role = r.createdBy === 'nurse' ? 'nurse' : r.createdBy === 'online' ? 'online' : 'doctor', name = role === 'nurse' ? (r.createdByName || '') : ''; const o = bump(rg, role + '|' + name, () => rgNew(role, name)); o.n++; o.billed = r2(o.billed + dueOf(r)); o.paid = r2(o.paid + paidOf(r)); o.owed = r2(o.owed + remOf(r)); o.w.push(r.waitMin || 0); o.d.push(r.durationMin || 0); o.pk.add(patKey(r)); }
+  const registrars = [...rg.values()].map(o => ({ role: o.role, name: o.name, n: o.n, patients: o.pk.size, billed: o.billed, paid: o.paid, owed: o.owed, avgWait: avgOf(o.w), avgDuration: avgOf(o.d) })).sort((x, y) => y.n - x.n || (x.name < y.name ? -1 : 1));
 
   /* الديون الكلية (كل الأرشيف، بغضّ النظر عن الفترة) */
   const dm = new Map(), aging = [0, 0, 0, 0]; let debtTotal = 0;
@@ -806,7 +815,7 @@ async function api(req, res, url) {
       if (m === 'POST') {
         rate('bkp:' + ip, 6, 36e5); rate('bkc:' + c.id, 300, 36e5);
         const b = await readJSON(req, 10e3), bk = bookOf(c); if (!bk.enabled) throw httpErr(403, 'closed');
-        if (b && b.kind === 'today') {   // انضمام لطابور اليوم من البيت: يصل طلباً للعيادة، وعند القبول تُنشأ تذكرة
+        if (b && b.kind === 'today') {   // تسجيل في قائمة اليوم من البيت: يصل طلباً للعيادة، وعند القبول تُنشأ تذكرة
           const v = validatePatient({ name: b.name, birthYear: b.birthYear, gender: b.gender, reason: b.reason, phone: b.phone });
           if (!v || v.name.length < 2 || !/^[0-9+\-\s()]{6,25}$/.test(v.phone)) throw httpErr(400, 'invalid_input');
           let open_ = false; try { open_ = scheduleOpen(c); } catch (e) {} if (!open_) throw httpErr(403, 'registration_closed');
@@ -817,7 +826,7 @@ async function api(req, res, url) {
           const rec = { id: rid(5), tok: b64u(9), kind: 'today', name: v.name, phone: v.phone, birthYear: v.birthYear, gender: v.gender, reason: v.reason, note: str(b.note, 200), date: td, time: '', status: 'pending', createdAt: now() };
           (c.bookings = c.bookings || []).push(rec); pruneBookings(c); save();
           broadcast(c, { data: { type: 'booking', kind: 'today', name: v.name, date: td, time: '' } });
-          if (waOn(c)) waOf(c).sendText(v.phone, v.name.split(/\s+/)[0], `📩 تم استلام طلب انضمامك إلى طابور اليوم في ${c.name}. سنؤكد لك هنا فور موافقة العيادة، ومعه رمز QR لمتابعة دورك.`);
+          if (waOn(c)) waOf(c).sendText(v.phone, v.name.split(/\s+/)[0], `📩 تم استلام طلب تسجيلك في قائمة اليوم في ${c.name}. سنؤكد لك هنا فور موافقة العيادة، ومعه رمز QR لمتابعة دورك.`);
           return send(res, 200, { ok: true, kind: 'today', ref: rec.id + '.' + rec.tok });
         }
         const name = str(b.name, 80), phone = str(b.phone, 25), note = str(b.note, 200), date = cleanDate(b.date), time = typeof b.time === 'string' ? b.time : '';
@@ -1308,9 +1317,11 @@ async function api(req, res, url) {
     else if (money === 'creditors') { const seen = new Set(); all = all.filter(r => { const k = patKey(r); if (seen.has(k) || !(wbal(a.clinic, k) > 0)) return false; seen.add(k); walSum = r2(walSum + wbal(a.clinic, k)); return true; }); }
     /* المستحق = مجموع أثمان علاجات السجلات المعروضة · المحصَّل = مجموع ما قُبض فعلاً عن هذه السجلات (نقداً + المقتطع من الوعاء؛ إيداعات الوعاء نفسها لا تُحسب) · المتبقي = المستحق − المحصَّل. الأرقام الثلاثة على المجموعة نفسها فتتطابق دائماً. */
     let collected = 0, walCut = 0;
-    for (const r of all) { collected = r2(collected + paidOf(r)); for (const q2 of paysOf(r)) if (q2.m === 'w') walCut = r2(walCut + (+q2.amt || 0)); }
-    const dueSum = r2(all.reduce((x, r) => x + dueOf(r), 0)); collected = Math.min(Math.max(0, collected), dueSum);
-    return send(res, 200, { total: all.length, regNames, walCut, ...(money === 'creditors' ? { walSum } : {}), sum: dueSum, paidSum: collected, debt: r2(dueSum - collected), items: all.slice(off, off + lim).map(r => ({ ...archiveView(r, X), patDebt: owe.get(patKey(r)) || 0 })) });
+    /* كل حصة تُحسب دفعتها وحدها: المحصَّل = ما قُبض فعلاً في زيارات هذه السجلات، والمستحق = ما قُبض فيها + ما بقي عليها، فيدخل الصندوق في اليوم مجموعَ المستحق */
+    const sidx = sessIndex(X); let dueSum = 0, remSum = 0;
+    for (const r of all) { const sp = sidx.get(r.id) || []; collected = r2(collected + sp.reduce((y, p) => y + (+p.amt || 0), 0)); remSum = r2(remSum + remOf(r)); for (const q2 of sp) if (q2.m === 'w') walCut = r2(walCut + (+q2.amt || 0)); }
+    dueSum = r2(collected + remSum);
+    return send(res, 200, { total: all.length, regNames, walCut, ...(money === 'creditors' ? { walSum } : {}), sum: dueSum, paidSum: collected, debt: remSum, items: all.slice(off, off + lim).map(r => ({ ...archiveView(r, X), patDebt: owe.get(patKey(r)) || 0 })) });
   }
   /* أرشيف الوصفات (طبيب فقط): كل سجل منتهٍ له وصفة، الأحدث أولاً */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})$/);
