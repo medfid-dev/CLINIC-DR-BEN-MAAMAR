@@ -103,7 +103,7 @@ const RXP_NAMES = { ar: 'العربية', fr: 'Français', en: 'English' };
 function rxTpl(h) {   // القيم الفعلية = ما عدّله الطبيب أو الافتراضي (h = ترويسة محفوظة مع وصفة قديمة)
   const T = h ? Object.assign({}, h, { logo: (RX.tpl || {}).logo || '' }) : (RX.tpl || {}), lang = RXP_L[T.lang] ? T.lang : 'ar', L = RXP_L[lang], me = S.me || {}, nm = String(me.doctorName || me.name || '').trim();
   const dflt = nm ? (/^(د\.|dr\b)/i.test(nm) ? nm : L.dr + nm) : '';
-  const v = (k, d) => T[k] == null ? d : T[k];
+  const v = (k, d) => (T[k] == null || (d && (k === 'doctor' || k === 'clinic') && !String(T[k]).trim())) ? d : T[k];   // خانة الطبيب/العيادة الفارغة تعود للاسم الافتراضي من الحساب
   return { lang, L, clinic: v('clinic', me.clinicName || ''), doctor: v('doctor', dflt), spec: v('spec', ''), phone: v('phone', ''), address: v('address', ''), logo: T.logo || '' };
 }
 /* اسم الطبيب الافتراضي من حساب الطبيب (يُستعمل حين تكون خانة الطبيب في الترويسة فارغة) */
