@@ -1331,7 +1331,7 @@ select.gender-auto{border-color:var(--primary,#2e9e6b);box-shadow:0 0 0 2px colo
 .qmid{height:1px;margin:10px 4% 14px;background:repeating-linear-gradient(90deg,var(--border-calm) 0 6px,transparent 6px 12px)}
 .qt{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 0;background:none;border:2px solid transparent;border-radius:10px;cursor:pointer;color:inherit;transition:transform .15s,border-color .15s}
 .qt.ro{cursor:default}.qt:not(.ro):hover{border-color:var(--primary-line)}.qt.act{border-color:var(--orange);background:color-mix(in srgb,var(--orange) 12%,transparent)}
-.qn{font-size:10px;color:var(--text-secondary);font-weight:700;line-height:1.2}.qsvg{width:100%;height:auto;display:block;overflow:visible}
+.qn{font-size:12px;color:var(--text-primary);font-weight:800;line-height:1.3}.qsvg{width:100%;height:auto;display:block;overflow:visible}
 .qcrown{fill:#fffdf6;stroke:#b9ad98;stroke-width:1.2;stroke-linejoin:round}.qroot{fill:#ead9b6;stroke:#b9ad98;stroke-width:1;stroke-linejoin:round}.qfis{fill:none;stroke:#cfc5b2;stroke-width:1;stroke-linecap:round}
 .qt.has .qcrown{stroke:#555}.qb{position:absolute;top:0;inset-inline-end:2px;min-width:15px;height:15px;border-radius:99px;background:var(--orange);color:#fff;font:700 10px/15px system-ui;text-align:center;font-style:normal}
 .qpick{background:var(--surface-card);border:1px solid var(--border-calm);border-radius:16px;padding:12px;margin-bottom:12px}.qpick-h{font-weight:700;font-size:13px;margin:0 0 8px}.qpick-h.qgen{margin-top:12px}.qmuted{color:var(--text-muted);font-weight:500}
@@ -1354,3 +1354,76 @@ select.gender-auto{border-color:var(--primary,#2e9e6b);box-shadow:0 0 0 2px colo
   #quotePrint .qp-tot{margin-top:12px;margin-inline-start:auto;width:60%;font-size:15px}#quotePrint .qp-tot div{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #ccc}#quotePrint .qp-tot .qnet{font-size:18px;font-weight:800;border-bottom:2px solid #000}
   #quotePrint .qp-note{margin-top:18px;font-size:11px;color:#444}#quotePrint .qb{background:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}#quotePrint .qcrown{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+.qjaw{display:flex;justify-content:space-between;align-items:center;padding:0 10px 6px;font-size:12px;font-weight:700;color:var(--text-secondary)}.qjaw small{font-weight:500;font-size:11px}
+.qshine{fill:url(#qShineG);stroke:none;pointer-events:none}.qcrown{filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.25))}.qroot{fill:#e6cfa3}
+.qdisc-in{display:flex;gap:8px;align-items:center}.qdisc.qsub{padding-top:0;color:var(--text-secondary)}
+.qinst-on{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;background:var(--surface-card);border:1px solid var(--border-calm);font-weight:700;cursor:pointer}.qinst-on input{width:18px;height:18px}
+.qinst{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;padding:10px 14px;border-radius:14px;background:var(--surface-card);border:1px solid var(--border-calm)}.qinst label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600}
+.qsched td:first-child{font-weight:700}
+@media (max-width:700px){
+  .qrow,.qc10 .qrow{grid-template-columns:repeat(8,minmax(0,1fr));gap:8px 2px;padding:0 6px}.qc10 .qrow{padding:0 6px;grid-template-columns:repeat(5,minmax(0,1fr))}
+  .qrow .qt{transform:none!important}.qsvg{max-width:46px;margin:0 auto}
+}
+
+.qrow{direction:ltr}   /* ترتيب المخطط الطبي: 18…11 | 21…28 من اليسار إلى اليمين */
+
+/* مخطط القوس (v150) */
+.qchart{padding:6px 0 4px}.qscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}.qarch{display:block;width:100%;min-width:640px;height:auto}
+.qgum{fill:none;stroke:#f3b4bc;stroke-width:15;stroke-linecap:round;opacity:.75}
+.qt{cursor:pointer;border:0;padding:0;background:none}.qt.ro{cursor:default}
+.qcr{stroke:#222;stroke-width:2.6;stroke-linejoin:round;transition:stroke .15s}.qfis{fill:none;stroke:#8a8f9a;stroke-width:1.6;stroke-linecap:round}
+.qt:not(.ro):hover .qcr{stroke:var(--orange)}.qt.act .qcr{stroke:var(--orange);stroke-width:4.2}
+.qtx{font:800 15px system-ui,sans-serif;fill:#1b1b1b;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.qbd{fill:var(--orange)}.qbt{font:800 10px system-ui,sans-serif;fill:#fff;text-anchor:middle;pointer-events:none}
+@media (max-width:700px){.qarch{min-width:700px}}
+@media print{#quotePrint .qarch{min-width:0}#quotePrint .qscroll{overflow:visible}#quotePrint .qcr{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+
+.qhl{fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;opacity:.9;pointer-events:none}.qcr{stroke:#1f1f1f;stroke-width:2.8}.qfis{stroke:#9aa0ab}
+
+/* v152: أسنان واقعية */
+.qgum{fill:none;stroke:#e98f9b;stroke-width:42;stroke-linecap:round;opacity:1;pointer-events:none}.qgm{fill:none;stroke:#c4566a;stroke-width:2.6;stroke-linecap:round;pointer-events:none}
+.qcr{fill:none;stroke:#a99c80;stroke-width:1.4;stroke-linejoin:round}.qen{pointer-events:none}.qfis{fill:none;stroke:#cbbd9c;stroke-width:1.4;stroke-linecap:round;opacity:.9}.qhl{fill:#fff;opacity:.55;pointer-events:none}
+.qt:not(.ro):hover .qcr{stroke:var(--orange);stroke-width:2.6}.qt.act .qcr{stroke:var(--orange);stroke-width:3.6}
+.qtx{font:800 14px system-ui,sans-serif;fill:#3b3326;stroke:#fffdf4;stroke-width:3px}
+.qscroll{background:radial-gradient(ellipse at 50% 30%,#3a1f2e,#1b0f1d);border-radius:14px}
+.qgum{stroke-width:28}
+
+/* v153: عودة إلى صفّين مستقيمين (علوي/سفلي) برسم أسنان واقعي */
+.qchart{background:var(--surface-card);overflow:hidden}.qchart .qscroll{background:none}
+.qt{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 0;border-radius:10px;transition:transform .15s}
+.qt.act{outline:2px solid var(--orange);outline-offset:-2px;background:color-mix(in srgb,var(--orange) 12%,transparent)}
+.qt:hover:not(.ro){background:color-mix(in srgb,var(--primary-sage) 10%,transparent)}
+.qroot{fill:#e8d6ae;stroke:#a99c80;stroke-width:1.1;stroke-linejoin:round}.qn{font-weight:800}
+
+/* v154: أسنان ثلاثية الأبعاد (جذور طويلة عاجية-ذهبية وتيجان بيضاء) على خلفية زرقاء فاتحة */
+.qchart{position:relative;background:#e6eefb;border-color:#c5d6f0}.qchart::before{content:'';position:absolute;top:8px;bottom:8px;inset-inline-start:50%;width:1px;background:#8fb5d9;opacity:.8}
+.qroot{fill:url(#qRootV);stroke:none}.qroot2{fill:url(#qRootH);stroke:none;pointer-events:none}
+.qcr{fill:none;stroke:rgba(70,90,130,.22);stroke-width:.7}.qfis{stroke:#b9c4d6;stroke-width:1.1}.qhl{fill:#fff;opacity:.75}
+.qsvg{filter:drop-shadow(0 1.5px 1.5px rgba(50,70,110,.35))}
+.qn{color:#24405f}.qjaw{color:#3b567a}.qmid{background:repeating-linear-gradient(90deg,#9db9dc 0 6px,transparent 6px 12px)}
+.qt.has{background:#c9dcfb}.qt.act{background:#cdf5f7;outline:2px solid #35b6c8;outline-offset:-2px}.qt:hover:not(.ro){background:#d8e6fb}
+@media print{#quotePrint .qchart{background:#fff;border:1px solid #bbb}#quotePrint .qt.has{background:#fff}}
+.qt.act .qcr,.qt:not(.ro):hover .qcr{stroke:rgba(70,90,130,.22);stroke-width:.7}
+
+/* v155: جذور أسمك وتيجان أكبر وتظليل أعمق */
+.qcr{stroke:rgba(60,80,120,.16)}.qsvg{filter:drop-shadow(0 2px 2px rgba(40,60,100,.38))}
+
+.qroot3{fill:#fff;opacity:.22;stroke:none;pointer-events:none}
+
+/* ===== v158: شريط تبويبات الطبيب (9 تبويبات) — بلا تداخل: أيقونة فوق الكلمة، والعدّاد في الزاوية فلا يغطّي الأيقونة ===== */
+#doctorScreen .nav-tabs{display:flex;flex-wrap:nowrap;gap:2px;overflow:visible}
+#doctorScreen .nav-tabs .tab-btn{flex:1 1 0;min-width:0;flex-direction:column;gap:3px;min-height:54px;padding:6px 1px;font-size:clamp(10.5px,1.15vw,12.5px);line-height:1.15;white-space:nowrap;border-radius:12px}
+#doctorScreen .nav-tabs .tab-btn .tb-ic{font-size:clamp(18px,2vw,22px);line-height:1}
+#doctorScreen .nav-tabs .tab-btn .tb-tx{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+#doctorScreen .nav-tabs .tab-btn .count-badge{position:absolute;top:2px;inset-inline-start:3px;margin:0;min-width:16px;height:16px;padding:0 4px;font-size:10px;line-height:16px}
+@media(max-width:700px){
+ #doctorScreen .nav-tabs{gap:1px;padding:5px 2px calc(5px + env(safe-area-inset-bottom))}
+ #doctorScreen .nav-tabs .tab-btn{font-size:clamp(8.6px,2.45vw,10px);min-height:52px;padding:5px 0;gap:3px}
+ #doctorScreen .nav-tabs .tab-btn .tb-ic{font-size:19px}
+ #doctorScreen .nav-tabs .tab-btn .count-badge{min-width:15px;height:15px;padding:0 3px;font-size:9px;line-height:15px;inset-inline-start:1px}
+}
+
+/* v158: عدّاد العلاجات على السن لا يغطّي رقم السن (في الفاتورة المطبوعة وعلى الجوال) */
+@media print{#quotePrint .qb{inset-inline-end:-3px;min-width:12px;height:12px;font:700 8px/12px system-ui}}
+@media(max-width:700px){.qb{inset-inline-end:-2px;min-width:13px;height:13px;font:700 9px/13px system-ui}}

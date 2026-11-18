@@ -1822,7 +1822,7 @@ document.addEventListener('reset', e => { $$('select[id$=Gender]', e.target).for
 
 
 /* ===================== عن البرنامج ===================== */
-const APP_VER = 'v148';
+const APP_VER = 'v157';
 Object.assign(L.ar, { set_about: 'عن البرنامج' });
 Object.assign(L.en, { set_about: 'About' });
 const ABOUT = {
