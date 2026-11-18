@@ -1249,7 +1249,7 @@ function renderAppts() {
   let dc = $('#apptDayChips');   // فلتر اليوم: أمس / اليوم / غداً (خارج #apptsArea أيضاً)
   if (!dc) { dc = document.createElement('div'); dc.id = 'apptDayChips'; dc.className = 'appt-chips'; sb.insertAdjacentElement('afterend', dc); }
   const cntD = k => list.filter(a => dayDiff(a.date, td) === k).length, curD = S.apptDay || '';
-  dc.innerHTML = [['', t('ap_f_all'), list.length], ['-1', t('ap_f_yest'), cntD(-1)], ['0', t('ap_f_today'), cntD(0)], ['1', t('ap_f_tom'), cntD(1)]].map(([k, l, n]) => `<button type="button" class="chip${curD === k ? ' active' : ''}" data-act="apptDay" data-d="${k}">${esc(l)} <span class="count-badge${n ? '' : ' zero'}">${n}</span></button>`).join('');
+  dc.innerHTML = [['', t('ap_f_all'), list.length], ['-1', t('ap_f_yest'), cntD(-1)], ['0', t('ap_f_today'), cntD(0)], ['1', t('ap_f_tom'), cntD(1)]].map(([k, l, n]) => `<button type="button" class="btn-action${curD === k ? ' st-on' : ''}" data-act="apptDay" data-d="${k}">${esc(l)} <span class="count-badge${n ? '' : ' zero'}">${n}</span></button>`).join('');
   if (box.contains(document.activeElement) && document.activeElement.matches('input')) return;
   const miniTeeth = a => {   // مخطط أسنان صغير يبيّن السن المعالج (بلون العلاج أثناء الحصص)
     const n = String(a.tooth || ''); if (!DENT() || !ALL_TEETH.has(n)) return '';
@@ -1822,7 +1822,7 @@ document.addEventListener('reset', e => { $$('select[id$=Gender]', e.target).for
 
 
 /* ===================== عن البرنامج ===================== */
-const APP_VER = 'v157';
+const APP_VER = 'v160';
 Object.assign(L.ar, { set_about: 'عن البرنامج' });
 Object.assign(L.en, { set_about: 'About' });
 const ABOUT = {

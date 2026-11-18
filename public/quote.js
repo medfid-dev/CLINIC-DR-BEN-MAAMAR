@@ -2,15 +2,15 @@
    مخطط أسنان يشبه الأسنان الحقيقية (تاج + جذور)، يُحدَّد السن ثم تُختار علاجاته من قائمة «الحصص والأسعار»،
    فتُحسب الكلفة الإجمالية فوراً (سعر كل سن حسب نوعه إن وُجدت أسعار حسب نوع السن). لا يُحفظ شيء في الأرشيف.
    يعتمد على app.js (t, L, S, $, $$, esc, money, treatList, treatLabel, priceFor, flatOf, defSessions, colOf, TEETH, ymd, ACT, toast, DENT). */
-const Q = { set: 'adult', sel: new Map(), flat: new Set(), active: null, disc: 0, dtype: 'amt', inst: false, down: 0, n: 3, gap: 30, name: '' };
+const Q = { set: 'adult', sel: new Map(), flat: new Set(), act: new Set(), disc: 0, dtype: 'amt', inst: false, down: 0, n: 3, gap: 30, name: '' };
 
 Object.assign(L.ar, {
-  tab_quote_s: 'التسعير', q_title: '🧾 فاتورة تقدير الكلفة', q_hint: 'اضغط على السن الذي يحتاج علاجاً ثم اختر علاجاته؛ تُحسب الكلفة من قائمة الأسعار.',
+  tab_quote_s: 'التسعير', q_title: '🧾 فاتورة تقدير الكلفة', q_hint: 'اضغط على سن أو عدة أسنان معاً ثم اختر العلاج لتطبيقه عليها كلها؛ تُحسب الكلفة من قائمة الأسعار.',
   q_name_ph: 'اسم المريض (اختياري)', q_pick: 'السن {n} — اختر علاجاته:', q_pick_none: 'اضغط على سن من المخطط لاختيار علاجه', q_general: 'بنود عامة (تُحسب مرة واحدة)',
   q_col_tr: 'العلاج', q_col_teeth: 'الأسنان', q_col_sub: 'المبلغ', q_total: 'الكلفة الإجمالية', q_disc: 'خصم', q_net: 'الصافي بعد الخصم', q_empty: 'لم تُحدَّد علاجات بعد',
   q_print: '🖨️ طباعة الفاتورة', q_clear: 'مسح الكل', q_noprice: 'السعر غير محدّد في القائمة', q_sess: 'حصص', q_title_print: 'تقدير كلفة العلاج', q_note: 'هذا تقدير مبدئي قابل للتعديل حسب الحالة بعد الفحص.',
   q_pct: '٪', q_amt: 'مبلغ', q_disc_amt: 'قيمة الخصم', q_inst: 'تقسيط الدفع', q_down: 'الدفعة الأولى (اليوم)', q_n: 'عدد الأقساط', q_gap: 'كل (يوم)', q_sched: 'جدول الأقساط', q_first: 'الدفعة الأولى', q_k: 'القسط {k}', q_date: 'التاريخ', q_each: '{n} أقساط', q_jaw_up: 'الفك العلوي', q_jaw_lo: 'الفك السفلي', q_right: 'يمين', q_left: 'يسار', q_remain: 'المتبقي للتقسيط',
-  q_perm: 'دائمة', q_prim: 'لبنية', q_teeth_n: 'سن', q_date: 'التاريخ', q_patient: 'المريض'
+  q_perm: 'دائمة', q_prim: 'لبنية', q_count: 'العدد', q_teeth_total: 'عدد الأسنان المحددة', q_sel_n: 'محدد: {n}', q_sel_up: 'كل العلوي', q_sel_lo: 'كل السفلي', q_sel_all: 'الكل', q_sel_none: 'إلغاء التحديد', q_pick_multi: 'الأسنان المحددة ({n}): {list} — اختر علاجاً لتطبيقه عليها كلها:', q_multi_hint: 'يمكنك تحديد عدة أسنان معاً ثم إضافة علاج واحد لها كلها.', q_teeth_n: 'سن', q_date: 'التاريخ', q_patient: 'المريض'
 });
 Object.assign(L.en, {
   tab_quote_s: 'Estimate', q_title: '🧾 Treatment cost estimate', q_hint: 'Tap a tooth that needs treatment, then pick its treatments; the cost comes from your price list.',
@@ -18,70 +18,48 @@ Object.assign(L.en, {
   q_col_tr: 'Treatment', q_col_teeth: 'Teeth', q_col_sub: 'Amount', q_total: 'Total cost', q_disc: 'Discount', q_net: 'Net after discount', q_empty: 'No treatments selected yet',
   q_print: '🖨️ Print estimate', q_clear: 'Clear all', q_noprice: 'No price set in the list', q_sess: 'sessions', q_title_print: 'Treatment cost estimate', q_note: 'This is a preliminary estimate and may change after examination.',
   q_pct: '%', q_amt: 'Amount', q_disc_amt: 'Discount value', q_inst: 'Pay in installments', q_down: 'Down payment (today)', q_n: 'Number of installments', q_gap: 'Every (days)', q_sched: 'Installment schedule', q_first: 'Down payment', q_k: 'Installment {k}', q_date: 'Date', q_each: '{n} installments', q_jaw_up: 'Upper jaw', q_jaw_lo: 'Lower jaw', q_right: 'Right', q_left: 'Left', q_remain: 'Left to split',
-  q_perm: 'Permanent', q_prim: 'Primary', q_teeth_n: 'teeth', q_date: 'Date', q_patient: 'Patient'
+  q_perm: 'Permanent', q_prim: 'Primary', q_count: 'Qty', q_teeth_total: 'Teeth selected', q_sel_n: 'Selected: {n}', q_sel_up: 'All upper', q_sel_lo: 'All lower', q_sel_all: 'All', q_sel_none: 'Clear selection', q_pick_multi: 'Selected teeth ({n}): {list} — pick a treatment to apply to all of them:', q_multi_hint: 'Select several teeth together, then add one treatment to all of them.', q_teeth_n: 'teeth', q_date: 'Date', q_patient: 'Patient'
 });
 
 /* ---- مخطط القوس (منظر أمامي كابتسامة): الفك العلوي في الأعلى والسفلي أصغر داخله، وكل سن يميل نحو مركز القوس ---- */
 function qKind(n) { const d = n % 10, q = Math.floor(n / 10), prim = q >= 5; return d <= 2 ? (d === 1 ? 'inc' : 'lat') : d === 3 ? 'can' : prim ? 'mol' : d <= 5 ? 'pre' : (d === 8 ? 'wis' : 'mol'); }
 /* السن العلوي: الجذور للأعلى (y 2..36) والتاج تحتها؛ السفلي يُقلب عمودياً */
 const Q_CROWN = { inc: [35, 40], lat: [30, 38], can: [33, 44], pre: [35, 36], mol: [40, 34], wis: [36, 32] };
-/* ---- شكل السن (منظر أمامي): تاج انسيابي بتدرّج عاجي وحافة لثوية وردية ولمعة ناعمة، وجذور مخروطية بأطراف مستديرة ---- */
-const f1 = v => (+v).toFixed(1);
-/* جذر واحد: قاعدته تحت التاج (y=b) ويضيق بنعومة حتى طرف مستدير؛ lean = ميل الجذر */
-function qRp(cx, bw, tip, lean) {
-  const b = 58, L = b - tip, tw = bw * .26;
-  return `M${f1(cx - bw)} ${b} C${f1(cx - bw * .92)} ${f1(b - L * .42)} ${f1(cx - bw * .55 + lean * .5)} ${f1(tip + L * .3)} ${f1(cx - tw + lean)} ${f1(tip + 2.5)} Q${f1(cx + lean)} ${f1(tip - 1.6)} ${f1(cx + tw + lean)} ${f1(tip + 2.5)} C${f1(cx + bw * .55 + lean * .5)} ${f1(tip + L * .3)} ${f1(cx + bw * .92)} ${f1(b - L * .42)} ${f1(cx + bw)} ${b} Z`;
+/* جذر مخروطي ناعم: يتّسع عند العنق ويضيق نحو الذروة مع انحناء خفيف في ثلثه الأخير ينتهي بطرف مستدير؛ يعيد [الجذر، لمعته] */
+function qRp(cx, bw, tip, lean, hl) {
+  const b = 58, L = b - tip, tw = bw * .2, f = v => v.toFixed(1); lean = lean || 0;
+  const path = (bw, tw, tip, lean) => `M${f(cx - bw)} ${b} C${f(cx - bw * .93)} ${f(b - L * .45)} ${f(cx - tw * 1.4 + lean * .55)} ${f(tip + L * .3)} ${f(cx - tw * .7 + lean)} ${f(tip + 4)} Q${f(cx + lean)} ${f(tip - 2)} ${f(cx + tw * .7 + lean)} ${f(tip + 4)} C${f(cx + tw * 1.4 + lean * .55)} ${f(tip + L * .3)} ${f(cx + bw * .93)} ${f(b - L * .45)} ${f(cx + bw)} ${b} Z`;
+  return [path(bw, tw, tip, lean), path(bw * .36, tw * .4, tip + 8, lean * .8)];
 }
 function qRoots(n, up) {
   const k = qKind(n);
-  if (k === 'inc') return [qRp(20, 10.5, 4, 1.6)];
-  if (k === 'lat') return [qRp(20, 9, 6, -1.8)];
-  if (k === 'can') return [qRp(20, 10.5, 1, 1.8)];
-  if (k === 'pre') return [qRp(20, 10, 6, -1.5)];
-  return up ? [qRp(10, 6.6, 12, -3.4), qRp(20, 6.2, 7, 0), qRp(30, 6.6, 12, 3.4)] : [qRp(12, 8.4, 10, -3), qRp(28, 8.4, 10, 3)];
+  if (k === 'inc') return [qRp(20, 11.5, 3, 2.4)];
+  if (k === 'lat') return [qRp(20, 10, 4, -2.4)];
+  if (k === 'can') return [qRp(20, 12, 0, 2.6)];
+  if (k === 'pre') return [qRp(20, 11, 4, -2)];
+  const trunk = 'M5 60 V44 H35 V60 Z';
+  return up ? [trunk, qRp(11, 9.6, 12, -3), qRp(29, 9.6, 12, 3)] : [trunk, qRp(11, 9.2, 10, -3), qRp(29, 9.2, 10, 3)];
 }
 const Q_LOW_W = { inc: .72, lat: .78, can: .84, pre: .88, mol: .93, wis: .9 };   // الأسنان السفلية أضيق من العلوية
-/* حافة الطحن: n فصّة (شرفة) من اليمين لليسار بينها أخاديد بعمق dp؛ تبدأ عند (.5w, y-9) وتنتهي عند (-.5w, y-9) */
-function qOcc(w, y, n, dp) {
-  let out = '';
-  for (let i = 0; i < n; i++) {
-    const x0 = w * (.5 - i / n), x1 = w * (.5 - (i + 1) / n), xm = (x0 + x1) / 2, cw = w / n, tip = y + 1.8;
-    const c1 = i === 0 ? y + .2 : y - dp + 3.5, c2 = i === n - 1 ? y + .2 : y - dp + 3.5, ny = i === n - 1 ? y - 9 : y - dp;
-    out += ` C ${f1(x0)} ${f1(c1)} ${f1(xm + cw * .3)} ${f1(tip)} ${f1(xm)} ${f1(tip)} C ${f1(xm - cw * .3)} ${f1(tip)} ${f1(x1)} ${f1(c2)} ${f1(x1)} ${f1(ny)}`;
-  }
-  return out;
-}
-/* تاج السن: الأعلى = الحافة اللثوية (قوس صغير)، الأسفل = حافة القطع/الطحن */
-function qToothPath(k, w, h) {
-  const y = h / 2, c = -y, f = v => (v * w).toFixed(1), g = v => (v * h).toFixed(1);
-  const top = `M ${f(-.3)} ${c} Q 0 ${c - 4.5} ${f(.3)} ${c}`;
-  if (k === 'can') return `${top} C ${f(.5)} ${c + h * .14} ${f(.57)} ${g(-.02)} ${f(.5)} ${g(.14)} Q ${f(.42)} ${g(.34)} ${f(.15)} ${y - 1.5} Q 0 ${y + 2} ${f(-.15)} ${y - 1.5} Q ${f(-.42)} ${g(.34)} ${f(-.5)} ${g(.14)} C ${f(-.57)} ${g(-.02)} ${f(-.5)} ${c + h * .14} ${f(-.3)} ${c} Z`;
-  if (k === 'pre' || k === 'mol' || k === 'wis') {   // ضاحك: فصّة واحدة — طاحن: فصّتان
-    const hw = k === 'pre' ? .3 : .34, n = k === 'pre' ? 1 : 2, dp = 7;
-    return `M ${f(-hw)} ${c} Q 0 ${c - 4.5} ${f(hw)} ${c} C ${f(.52)} ${c + h * .12} ${f(.57)} ${g(0)} ${f(.5)} ${y - 9}${qOcc(w, y, n, dp)} C ${f(-.57)} ${g(0)} ${f(-.52)} ${c + h * .12} ${f(-hw)} ${c} Z`;
-  }
-  const cw = k === 'inc' ? .34 : .3;   // قاطعة وسطى / جانبية
-  return `M ${f(-cw)} ${c} Q 0 ${c - 4.5} ${f(cw)} ${c} C ${f(.5)} ${c + h * .14} ${f(.55)} ${g(.06)} ${f(.5)} ${y - 7} Q ${f(.49)} ${y} ${f(.37)} ${y} Q 0 ${y + 2} ${f(-.37)} ${y} Q ${f(-.49)} ${y} ${f(-.5)} ${y - 7} C ${f(-.55)} ${g(.06)} ${f(-.5)} ${c + h * .14} ${f(-cw)} ${c} Z`;
-}
-/* أخاديد خفيفة بين الشرفات (للضواحك والأضراس) */
-function qFis(k, w, h) {
-  const y = h / 2, gv = x => `M ${f1(x)} ${f1(y - 7)} Q ${f1(x * 1.05)} ${f1(h * .08)} ${f1(x)} ${f1(-h * .02)}`;
-  return k === 'mol' || k === 'wis' ? gv(0) : '';
-}
 function qToothSVG(n, fill) {
-  const k = qKind(n), q = Math.floor(n / 10), up = q === 1 || q === 2 || q === 5 || q === 6, [w, h] = Q_CROWN[k], sh = qToothPath(k, w, h), fis = qFis(k, w, h), sc = (n % 10 === 8 && q < 5) ? .9 : 1, fx = up ? 1 : Q_LOW_W[k], y = h / 2;
-  const roots = qRoots(n, up).map(r => `<path d="${r}" style="fill:url(#qRt);stroke:rgba(150,115,60,.55);stroke-width:.8;stroke-linejoin:round"/>`).join('');
-  const crown = `<g transform="translate(20 ${(49 + y).toFixed(1)})">
-    <path d="${sh}" style="fill:${fill || 'url(#qCr)'};stroke:none"/>
-    <path d="${sh}" style="fill:url(#qSh);stroke:none"/>
-    ${fis ? `<path d="${fis}" style="fill:none;stroke:rgba(120,95,60,.28);stroke-width:.9;stroke-linecap:round"/>` : ''}
-    <path d="M ${f1(-w * .3)} ${f1(-y + 5)} Q ${f1(-w * .38)} ${f1(h * .02)} ${f1(-w * .3)} ${f1(y - 8)}" style="fill:none;stroke:rgba(255,255,255,.75);stroke-width:2.2;stroke-linecap:round"/>
-    <path d="${sh}" style="fill:none;stroke:rgba(88,101,122,.7);stroke-width:1;stroke-linejoin:round"/>
-    <path d="M ${f1(-w * .34)} ${f1(-y + .4)} Q 0 ${f1(-y - 4.1)} ${f1(w * .34)} ${f1(-y + .4)}" style="fill:none;stroke:#e48b95;stroke-width:2.4;stroke-linecap:round;opacity:.8"/></g>`;
+  const k = qKind(n), q = Math.floor(n / 10), up = q === 1 || q === 2 || q === 5 || q === 6, [w, h] = Q_CROWN[k], sh = qToothPath(k, w, h), fis = qFis(k, w, h), sc = (n % 10 === 8 && q < 5) ? .9 : 1, fx = up ? 1 : Q_LOW_W[k];
+  const crown = `<g transform="translate(20 ${(49 + h / 2).toFixed(1)})"><path d="${sh}" style="fill:${fill || '#ffffff'}"/><path d="${sh}" class="qen" fill="url(#qEnH)"/><path d="${sh}" class="qen" fill="url(#qEnV)"/>${fis ? `<path class="qfis" d="${fis}"/>` : ''}<ellipse class="qhl" cx="${(-w * .2).toFixed(1)}" cy="${(-h * .02).toFixed(1)}" rx="${(w * .06).toFixed(1)}" ry="${(h * .2).toFixed(1)}"/><path class="qcr" d="${sh}"/></g>`;
+  const roots = qRoots(n, up).map(r => typeof r === 'string' ? `<path class="qroot" d="${r}"/>` : `<path class="qroot" d="${r[0]}"/><path class="qroot2" d="${r[0]}"/><path class="qroot3" d="${r[1]}"/>`).join('');
   const tf = [up ? '' : 'translate(0 98) scale(1 -1)', fx !== 1 ? `translate(20 0) scale(${fx} 1) translate(-20 0)` : '', sc !== 1 ? `translate(${20 * (1 - sc)} ${up ? 98 * (1 - sc) : 0}) scale(${sc})` : ''].filter(Boolean).join(' ');
   return `<svg viewBox="0 0 40 98" class="qsvg" aria-hidden="true"><g transform="${tf}">${roots}${crown}</g></svg>`;
 }
-const Q_DEFS = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="qCr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0e3c6"/><stop offset=".3" stop-color="#fbf6ea"/><stop offset=".75" stop-color="#ffffff"/><stop offset="1" stop-color="#e9f0f9"/></linearGradient><radialGradient id="qSh" cx=".5" cy=".5" r=".72"><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#7f93b4" stop-opacity=".33"/></radialGradient><linearGradient id="qRt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4b37d"/><stop offset=".6" stop-color="#e6cf9f"/><stop offset="1" stop-color="#f2e3be"/></linearGradient></defs></svg>';
+function qToothPath(k, w, h) {
+  /* تاج بشكل تشريحي (منظر أمامي): الحافة اللثوية (أعلى) محدّبة وأضيق، والقاطعة (أسفل) أعرض؛ القواطع حافة مستقيمة بزوايا مدوّرة،
+     الناب بنتوء مدبّب، الضواحك بنتوءين، الأضراس بثلاثة نتوءات */
+  const y = h / 2, c = -y, f = v => (v * w).toFixed(1);
+  const side = (sx, cw, iw, ci) => `${sx < 0 ? 'L' : 'L'}`;   // (محفوظة للوضوح)
+  if (k === 'can') return `M ${f(-.3)} ${c} Q 0 ${c - 7} ${f(.3)} ${c} Q ${f(.56)} ${-h * .06} ${f(.5)} ${h * .2} L ${f(.1)} ${y - 4} Q 0 ${y + 4} ${f(-.1)} ${y - 4} L ${f(-.5)} ${h * .2} Q ${f(-.56)} ${-h * .06} ${f(-.3)} ${c} Z`;
+  if (k === 'pre') return `M ${f(-.32)} ${c} Q 0 ${c - 7} ${f(.32)} ${c} Q ${f(.56)} ${-h * .05} ${f(.5)} ${y - 16} Q ${f(.5)} ${y} ${f(.26)} ${y} Q 0 ${y + 4} ${f(-.26)} ${y} Q ${f(-.5)} ${y} ${f(-.5)} ${y - 16} Q ${f(-.56)} ${-h * .05} ${f(-.32)} ${c} Z`;
+  if (k === 'mol' || k === 'wis') return `M ${f(-.36)} ${c} Q 0 ${c - 7} ${f(.36)} ${c} Q ${f(.56)} ${-h * .05} ${f(.5)} ${y - 12} Q ${f(.5)} ${y} ${f(.32)} ${y} Q ${f(.2)} ${y + 1} ${f(.1)} ${y - 5} Q 0 ${y - 9} ${f(-.1)} ${y - 5} Q ${f(-.2)} ${y + 1} ${f(-.32)} ${y} Q ${f(-.5)} ${y} ${f(-.5)} ${y - 12} Q ${f(-.56)} ${-h * .05} ${f(-.36)} ${c} Z`;
+  const cw = k === 'inc' ? .36 : .32;   // قاطعة وسطى / جانبية
+  return `M ${f(-cw)} ${c} Q 0 ${c - 7} ${f(cw)} ${c} Q ${f(.54)} ${-h * .05} ${f(.5)} ${y - 11} Q ${f(.49)} ${y} ${f(.38)} ${y} H ${f(-.38)} Q ${f(-.49)} ${y} ${f(-.5)} ${y - 11} Q ${f(-.54)} ${-h * .05} ${f(-cw)} ${c} Z`;
+}
+function qFis(k, w, h) { return k === 'mol' || k === 'wis' ? `M 0 ${-h * .32} Q ${w * .04} ${h * .05} 0 ${h * .3}` : k === 'inc' || k === 'lat' ? `M ${-w * .2} ${-h * .05} Q ${-w * .22} ${h * .2} ${-w * .2} ${h * .38}` : ''; }
 /* ---- الحساب ---- */
 const qFlatTr = tr => flatOf(tr);
 function qUnit(tr, n) { const p = priceFor(tr, n ? [String(n)] : []); return p.total === '' ? null : +p.total || 0; }
@@ -96,6 +74,7 @@ function qLines() {
   }
   return out;
 }
+const qTeethCount = () => [...Q.sel.keys()].filter(n => Q.sel.get(n).size).length;
 const qTotal = ls => Math.round(ls.reduce((x, l) => x + l.sub, 0) * 100) / 100;
 const qDiscAmt = tot => { const v = Math.max(0, +Q.disc || 0); return Math.round((Q.dtype === 'pct' ? tot * Math.min(100, v) / 100 : Math.min(v, tot)) * 100) / 100; };
 const qNet = tot => Math.max(0, Math.round((tot - qDiscAmt(tot)) * 100) / 100);
@@ -113,26 +92,31 @@ function qUpdateTotals() { const tot = qTotal(qLines()), net = qNet(tot), d = $(
 
 /* ---- العرض ---- */
 function qChartHTML(ro) {
-  const set = TEETH[Q.set], defs = Q_DEFS;
+  const set = TEETH[Q.set], defs = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="qEnH" cx=".42" cy=".5" r=".78"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".62" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#6f88b0" stop-opacity=".55"/></radialGradient><linearGradient id="qEnV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9bb84" stop-opacity=".9"/><stop offset=".32" stop-color="#f1e3c4" stop-opacity=".35"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset=".86" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#8aa3c6" stop-opacity=".5"/></linearGradient><linearGradient id="qRootV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b98a4d"/><stop offset=".55" stop-color="#d9b47a"/><stop offset="1" stop-color="#ead3a4"/></linearGradient><linearGradient id="qRootH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6b4620" stop-opacity=".55"/><stop offset=".32" stop-color="#fff" stop-opacity=".28"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#6b4620" stop-opacity=".55"/></linearGradient></defs></svg>';
   const row = (arr, up) => arr.map((n, i) => {
     const trs = Q.sel.get(String(n)), has = trs && trs.size, first = has && treatList().find(x => trs.has(x)), fill = first ? (colOf(first).done || '#2e9e6b') : '',
       c = arr.length, dd = Math.abs(i - (c - 1) / 2) / ((c - 1) / 2), ty = Math.round((1 - dd * dd) * 9) * (up ? 1 : -1);
     const inner = `${up ? `<span class="qn">${n}</span>` : ''}${qToothSVG(n, fill)}${up ? '' : `<span class="qn">${n}</span>`}${has ? `<i class="qb">${trs.size}</i>` : ''}`;
     return ro ? `<span class="qt ro${has ? ' has' : ''}" style="transform:translateY(${ty}px)">${inner}</span>`
-      : `<button type="button" class="qt${has ? ' has' : ''}${Q.active === String(n) ? ' act' : ''}" style="transform:translateY(${ty}px)" data-act="qTooth" data-n="${n}" aria-label="${n}">${inner}</button>`;
+      : `<button type="button" class="qt${has ? ' has' : ''}${Q.act.has(String(n)) ? ' act' : ''}" style="transform:translateY(${ty}px)" data-act="qTooth" data-n="${n}" aria-label="${n}">${inner}</button>`;
   }).join('');
   return `<div class="qchart qc${set.up.length}">${defs}<div class="qjaw">${esc(t('q_jaw_up'))}</div><div class="qrow">${row(set.up, true)}</div><div class="qmid"></div><div class="qrow">${row(set.lo, false)}</div><div class="qjaw">${esc(t('q_jaw_lo'))}</div></div>`;
 }
+const qSelSorted = () => [...Q.act].sort((x, y) => x - y);
 function qPanelHTML() {
-  const gen = treatList().filter(qFlatTr), per = treatList().filter(x => !qFlatTr(x)), a = Q.active, cur = a && Q.sel.get(a);
-  const chip = (tr, on, act, extra) => { const u = qUnit(tr, extra); return `<button type="button" class="qchip${on ? ' on' : ''}" data-act="${act}" data-tr="${esc(tr)}" aria-pressed="${on}"><b>${esc(treatLabel(tr))}</b><span>${u === null ? '—' : esc(money(u))}</span></button>`; };
-  return `<div class="qpick">${a ? `<div class="qpick-h">${esc(t('q_pick', { n: a }))}</div><div class="qchips">${per.map(tr => chip(tr, !!(cur && cur.has(tr)), 'qTr', a)).join('')}</div>` : `<div class="qpick-h qmuted">${esc(t('q_pick_none'))}</div>`}
-    ${gen.length ? `<div class="qpick-h qgen">${esc(t('q_general'))}</div><div class="qchips">${gen.map(tr => chip(tr, Q.flat.has(tr), 'qFlat', null)).join('')}</div>` : ''}</div>`;
+  const gen = treatList().filter(qFlatTr), per = treatList().filter(x => !qFlatTr(x)), sel = qSelSorted(), N = sel.length;
+  const chip = (tr, st, act, extra) => { const u = qUnit(tr, extra); return `<button type="button" class="qchip${st === 2 ? ' on' : st === 1 ? ' part' : ''}" data-act="${act}" data-tr="${esc(tr)}" aria-pressed="${st === 2}"><b>${esc(treatLabel(tr))}</b><span>${u === null ? '—' : esc(money(u))}</span></button>`; };
+  const stOf = tr => { const c = sel.filter(n => (Q.sel.get(n) || new Set()).has(tr)).length; return c === 0 ? 0 : c === N ? 2 : 1; };
+  const bar = `<div class="qselbar"><span class="qselcnt">${esc(t('q_sel_n', { n: N }))}</span><button type="button" data-act="qSelGrp" data-g="up">${esc(t('q_sel_up'))}</button><button type="button" data-act="qSelGrp" data-g="lo">${esc(t('q_sel_lo'))}</button><button type="button" data-act="qSelGrp" data-g="all">${esc(t('q_sel_all'))}</button>${N ? `<button type="button" data-act="qSelGrp" data-g="none" class="qx">${esc(t('q_sel_none'))}</button>` : ''}</div>`;
+  const head = N === 1 ? esc(t('q_pick', { n: sel[0] })) : esc(t('q_pick_multi', { n: N, list: sel.join(' · ') }));
+  return `<div class="qpick">${bar}${N ? `<div class="qpick-h">${head}</div><div class="qchips">${per.map(tr => chip(tr, stOf(tr), 'qTr', N === 1 ? sel[0] : sel[0])).join('')}</div>` : `<div class="qpick-h qmuted">${esc(t('q_pick_none'))}</div>`}
+    ${gen.length ? `<div class="qpick-h qgen">${esc(t('q_general'))}</div><div class="qchips">${gen.map(tr => chip(tr, Q.flat.has(tr) ? 2 : 0, 'qFlat', null)).join('')}</div>` : ''}</div>`;
 }
 function qInvoiceHTML() {
   const ls = qLines(), tot = qTotal(ls);
-  const rows = ls.map(l => `<tr><td><b>${esc(treatLabel(l.tr))}</b>${defSessions(l.tr) > 1 ? ` <small class="qmuted">(${defSessions(l.tr)} ${esc(t('q_sess'))})</small>` : ''}${l.noPrice ? `<div class="qwarn">⚠ ${esc(t('q_noprice'))}</div>` : ''}</td><td>${l.teeth.length ? l.teeth.map(z => `<span class="qtag">${z.n}${z.u != null && l.teeth.some(y => y.u !== z.u) ? ` <small>${esc(money(z.u))}</small>` : ''}</span>`).join('') : '—'}</td><td class="qnum">${esc(money(l.sub) || '0')}</td></tr>`).join('');
-  return ls.length ? `<table class="qtable"><thead><tr><th>${esc(t('q_col_tr'))}</th><th>${esc(t('q_col_teeth'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${rows}</tbody></table>
+  const rows = ls.map(l => `<tr><td><b>${esc(treatLabel(l.tr))}</b>${defSessions(l.tr) > 1 ? ` <small class="qmuted">(${defSessions(l.tr)} ${esc(t('q_sess'))})</small>` : ''}${l.noPrice ? `<div class="qwarn">⚠ ${esc(t('q_noprice'))}</div>` : ''}</td><td>${l.teeth.length ? l.teeth.map(z => `<span class="qtag">${z.n}${z.u != null && l.teeth.some(y => y.u !== z.u) ? ` <small>${esc(money(z.u))}</small>` : ''}</span>`).join('') : '—'}</td><td class="qnum">${l.teeth.length || ''}</td><td class="qnum">${esc(money(l.sub) || '0')}</td></tr>`).join('');
+  return ls.length ? `<table class="qtable"><thead><tr><th>${esc(t('q_col_tr'))}</th><th>${esc(t('q_col_teeth'))}</th><th class="qnum">${esc(t('q_count'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="qcount"><span>${esc(t('q_teeth_total'))}</span><b>${qTeethCount()}</b></div>
     <div class="qtotals"><div class="qtot"><span>${esc(t('q_total'))}</span><b id="qTot">${esc(money(tot) || '0')}</b></div>
       <div class="qdisc"><span>${esc(t('q_disc'))}</span><div class="qdisc-in"><input type="number" min="0" step="any" inputmode="decimal" id="qDisc" value="${Q.disc || ''}" placeholder="0"><div class="teeth-switch"><button type="button" data-act="qDType" data-v="amt" class="${Q.dtype === 'amt' ? 'on' : ''}">${esc(t('q_amt'))}</button><button type="button" data-act="qDType" data-v="pct" class="${Q.dtype === 'pct' ? 'on' : ''}">${esc(t('q_pct'))}</button></div></div></div>
       ${Q.disc ? `<div class="qdisc qsub"><span>${esc(t('q_disc_amt'))}</span><b id="qDiscAmt">${esc(money(qDiscAmt(tot)) || '0')}</b></div>` : ''}
@@ -164,19 +148,25 @@ function qPrintHTML() {
   return `<div class="qp" dir="${settings.lang === 'en' ? 'ltr' : 'rtl'}"><div class="qp-head"><div class="qp-clinic">${esc(me.clinicName || '')}</div>${me.role === 'doctor' && me.name ? `<div>${esc(t('hero_doc', { n: me.name }))}</div>` : ''}</div>
     <h2>${esc(t('q_title_print'))}</h2><div class="qp-meta"><span>${esc(t('q_date'))}: <b>${esc(ymd(Date.now()))}</b></span>${Q.name.trim() ? `<span>${esc(t('q_patient'))}: <b>${esc(Q.name.trim())}</b></span>` : ''}</div>
     ${qChartHTML(true)}
-    <table class="qtable"><thead><tr><th>${esc(t('q_col_tr'))}</th><th>${esc(t('q_col_teeth'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${ls.map(l => `<tr><td><b>${esc(treatLabel(l.tr))}</b></td><td>${l.teeth.length ? l.teeth.map(z => z.n).join(' · ') : '—'}</td><td class="qnum">${esc(money(l.sub) || '0')}</td></tr>`).join('')}</tbody></table>
+    <table class="qtable"><thead><tr><th>${esc(t('q_col_tr'))}</th><th>${esc(t('q_col_teeth'))}</th><th class="qnum">${esc(t('q_count'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${ls.map(l => `<tr><td><b>${esc(treatLabel(l.tr))}</b></td><td>${l.teeth.length ? l.teeth.map(z => z.n).join(' · ') : '—'}</td><td class="qnum">${l.teeth.length || ''}</td><td class="qnum">${esc(money(l.sub) || '0')}</td></tr>`).join('')}</tbody></table>
+    <div class="qcount"><span>${esc(t('q_teeth_total'))}</span><b>${qTeethCount()}</b></div>
     <div class="qp-tot"><div><span>${esc(t('q_total'))}</span><b>${esc(money(tot) || '0')}</b></div>${disc ? `<div><span>${esc(t('q_disc'))}${Q.dtype === 'pct' ? ` (${Q.disc}%)` : ''}</span><b>${esc(money(disc))}</b></div><div class="qnet"><span>${esc(t('q_net'))}</span><b>${esc(money(qNet(tot)))}</b></div>` : ''}</div>${qSchedHTML(qNet(tot))}
     <p class="qp-note">${esc(t('q_note'))}</p></div>`;
 }
 
 Object.assign(ACT, {
-  qTooth(el) { const n = el.dataset.n; Q.active = Q.active === n ? null : n; if (Q.active && !Q.sel.has(n)) Q.sel.set(n, new Set()); qRender(); },
-  qTr(el) { const n = Q.active; if (!n) return; const s = Q.sel.get(n) || new Set(); if (s.has(el.dataset.tr)) s.delete(el.dataset.tr); else s.add(el.dataset.tr); if (s.size) Q.sel.set(n, s); else Q.sel.delete(n); qRender(); },
+  qTooth(el) { const n = el.dataset.n; if (Q.act.has(n)) Q.act.delete(n); else Q.act.add(n); qRender(); },
+  qSelGrp(el) { const g = el.dataset.g, set = TEETH[Q.set]; Q.act.clear(); if (g === 'up' || g === 'all') set.up.forEach(n => Q.act.add(String(n))); if (g === 'lo' || g === 'all') set.lo.forEach(n => Q.act.add(String(n))); qRender(); },
+  qTr(el) {
+    const sel = qSelSorted(); if (!sel.length) return; const tr = el.dataset.tr, all = sel.every(n => (Q.sel.get(n) || new Set()).has(tr));
+    for (const n of sel) { const s = Q.sel.get(n) || new Set(); if (all) s.delete(tr); else s.add(tr); if (s.size) Q.sel.set(n, s); else Q.sel.delete(n); }
+    qRender();
+  },
   qFlat(el) { const tr = el.dataset.tr; if (Q.flat.has(tr)) Q.flat.delete(tr); else Q.flat.add(tr); qRender(); },
   qDType(el) { Q.dtype = el.dataset.v; qRender(); },
   qInst(el) { Q.inst = !!el.checked; qRender(); },
-  qSet(el) { if (Q.set === el.dataset.v) return; Q.set = el.dataset.v; Q.active = null; Q.sel.clear(); qRender(); },
-  qClear() { Q.sel.clear(); Q.flat.clear(); Q.active = null; Q.disc = 0; Q.down = 0; Q.inst = false; qRender(); },
+  qSet(el) { if (Q.set === el.dataset.v) return; Q.set = el.dataset.v; Q.act.clear(); Q.sel.clear(); qRender(); },
+  qClear() { Q.sel.clear(); Q.flat.clear(); Q.act.clear(); Q.disc = 0; Q.down = 0; Q.inst = false; qRender(); },
   qPrint() {
     if (!qLines().length) return toast(t('q_empty'), 'info');
     let box = $('#quotePrint'); if (!box) { box = document.createElement('div'); box.id = 'quotePrint'; document.body.appendChild(box); }
