@@ -428,7 +428,7 @@ function renderNurseList() {
 function renderDocWaiting() {
   const w = S.patients.filter(p => p.status === 'waiting'), list = $('#docWaitingList'); let r = 1;
   const html = w.length ? w.map(p => `<li class="patient-card${p.debt > 0 ? ' has-debt' : p.wallet > 0 ? ' has-wallet' : ''}" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> ${vcB(p.vc, p.ap)} <span class="badge">${esc(reasonL(p.reason))}</span>${p.debt > 0 ? ` <span class="badge debt-badge">⚠️ ${t('rem_l')} ${money(p.debt)}</span>` : ''}
-    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div>${regTag(p)}${DENT() && p.tm && p.tm.length ? teethMapHTML(p.tm) : ''}</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div>${regTag(p)}${DENT() && p.tm && p.tm.length ? `<div class="wl-teeth">${teethMapHTML(p.tm)}</div>` : ''}</div>
     <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button>${w.indexOf(p) < w.length - 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
     <button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('empty_wait')}</li>`;
@@ -1848,7 +1848,7 @@ const acOff = el => {
 };
 ['focusin', 'pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, e => acOff(e.target), true));
 document.querySelectorAll('input,textarea').forEach(acOff);
-const APP_VER = 'v169';
+const APP_VER = 'v173';
 Object.assign(L.ar, { set_about: 'عن البرنامج' });
 Object.assign(L.en, { set_about: 'About' });
 const ABOUT = {

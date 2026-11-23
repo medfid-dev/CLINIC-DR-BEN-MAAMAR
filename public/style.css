@@ -1450,3 +1450,38 @@ body.np-open .nav-tabs{visibility:hidden}
   #doctorScreen .tab-btn .tb-ic{font-size:clamp(17px,1.8vw,20px)}
   #doctorScreen .tab-btn .count-badge{position:absolute;top:2px;inset-inline-start:2px;margin:0;min-width:16px;height:16px;padding:0 4px;font-size:10px;line-height:16px}
 }
+
+/* مخطط الأسنان المصغّر في قائمة الانتظار */
+.wl-teeth{margin-top:6px;max-width:300px}
+.wl-teeth .hist-teeth{padding:6px 8px;margin:0;border-radius:10px}
+.wl-teeth .ht-head{display:none}
+.wl-teeth .col-legs{margin:0 0 4px;gap:2px 8px;font-size:10px}
+.wl-teeth .col-leg i{width:8px;height:8px;border-radius:3px}
+.wl-teeth .tooth-btn{height:13px;border-width:1px;font-size:7px;border-radius:4px 4px 6px 6px;flex:1 1 0}
+.wl-teeth .arch + .arch-sep + .arch .tooth-btn{border-radius:6px 6px 4px 4px}
+.wl-teeth .tooth-btn.molar{height:14px}
+.wl-teeth .arch-sep{margin:2px 0;height:1px}
+.wl-teeth .arch-half{gap:1px;padding:0 1px}
+.wl-teeth .arch-half:first-child{padding-inline-end:2px;border-inline-end-width:1px}
+.wl-teeth .arch-half:last-child{padding-inline-start:2px}
+.wl-teeth .hist-teeth .teeth-chart+.teeth-chart{margin-top:4px;padding-top:4px}
+
+/* جدول الفاتورة على الهاتف (v171): بطاقة لكل علاج بدل أعمدة ضيّقة تكسر رقم السن والسعر والعملة فوق بعضها */
+.qtag{white-space:nowrap}.qtag small{white-space:nowrap}
+@media (max-width:700px){
+  #quoteArea .qtable:not(.qsched){display:block;background:none;border-radius:0}
+  #quoteArea .qtable:not(.qsched) thead{display:none}
+  #quoteArea .qtable:not(.qsched) tbody{display:flex;flex-direction:column;gap:8px}
+  #quoteArea .qtable:not(.qsched) tr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 12px;background:var(--surface-card);border:1px solid var(--border-calm);border-radius:14px}
+  #quoteArea .qtable:not(.qsched) td{display:block;padding:0;border:0}
+  #quoteArea .qtable:not(.qsched) td:nth-child(1),#quoteArea .qtable:not(.qsched) td:nth-child(2){flex:1 1 100%}
+  #quoteArea .qtable:not(.qsched) td:nth-child(2){display:flex;flex-wrap:wrap;gap:4px}
+  #quoteArea .qtable:not(.qsched) .qtag{margin:0}
+  #quoteArea .qtable:not(.qsched) td[data-l]{flex:1 1 0;min-width:70px;text-align:start!important;display:flex;flex-direction:column;gap:2px;white-space:nowrap}
+  #quoteArea .qtable:not(.qsched) td[data-l]::before{content:attr(data-l);font-size:10px;font-weight:600;color:var(--text-secondary)}
+  #quoteArea .qtable:not(.qsched) td[data-l]:last-child{align-items:flex-end;text-align:end!important}
+}
+
+.qdown-in{display:flex;gap:6px;align-items:stretch}.qdown-in input{flex:1;min-width:0}
+.qhalf{flex:none;padding:0 12px;border-radius:10px;border:1.5px solid var(--primary-sage);background:var(--surface-sunk);color:var(--primary-sage);font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}
+.qhalf:active{background:var(--primary-sage);color:var(--on-primary)}
