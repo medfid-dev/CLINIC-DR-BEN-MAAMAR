@@ -1442,3 +1442,11 @@ body.np-open .nav-tabs{visibility:hidden}
   #doctorScreen .tab-btn{flex:1 1 auto;min-width:0;padding:5px 1px;font-size:clamp(8px,2.4vw,10px);letter-spacing:0}
   #doctorScreen .tab-btn .tb-tx{max-width:none;overflow:visible}
 }
+
+/* v170: الشريط العلوي (شاشات أعرض من 700px): الأيقونة فوق الاسم والدائرة في الزاوية، فلا تتداخل الأسماء مع عشرة تبويبات */
+@media(min-width:701px){
+  #doctorScreen .nav-tabs{gap:2px;padding:5px 4px}
+  #doctorScreen .tab-btn{flex:1 1 auto;min-width:0;flex-direction:column;gap:3px;min-height:54px;padding:6px 2px;font-size:clamp(10px,1.15vw,12px);line-height:1.15;white-space:nowrap}
+  #doctorScreen .tab-btn .tb-ic{font-size:clamp(17px,1.8vw,20px)}
+  #doctorScreen .tab-btn .count-badge{position:absolute;top:2px;inset-inline-start:2px;margin:0;min-width:16px;height:16px;padding:0 4px;font-size:10px;line-height:16px}
+}
