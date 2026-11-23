@@ -280,7 +280,8 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       { /* كل حصة تُحسب دفعتها وحدها في الأرشيف */
         const r1 = await vis({ today: '2026-10-30', lines: [{ tooth: '15', treatment: 'علاج عصب', total: 10000, sessions: 2, pay: 4000 }] }), plan2 = r1.j.lines[0].plan;
         const r2x = await vis({ today: '2026-11-06', lines: [{ plan: plan2, pay: 6000 }] });
-        const arc = (await J('GET', '/api/archive?limit=100', B)).j, a1 = arc.items.find(z => z.id === r1.j.id), a2 = arc.items.find(z => z.id === r2x.j.id);
+        const arc = (await J('GET', '/api/archive?limit=100', B)).j, hd = arc.items.find(z => z.grp && z.grp.some(m => m.id === r1.j.id)), a1 = hd && hd.grp.find(z => z.id === r1.j.id), a2 = hd && hd.grp.find(z => z.id === r2x.j.id);
+        ok(hd && hd.grp.some(m => m.id === r2x.j.id) && arc.items.filter(z => z.name === hd.name && z.birthYear === hd.birthYear).length === 1 && hd.grp.every((m, i, ar) => !i || ar[i - 1].finishedAt <= m.finishedAt), 'كل مريض يظهر مرة واحدة في الأرشيف بكل زياراته (من الأقدم)');
         ok(a1 && a2 && a1.sessPaid === 4000 && a2.sessPaid === 6000, 'الأرشيف: دفعة كل حصة تُنسب إلى حصتها (4000 ثم 6000)');
         ok(a1.sessDue === 4000 && a2.sessDue === 6000 && a2.sessPays.length === 1, 'مستحق الحصة = ما قُبض فيها + ما بقي (لا يظهر مستحق الخطة كله في الأولى)'); }
       r = await vis({ today: '2026-10-30', lines: [], next: [{ treatment: 'غير موجود', gap: 3 }, 5, null] }); l = await ap(); ok(r.s === 200 && !l.some(x => x.treatment === 'غير موجود'), 'علاج غير معروف أو مدخل فاسد في next يُهمَل');
@@ -358,7 +359,7 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       /* فلتر الأرشيف: المدينون والدائنون */
       await J('POST', '/api/wallet', B, { name: NM, year: YR, amount: 700 });
       r = await J('GET', '/api/archive?money=creditors', B); ok(r.s === 200 && r.j.walSum >= 700 && r.j.items.length >= 1 && r.j.items.every(z => z.wallet > 0) && new Set(r.j.items.map(z => z.name + z.birthYear)).size === r.j.items.length, 'فلتر الدائنين: سجل واحد لكل مريض لديه رصيد');
-      r = await J('GET', '/api/archive?money=debtors', B); ok(r.s === 200 && r.j.items.every(z => z.remaining > 0) && r.j.total === r.j.items.length, 'فلتر المدينين: سجلات عليها متبقٍّ فقط');
+      r = await J('GET', '/api/archive?money=debtors', B); ok(r.s === 200 && r.j.items.every(z => (z.grp || [z]).some(m => m.remaining > 0)) && r.j.total === r.j.items.length, 'فلتر المدينين: سجلات عليها متبقٍّ فقط');
       /* نسخة احتياطية واستعادة تحفظ البنود وانتساب الدفعات */
       const bk = (await J('GET', '/api/backup', B)).j; ok(bk.archive.some(z => z.lines && z.lines.length) && bk.archive.some(z => (z.payments || []).some(p => p.pl)), 'النسخة تشمل بنود الخطط');
       ok(bk.version === 4 && 'schedule' in bk && Array.isArray(bk.nurses) && typeof bk.protect === 'boolean' && 'counter' in bk && bk.nurses.every(n => n.hash && n.salt), 'النسخة تشمل الجدول وحسابات الممرضات وحماية الأرشيف والعدّاد');

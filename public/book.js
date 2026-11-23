@@ -61,13 +61,13 @@
     tabs.appendChild(b1); tabs.appendChild(b2); card.appendChild(tabs);
     card.appendChild(field(tr('name'), inp('name', 'text', '', 80)));
     card.appendChild(field(tr('phone'), (function () { var i = inp('phone', 'tel', 'tel', 25); i.dir = 'ltr'; i.style.textAlign = lang === 'en' ? 'left' : 'right'; return i; })()));
-    if (mode === 'today') {
-      if (!info.today) { card.appendChild(el('div', 'err', tr('today_closed'))); }
+    if (mode === 'today' && !info.today) { card.appendChild(el('div', 'err', tr('today_closed'))); }
       var r2 = el('div', 'row2'); var y = inp('year', 'text', 'numeric', 4); y.placeholder = '1990'; r2.appendChild(field(tr('year'), y));
       var sg = el('div', 'seg'); [['ذكر', tr('male')], ['أنثى', tr('female')]].forEach(function (g) { var b = el('button', form.gender === g[0] ? 'on' : '', g[1]); b.type = 'button'; b.onclick = function () { form.gender = g[0]; Array.prototype.forEach.call(sg.children, function (x) { x.classList.remove('on'); }); b.classList.add('on'); }; sg.appendChild(b); });
       r2.appendChild(field(tr('gender'), sg)); card.appendChild(r2);
       var sl = el('select'); (info.reasons || []).forEach(function (r) { var o = el('option', '', r); o.value = r; sl.appendChild(o); }); if (form.reason) sl.value = form.reason; else form.reason = sl.value; sl.onchange = function () { form.reason = sl.value; };
       if ((info.reasons || []).length) card.appendChild(field(tr('reason'), sl));
+    if (mode === 'today') {
       card.appendChild(el('div', 'hint', tr('today_hint')));
     } else {
       if (!days.length) card.appendChild(el('div', 'hint', tr('no_slots')));
@@ -88,8 +88,9 @@
     if (busy) return; err = ''; e.textContent = '';
     var name = form.name.trim(), phone = form.phone.trim(), body;
     if (name.length < 2 || !/^[0-9+\-\s()]{6,25}$/.test(phone)) { e.textContent = tr('e_invalid'); return; }
-    if (mode === 'today') { var y = parseInt(form.year, 10); if (!(y >= 1900 && y <= new Date().getFullYear())) { e.textContent = tr('e_invalid'); return; } body = { kind: 'today', name: name, phone: phone, birthYear: y, gender: form.gender, reason: form.reason, note: form.note }; }
-    else { if (!sel.date || !sel.time) { e.textContent = tr(sel.date ? 'time' : 'day'); return; } body = { name: name, phone: phone, date: sel.date, time: sel.time, note: form.note }; }
+    var y = parseInt(form.year, 10); if (!(y >= 1900 && y <= new Date().getFullYear())) { e.textContent = tr('e_invalid'); return; }
+    if (mode === 'today') { body = { kind: 'today', name: name, phone: phone, birthYear: y, gender: form.gender, reason: form.reason, note: form.note }; }
+    else { if (!sel.date || !sel.time) { e.textContent = tr(sel.date ? 'time' : 'day'); return; } body = { name: name, phone: phone, birthYear: y, gender: form.gender, reason: form.reason, date: sel.date, time: sel.time, note: form.note }; }
     busy = true; go.disabled = true; go.textContent = tr('sending');
     api('POST', API, body).then(function (r) {
       busy = false;

@@ -337,9 +337,16 @@ function stateFor(c, role, nurseId) {
   for (const [k, v] of r.skip) if (v.ts < t - 6e5 || !c.patients.some(p => p.id === k && p.status === 'waiting')) r.skip.delete(k);
   /* المتبقي على المريض (للطبيب فقط؛ الممرضة لا ترى أي مبالغ) */
   let owe = null; if (role === 'doctor' && c.patients.length) { owe = new Map(); for (const o of c.archive) { const d = remOf(o); if (d > 0) owe.set(patKey(o), r2((owe.get(patKey(o)) || 0) + d)); } }
+  /* مخطط الأسنان في الانتظار: علاجات المريض السابقة (للطبيب فقط، لأطباء الأسنان، للمنتظرين الذين لهم زيارات سابقة) */
+  const tmap = new Map();
+  if (role === 'doctor' && specOf(c) === 'dental' && c.patients.some(p => p.status === 'waiting')) {
+    const wk = new Set(c.patients.filter(p => p.status === 'waiting').map(p => patKey(p)));
+    for (const o of c.archive) { const k = patKey(o); if (!wk.has(k) || !o.finishedAt) continue; let l = tmap.get(k); if (!l) tmap.set(k, l = []); l.push({ finishedAt: o.finishedAt, lines: (o.lines || []).map(z => ({ tooth: z.tooth, teeth: z.teeth, treatment: z.treatment, no: z.no, sessions: z.sessions })), treatments: treatmentsOf(o), teeth: o.teeth || [] }); }
+    for (const l of tmap.values()) l.sort((x, y) => x.finishedAt - y.finishedAt);
+  }
   const vcm = visitCountMap(c), apm = new Map();   // أقدم موعد مفتوح لكل مريض (لإظهار تأخره عن موعده)
   if (c.patients.length) for (const x of apptsView(c)) { const k = patKey(x); if (!apm.has(k) || x.date < apm.get(k)) apm.set(k, x.date); }
-  return { patients: c.patients.map(p => { const v = { ...patientView(p), vc: vcm.get(patKey(p)) || 0, ...(apm.has(patKey(p)) ? { ap: apm.get(patKey(p)) } : {}) }, d = owe && owe.get(patKey(p)); const w = role === 'doctor' ? wbal(c, patKey(p)) : 0, pf = role === 'doctor' && c.profiles ? c.profiles[patKey(p)] : null; return { ...v, ...(pf ? { med: pf } : {}), ...(d ? { debt: d } : {}), ...(w > 0 ? { wallet: w } : {}) }; }), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), bookings: bookingsView(c), booking: bookOf(c), tasks: role ? tasksFor(c, role, nurseId) : [], apptMode: apptModeOf(c), reasons: reasonsOf(c), ...(role === 'doctor' ? { pay: payListOf(c) } : {}), ...(role === 'doctor' ? { appts: apptsView(c) } : apptModeOf(c).enabled ? { appts: apptsForNurse(c) } : {}) };
+  return { patients: c.patients.map(p => { const v = { ...patientView(p), vc: vcm.get(patKey(p)) || 0, ...(apm.has(patKey(p)) ? { ap: apm.get(patKey(p)) } : {}) }, d = owe && owe.get(patKey(p)); const w = role === 'doctor' ? wbal(c, patKey(p)) : 0, pf = role === 'doctor' && c.profiles ? c.profiles[patKey(p)] : null; return { ...v, ...(pf ? { med: pf } : {}), ...(p.status === 'waiting' && tmap.has(patKey(p)) ? { tm: tmap.get(patKey(p)) } : {}), ...(d ? { debt: d } : {}), ...(w > 0 ? { wallet: w } : {}) }; }), skipRequests: [...r.skip.entries()].map(([id, v]) => ({ id, name: v.name, firstName: v.firstName })), serverTime: t, schedule: schedOf(c), bookings: bookingsView(c), booking: bookOf(c), tasks: role ? tasksFor(c, role, nurseId) : [], apptMode: apptModeOf(c), reasons: reasonsOf(c), ...(role === 'doctor' ? { pay: payListOf(c) } : {}), ...(role === 'doctor' ? { appts: apptsView(c) } : apptModeOf(c).enabled ? { appts: apptsForNurse(c) } : {}) };
 }
 function ticketView(c, token) {
   const i = c.patients.findIndex(p => p.ticket === token);
@@ -788,7 +795,7 @@ function bookAvail(c) {
   }
   return out;
 }
-const bookingsView = c => { pruneBookings(c); return (c.bookings || []).slice().sort((a, b) => (a.date + a.time) < (b.date + b.time) ? -1 : 1).map(x => ({ id: x.id, kind: x.kind === 'today' ? 'today' : 'appt', name: x.name, phone: x.phone, date: x.date, time: x.time || '', note: x.note || '', status: x.status, createdAt: x.createdAt, ...(x.kind === 'today' ? { birthYear: x.birthYear, gender: x.gender, reason: x.reason } : {}) })); };
+const bookingsView = c => { pruneBookings(c); return (c.bookings || []).slice().sort((a, b) => (a.date + a.time) < (b.date + b.time) ? -1 : 1).map(x => ({ id: x.id, kind: x.kind === 'today' ? 'today' : 'appt', name: x.name, phone: x.phone, date: x.date, time: x.time || '', note: x.note || '', status: x.status, createdAt: x.createdAt, ...(x.kind === 'today' || x.birthYear ? { birthYear: x.birthYear, gender: x.gender, reason: x.reason } : {}) })); };
 
 async function api(req, res, url) {
   const m = req.method, p = url.pathname; let x;
@@ -835,7 +842,8 @@ async function api(req, res, url) {
         const mine = (c.bookings || []).filter(x => x.kind !== 'today' && x.phone === phone && x.status !== 'no' && x.date >= bookNow(bk).day);
         if (mine.length >= 2) throw httpErr(429, 'too_many');
         if ((c.bookings || []).filter(x => x.status === 'pending').length >= 300) throw httpErr(429, 'rate_limited');
-        const rec = { id: rid(5), tok: b64u(9), name, phone, date, time, note, status: 'pending', createdAt: now() };
+        const pv = validatePatient({ name, birthYear: b.birthYear, gender: b.gender, reason: b.reason, phone }), rec = { id: rid(5), tok: b64u(9), name, phone, date, time, note, ...(b.birthYear != null && pv ? { birthYear: pv.birthYear, gender: pv.gender, reason: b.reason ? pv.reason : '' } : {}), status: 'pending', createdAt: now() };
+        if (b.birthYear != null && !pv) throw httpErr(400, 'invalid_input');
         (c.bookings = c.bookings || []).push(rec); pruneBookings(c); save();
         broadcast(c, { data: { type: 'booking', name, date, time } });
         if (waOn(c)) waOf(c).sendText(phone, name.split(/\s+/)[0], `📩 تم استلام طلب موعدك في ${c.name}: ${date} الساعة ${time}. سنؤكد لك هنا فور موافقة العيادة.`);
@@ -1321,7 +1329,12 @@ async function api(req, res, url) {
     const sidx = sessIndex(X); let dueSum = 0, remSum = 0;
     for (const r of all) { const sp = sidx.get(r.id) || []; collected = r2(collected + sp.reduce((y, p) => y + (+p.amt || 0), 0)); remSum = r2(remSum + remOf(r)); for (const q2 of sp) if (q2.m === 'w') walCut = r2(walCut + (+q2.amt || 0)); }
     dueSum = r2(collected + remSum);
-    return send(res, 200, { total: all.length, regNames, walCut, ...(money === 'creditors' ? { walSum } : {}), sum: dueSum, paidSum: collected, debt: remSum, items: all.slice(off, off + lim).map(r => ({ ...archiveView(r, X), patDebt: owe.get(patKey(r)) || 0 })) });
+    /* كل مريض يظهر مرة واحدة: البطاقة = أحدث زيارة مطابقة للفلاتر + قائمة grp بكل زياراته المطابقة من الأقدم */
+    const gm = new Map();
+    for (const r of all) { const k = patKey(r); let l = gm.get(k); if (!l) gm.set(k, l = []); l.push(r); }
+    const groups = [...gm.values()].map(g => g.filter(z => z.finishedAt).sort((x, y) => x.finishedAt - y.finishedAt)).filter(g => g.length);
+    const gItems = groups.slice(off, off + lim).map(g => { const head = g[g.length - 1]; return { ...archiveView(head, X), patDebt: owe.get(patKey(head)) || 0, ...(g.length > 1 ? { grp: g.map(z => archiveView(z, X)) } : {}) }; });
+    return send(res, 200, { total: groups.length, regNames, walCut, ...(money === 'creditors' ? { walSum } : {}), sum: dueSum, paidSum: collected, debt: remSum, items: gItems });
   }
   /* أرشيف الوصفات (طبيب فقط): كل سجل منتهٍ له وصفة، الأحدث أولاً */
   mt = p.match(/^\/api\/archive\/([a-f0-9]{12})$/);
@@ -1501,7 +1514,7 @@ async function api(req, res, url) {
     }
     c.wallets = W;
     if (b.booking && typeof b.booking === 'object') { try { c.booking = normBooking(b.booking); } catch (e) {} }
-    c.bookings = (Array.isArray(b.bookings) ? b.bookings : []).slice(0, 1000).filter(x => x && cleanDate(x.date) && /^([01]\d|2[0-3]):[0-5]\d$/.test(String(x.time)) && str(x.name, 80)).map(x => ({ id: /^[a-f0-9]{10}$/.test(String(x.id)) ? x.id : rid(5), name: str(x.name, 80), phone: str(x.phone, 25), date: x.date, time: x.time, note: str(x.note, 200), status: ['pending', 'ok', 'no'].includes(x.status) ? x.status : 'pending', createdAt: +x.createdAt || now() }));
+    c.bookings = (Array.isArray(b.bookings) ? b.bookings : []).slice(0, 1000).filter(x => x && cleanDate(x.date) && /^([01]\d|2[0-3]):[0-5]\d$/.test(String(x.time)) && str(x.name, 80)).map(x => ({ id: /^[a-f0-9]{10}$/.test(String(x.id)) ? x.id : rid(5), name: str(x.name, 80), phone: str(x.phone, 25), date: x.date, time: x.time, note: str(x.note, 200), ...(+x.birthYear >= 1900 ? { birthYear: +x.birthYear, gender: x.gender === 'أنثى' ? 'أنثى' : 'ذكر', reason: str(x.reason, 60) } : {}), status: ['pending', 'ok', 'no'].includes(x.status) ? x.status : 'pending', createdAt: +x.createdAt || now() }));
     c.appts = (Array.isArray(b.appts) ? b.appts : []).slice(0, 2000).filter(x => x && PLAN_ID.test(String(x.id)) && PLAN_ID.test(String(x.plan)) && typeof x.k === 'string' && x.k.length <= 120 && cleanDate(x.date)).map(x => ({ id: x.id, plan: x.plan, k: x.k, name: str(x.name, 80), birthYear: parseInt(x.birthYear) || 0, phone: str(x.phone, 25), tooth: str(x.tooth, 20), treatment: str(x.treatment, 40), date: x.date, ...(x.solo ? { solo: 1 } : {}) }));
     c.patients = P; c.archive = A; RT(c).skip.clear(); broadcast(c); return send(res, 200, { patients: P.length, archive: A.length });
   }
@@ -1546,6 +1559,29 @@ function payCheck() {
     n.alertedFor = st.key; broadcast(c, { to: 'doctor', data: { type: 'pay_due', name: n.name, days: st.days, salary: n.salary == null ? null : n.salary } });
   }
 }
+/* تسجيل تلقائي: عند حلول وقت موعد مؤكَّد (حجز عبر الإنترنت) يدخل المريض قائمة الانتظار في ساعة موعده، دون انتظار الممرضة */
+function autoCheckIn() {
+  for (const c of Object.values(db.clinics)) {
+    try {
+      if (c.status === 'pending' || !c.bookings || !c.bookings.length) continue;
+      const bk = bookOf(c), nw = bookNow(bk); let changed = false;
+      const due = c.bookings.filter(x => x.kind !== 'today' && x.status === 'ok' && !x.ticket && x.date === nw.day && /^\d\d:\d\d$/.test(x.time || '') && toMin(x.time) <= nw.min).sort((a, b) => a.time < b.time ? -1 : 1);
+      for (const x of due) {
+        const ex = c.patients.find(q => q.phone && x.phone && q.phone === x.phone && q.status !== 'done');
+        if (ex) { x.ticket = ex.ticket; changed = true; continue; }   // سجّلته الممرضة يدوياً قبل الموعد
+        if (c.patients.length >= 500) break;
+        const v = validatePatient({ name: x.name, birthYear: x.birthYear || THIS_YEAR(), gender: x.gender, reason: x.reason || '', phone: x.phone });
+        if (!v) continue;
+        const pt = { id: rid(6), ticket: b64u(18), ticketNo: nextTicketNo(c), ...v, images: [], status: 'waiting', createdAt: now(), startedAt: null, createdBy: 'online', createdByName: '', fromBooking: x.id };
+        c.patients.push(pt); idx.ticket.set(pt.ticket, c.id); x.ticket = pt.ticket; changed = true;
+        broadcast(c, { data: { type: 'add', name: pt.name } });
+        if (waOn(c) && pt.phone) waConfirm(c, pt);
+      }
+      if (changed) save();
+    } catch (e) { console.error('autoCheckIn: ' + e.message); }
+  }
+}
+setTimeout(autoCheckIn, 15000).unref(); setInterval(autoCheckIn, 30000).unref();
 setTimeout(payCheck, 30000).unref(); setInterval(payCheck, 30 * 6e4).unref();
 setTimeout(dailySnapshot, 20000); setInterval(dailySnapshot, 6 * 36e5).unref();
 server.listen(PORT, () => console.log(`عيادتي الذكية تعمل على المنفذ ${PORT} — البيانات في: ${DATA_DIR}`));

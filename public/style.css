@@ -91,7 +91,7 @@ body:not(.light-mode) .treatment-item.selected{background:var(--primary-sage);co
 .thumb-box img{width:100%;height:100%;object-fit:cover;cursor:pointer}
 .thumb-box .del-img{position:absolute;top:4px;inset-inline-start:4px;background:var(--danger-soft);color:#fff;border:0;width:22px;height:22px;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center}
 
-#toast-container{position:fixed;top:calc(14px + env(safe-area-inset-top));bottom:auto;left:50%;transform:translateX(-50%);z-index:45000;display:flex;flex-direction:column;gap:8px;width:90%;max-width:420px;pointer-events:none}
+#toast-container{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;width:90%;max-width:420px;pointer-events:none}
 .toast{padding:12px 18px;border-radius:999px;background:var(--bar,#2E2A6E);color:#fff;font-size:13px;text-align:center;box-shadow:0 10px 24px -10px rgba(20,15,70,.6);animation:settle .25s ease}
 .toast-success{background:var(--accent-mint)}.toast-warning{background:var(--orange)}.toast-danger{background:var(--danger-soft)}
 #visual-alert-container{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:10000;width:92%;max-width:520px}
@@ -1421,4 +1421,24 @@ select.gender-auto{border-color:var(--primary,#2e9e6b);box-shadow:0 0 0 2px colo
 .qcount{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;margin-top:8px;border-radius:12px;background:var(--surface-sunk);font-weight:700}.qcount b{font-size:16px}
 .qp .qcount{background:none;border:1px solid #bbb;color:#000}
 
-.qmsum{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;padding:8px 12px;border-radius:12px;background:var(--surface-sunk);font-size:13px}.qmsum b{font-weight:800}
+/* لوحة الأرقام لا تغطّي الأزرار الثابتة السفلية: ترتفع فوقها ما دامت اللوحة مفتوحة (v168) */
+body.np-open .wiz-nav,body.np-open [data-role] .wiz-nav{bottom:calc(var(--np-h,330px) + 10px)!important}
+body.np-open #taskFab,body.np-open[data-role=doctor] #taskFab,body.np-open[data-role=doctor]:has(#consultationTab.active .wiz-nav) #taskFab{bottom:calc(var(--np-h,330px) + 14px)!important}
+body.np-open #taskBubbles{bottom:calc(var(--np-h,330px) + 12px)!important}
+body.np-open .nav-tabs{visibility:hidden}
+@media (min-width:900px){
+  #numpad{width:min(100%,380px);margin-inline:0;inset-inline-start:auto;inset-inline-end:18px;border-radius:24px 24px 0 0}
+  body.np-open .screen.active{padding-inline-end:0}
+}
+
+/* حقل «المدفوع اليوم»: في أسفل قسم الدفع وبارز (v169) */
+#planBox>.pl-sesspay{background:color-mix(in srgb,var(--green,#1f9d6a) 14%,var(--surface-card,#fff));border:3px solid var(--green,#1f9d6a);border-radius:18px;padding:14px;margin:14px 0 6px;box-shadow:0 6px 18px -8px color-mix(in srgb,var(--green,#1f9d6a) 70%,transparent)}
+#planBox>.pl-sesspay label{font-weight:800;font-size:16px}
+#planBox>.pl-sesspay input[data-input=spay]{font-size:26px;font-weight:800;height:56px;text-align:center;border:2px solid var(--green,#1f9d6a);border-radius:14px}
+
+/* v170: شريط الطبيب بعشرة تبويبات (مع «الحجوزات») يبقى ظاهراً كله بلا تمرير ولا تداخل: عرض كل زر بقدر كلمته على الجوال */
+@media(max-width:700px){
+  #doctorScreen .nav-tabs{gap:1px;padding-inline:2px}
+  #doctorScreen .tab-btn{flex:1 1 auto;min-width:0;padding:5px 1px;font-size:clamp(8px,2.4vw,10px);letter-spacing:0}
+  #doctorScreen .tab-btn .tb-tx{max-width:none;overflow:visible}
+}

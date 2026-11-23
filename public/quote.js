@@ -2,14 +2,14 @@
    مخطط أسنان يشبه الأسنان الحقيقية (تاج + جذور)، يُحدَّد السن ثم تُختار علاجاته من قائمة «الحصص والأسعار»،
    فتُحسب الكلفة الإجمالية فوراً (سعر كل سن حسب نوعه إن وُجدت أسعار حسب نوع السن). لا يُحفظ شيء في الأرشيف.
    يعتمد على app.js (t, L, S, $, $$, esc, money, treatList, treatLabel, priceFor, flatOf, defSessions, colOf, TEETH, ymd, ACT, toast, DENT). */
-const Q = { set: 'adult', sel: new Map(), flat: new Set(), act: new Set(), disc: 0, dtype: 'amt', inst: false, down: 0, monthly: 0, n: 3, gap: 30, name: '' };
+const Q = { set: 'adult', sel: new Map(), flat: new Set(), act: new Set(), disc: 0, dtype: 'amt', inst: false, down: 0, n: 3, gap: 30, name: '' };
 
 Object.assign(L.ar, {
   tab_quote_s: 'التسعير', q_title: '🧾 فاتورة تقدير الكلفة', q_hint: 'اضغط على سن أو عدة أسنان معاً ثم اختر العلاج لتطبيقه عليها كلها؛ تُحسب الكلفة من قائمة الأسعار.',
   q_name_ph: 'اسم المريض (اختياري)', q_pick: 'السن {n} — اختر علاجاته:', q_pick_none: 'اضغط على سن من المخطط لاختيار علاجه', q_general: 'بنود عامة (تُحسب مرة واحدة)',
   q_col_tr: 'العلاج', q_col_teeth: 'الأسنان', q_col_sub: 'المبلغ', q_total: 'الكلفة الإجمالية', q_disc: 'خصم', q_net: 'الصافي بعد الخصم', q_empty: 'لم تُحدَّد علاجات بعد',
   q_print: '🖨️ طباعة الفاتورة', q_clear: 'مسح الكل', q_noprice: 'السعر غير محدّد في القائمة', q_sess: 'حصص', q_title_print: 'تقدير كلفة العلاج', q_note: 'هذا تقدير مبدئي قابل للتعديل حسب الحالة بعد الفحص.',
-  q_pct: '٪', q_amt: 'مبلغ', q_disc_amt: 'قيمة الخصم', q_inst: 'تقسيط الدفع', q_down: 'الدفعة الأولى (اليوم)', q_n: 'عدد الأقساط', q_gap: 'كل (يوم)', q_sched: 'جدول الأقساط', q_first: 'الدفعة الأولى', q_k: 'القسط {k}', q_date: 'التاريخ', q_each: '{n} أقساط', q_jaw_up: 'الفك العلوي', q_jaw_lo: 'الفك السفلي', q_right: 'يمين', q_left: 'يسار', q_remain: 'المتبقي للتقسيط',
+  q_pct: '٪', q_amt: 'مبلغ', q_disc_amt: 'قيمة الخصم', q_inst: 'تقسيط الدفع', q_linst: 'قابل للتقسيط', q_now: 'تُدفع اليوم كاملة (علاجات غير مقسَّطة)', q_noinst: 'كل العلاجات المختارة غير قابلة للتقسيط: تُدفع كاملة اليوم', q_instpart: 'الجزء القابل للتقسيط', q_down: 'الدفعة الأولى (اليوم)', q_n: 'عدد الأقساط', q_gap: 'كل (يوم)', q_sched: 'جدول الأقساط', q_first: 'الدفعة الأولى', q_k: 'القسط {k}', q_date: 'التاريخ', q_each: '{n} أقساط', q_jaw_up: 'الفك العلوي', q_jaw_lo: 'الفك السفلي', q_right: 'يمين', q_left: 'يسار', q_remain: 'المتبقي للتقسيط',
   q_perm: 'دائمة', q_prim: 'لبنية', q_count: 'العدد', q_teeth_total: 'عدد الأسنان المحددة', q_sel_n: 'محدد: {n}', q_sel_up: 'كل العلوي', q_sel_lo: 'كل السفلي', q_sel_all: 'الكل', q_sel_none: 'إلغاء التحديد', q_pick_multi: 'الأسنان المحددة ({n}): {list} — اختر علاجاً لتطبيقه عليها كلها:', q_multi_hint: 'يمكنك تحديد عدة أسنان معاً ثم إضافة علاج واحد لها كلها.', q_teeth_n: 'سن', q_date: 'التاريخ', q_patient: 'المريض'
 });
 Object.assign(L.en, {
@@ -17,12 +17,9 @@ Object.assign(L.en, {
   q_name_ph: 'Patient name (optional)', q_pick: 'Tooth {n} — choose treatments:', q_pick_none: 'Tap a tooth on the chart to choose its treatment', q_general: 'General items (counted once)',
   q_col_tr: 'Treatment', q_col_teeth: 'Teeth', q_col_sub: 'Amount', q_total: 'Total cost', q_disc: 'Discount', q_net: 'Net after discount', q_empty: 'No treatments selected yet',
   q_print: '🖨️ Print estimate', q_clear: 'Clear all', q_noprice: 'No price set in the list', q_sess: 'sessions', q_title_print: 'Treatment cost estimate', q_note: 'This is a preliminary estimate and may change after examination.',
-  q_pct: '%', q_amt: 'Amount', q_disc_amt: 'Discount value', q_inst: 'Pay in installments', q_down: 'Down payment (today)', q_n: 'Number of installments', q_gap: 'Every (days)', q_sched: 'Installment schedule', q_first: 'Down payment', q_k: 'Installment {k}', q_date: 'Date', q_each: '{n} installments', q_jaw_up: 'Upper jaw', q_jaw_lo: 'Lower jaw', q_right: 'Right', q_left: 'Left', q_remain: 'Left to split',
+  q_pct: '%', q_amt: 'Amount', q_disc_amt: 'Discount value', q_inst: 'Pay in installments', q_linst: 'Installable', q_now: 'Paid in full today (non-installment treatments)', q_noinst: 'None of the selected treatments can be split: paid in full today', q_instpart: 'Installable part', q_down: 'Down payment (today)', q_n: 'Number of installments', q_gap: 'Every (days)', q_sched: 'Installment schedule', q_first: 'Down payment', q_k: 'Installment {k}', q_date: 'Date', q_each: '{n} installments', q_jaw_up: 'Upper jaw', q_jaw_lo: 'Lower jaw', q_right: 'Right', q_left: 'Left', q_remain: 'Left to split',
   q_perm: 'Permanent', q_prim: 'Primary', q_count: 'Qty', q_teeth_total: 'Teeth selected', q_sel_n: 'Selected: {n}', q_sel_up: 'All upper', q_sel_lo: 'All lower', q_sel_all: 'All', q_sel_none: 'Clear selection', q_pick_multi: 'Selected teeth ({n}): {list} — pick a treatment to apply to all of them:', q_multi_hint: 'Select several teeth together, then add one treatment to all of them.', q_teeth_n: 'teeth', q_date: 'Date', q_patient: 'Patient'
 });
-
-Object.assign(L.ar, { q_monthly: 'القسط الشهري (يحدده الطبيب)', q_monthly_ph: 'اتركه فارغاً لتحديد العدد يدوياً', q_n_auto: 'عدد الأقساط (يُحسب تلقائياً)', q_last: 'القسط الأخير (المتبقي)', q_mcount: 'عدد الأقساط', q_gap_m: 'شهرياً' });
-Object.assign(L.en, { q_monthly: 'Monthly installment (set by doctor)', q_monthly_ph: 'Leave empty to set the count manually', q_n_auto: 'Number of installments (auto)', q_last: 'Last installment (remainder)', q_mcount: 'Installments', q_gap_m: 'Monthly' });
 
 /* ---- مخطط القوس (منظر أمامي كابتسامة): الفك العلوي في الأعلى والسفلي أصغر داخله، وكل سن يميل نحو مركز القوس ---- */
 function qKind(n) { const d = n % 10, q = Math.floor(n / 10), prim = q >= 5; return d <= 2 ? (d === 1 ? 'inc' : 'lat') : d === 3 ? 'can' : prim ? 'mol' : d <= 5 ? 'pre' : (d === 8 ? 'wis' : 'mol'); }
@@ -63,17 +60,22 @@ function qToothPath(k, w, h) {
   return `M ${f(-cw)} ${c} Q 0 ${c - 7} ${f(cw)} ${c} Q ${f(.54)} ${-h * .05} ${f(.5)} ${y - 11} Q ${f(.49)} ${y} ${f(.38)} ${y} H ${f(-.38)} Q ${f(-.49)} ${y} ${f(-.5)} ${y - 11} Q ${f(-.54)} ${-h * .05} ${f(-cw)} ${c} Z`;
 }
 function qFis(k, w, h) { return k === 'mol' || k === 'wis' ? `M 0 ${-h * .32} Q ${w * .04} ${h * .05} 0 ${h * .3}` : k === 'inc' || k === 'lat' ? `M ${-w * .2} ${-h * .05} Q ${-w * .22} ${h * .2} ${-w * .2} ${h * .38}` : ''; }
+/* ---- قابلية التقسيط لكل علاج: افتراضياً القلع وعلاج/قطع العصب والاستشارة تُدفع كاملة، والتركيبات (سيراميك، زيركون…) تُقسَّط؛ ويمكن تغييرها لكل علاج ويُحفظ الاختيار على هذا الجهاز ---- */
+const Q_NOINST = /قلع|عصب|استشارة|extract|root|endo|consult/i, Q_INST_KEY = 'qInstOver';
+let qInstOver = {}; try { qInstOver = JSON.parse(localStorage.getItem(Q_INST_KEY) || '{}') || {}; } catch (e) { qInstOver = {}; }
+const qInstOf = tr => typeof qInstOver[tr] === 'boolean' ? qInstOver[tr] : !Q_NOINST.test(tr);
+const r2q = v => Math.round(v * 100) / 100;
 /* ---- الحساب ---- */
 const qFlatTr = tr => flatOf(tr);
 function qUnit(tr, n) { const p = priceFor(tr, n ? [String(n)] : []); return p.total === '' ? null : +p.total || 0; }
 function qLines() {
   const out = [], all = treatList();
   for (const tr of all) {
-    if (qFlatTr(tr)) { if (Q.flat.has(tr)) { const u = qUnit(tr, null); out.push({ tr, teeth: [], sub: u || 0, noPrice: u === null }); } continue; }
+    if (qFlatTr(tr)) { if (Q.flat.has(tr)) { const u = qUnit(tr, null); out.push({ tr, teeth: [], sub: u || 0, noPrice: u === null, inst: qInstOf(tr) }); } continue; }
     const teeth = [...Q.sel.keys()].filter(n => Q.sel.get(n).has(tr)).sort((a, b) => a - b);
     if (!teeth.length) continue;
     let sub = 0, noPrice = false; const per = teeth.map(n => { const u = qUnit(tr, n); if (u === null) noPrice = true; sub += u || 0; return { n, u }; });
-    out.push({ tr, teeth: per, sub: Math.round(sub * 100) / 100, noPrice });
+    out.push({ tr, teeth: per, sub: Math.round(sub * 100) / 100, noPrice, inst: qInstOf(tr) });
   }
   return out;
 }
@@ -82,22 +84,19 @@ const qTotal = ls => Math.round(ls.reduce((x, l) => x + l.sub, 0) * 100) / 100;
 const qDiscAmt = tot => { const v = Math.max(0, +Q.disc || 0); return Math.round((Q.dtype === 'pct' ? tot * Math.min(100, v) / 100 : Math.min(v, tot)) * 100) / 100; };
 const qNet = tot => Math.max(0, Math.round((tot - qDiscAmt(tot)) * 100) / 100);
 /* جدول التقسيط: دفعة أولى اليوم ثم أقساط متساوية كل N يوماً (الفارق في القسط الأخير) */
-/* إن حدّد الطبيب «القسط الشهري»: عدد الأقساط = ⌈المتبقي ÷ القسط⌉ وتُستحق شهرياً (نفس يوم الشهر)، ويبقى الباقي في القسط الأخير */
-function qAddMonths(ts, k) { const d = new Date(ts), day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + k); d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); return d.getTime(); }
-function qSchedule(net) {
+function qSchedule() {
   if (!Q.inst) return null;
-  const down = Math.min(Math.max(0, +Q.down || 0), net), rem = Math.round((net - down) * 100) / 100, mon = Math.max(0, +Q.monthly || 0), gap = Math.min(365, Math.max(1, Math.round(+Q.gap) || 30)), rows = [];
-  let n, base;
-  if (mon > 0) { n = rem > 0 ? Math.min(240, Math.max(1, Math.ceil(Math.round(rem / mon * 1e6) / 1e6))) : 1; base = mon; }
-  else { n = Math.min(60, Math.max(1, Math.round(+Q.n) || 1)); base = Math.floor(rem / n); }
-  let left = rem;
+  const ls = qLines(), tot = qTotal(ls), net = qNet(tot), instSub = qTotal(ls.filter(l => l.inst)), instNet = tot > 0 ? Math.min(net, r2q(net * instSub / tot)) : 0, now = r2q(net - instNet);   // الخصم يُوزَّع بالتناسب على الجزء المقسَّط وغيره
+  const down = Math.min(Math.max(0, +Q.down || 0), instNet), rem = r2q(instNet - down), n = Math.min(60, Math.max(1, Math.round(+Q.n) || 1)), gap = Math.min(365, Math.max(1, Math.round(+Q.gap) || 30));
+  const base = Math.floor(rem / n), rows = []; let left = rem;
+  if (now > 0) rows.push({ label: t('q_now'), at: Date.now(), amt: now });
+  if (instNet <= 0) return { rows, down: 0, rem: 0, n: 0, gap, none: true, instNet };
   if (down > 0) rows.push({ label: t('q_first'), at: Date.now(), amt: down });
-  for (let k = 1; k <= n; k++) { const amt = k === n ? Math.round(left * 100) / 100 : base; left = Math.round((left - amt) * 100) / 100; rows.push({ label: t('q_k', { k }), at: mon > 0 ? qAddMonths(Date.now(), k) : Date.now() + k * gap * 864e5, amt }); }
-  return { rows, down, rem, n, gap, monthly: mon > 0 ? mon : 0, last: rows[rows.length - 1].amt };
+  for (let k = 1; k <= n && rem > 0; k++) { const amt = k === n ? r2q(left) : base; left = r2q(left - amt); rows.push({ label: t('q_k', { k }), at: Date.now() + k * gap * 864e5, amt }); }
+  return { rows, down, rem, n, gap, instNet };
 }
-const qSchedHTML = net => { const s = qSchedule(net); if (!s) return ''; return `<table class="qtable qsched"><thead><tr><th>${esc(t('q_sched'))}</th><th>${esc(t('q_date'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${s.rows.map(r => `<tr><td>${esc(r.label)}</td><td>${esc(ymd(r.at))}</td><td class="qnum">${esc(money(r.amt) || '0')}</td></tr>`).join('')}</tbody></table>${s.monthly ? `<div class="qmsum"><span>${esc(t('q_mcount'))}: <b>${s.n}</b></span><span>${esc(t('q_monthly'))}: <b>${esc(money(s.monthly) || '0')}</b></span><span>${esc(t('q_last'))}: <b>${esc(money(s.last) || '0')}</b></span></div>` : ''}`; };
-function qUpdateTotals() { const tot = qTotal(qLines()), net = qNet(tot), d = $('#qDiscAmt'), nt = $('#qNet'), sc = $('#qSched'); if (d) d.textContent = money(qDiscAmt(tot)) || '0'; if (nt) nt.textContent = money(net) || '0'; if (sc) sc.innerHTML = qSchedHTML(net); qSyncMonthly(net); }
-function qSyncMonthly(net) { const sch = qSchedule(net), n = $('#qN'), g = $('#qGap'), on = !!(sch && sch.monthly); if (n) { n.disabled = on; if (on) n.value = sch.n; else n.value = Q.n; } if (g) g.disabled = on; }
+const qSchedHTML = () => { const s = qSchedule(); if (!s) return ''; if (s.none) return `<div class="qmuted qempty">${esc(t('q_noinst'))}</div>`; return `<table class="qtable qsched"><thead><tr><th>${esc(t('q_sched'))}</th><th>${esc(t('q_date'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${s.rows.map(r => `<tr><td>${esc(r.label)}</td><td>${esc(ymd(r.at))}</td><td class="qnum">${esc(money(r.amt) || '0')}</td></tr>`).join('')}</tbody></table>`; };
+function qUpdateTotals() { const tot = qTotal(qLines()), net = qNet(tot), d = $('#qDiscAmt'), nt = $('#qNet'), sc = $('#qSched'); if (d) d.textContent = money(qDiscAmt(tot)) || '0'; if (nt) nt.textContent = money(net) || '0'; if (sc) sc.innerHTML = qSchedHTML(); }
 
 /* ---- العرض ---- */
 function qChartHTML(ro) {
@@ -123,15 +122,15 @@ function qPanelHTML() {
 }
 function qInvoiceHTML() {
   const ls = qLines(), tot = qTotal(ls);
-  const rows = ls.map(l => `<tr><td><b>${esc(treatLabel(l.tr))}</b>${defSessions(l.tr) > 1 ? ` <small class="qmuted">(${defSessions(l.tr)} ${esc(t('q_sess'))})</small>` : ''}${l.noPrice ? `<div class="qwarn">⚠ ${esc(t('q_noprice'))}</div>` : ''}</td><td>${l.teeth.length ? l.teeth.map(z => `<span class="qtag">${z.n}${z.u != null && l.teeth.some(y => y.u !== z.u) ? ` <small>${esc(money(z.u))}</small>` : ''}</span>`).join('') : '—'}</td><td class="qnum">${l.teeth.length || ''}</td><td class="qnum">${esc(money(l.sub) || '0')}</td></tr>`).join('');
-  return ls.length ? `<table class="qtable"><thead><tr><th>${esc(t('q_col_tr'))}</th><th>${esc(t('q_col_teeth'))}</th><th class="qnum">${esc(t('q_count'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${rows}</tbody></table>
+  const rows = ls.map(l => `<tr><td><b>${esc(treatLabel(l.tr))}</b>${defSessions(l.tr) > 1 ? ` <small class="qmuted">(${defSessions(l.tr)} ${esc(t('q_sess'))})</small>` : ''}${l.noPrice ? `<div class="qwarn">⚠ ${esc(t('q_noprice'))}</div>` : ''}</td><td>${l.teeth.length ? l.teeth.map(z => `<span class="qtag">${z.n}${z.u != null && l.teeth.some(y => y.u !== z.u) ? ` <small>${esc(money(z.u))}</small>` : ''}</span>`).join('') : '—'}</td><td class="qnum">${l.teeth.length || ''}</td>${Q.inst ? `<td class="qnum"><input type="checkbox" data-act="qLineInst" data-tr="${esc(l.tr)}" ${l.inst ? 'checked' : ''} aria-label="${esc(t('q_linst'))}"></td>` : ''}<td class="qnum">${esc(money(l.sub) || '0')}</td></tr>`).join('');
+  return ls.length ? `<table class="qtable"><thead><tr><th>${esc(t('q_col_tr'))}</th><th>${esc(t('q_col_teeth'))}</th><th class="qnum">${esc(t('q_count'))}</th>${Q.inst ? `<th class="qnum">💳 ${esc(t('q_linst'))}</th>` : ''}<th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="qcount"><span>${esc(t('q_teeth_total'))}</span><b>${qTeethCount()}</b></div>
     <div class="qtotals"><div class="qtot"><span>${esc(t('q_total'))}</span><b id="qTot">${esc(money(tot) || '0')}</b></div>
       <div class="qdisc"><span>${esc(t('q_disc'))}</span><div class="qdisc-in"><input type="number" min="0" step="any" inputmode="decimal" id="qDisc" value="${Q.disc || ''}" placeholder="0"><div class="teeth-switch"><button type="button" data-act="qDType" data-v="amt" class="${Q.dtype === 'amt' ? 'on' : ''}">${esc(t('q_amt'))}</button><button type="button" data-act="qDType" data-v="pct" class="${Q.dtype === 'pct' ? 'on' : ''}">${esc(t('q_pct'))}</button></div></div></div>
       ${Q.disc ? `<div class="qdisc qsub"><span>${esc(t('q_disc_amt'))}</span><b id="qDiscAmt">${esc(money(qDiscAmt(tot)) || '0')}</b></div>` : ''}
       <div class="qtot qnet"><span>${esc(t('q_net'))}</span><b id="qNet">${esc(money(qNet(tot)) || '0')}</b></div>
       <label class="qinst-on"><input type="checkbox" data-act="qInst" ${Q.inst ? 'checked' : ''}><span>💳 ${esc(t('q_inst'))}</span></label>
-      ${Q.inst ? `<div class="qinst"><label><span>${esc(t('q_down'))}</span><input type="number" min="0" step="any" inputmode="decimal" id="qDown" value="${Q.down || ''}" placeholder="0"></label><label><span>${esc(t('q_monthly'))}</span><input type=\"number\" min=\"0\" step=\"any\" inputmode=\"decimal\" id=\"qMonthly\" value=\"${Q.monthly || ''}\" placeholder=\"${esc(t('q_monthly_ph'))}\"></label><label><span>${esc(t('q_n'))}</span><input type="number" min="1" max="60" step="1" inputmode="numeric" id="qN" value="${Q.n}"></label><label><span>${esc(t('q_gap'))}</span><input type="number" min="1" max="365" step="1" inputmode="numeric" id="qGap" value="${Q.gap}"></label></div><div id="qSched">${qSchedHTML(qNet(tot))}</div>` : ''}</div>` : `<div class="qmuted qempty">${esc(t('q_empty'))}</div>`;
+      ${Q.inst ? `<div class="qinst"><label><span>${esc(t('q_down'))}</span><input type="number" min="0" step="any" inputmode="decimal" id="qDown" value="${Q.down || ''}" placeholder="0"></label><label><span>${esc(t('q_n'))}</span><input type="number" min="1" max="60" step="1" inputmode="numeric" id="qN" value="${Q.n}"></label><label><span>${esc(t('q_gap'))}</span><input type="number" min="1" max="365" step="1" inputmode="numeric" id="qGap" value="${Q.gap}"></label></div><div id="qSched">${qSchedHTML()}</div>` : ''}</div>` : `<div class="qmuted qempty">${esc(t('q_empty'))}</div>`;
 }
 function qRender() {
   const box = $('#quoteArea'); if (!box) return;
@@ -145,13 +144,12 @@ function qRender() {
       if (e.target.id === 'qName') Q.name = e.target.value;
       else if (e.target.id === 'qDisc') { Q.disc = Math.max(0, +e.target.value || 0); if (!!Q.disc !== !!$('#qDiscAmt')) { qRender(); const i = $('#qDisc'); if (i) { i.focus(); try { const l = i.value.length; i.type = 'text'; i.setSelectionRange(l, l); i.type = 'number'; } catch (e) {} } } else qUpdateTotals(); }
       else if (e.target.id === 'qDown') { Q.down = Math.max(0, +e.target.value || 0); qUpdateTotals(); }
-      else if (e.target.id === 'qMonthly') { Q.monthly = Math.max(0, +e.target.value || 0); qUpdateTotals(); }
       else if (e.target.id === 'qN') { Q.n = +e.target.value || 1; qUpdateTotals(); }
       else if (e.target.id === 'qGap') { Q.gap = +e.target.value || 30; qUpdateTotals(); }
     });
   }
   $('#qSwitch').innerHTML = `<button type="button" data-act="qSet" data-v="adult" class="${Q.set === 'adult' ? 'on' : ''}">${esc(t('q_perm'))}</button><button type="button" data-act="qSet" data-v="child" class="${Q.set === 'child' ? 'on' : ''}">${esc(t('q_prim'))}</button>`;
-  $('#qChart').innerHTML = qChartHTML(false); $('#qPanel').innerHTML = qPanelHTML(); $('#qInv').innerHTML = qInvoiceHTML(); qSyncMonthly(qNet(qTotal(qLines())));
+  $('#qChart').innerHTML = qChartHTML(false); $('#qPanel').innerHTML = qPanelHTML(); $('#qInv').innerHTML = qInvoiceHTML();
 }
 function qPrintHTML() {
   const ls = qLines(), tot = qTotal(ls), disc = qDiscAmt(tot), me = S.me || {};
@@ -160,7 +158,7 @@ function qPrintHTML() {
     ${qChartHTML(true)}
     <table class="qtable"><thead><tr><th>${esc(t('q_col_tr'))}</th><th>${esc(t('q_col_teeth'))}</th><th class="qnum">${esc(t('q_count'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${ls.map(l => `<tr><td><b>${esc(treatLabel(l.tr))}</b></td><td>${l.teeth.length ? l.teeth.map(z => z.n).join(' · ') : '—'}</td><td class="qnum">${l.teeth.length || ''}</td><td class="qnum">${esc(money(l.sub) || '0')}</td></tr>`).join('')}</tbody></table>
     <div class="qcount"><span>${esc(t('q_teeth_total'))}</span><b>${qTeethCount()}</b></div>
-    <div class="qp-tot"><div><span>${esc(t('q_total'))}</span><b>${esc(money(tot) || '0')}</b></div>${disc ? `<div><span>${esc(t('q_disc'))}${Q.dtype === 'pct' ? ` (${Q.disc}%)` : ''}</span><b>${esc(money(disc))}</b></div><div class="qnet"><span>${esc(t('q_net'))}</span><b>${esc(money(qNet(tot)))}</b></div>` : ''}</div>${qSchedHTML(qNet(tot))}
+    <div class="qp-tot"><div><span>${esc(t('q_total'))}</span><b>${esc(money(tot) || '0')}</b></div>${disc ? `<div><span>${esc(t('q_disc'))}${Q.dtype === 'pct' ? ` (${Q.disc}%)` : ''}</span><b>${esc(money(disc))}</b></div><div class="qnet"><span>${esc(t('q_net'))}</span><b>${esc(money(qNet(tot)))}</b></div>` : ''}</div>${qSchedHTML()}
     <p class="qp-note">${esc(t('q_note'))}</p></div>`;
 }
 
@@ -174,9 +172,10 @@ Object.assign(ACT, {
   },
   qFlat(el) { const tr = el.dataset.tr; if (Q.flat.has(tr)) Q.flat.delete(tr); else Q.flat.add(tr); qRender(); },
   qDType(el) { Q.dtype = el.dataset.v; qRender(); },
+  qLineInst(el) { qInstOver[el.dataset.tr] = !!el.checked; try { localStorage.setItem(Q_INST_KEY, JSON.stringify(qInstOver)); } catch (e) {} qRender(); },
   qInst(el) { Q.inst = !!el.checked; qRender(); },
   qSet(el) { if (Q.set === el.dataset.v) return; Q.set = el.dataset.v; Q.act.clear(); Q.sel.clear(); qRender(); },
-  qClear() { Q.sel.clear(); Q.flat.clear(); Q.act.clear(); Q.disc = 0; Q.down = 0; Q.monthly = 0; Q.inst = false; qRender(); },
+  qClear() { Q.sel.clear(); Q.flat.clear(); Q.act.clear(); Q.disc = 0; Q.down = 0; Q.inst = false; qRender(); },
   qPrint() {
     if (!qLines().length) return toast(t('q_empty'), 'info');
     let box = $('#quotePrint'); if (!box) { box = document.createElement('div'); box.id = 'quotePrint'; document.body.appendChild(box); }

@@ -332,7 +332,7 @@ async function boot() {
   if (S.me.role === 'doctor') {
     setHero();
     $('#clinicCodeShow').textContent = S.me.code || '------';
-    showScreen('doctorScreen'); docTab(startTab(['waiting', 'consultation', 'addPatientDoc', 'archive', 'stats'], 'waiting'));
+    showScreen('doctorScreen'); docTab(startTab(['waiting', 'bookings', 'consultation', 'addPatientDoc', 'archive', 'stats'], 'waiting'));
   } else {
     setHero();
     showScreen('nurseScreen'); nurseTab('patientsNurse');
@@ -428,7 +428,7 @@ function renderNurseList() {
 function renderDocWaiting() {
   const w = S.patients.filter(p => p.status === 'waiting'), list = $('#docWaitingList'); let r = 1;
   const html = w.length ? w.map(p => `<li class="patient-card${p.debt > 0 ? ' has-debt' : p.wallet > 0 ? ' has-wallet' : ''}" data-act="patHistory" data-name="${esc(p.name)}" data-year="${p.birthYear}"><div><span class="queue-badge">#${r++}</span><strong style="font-size:15px">${esc(p.name)}</strong> ${vcB(p.vc, p.ap)} <span class="badge">${esc(reasonL(p.reason))}</span>${p.debt > 0 ? ` <span class="badge debt-badge">⚠️ ${t('rem_l')} ${money(p.debt)}</span>` : ''}
-    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div>${regTag(p)}</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${patientMeta(p)}</div><div class="note-line">${t('ticket_no')} ${p.ticketNo} · ⏳ <span data-wait="${p.createdAt}">${waitText(p.createdAt)}</span></div>${regTag(p)}${DENT() && p.tm && p.tm.length ? teethMapHTML(p.tm) : ''}</div>
     <div class="actions"><button type="button" class="btn-action btn-green" data-act="enter" data-id="${p.id}">${t('call')}</button>${w.indexOf(p) < w.length - 1 ? `<button type="button" class="btn-action btn-orange" data-act="requeue" data-id="${p.id}">↩️ ${t('requeue')}</button>` : ''}<button type="button" class="btn-action btn-qr" data-act="showQr" data-id="${p.id}">${t('qr')}</button>
     <button type="button" class="btn-action btn-yellow" data-act="editPatient" data-id="${p.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delPatient" data-id="${p.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('empty_wait')}</li>`;
@@ -759,9 +759,9 @@ function planBoxInner() {
     ${wBal() > 0 ? `<label class="acct-follow"><input type="checkbox" data-act="useWal" ${S.useWal ? 'checked' : ''} style="width:auto"> ${t('wal_chk')} <b id="walLine">${S.useWal && m.w > 0 ? '− ' + money(m.w) : ''}</b></label>` : ''}
     <button type="button" class="btn-action btn-green" data-act="walDeposit" data-name="${esc(ac.key.name)}" data-year="${ac.key.year}" data-ctx="room">${t('wal_dep')}</button></div>` : '';
   const sp = m.ls.length ? `<div class="pl-sesspay"><div class="pl-row"><label>💵 ${t('pl_pay_session')}</label><input type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${esc(String(m.ls.amt))}" data-input="spay"><span class="pl-quick"><button type="button" data-act="spayQuick" data-v="all">${t('pl_all')}</button><button type="button" data-act="spayQuick" data-v="sugg">${t('pl_suggest')}</button><button type="button" data-act="spayQuick" data-v="zero">${t('pl_zero')}</button></span></div><div class="pl-hint" id="spayHint"></div></div>` : '';
-  return `<div class="plan-box"><div class="acct-head"><strong>🦷 ${t('pl_title')}</strong></div>${m.ls.length > 1 ? sp : ''}${m.ls.length ? m.ls.map(lineHTML).join('') : `<div class="hint" style="padding:6px 0">${t('pl_none')}</div>`}${m.ls.length > 1 ? '' : sp}</div>
+  return `<div class="plan-box"><div class="acct-head"><strong>🦷 ${t('pl_title')}</strong></div>${m.ls.length ? m.ls.map(lineHTML).join('') : `<div class="hint" style="padding:6px 0">${t('pl_none')}</div>`}</div>
     ${m.ps.length ? `<div class="acct-box"><div class="acct-head"><strong>${t('pl_prev_title')}</strong>${ac && ac.balance > 0 ? `<span class="acct-debt">${t('acct_prev')} <b>${money(ac.balance)}</b></span>` : ''}</div>${m.ps.map(prevHTML).join('')}</div>` : ''}
-    ${wal}<div id="moneySum" class="money-sum">${sumHTML(m)}</div>`;
+    ${wal}<div id="moneySum" class="money-sum">${sumHTML(m)}</div>${sp}`;
 }
 const moneyHTML = () => `<div id="planBox">${planBoxInner()}</div>`;
 
@@ -973,10 +973,26 @@ function loadArchive(reset = true) {
     fillRegNames(r.regNames); S.archive = { total: r.total, walSum: r.walSum, sum: r.sum, paidSum: r.paidSum, debt: r.debt, items: reset ? r.items : S.archive.items.concat(r.items) }; renderArchive();
   }, reset ? 250 : 0);
 }
+/* سجل واحد لكل خطة متعددة الحصص: معلومات المريض مرة واحدة ثم كل حصة في كتلة مستقلة (الأقدم أولاً) */
+const archFind = id => { for (const a of S.archive.items) { if (a.id === id) return a; const m = (a.grp || []).find(z => z.id === id); if (m) return m; } return null; };
+function archCardG(a) {
+  const g = a.grp.slice().reverse(), sPaid = g.reduce((x, m) => x + (m.sessPaid || 0), 0), rem = g.reduce((x, m) => x + (m.remaining || 0), 0), due = sPaid + rem;
+  
+  const blk = (m, i) => `<div class="sess-blk" style="border-top:${i ? '1px dashed var(--border,#ccc)' : '0'};padding-top:${i ? '8px' : '0'};margin-top:${i ? '8px' : '0'}">${i ? `<div data-act="togSess" style="cursor:pointer;font-size:12px;color:var(--text-secondary);margin-bottom:4px">▾ ${ymdHM(m.finishedAt)} · ${esc(m.treatment || '')}</div>` : ''}<div class="sess-body"${i ? ' hidden' : ''}>
+    <div style="display:flex;gap:8px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap"><div style="min-width:0">${m.n ? `<span class="badge">${t('hist_visit_n', { n: m.n })}</span> ` : ''}${lineBadges(m, 'badge')}${m.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(m.remaining)}</span>` : ''}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${m.remaining > 0 ? `<button type="button" class="btn-action btn-green" data-act="addPayment" data-id="${m.id}" data-rem="${m.remaining}" data-wallet="${m.wallet || 0}">${t('add_pay')}</button>` : ''}<button type="button" class="btn-action btn-yellow" data-act="editArchive" data-id="${m.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delArchive" data-id="${m.id}">${t('del')}</button></div></div>
+    ${regTag(m)}${m.notes ? `<div class="note-line">${t('notes_l')} ${esc(m.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(m, m) : ''}
+    ${m.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${m.images.map(im => `<img data-rec="${m.id}" data-img="${im}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
+    ${m.sessPays && m.sessPays.length ? `<div class="note-line" style="margin-top:6px">💰 ${t('sess_paid')} <b>${money(m.sessPaid)}</b></div><div style="margin-top:4px">${payChips(m.sessPays, m.id)}</div>` : ''}
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:6px">${t('date_l')} ${ymdHM(m.finishedAt)} · ${t('wait_s')} ${fmtMin(m.waitMin)} · <b style="color:var(--primary-sage)">⏱ ${t('dur_l')} ${fmtMin(m.durationMin)}</b></div></div></div>`;
+  return `<li class="patient-card${rem > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0;flex:1"><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc, a.ap)} <span class="badge">${t('hist_visit_n', { n: g.length })}</span>${due > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(due)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${rem > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(rem)}</span>` : (due > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}
+    <div style="font-size:12px;color:var(--text-secondary);margin:4px 0 8px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} ${DENT() ? ` | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong>` : ''}</div>
+    ${g.map(blk).join('')}</div></li>`;
+}
 function renderArchive() {
   $('#archiveResultCount').textContent = S.archive.total; $('#archiveSum').innerHTML = S.archive.walSum ? `🏺 ${t('money_wal_sum')} <b>${money(S.archive.walSum)}</b>` : (S.archive.sum || S.archive.paidSum) ? `<span title="${esc(t('sum_hint'))}">${t('total_due')} <b>${money(S.archive.sum)}</b> · ${t('total_paid')} <b style="color:var(--success,#2e9e6b)">${money(S.archive.paidSum)}</b>${S.archive.debt ? ` · ${t('total_debt')} <b style="color:var(--danger-soft,#e8607a)">${money(S.archive.debt)}</b>` : ''}</span>` : '';
   const l = $('#archiveList');
-  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => `<li class="patient-card${a.remaining > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc, a.ap)} ${lineBadges(a, 'badge')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(a.price)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}${a.followUp ? ` <span class="badge">${t('follow_b')}</span>` : ''}
+  l.innerHTML = S.archive.items.length ? S.archive.items.map(a => a.grp ? archCardG(a) : `<li class="patient-card${a.remaining > 0 || a.patDebt > 0 ? ' has-debt' : a.wallet > 0 ? ' has-wallet' : ''}" style="align-items:flex-start" data-act="patHistory" data-name="${esc(a.name)}" data-year="${a.birthYear}"><div style="min-width:0"><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc, a.ap)} ${lineBadges(a, 'badge')}${a.price != null ? ` <span class="badge" style="background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)">${t('due_l')} ${money(a.price)}</span>` : ''}${a.patDebt > 0 ? ` <span class="badge debt-badge">${t('pat_debt')} ${money(a.patDebt)}</span>` : ''}${a.remaining > 0 ? ` <span class="badge" style="background:color-mix(in srgb,var(--danger-soft,#e8607a) 20%,transparent);color:var(--danger-soft,#e8607a)">${t('rem_l')} ${money(a.remaining)}</span>` : (a.price > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#2e9e6b 18%,transparent);color:#2e9e6b">${t('paid_full')}</span>` : '')}${a.n ? ` <span class="badge">${t('hist_visit_n', { n: a.n })}</span>` : ''}${a.wallet > 0 ? ` <span class="badge" style="background:color-mix(in srgb,#3b82c4 18%,transparent);color:#3b82c4">${t('wal_bal_b')} ${money(a.wallet)}</span>` : ''}${a.followUp ? ` <span class="badge">${t('follow_b')}</span>` : ''}
     <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${t('sex')}: <strong>${esc(genderL(a.gender))}</strong> | ${t('birth')}: <strong>${a.birthYear}</strong> (${a.age} ${t('years_short')}) | ${t('reason_s')}: ${esc(reasonL(a.reason))} ${DENT() ? ` | ${t('tooth')}: <strong style="color:var(--warning-warm)">${esc(a.tooth || '---')}</strong>` : ''}</div>
     ${regTag(a)}${a.notes ? `<div class="note-line">${t('notes_l')} ${esc(a.notes)}</div>` : ''}${window.rxRecHTML ? rxRecHTML(a, a) : ''}
     ${a.images.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.images.map(i => `<img data-rec="${a.id}" data-img="${i}" data-act="lightbox" style="width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;background:var(--surface-sunk)" alt="">`).join('')}</div>` : ''}
@@ -1213,6 +1229,7 @@ const bkLine = n => n.kind === 'today' ? `${n.name} — ${t('bk_today')}` : `${n
 function renderBookings() {
   const box = $('#bookArea'); if (!box || !S.me || S.me.role !== 'doctor') return;
   const bk = S.booking || {}, td = localDay(), list = (S.bookings || []).filter(x => x.date >= td || x.status === 'pending'), pend = list.filter(x => x.status === 'pending').length;
+  const bc = $('#bookCount'); if (bc) { bc.textContent = pend; bc.classList.toggle('zero', !pend); }   // دائرة عدد الحجوزات المعلّقة على تبويب «الحجوزات»
   const sig = JSON.stringify([bk.enabled, list, settings.lang, S.me.code]); if (box._sig === sig) return; box._sig = sig;
   const rows = list.map(x => `<div class="bk-row st-${esc(x.status)}"><div class="bk-when">${x.kind === 'today' ? `<b>🕘 ${esc(t('bk_today'))}</b><span>${esc(bkDate(x.date))}</span>` : `<b>${esc(bkDate(x.date))}</b><span dir="ltr">${esc(bkTime(x.time))}</span>`}</div>
     <div class="bk-who"><b>${esc(x.name)}</b> <a href="tel:${esc(x.phone)}" dir="ltr">${esc(x.phone)}</a>${x.kind === 'today' ? `<div class="bk-note">${esc(x.birthYear)} · ${esc(x.gender)}${x.reason ? ' · ' + esc(x.reason) : ''}</div>` : ''}${x.note ? `<div class="bk-note">📝 ${esc(x.note)}</div>` : ''}<span class="pl-badge ${x.status === 'ok' ? 'cont' : ''}">${t(x.status === 'ok' ? 'bk_ok' : x.status === 'no' ? 'bk_no' : 'bk_pending')}</span></div>
@@ -1418,6 +1435,7 @@ const ACT = {
   taskQuick(el) { const ta = $('#taskText'); ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + ' ' : '') + t(el.dataset.k); ta.focus(); },
   async taskDone(el) { el.disabled = true; const r = await run(() => api('POST', `/api/tasks/${el.dataset.id}/done`)); if (!r) { el.disabled = false; return; } S.tasks = S.tasks.filter(k => k.id !== el.dataset.id); renderTasks(); refresh(); },
   async taskDel(el) { if (!await appConfirm(t('task_confirm_del'))) return; if (await run(() => api('DELETE', `/api/tasks/${el.dataset.id}`))) { S.tasks = S.tasks.filter(k => k.id !== el.dataset.id); renderTasks(); renderTaskList(); } },
+  togSess: el => { const b = el.nextElementSibling; if (b) { b.hidden = !b.hidden; el.textContent = el.textContent.replace(/^[▾▸]/, b.hidden ? '▾' : '▸'); } },
   patHistory: el => showHistory(el.dataset.name, el.dataset.year),
   medPick(el) {   // إضافة عنصر جاهز إلى حقل الشكوى/التشخيص (يُضاف بفاصلة ولا يتكرّر) والتعديل عليه حرٌّ بعد ذلك
     const k = el.dataset.k, v = el.dataset.v, inp = $(`[data-med="${k}"]`); if (!inp) return; const cur = inp.value.trim(), parts = cur ? cur.split(/\s*[،,]\s*/) : [];
@@ -1521,7 +1539,7 @@ const ACT = {
   async payNurse(el) { const n = S.nurses.find(x => x.id === el.dataset.id); if (!n || !(await appConfirm(t('pay_mark_q', { n: n.name })))) return; if (await run(() => api('POST', `/api/nurses/${n.id}/paid`))) { toast(t('t_pay_marked'), 'success'); loadNurses(); } },
   editNurse(el) { const n = S.nurses.find(x => x.id === el.dataset.id); if (!n) return; $('#editNurseId').value = n.id; $('#editNurseName').value = n.name; $('#editNursePhone').value = n.phone || ''; $('#editNursePayDay').value = n.payDay || ''; $('#editNurseSalary').value = n.salary == null ? '' : n.salary; $('#editNursePass').value = ''; openModal('editNurseModal'); },
   editArchive(el) {
-    const a = S.archive.items.find(z => z.id === el.dataset.id); if (!a) return;
+    const a = archFind(el.dataset.id); if (!a) return;
     let m = $('#archEditModal'); if (m) m.remove(); m = document.createElement('div'); m.id = 'archEditModal'; m.className = 'modal-overlay';
     const f = (id, label, val, extra) => `<div class="form-group"><label>${esc(label)}</label><input id="ae${id}" value="${esc(val == null ? '' : val)}" ${extra || ''}></div>`;
     m.innerHTML = `<div class="modal-card"><h3 style="margin-bottom:12px;font-size:16px">${t('ae_title')}</h3>
@@ -1822,7 +1840,15 @@ document.addEventListener('reset', e => { $$('select[id$=Gender]', e.target).for
 
 
 /* ===================== عن البرنامج ===================== */
-const APP_VER = 'v160';
+/* إيقاف اقتراحات المتصفح السابقة (autofill) في كل الحقول، بما فيها المولَّدة لاحقاً؛ تبقى حقول كلمة المرور وما حُدِّد autocomplete فيه صراحةً */
+const acOff = el => {
+  if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') || el.hasAttribute('autocomplete')) return;
+  if (el.type === 'password' || (el.form && el.form.querySelector('input[type=password]'))) return;
+  el.setAttribute('autocomplete', 'off');
+};
+['focusin', 'pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, e => acOff(e.target), true));
+document.querySelectorAll('input,textarea').forEach(acOff);
+const APP_VER = 'v169';
 Object.assign(L.ar, { set_about: 'عن البرنامج' });
 Object.assign(L.en, { set_about: 'About' });
 const ABOUT = {
@@ -1900,5 +1926,5 @@ Object.assign(L.ar, { sess_paid: 'المقبوض في هذه الحصة:' });
 Object.assign(L.en, { sess_paid: 'Received in this session:' });
 Object.assign(L.ar, { ap_f_all: 'الكل', ap_f_yest: 'أمس', ap_f_today: 'اليوم', ap_f_tom: 'غداً' });
 Object.assign(L.en, { ap_f_all: 'All', ap_f_yest: 'Yesterday', ap_f_today: 'Today', ap_f_tom: 'Tomorrow' });
-Object.assign(L.ar, { tab_waiting_s: 'الانتظار', tab_appts_s: 'المواعيد', tab_consult_s: 'المعاينة', tab_add_s: 'تسجيل', tab_nurses_s: 'الممرضات', tab_archive_s: 'الأرشيف', tab_stats_s: 'الإحصاء', tab_set_s: 'الإعدادات' });
-Object.assign(L.en, { tab_waiting_s: 'Waiting', tab_appts_s: 'Appts', tab_consult_s: 'Consult', tab_add_s: 'Register', tab_nurses_s: 'Nurses', tab_archive_s: 'Archive', tab_stats_s: 'Stats', tab_set_s: 'Settings' });
+Object.assign(L.ar, { tab_waiting_s: 'الانتظار', tab_appts_s: 'المواعيد', tab_book_s: 'الحجوزات', tab_consult_s: 'المعاينة', tab_add_s: 'تسجيل', tab_nurses_s: 'الممرضات', tab_archive_s: 'الأرشيف', tab_stats_s: 'الإحصاء', tab_set_s: 'الإعدادات' });
+Object.assign(L.en, { tab_waiting_s: 'Waiting', tab_appts_s: 'Appts', tab_book_s: 'Bookings', tab_consult_s: 'Consult', tab_add_s: 'Register', tab_nurses_s: 'Nurses', tab_archive_s: 'Archive', tab_stats_s: 'Stats', tab_set_s: 'Settings' });
