@@ -486,7 +486,7 @@ function renderConsultation() {
       </section><section class="wiz-step" data-s="2"><div class="sec-t">${esc(t('wz_2'))}</div>${teethHTML()}
       <label style="font-size:13px;font-weight:600;color:var(--text-secondary)">${t('pick_treat')}</label><div class="hint" style="margin:2px 0 6px">${t('pick_treat_multi')}</div>
       <div class="treatment-grid">${treatList().map(v => `<div class="treatment-item ${S.treatments.includes(v) ? 'selected' : ''}" role="checkbox" aria-checked="${S.treatments.includes(v)}" data-act="treat" data-v="${esc(v)}">${esc(treatLabel(v))}</div>`).join('')}</div>
-      ${perToothHTML()}</section><section class="wiz-step" data-s="3"><div class="sec-t">${esc(t('wz_3'))}</div>${moneyHTML()}${nxHTML()}</section><section class="wiz-step" data-s="4"><div class="sec-t">${esc(t('wz_4_s'))}</div>
+      ${perToothHTML()}${window.labBoxHTML ? labBoxHTML() : '<div id="labBox"></div>'}</section><section class="wiz-step" data-s="3"><div class="sec-t">${esc(t('wz_3'))}</div>${moneyHTML()}${nxHTML()}</section><section class="wiz-step" data-s="4"><div class="sec-t">${esc(t('wz_4_s'))}</div>
       ${window.rxHTML ? rxHTML() : ''}
       <textarea id="consultNotes" maxlength="2000" placeholder="${esc(t('notes_ph'))}" style="height:80px;margin-bottom:12px"></textarea>
       <label style="font-size:13px;font-weight:600;color:var(--text-secondary)">${t('pnote_l')}</label>
@@ -580,7 +580,8 @@ function treatRowHTML(v, vals) {
     <button type="button" class="btn-action" data-act="moveTreat" data-d="-1" title="${esc(t('tr_up'))}" aria-label="${esc(t('tr_up'))}">▲</button><button type="button" class="btn-action" data-act="moveTreat" data-d="1" title="${esc(t('tr_down'))}" aria-label="${esc(t('tr_down'))}">▼</button><button type="button" class="btn-action btn-red" data-act="delTreat" title="${esc(t('tr_del'))}" aria-label="${esc(t('tr_del'))}">✕</button></div>
     <div class="sess-row main-row"><label class="price-main"><span>💰 ${t('set_price_l')}</span><input type="number" min="0" step="any" inputmode="decimal" data-cat="base" value="${o.base != null ? o.base : ''}" placeholder="0"></label>
       <label><span>${t('pl_sess_n')}</span><input type="number" min="1" max="60" step="1" inputmode="numeric" class="treat-sess" value="${ns}"></label>
-      <label class="flat-on"><input type="checkbox" class="treat-flat" ${(o.flat !== undefined ? o.flat : /استشارة|consult|تركيب|prosth/i.test(v || '')) ? 'checked' : ''}><span>${t('set_flat_l')}</span></label></div>
+      <label class="flat-on"><input type="checkbox" class="treat-flat" ${(o.flat !== undefined ? o.flat : /استشارة|consult|تركيب|prosth/i.test(v || '')) ? 'checked' : ''}><span>${t('set_flat_l')}</span></label>
+      <label class="flat-on lab-on"><input type="checkbox" class="treat-lab" ${o.lab ? 'checked' : ''}><span>🧪 ${t('lab_needs')}</span></label></div>
     <details class="adv"${advOpen ? ' open' : ''}><summary>⚙️ ${t('set_adv_l')}</summary>
       <div class="sess-row"><label><span>📅 ${t('ap_gap_l')}</span><input type="number" min="0" max="365" step="1" inputmode="numeric" class="treat-gap" value="${o.gap != null ? o.gap : 7}"></label>
         <label class="col-on ortho-on"${ns >= 6 ? '' : ' hidden'}><input type="checkbox" class="treat-ortho" ${o.ortho ? 'checked' : ''}><span>🦷 ${t('ortho_l')}</span></label>
@@ -1294,7 +1295,7 @@ function docTab(tab) {
   if (window.showHero) showHero();
   $$('#doctorScreen .tab-content').forEach(s => s.classList.remove('active')); $$('#doctorScreen .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   $('#' + tab + 'Tab').classList.add('active');
-  if (tab === 'archive') loadArchive(true); if (tab === 'nurses') loadNurses(); if (tab === 'quote' && window.qRender) qRender(); if (tab === 'stats' && window.loadStats) { const st = S.stats; if (st) st.data = null; loadStats(); }
+  if (tab === 'archive') loadArchive(true); if (tab === 'nurses') loadNurses(); if (tab === 'quote' && window.qRender) qRender(); if (tab === 'lab' && window.labRender) labRender(true); if (tab === 'stats' && window.loadStats) { const st = S.stats; if (st) st.data = null; loadStats(); }
 }
 function nurseTab(tab) {
   if (window.showHero) showHero();
@@ -1675,7 +1676,7 @@ document.addEventListener('submit', async e => {
       if (seen.has(key.toLowerCase())) { toast(t('e_duplicate'), 'danger'); return; } seen.add(key.toLowerCase());
       treatments.push(key); (list[key] = list[key] || {}).sessions = Math.min(MAXS, Math.max(1, parseInt($('.treat-sess', row).value) || 1));
       if (!DENT()) list[key].ortho = false; else { const oc = $('.treat-ortho', row); if (list[key].sessions < 6) { oc.checked = false; list[key].ortho = false; } else { if (list[key].sessions >= 6 && !oc.checked && row.dataset.oset !== '1') { oc.checked = (await appDialog({ msg: t('ortho_q', { n: name, s: list[key].sessions }), okL: t('ortho_yes'), noL: t('ortho_no') })) === true; row.dataset.oset = '1'; } if (oc.checked) list[key].ortho = true; else if (row.dataset.oset === '1') list[key].ortho = false; } }   // علاج ≥ 6 حصص: نسأل مرة واحدة هل هو تقويم
-      { const g = parseInt($('.treat-gap', row).value); list[key].gap = Number.isInteger(g) ? Math.min(365, Math.max(0, g)) : 7; } list[key].flat = $('.treat-flat', row).checked; list[key].col = { on: $('.treat-col-on', row).checked, part: $('.treat-col-part', row).value, done: $('.treat-col-done', row).value }; $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
+      { const g = parseInt($('.treat-gap', row).value); list[key].gap = Number.isInteger(g) ? Math.min(365, Math.max(0, g)) : 7; } list[key].flat = $('.treat-flat', row).checked; list[key].lab = $('.treat-lab', row).checked; list[key].col = { on: $('.treat-col-on', row).checked, part: $('.treat-col-part', row).value, done: $('.treat-col-done', row).value }; $$('input[data-cat]', row).forEach(i => { if (i.value !== '') (list[key] = list[key] || {})[i.dataset.cat] = i.value; });
     }
     if (!treatments.length) { toast(t('tr_last'), 'danger'); return; }
     const r = await run(() => api('PUT', '/api/prices', { currency: $('.priceCur', f).value, list, treatments }));
@@ -1848,7 +1849,7 @@ const acOff = el => {
 };
 ['focusin', 'pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, e => acOff(e.target), true));
 document.querySelectorAll('input,textarea').forEach(acOff);
-const APP_VER = 'v173';
+const APP_VER = 'v176';
 Object.assign(L.ar, { set_about: 'عن البرنامج' });
 Object.assign(L.en, { set_about: 'About' });
 const ABOUT = {
@@ -1915,7 +1916,7 @@ function perToothHTML() {
   return `<div id="ptBox" class="pt-box"><div class="pt-title">${esc(t('wz_pt_title'))}</div><div class="hint">${esc(t('wz_pt_hint'))}</div>` + teeth.map(th =>
     `<div class="pt-row"><span class="pt-th">${esc(th)}</span><span class="pt-chips">${trs.map(v => { const on = !S.removed.has(lineKey(th, v)); return `<button type="button" class="pt-chip${on ? ' on' : ''}" aria-pressed="${on}" data-act="toothTr" data-th="${esc(th)}" data-v="${esc(v)}">${esc(treatLabel(v))}</button>`; }).join('')}</span></div>`).join('') + '</div>';
 }
-function ptUpdate() { const b = $('#ptBox'); if (b) b.outerHTML = perToothHTML(); }
+function ptUpdate() { const b = $('#ptBox'); if (b) b.outerHTML = perToothHTML(); if (window.labUpdate) labUpdate(); }
 
 
 /* كلمات قصيرة لشريط تبويبات الطبيب (الأيقونة منفصلة في HTML) */

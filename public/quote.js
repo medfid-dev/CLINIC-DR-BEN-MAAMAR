@@ -4,7 +4,7 @@
    يعتمد على app.js (t, L, S, $, $$, esc, money, treatList, treatLabel, priceFor, flatOf, defSessions, colOf, TEETH, ymd, ACT, toast, DENT). */
 const Q = { set: 'adult', sel: new Map(), flat: new Set(), act: new Set(), disc: 0, dtype: 'amt', inst: false, down: 0, mon: 0, n: 3, gap: 30, name: '' };
 
-Object.assign(L.ar, {
+Object.assign(L.ar, { q_paid_today: 'المدفوع اليوم (غير المقسَّط + الدفعة الأولى)', q_remaining: 'المتبقي بعد اليوم (الأقساط)',
   tab_quote_s: 'التسعير', q_title: '🧾 فاتورة تقدير الكلفة', q_hint: 'اضغط على سن أو عدة أسنان معاً ثم اختر العلاج لتطبيقه عليها كلها؛ تُحسب الكلفة من قائمة الأسعار.',
   q_name_ph: 'اسم المريض (اختياري)', q_pick: 'السن {n} — اختر علاجاته:', q_pick_none: 'اضغط على سن من المخطط لاختيار علاجه', q_general: 'بنود عامة (تُحسب مرة واحدة)',
   q_col_tr: 'العلاج', q_col_teeth: 'الأسنان', q_col_sub: 'المبلغ', q_total: 'الكلفة الإجمالية', q_disc: 'خصم', q_net: 'الصافي بعد الخصم', q_empty: 'لم تُحدَّد علاجات بعد',
@@ -12,7 +12,7 @@ Object.assign(L.ar, {
   q_pct: '٪', q_amt: 'مبلغ', q_disc_amt: 'قيمة الخصم', q_inst: 'تقسيط الدفع', q_linst: 'قابل للتقسيط', q_now: 'تُدفع اليوم كاملة (علاجات غير مقسَّطة)', q_noinst: 'كل العلاجات المختارة غير قابلة للتقسيط: تُدفع كاملة اليوم', q_instpart: 'الجزء القابل للتقسيط', q_down: 'الدفعة الأولى (اليوم)', q_n: 'عدد الأقساط', q_half: '½ النصف', q_mon: 'القسط الشهري (المبلغ)', q_auto: 'يُحسب تلقائياً', q_gap: 'كل (يوم)', q_sched: 'جدول الأقساط', q_first: 'الدفعة الأولى', q_k: 'القسط {k}', q_date: 'التاريخ', q_each: '{n} أقساط', q_jaw_up: 'الفك العلوي', q_jaw_lo: 'الفك السفلي', q_right: 'يمين', q_left: 'يسار', q_remain: 'المتبقي للتقسيط',
   q_perm: 'دائمة', q_prim: 'لبنية', q_count: 'العدد', q_teeth_total: 'عدد الأسنان المحددة', q_sel_n: 'محدد: {n}', q_sel_up: 'كل العلوي', q_sel_lo: 'كل السفلي', q_sel_all: 'الكل', q_sel_none: 'إلغاء التحديد', q_pick_multi: 'الأسنان المحددة ({n}): {list} — اختر علاجاً لتطبيقه عليها كلها:', q_multi_hint: 'يمكنك تحديد عدة أسنان معاً ثم إضافة علاج واحد لها كلها.', q_teeth_n: 'سن', q_date: 'التاريخ', q_patient: 'المريض'
 });
-Object.assign(L.en, {
+Object.assign(L.en, { q_paid_today: 'Paid today (non-installment + down payment)', q_remaining: 'Remaining after today (installments)',
   tab_quote_s: 'Estimate', q_title: '🧾 Treatment cost estimate', q_hint: 'Tap a tooth that needs treatment, then pick its treatments; the cost comes from your price list.',
   q_name_ph: 'Patient name (optional)', q_pick: 'Tooth {n} — choose treatments:', q_pick_none: 'Tap a tooth on the chart to choose its treatment', q_general: 'General items (counted once)',
   q_col_tr: 'Treatment', q_col_teeth: 'Teeth', q_col_sub: 'Amount', q_total: 'Total cost', q_disc: 'Discount', q_net: 'Net after discount', q_empty: 'No treatments selected yet',
@@ -95,7 +95,7 @@ function qSchedule() {
   for (let k = 1; k <= n && rem > 0; k++) { const amt = k === n ? r2q(left) : base; left = r2q(left - amt); rows.push({ label: t('q_k', { k }), at: Date.now() + k * gap * 864e5, amt }); }
   return { rows, down, rem, n, gap, instNet, mon };
 }
-const qSchedHTML = () => { const s = qSchedule(); if (!s) return ''; if (s.none) return `<div class="qmuted qempty">${esc(t('q_noinst'))}</div>`; return `<table class="qtable qsched"><thead><tr><th>${esc(t('q_sched'))}</th><th>${esc(t('q_date'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${s.rows.map(r => `<tr><td>${esc(r.label)}</td><td>${esc(ymd(r.at))}</td><td class="qnum">${esc(money(r.amt) || '0')}</td></tr>`).join('')}</tbody></table>`; };
+const qSchedHTML = () => { const s = qSchedule(); if (!s) return ''; if (s.none) return `<div class="qmuted qempty">${esc(t('q_noinst'))}</div>`; return `<table class="qtable qsched"><thead><tr><th>${esc(t('q_sched'))}</th><th>${esc(t('q_date'))}</th><th class="qnum">${esc(t('q_col_sub'))}</th></tr></thead><tbody>${s.rows.map(r => `<tr><td>${esc(r.label)}</td><td>${esc(ymd(r.at))}</td><td class="qnum">${esc(money(r.amt) || '0')}</td></tr>`).join('')}</tbody><tfoot><tr class="qs-today"><td colspan="2">${esc(t('q_paid_today'))}</td><td class="qnum">${esc(money(r2q(s.rows.filter(r => r.at <= s.rows[0].at + 1e3).reduce((x, r) => x + r.amt, 0))) || '0')}</td></tr><tr class="qs-rem"><td colspan="2">${esc(t('q_remaining'))}</td><td class="qnum">${esc(money(s.rem) || '0')}</td></tr></tfoot></table>`; };
 function qUpdateTotals() { const tot = qTotal(qLines()), net = qNet(tot), d = $('#qDiscAmt'), nt = $('#qNet'), sc = $('#qSched'); if (d) d.textContent = money(qDiscAmt(tot)) || '0'; if (nt) nt.textContent = money(net) || '0'; if (sc) sc.innerHTML = qSchedHTML(); const sh = qSchedule(), ni = $('#qN'); if (sh && ni && ni.readOnly && !sh.none) ni.value = sh.n; }
 
 /* ---- العرض ---- */
