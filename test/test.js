@@ -606,6 +606,34 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     { const fs = require('fs'), pth = require('path'), rd = f => fs.readFileSync(pth.join(__dirname, '..', 'public', f), 'utf8');
       const v1 = (rd('app.js').match(/APP_VER = '(v\d+)'/) || [])[1], v2 = (rd('splash.js').match(/textContent = '(v\d+)'/) || [])[1], v3 = (rd('sw.js').match(/cc-shell-(v\d+)/) || [])[1];
       ok(v1 && v1 === v2 && v2 === v3, 'رقم النسخة موحّد (عن البرنامج / شاشة البداية / التخزين المؤقت): ' + [v1, v2, v3].join(' ')); }
+    console.log('المختبر');
+    { const A = (await J('POST', '/api/register', null, { clinicName: 'عيادة مختبر', doctorName: 'د. أحمد', username: 'labdoc', password: 'password1' })).j.token, B = (await J('POST', '/api/register', null, { clinicName: 'عيادة أخرى', doctorName: 'د. ليلى', username: 'labdoc2', password: 'password1' })).j.token;
+      const lp = (await J('POST', '/api/patients', A, pat('مريض مختبر', { phone: '0661112233' }))).j; ok(!!lp.id, 'مريض للاختبار ' + JSON.stringify(lp).slice(0, 120));
+      let r2 = await J('GET', '/api/lab', null); ok(r2.s === 401, 'المختبر يتطلب تسجيل دخول الطبيب');
+      r2 = await J('PUT', '/api/prices', A, { currency: 'دج', list: { 'جلسة تركيب': { base: 9000, lab: true }, 'قلع': { base: 1000, lab: 'yes' } } });
+      ok(r2.s === 200 && r2.j.list['جلسة تركيب'].lab === true && r2.j.list['قلع'].lab === undefined, 'علامة «يحتاج مختبر» تُحفظ (منطقية فقط)');
+      r2 = await J('GET', '/api/lab', A); ok(r2.s === 200 && Array.isArray(r2.j.labs) && r2.j.def.length >= 3 && r2.j.cases.length === 0, 'المختبر فارغ في البداية مع مراحل عامة');
+      r2 = await J('PUT', '/api/lab/config', A, { labs: [{ name: 'مختبر النور', phone: '0555' }, { name: '' }], stages: { 'جلسة تركيب': ['طبعة', 'تصنيع', 'تجربة', 'طبعة'], 'غير معروف': ['x'] }, def: ['أ', 'ب'] });
+      ok(r2.s === 200 && r2.j.labs.length === 1 && r2.j.labs[0].id && r2.j.stages['جلسة تركيب'].join() === 'طبعة,تصنيع,تجربة' && !r2.j.stages['غير معروف'] && r2.j.def.join() === 'أ,ب', 'حفظ المختبرات والمراحل (تنظيف المكرر والمجهول)');
+      const lab = r2.j.labs[0];
+      r2 = await J('POST', '/api/lab/cases', A, { patientId: lp.id, labId: lab.id, items: [{ treatment: 'جلسة تركيب', teeth: ['16', '17', '99'] }, { treatment: 'علاج مجهول', teeth: ['11'] }] });
+      ok(r2.s === 200 && r2.j.cases.length === 1 && r2.j.cases[0].created, 'إنشاء حالة مختبر (العلاج المجهول يُتجاهل)');
+      const cs = r2.j.cases[0];
+      ok(cs.name === 'مريض مختبر' && cs.phone === '0661112233' && cs.teeth.join() === '16,17' && cs.labName === 'مختبر النور' && cs.doctor === 'د. أحمد' && cs.stages.length === 3 && cs.stages.every(z => !z.at), 'المعلومات تُجمع تلقائياً من ملف المريض');
+      r2 = await J('POST', '/api/lab/cases', A, { patientId: lp.id, labId: lab.id, items: [{ treatment: 'جلسة تركيب', teeth: ['17', '16'] }] });
+      ok(r2.s === 200 && !r2.j.cases[0].created && r2.j.cases[0].id === cs.id, 'منع تكرار نفس الحالة');
+      r2 = await J('POST', '/api/lab/cases', B, { patientId: lp.id, items: [{ treatment: 'قلع', teeth: [] }] }); ok(r2.s === 404, 'عيادة أخرى لا ترى المريض');
+      r2 = await J('PUT', `/api/lab/cases/${cs.id}`, A, { next: true }); ok(r2.j.case.stages[0].at && !r2.j.case.stages[1].at && !r2.j.case.doneAt, 'المرحلة التالية');
+      r2 = await J('PUT', `/api/lab/cases/${cs.id}`, A, { toggle: 2 }); ok(r2.j.case.stages.every(z => z.at) && r2.j.case.doneAt, 'اختيار المرحلة الأخيرة يُكمل ما قبلها وتكتمل الحالة');
+      r2 = await J('PUT', `/api/lab/cases/${cs.id}`, A, { back: true, due: '2026-12-01', note: 'لون A2' }); ok(!r2.j.case.doneAt && r2.j.case.due === '2026-12-01' && r2.j.case.note === 'لون A2' && r2.j.case.stages[2].at === null, 'تراجع + موعد + ملاحظة');
+      r2 = await J('PUT', '/api/lab/config', A, { labs: [{ id: lab.id, name: 'مختبر النور 2' }], stages: { 'جلسة تركيب': ['طبعة', 'تجربة', 'تسليم'] }, def: ['أ'] });
+      ok(r2.j.cases[0].labName === 'مختبر النور 2' && r2.j.cases[0].stages.map(z => z.n).join() === 'طبعة,تجربة,تسليم' && r2.j.cases[0].stages[0].at && !r2.j.cases[0].stages[2].at, 'تعديل القالب/الاسم يسري على الحالة المفتوحة مع إبقاء المنجز');
+      const bk = (await J('GET', '/api/backup', A)).j; ok(bk.lab && bk.lab.cases.length === 1, 'النسخة الاحتياطية تشمل المختبر');
+      r2 = await J('POST', '/api/restore', A, bk); ok(r2.s === 200, 'استعادة النسخة');
+      r2 = await J('GET', '/api/lab', A); ok(r2.j.cases.length === 1 && r2.j.cases[0].name === 'مريض مختبر' && r2.j.labs[0].name === 'مختبر النور 2' && r2.j.cases[0].note === 'لون A2', 'الاستعادة تعيد المختبر كاملاً');
+      r2 = await J('DELETE', `/api/lab/cases/${r2.j.cases[0].id}`, A); ok(r2.s === 200, 'حذف الحالة');
+      r2 = await J('GET', '/api/lab', A); ok(r2.j.cases.length === 0, 'المختبر فارغ بعد الحذف');
+      const sw2 = await (await fetch(base + '/sw.js')).text(), idx2 = await (await fetch(base + '/')).text(); ok(sw2.includes("'/lab.js'") && idx2.includes('src="lab.js"') && idx2.includes('data-tab="lab"'), 'تبويب المختبر مضمّن في الصفحة وملفات التخزين'); }
     console.log(`\nنجحت كل الاختبارات: ${pass}`);
   } catch (e) { console.error('\n✗ فشل:', e.message); process.exitCode = 1; }
   srv.on('exit', () => fs.rmSync(dir, { recursive: true, force: true })); srv.kill(); mock.close();

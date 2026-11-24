@@ -145,7 +145,22 @@ function toothItems(rs) {
   }
   return out.slice(-400);
 }
-const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } const sn = cleanSess(v.sessions); if (sn) o.sessions = sn; const gp = cleanGap(v.gap); if (gp != null) o.gap = gp; const cc = cleanCol(v.col, k); if (cc) o.col = cc; if (typeof v.ortho === 'boolean') o.ortho = v.ortho; if (typeof v.flat === 'boolean') o.flat = v.flat; } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
+const normList = (l, keys) => { const out = {}; for (const k of keys) { const v = l && Object.prototype.hasOwnProperty.call(l, k) ? l[k] : undefined; const o = {}; if (v && typeof v === 'object') { for (const c of PRICE_CATS) { const n = num(v[c]); if (n != null) o[c] = n; } const sn = cleanSess(v.sessions); if (sn) o.sessions = sn; const gp = cleanGap(v.gap); if (gp != null) o.gap = gp; const cc = cleanCol(v.col, k); if (cc) o.col = cc; if (typeof v.ortho === 'boolean') o.ortho = v.ortho; if (typeof v.flat === 'boolean') o.flat = v.flat; if (typeof v.lab === 'boolean') o.lab = v.lab; } else { const n = num(v); if (n != null) o.base = n; } if (Object.keys(o).length) out[k] = o; } return out; };
+/* ===== المختبر: مختبرات + قوالب مراحل لكل علاج + حالات (علاج أُرسل للمختبر بكل معلومات المريض) ===== */
+const LAB_DEF = ['أخذ الطبعة', 'إرسال للمختبر', 'قيد التصنيع', 'التجربة', 'استلام من المختبر', 'التركيب'];
+const labOf = c => c.lab || (c.lab = { labs: [], stages: {}, def: LAB_DEF.slice(), cases: [] });
+const cleanStages = (a, fb) => { const out = [], seen = new Set(); for (const x of Array.isArray(a) ? a : []) { const n = str(x, 40).replace(/\s+/g, ' '); if (!n || seen.has(n)) continue; seen.add(n); out.push(n); if (out.length >= 14) break; } return out.length ? out : (fb || []); };
+const labStagesFor = (L, tr) => (L.stages[tr] && L.stages[tr].length ? L.stages[tr] : (L.def && L.def.length ? L.def : LAB_DEF));
+const labMakeStages = (names, old) => names.map(n => ({ n, at: ((old || []).find(o => o.n === n) || {}).at || null }));
+const labView = c => { const L = labOf(c); return { labs: L.labs, stages: L.stages, def: L.def && L.def.length ? L.def : LAB_DEF, cases: L.cases.slice().sort((x, y) => y.createdAt - x.createdAt) }; };
+function labSaveCfg(c, b) {
+  const L = labOf(c), ids = new Set(), labs = [];
+  for (const x of Array.isArray(b.labs) ? b.labs : []) { const name = str(x && x.name, 80); if (!name) continue; let id = x && PLAN_ID.test(String(x.id)) ? String(x.id) : rid(5); if (ids.has(id)) id = rid(5); ids.add(id); labs.push({ id, name, phone: str(x.phone, 25) }); if (labs.length >= 30) break; }
+  const tr = new Set(treatsOf(c)), stages = {};
+  for (const [k, v] of Object.entries(b.stages && typeof b.stages === 'object' ? b.stages : {})) { const key = str(k, 40); if (!key || !tr.has(key) || Object.keys(stages).length >= 80) continue; const l = cleanStages(v); if (l.length) stages[key] = l; }
+  L.labs = labs; L.stages = stages; L.def = cleanStages(b.def, LAB_DEF.slice());
+  for (const cs of L.cases) { const lb = labs.find(z => z.id === cs.labId); if (lb) cs.labName = lb.name; cs.stages = labMakeStages(labStagesFor(L, cs.treatment), cs.stages); }   // الحالات المفتوحة تتبع القالب الجديد مع الإبقاء على ما أُنجز
+}
 const pricesOf = c => { const tr = treatsOf(c), list = normList(c.prices && c.prices.list, tr); for (const k of tr) list[k] = { ...(list[k] || {}), sessions: (list[k] && list[k].sessions) || defSess(k), flat: (list[k] && typeof list[k].flat === 'boolean') ? list[k].flat : defFlat(k), gap: (list[k] && list[k].gap != null) ? list[k].gap : DEF_GAP, col: (list[k] && list[k].col) || defCol(k) }; return { currency: (c.prices && c.prices.currency) || '', list, treatments: tr }; };
 /* أسماء العلاجات: 1–30 اسماً فريداً (بلا حساسية لحالة الأحرف)، كل اسم حتى 40 حرفاً */
 function normTreatments(a) {
@@ -1189,6 +1204,38 @@ async function api(req, res, url) {
     a.clinic.prices = { currency: str(b.currency, 10), list: normList(b.list, treatments), treatments }; save(); return send(res, 200, pricesOf(a.clinic));
   }
 
+  /* ===== المختبر (طبيب فقط) ===== */
+  if (p === '/api/lab' && m === 'GET') return send(res, 200, labView(authOf(req, ['doctor']).clinic));
+  if (p === '/api/lab/config' && m === 'PUT') { const a = authOf(req, ['doctor']), b = await readJSON(req); labSaveCfg(a.clinic, b); save(); return send(res, 200, labView(a.clinic)); }
+  if (p === '/api/lab/cases' && m === 'POST') {
+    const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req), L = labOf(c), pt = c.patients.find(z => z.id === b.patientId);
+    if (!pt) throw httpErr(404, 'not_found');
+    const lb = L.labs.find(z => z.id === b.labId), tr = new Set(treatsOf(c)), out = [];
+    for (const it of (Array.isArray(b.items) ? b.items : []).slice(0, 12)) {
+      const treatment = str(it && it.treatment, 40); if (!treatment || !tr.has(treatment)) continue;
+      const teeth = cleanTeeth(it.teeth).sort(), key = teeth.join(' ');
+      let cs = L.cases.find(z => z.patientId === pt.id && z.treatment === treatment && (z.teeth || []).join(' ') === key);
+      if (!cs) { if (L.cases.length >= 5000) throw httpErr(400, 'invalid_input'); cs = { id: rid(5), patientId: pt.id, name: pt.name, birthYear: pt.birthYear || 0, gender: pt.gender || '', phone: pt.phone || '', treatment, teeth, labId: lb ? lb.id : '', labName: lb ? lb.name : '', doctor: c.doctor.name || '', createdAt: now(), due: '', note: '', stages: labMakeStages(labStagesFor(L, treatment)) }; L.cases.push(cs); cs.isNew = true; }
+      out.push(cs);
+    }
+    if (!out.length) throw httpErr(400, 'invalid_input');
+    const view = out.map(z => { const n = !!z.isNew; delete z.isNew; return { ...z, created: n }; }); save(); return send(res, 200, { cases: view });
+  }
+  { const lm = p.match(/^\/api\/lab\/cases\/([a-f0-9]{1,16})$/);
+    if (lm && (m === 'PUT' || m === 'DELETE')) {
+      const a = authOf(req, ['doctor']), c = a.clinic, L = labOf(c), cs = L.cases.find(z => z.id === lm[1]); if (!cs) throw httpErr(404, 'not_found');
+      if (m === 'DELETE') { L.cases = L.cases.filter(z => z !== cs); save(); return send(res, 200, { ok: true }); }
+      const b = await readJSON(req), t = now();
+      if (b.labId !== undefined) { const lb = L.labs.find(z => z.id === b.labId); cs.labId = lb ? lb.id : ''; cs.labName = lb ? lb.name : ''; }
+      if (b.due !== undefined) cs.due = /^\d{4}-\d{2}-\d{2}$/.test(String(b.due)) ? String(b.due) : '';
+      if (b.note !== undefined) cs.note = str(b.note, 500);
+      if (Number.isInteger(b.toggle) && cs.stages[b.toggle]) { const i = b.toggle; if (cs.stages[i].at) for (let j = i; j < cs.stages.length; j++) cs.stages[j].at = null; else for (let j = 0; j <= i; j++) if (!cs.stages[j].at) cs.stages[j].at = t; }
+      if (b.next === true) { const s = cs.stages.find(z => !z.at); if (s) s.at = t; }
+      if (b.back === true) { const d = cs.stages.filter(z => z.at); if (d.length) d[d.length - 1].at = null; }
+      cs.doneAt = cs.stages.length && cs.stages.every(z => z.at) ? (cs.doneAt || t) : null;
+      save(); return send(res, 200, { case: cs });
+    } }
+
   /* سجل المريض الكامل: كل زياراته من الأولى إلى الأخيرة + زيارته الحالية إن وُجدت (طبيب فقط) */
   if (m === 'GET' && p === '/api/history') {
     const a = authOf(req, ['doctor']); needUnlock(req, a.clinic); const q = url.searchParams, year = parseInt(q.get('year'));
@@ -1461,7 +1508,7 @@ async function api(req, res, url) {
   if (m === 'GET' && p === '/api/backup') {
     const a = authOf(req, ['doctor']), c = a.clinic, images = {}; needUnlock(req, c);
     for (const r of c.patients.concat(c.archive)) for (const i of r.images || []) { try { images[i.id] = fs.readFileSync(imgPath(c, i.id)).toString('base64'); } catch (e) {} }
-    const body = JSON.stringify({ app: 'calm-clinic', version: 4, exportedAt: now(), clinicName: c.name, doctorName: c.doctor.name, tasks: (c.tasks || []).map(k => ({ text: k.text, toName: k.to ? ((c.nurses.find(z => z.id === k.to) || {}).name || '') : '', createdAt: k.createdAt, done: !!k.done, doneAt: k.doneAt || null, doneBy: k.doneBy || '' })), schedule: c.schedule || null, apptMode: c.apptMode || null, specialty: specOf(c), profiles: c.profiles || {}, medLists: medListsOf(c), reasons: reasonsOf(c), payTz: payTzOf(c), nurses: c.nurses.map(n => ({ name: n.name, phone: n.phone, salt: n.salt, hash: n.hash, createdAt: n.createdAt, payDay: n.payDay || null, salary: n.salary == null ? null : n.salary, paidFor: n.paidFor || '' })), protect: !!c.protect, counter: c.counter || null, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, rxDocs: c.rxDocs || null, appts: c.appts || [], booking: c.booking || null, bookings: c.bookings || [], images });
+    const body = JSON.stringify({ app: 'calm-clinic', version: 4, exportedAt: now(), clinicName: c.name, doctorName: c.doctor.name, tasks: (c.tasks || []).map(k => ({ text: k.text, toName: k.to ? ((c.nurses.find(z => z.id === k.to) || {}).name || '') : '', createdAt: k.createdAt, done: !!k.done, doneAt: k.doneAt || null, doneBy: k.doneBy || '' })), schedule: c.schedule || null, apptMode: c.apptMode || null, specialty: specOf(c), profiles: c.profiles || {}, medLists: medListsOf(c), reasons: reasonsOf(c), payTz: payTzOf(c), nurses: c.nurses.map(n => ({ name: n.name, phone: n.phone, salt: n.salt, hash: n.hash, createdAt: n.createdAt, payDay: n.payDay || null, salary: n.salary == null ? null : n.salary, paidFor: n.paidFor || '' })), protect: !!c.protect, counter: c.counter || null, patients: c.patients, archive: c.archive, wallets: c.wallets || {}, rxBasket: c.rxBasket || [], rxDrugs: c.rxDrugs || [], prices: c.prices || null, rxTpl: c.rxTpl || null, rxDocs: c.rxDocs || null, appts: c.appts || [], lab: c.lab || null, booking: c.booking || null, bookings: c.bookings || [], images });
     res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="clinic_backup_${new Date().toISOString().slice(0, 10)}.json"`, 'Cache-Control': 'no-store' });
     return res.end(body);
   }
@@ -1516,6 +1563,10 @@ async function api(req, res, url) {
     if (b.booking && typeof b.booking === 'object') { try { c.booking = normBooking(b.booking); } catch (e) {} }
     c.bookings = (Array.isArray(b.bookings) ? b.bookings : []).slice(0, 1000).filter(x => x && cleanDate(x.date) && /^([01]\d|2[0-3]):[0-5]\d$/.test(String(x.time)) && str(x.name, 80)).map(x => ({ id: /^[a-f0-9]{10}$/.test(String(x.id)) ? x.id : rid(5), name: str(x.name, 80), phone: str(x.phone, 25), date: x.date, time: x.time, note: str(x.note, 200), ...(+x.birthYear >= 1900 ? { birthYear: +x.birthYear, gender: x.gender === 'أنثى' ? 'أنثى' : 'ذكر', reason: str(x.reason, 60) } : {}), status: ['pending', 'ok', 'no'].includes(x.status) ? x.status : 'pending', createdAt: +x.createdAt || now() }));
     c.appts = (Array.isArray(b.appts) ? b.appts : []).slice(0, 2000).filter(x => x && PLAN_ID.test(String(x.id)) && PLAN_ID.test(String(x.plan)) && typeof x.k === 'string' && x.k.length <= 120 && cleanDate(x.date)).map(x => ({ id: x.id, plan: x.plan, k: x.k, name: str(x.name, 80), birthYear: parseInt(x.birthYear) || 0, phone: str(x.phone, 25), tooth: str(x.tooth, 20), treatment: str(x.treatment, 40), date: x.date, ...(x.solo ? { solo: 1 } : {}) }));
+    /* المختبر: الإعدادات ثم الحالات (تُنظَّف بنفس قواعد الإنشاء) */
+    if (b.lab && typeof b.lab === 'object') { c.lab = { labs: [], stages: {}, def: LAB_DEF.slice(), cases: [] }; labSaveCfg(c, b.lab);
+      c.lab.cases = (Array.isArray(b.lab.cases) ? b.lab.cases : []).slice(0, 5000).filter(x => x && PLAN_ID.test(String(x.id)) && typeof x.treatment === 'string').map(x => { const L = c.lab, lb = L.labs.find(z => z.id === x.labId), tr = str(x.treatment, 40); return { id: x.id, patientId: str(x.patientId, 40), name: str(x.name, 80), birthYear: parseInt(x.birthYear) || 0, gender: str(x.gender, 4), phone: str(x.phone, 25), treatment: tr, teeth: cleanTeeth(x.teeth).sort(), labId: lb ? lb.id : '', labName: lb ? lb.name : str(x.labName, 80), doctor: str(x.doctor, 80), createdAt: +x.createdAt || now(), due: /^\d{4}-\d{2}-\d{2}$/.test(String(x.due)) ? x.due : '', note: str(x.note, 500), doneAt: +x.doneAt || null, stages: (Array.isArray(x.stages) ? x.stages : []).slice(0, 14).map(z => ({ n: str(z && z.n, 40), at: +(z && z.at) || null })).filter(z => z.n) }; }); }
+    else delete c.lab;
     c.patients = P; c.archive = A; RT(c).skip.clear(); broadcast(c); return send(res, 200, { patients: P.length, archive: A.length });
   }
   throw httpErr(404, 'not_found');
