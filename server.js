@@ -218,12 +218,12 @@ const planView = p => ({ id: p.id, tooth: p.tooth, ...(p.teeth ? { teeth: p.teet
 const cleanDate = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s + 'T00:00:00Z')) && new Date(Date.parse(s + 'T00:00:00Z')).toISOString().slice(0, 10) === s ? s : null;
 const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
 function apptsView(c) {
-  const out = [], cache = new Map(), vcm = visitCountMap(c);
+  const out = [], cache = new Map(), vcm = visitCountMap(c), here = new Set(c.patients.map(p => patKey(p)));   // هنا: المريض حضر (في الانتظار/المعاينة)
   for (const a of c.appts || []) {
-    if (a.solo) { out.push({ id: a.id, name: a.name, birthYear: a.birthYear, phone: a.phone || '', tooth: a.tooth || '', treatment: a.treatment, no: 1, sessions: 1, date: a.date, vc: vcm.get(a.k) || 0 }); continue; }   // موعد مستقل لعلاج آخر (مثل القلع بعد استشارة): لا يرتبط بخطة
+    if (a.solo) { out.push({ id: a.id, name: a.name, birthYear: a.birthYear, phone: a.phone || '', tooth: a.tooth || '', treatment: a.treatment, no: 1, sessions: 1, date: a.date, vc: vcm.get(a.k) || 0, here: here.has(a.k) }); continue; }   // موعد مستقل لعلاج آخر (مثل القلع بعد استشارة): لا يرتبط بخطة
     let pm = cache.get(a.k); if (!pm) { pm = plansOf(c, a.k); cache.set(a.k, pm); }
     const p = pm.get(a.plan); if (!p || !p.open) continue;
-    out.push({ id: a.id, name: a.name, birthYear: a.birthYear, phone: a.phone || '', tooth: p.teeth ? p.teeth.join(' ') : p.tooth, treatment: p.treatment, no: p.done + 1, sessions: p.sessions, date: a.date, vc: vcm.get(a.k) || 0 });
+    out.push({ id: a.id, name: a.name, birthYear: a.birthYear, phone: a.phone || '', tooth: p.teeth ? p.teeth.join(' ') : p.tooth, treatment: p.treatment, no: p.done + 1, sessions: p.sessions, date: a.date, vc: vcm.get(a.k) || 0, here: here.has(a.k) });
   }
   return out.sort((x, y) => x.date < y.date ? -1 : x.date > y.date ? 1 : 0);
 }
@@ -476,6 +476,10 @@ setInterval(() => {
   for (const c of Object.values(rt)) for (const s of c.streams) { try { if (s.res.destroyed || s.res.writableEnded) { c.streams.delete(s); continue; } sse(s.res, 'ping', 0); } catch (e) { c.streams.delete(s); } }   // حدث حقيقي (لا تعليق) ليكتشف التطبيق صمت الاتصال؛ وتُحذف القنوات الميتة
   for (const set of ticketStreams.values()) for (const res of set) try { res.write(': ka\n\n'); } catch (e) {}
 }, 20000).unref();
+/* حضور الممرضات: الممرضة «متصلة» ما دامت لها قناة بث حيّة؛ يُبلَّغ الطبيب فقط (حدث presence) */
+const onlineNurses = c => [...new Set([...RT(c).streams].filter(s => s.role === 'nurse' && s.nurseId && !s.res.destroyed && !s.res.writableEnded).map(s => s.nurseId))];
+function presence(c) { const ids = onlineNurses(c); for (const s of RT(c).streams) if (s.role === 'doctor') { try { sse(s.res, 'presence', ids); } catch (e) {} } }
+const presLater = c => setTimeout(() => { try { presence(c); } catch (e) {} }, 4000);   // مهلة قصيرة كي لا تومض النقطة عند إعادة الاتصال
 function closeStreamsOf(sessionKey) { for (const c of Object.values(rt)) for (const s of [...c.streams]) if (s.sessionKey === sessionKey) { try { s.res.end(); } catch (e) {} c.streams.delete(s); } }
 
 /* ---------- HTTP أساسيات ---------- */
@@ -1026,7 +1030,9 @@ async function api(req, res, url) {
     const mine = [...r.streams].filter(x => x.sessionKey === st.key); while (mine.length >= 3) { const o = mine.shift(); try { o.res.end(); } catch (e) {} r.streams.delete(o); }   // قنوات قديمة ميتة لنفس الجلسة لا تتراكم
     try { req.socket.setKeepAlive(true, 15000); req.socket.setNoDelay(true); } catch (e) {}
     const sub = { res, role: s.role, nurseId: s.nurseId || null, sessionKey: st.key }; r.streams.add(sub); sse(res, 'state', stateFor(c, s.role, s.nurseId));
-    req.on('close', () => r.streams.delete(sub)); res.on('error', () => r.streams.delete(sub));
+    if (s.role === 'doctor') sse(res, 'presence', onlineNurses(c)); else if (s.role === 'nurse') presence(c);
+    const gone = () => { if (r.streams.delete(sub) && sub.role === 'nurse') presLater(c); };
+    req.on('close', gone); res.on('error', gone);
     return;
   }
 
@@ -1429,7 +1435,7 @@ async function api(req, res, url) {
       const a = authOf(req, ['doctor']), c = a.clinic, i = (c.tasks || []).findIndex(z => z.id === tm[1]); if (i < 0) throw httpErr(404, 'not_found');
       c.tasks.splice(i, 1); broadcast(c, null); return send(res, 200, { ok: true });
     } }
-  if (p === '/api/nurses' && m === 'GET') { const a = authOf(req, ['doctor']); return send(res, 200, a.clinic.nurses.map(n => ({ id: n.id, name: n.name, phone: n.phone, payDay: n.payDay || null, salary: n.salary == null ? null : n.salary, paidFor: n.paidFor || '' }))); }
+  if (p === '/api/nurses' && m === 'GET') { const a = authOf(req, ['doctor']); return send(res, 200, a.clinic.nurses.map(n => ({ id: n.id, name: n.name, phone: n.phone, payDay: n.payDay || null, salary: n.salary == null ? null : n.salary, paidFor: n.paidFor || '', online: onlineNurses(a.clinic).includes(n.id) }))); }
   if (p === '/api/nurses' && m === 'POST') {
     const a = authOf(req, ['doctor']), c = a.clinic, b = await readJSON(req), name = str(b.name, 60), phone = str(b.phone, 25), pw = typeof b.password === 'string' ? b.password : '';
     if (!name || pw.length < 6 || pw.length > 200) throw httpErr(400, 'invalid_input');

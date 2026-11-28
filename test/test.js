@@ -60,6 +60,7 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
     const events = [], ac = await sse(await (async () => { const t = (await J('POST', '/api/stream-ticket', A)).j.ticket; return `${base}/api/stream?ticket=${t}`; })(), (e, d) => events.push([e, d]));
     const nEv = [], acN = await sse(`${base}/api/stream?ticket=${(await J('POST', '/api/stream-ticket', N)).j.ticket}`, (e, d) => nEv.push([e, d]));
     await wait(200); ok(events.some(e => e[0] === 'state' && e[1].patients.length === 3), 'بث الحالة الأولية للطبيب');
+    { const pr = events.filter(e => e[0] === 'presence').pop(), nid = (await J('GET', '/api/nurses', A)).j.find(z => z.name === 'فاطمة'); ok(pr && pr[1].includes(nid.id) && nid.online === true, 'الممرضة المتصلة تظهر متصلة (presence + online)'); }
     r = await J('GET', `/api/stream?ticket=${(await J('POST', '/api/stream-ticket', A)).j.ticket}x`); ok(r.s === 401, 'تذكرة بث خاطئة مرفوضة');
     r = await J('POST', `/api/patients/${p2.id}/enter`, N); ok(r.s === 202 && r.j.skipRequested, 'ممرضة تطلب تخطي الدور');
     await wait(150); ok(events.some(e => e[0] === 'state' && e[1].skipRequests.length === 1), 'الطبيب يتلقى طلب التخطي فوراً');
@@ -290,6 +291,10 @@ const pat = (n, o) => ({ name: n, birthYear: 1990, gender: 'ذكر', reason: 'ق
       r = await vis({ today: '2026-10-30', lines: [{ tooth: '16', teeth: ['16', '46', '99', 'x'], treatment: 'علاج عصب', total: 5000, sessions: 2, pay: 1000 }] }); l = await ap();
       ok(r.s === 200 && r.j.lines.length === 1 && JSON.stringify(r.j.lines[0].teeth) === JSON.stringify(['16', '46']) && r.j.tooth.includes('16') && r.j.tooth.includes('46') && r.j.price === 5000, 'تركيب لفكّين: بند واحد يحمل السنين (الأسنان الفاسدة تُهمَل) والسعر مرة واحدة');
       ok(l.filter(x => x.tooth === '16 46').length === 1, 'موعد واحد فقط لعلاج الفكّين (لا موعدان)');
+      { ok(l.every(x => !x.here), 'صاحب الموعد الغائب: here=false');
+        const pa = (await J('POST', '/api/patients', B, pat(NM, { birthYear: YR }))).j; l = await ap();
+        ok(l.length > 0 && l.every(x => x.here === true), 'حضور صاحب الموعد (في الانتظار) يضع here=true على مواعيده');
+        await J('DELETE', `/api/patients/${pa.id}`, B); l = await ap(); ok(l.every(x => !x.here), 'يزول here بزوال حضوره'); }
     }
     console.log('خطة العلاج لكل سن (حصة أو حصتان)');
     { const NM = 'مريض الخطة', YR = 1980, q = encodeURIComponent(NM);

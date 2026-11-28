@@ -9,6 +9,7 @@ Object.assign(L.ar, {
   ab_time: '⏰ وقت النسخة اليومية', ab_time_open: 'عند فتح التطبيق', ab_time_clear: 'عند الفتح', ab_time_hint: 'تُؤخذ النسخة بعد هذا الوقت يومياً، بشرط أن يكون التطبيق مفتوحاً على جهازك؛ وإن كان مغلقاً وقتها تُؤخذ عند فتحه لاحقاً. اتركه فارغاً لتؤخذ عند أول فتح كل يوم.', ab_time_set: 'تم ضبط وقت النسخة اليومية',
   ab_folder: 'المجلد', ab_dl: 'ملف يُنزَّل تلقائياً (اختر مجلداً لحفظ أنظف)', ab_last: 'آخر نسخة', ab_never: 'لم تؤخذ بعد',
   ab_hint: 'تؤخذ نسخة واحدة كل يوم عند فتح التطبيق، وتُحفظ على جهازك (آخر 14 يوماً). إن كان الأرشيف محميّاً بكلمة مرور فتُؤخذ بعد إدخالها.',
+  ab_running: '⏳ جارٍ أخذ النسخة الاحتياطية…', ab_busy: '⏳ هناك نسخة قيد التنفيذ، انتظر لحظة', ab_need_doc: 'سجّل الدخول بحساب الطبيب', ab_fell: '⚠️ تعذّر الحفظ في المجلد المختار فنُزّلت النسخة كملف. أعد «اختيار مجلد الحفظ» لإصلاحه.',
   ab_done: 'تم حفظ النسخة الاحتياطية اليومية ✅', ab_tap: '💾 اضغط في أي مكان للسماح بحفظ النسخة اليومية', ab_fail: 'تعذّر أخذ النسخة الاحتياطية',
   ab_ask: 'ينصح باختيار مجلد على هذا الجهاز لتُحفظ فيه نسخة احتياطية يومية تلقائياً (آخر 14 يوماً). اختيار المجلد الآن؟', ab_ask_ok: 'اختيار مجلد', ab_ask_no: 'لاحقاً (تنزيل ملف)',
   ab_empty: '⚠️ تنبيه: سجلات الأرشيف على الخادم فارغة بينما كانت آخر نسخة تحوي {n} سجلاً. قد تكون البيانات مُسحت من الخادم (مثلاً بعد تحديث الاستضافة).\nلم أستبدل أي نسخة قديمة. استعدها من الإعدادات ← النسخ الاحتياطي ← «استعادة» باختيار آخر ملف نسخة.'
@@ -22,6 +23,7 @@ Object.assign(L.en, {
   ab_time: '⏰ Daily backup time', ab_time_open: 'when the app is opened', ab_time_clear: 'On open', ab_time_hint: 'The backup runs daily after this time, provided the app is open on your device; if it was closed then, it runs when you next open it. Leave empty to back up on first open each day.', ab_time_set: 'Backup time saved',
   ab_folder: 'Folder', ab_dl: 'File downloaded automatically (choose a folder for a cleaner setup)', ab_last: 'Last backup', ab_never: 'none yet',
   ab_hint: 'One backup per day when the app is opened, saved on your device (last 14 days). If the archive is password-protected it runs after you unlock it.',
+  ab_running: '⏳ Backing up…', ab_busy: '⏳ A backup is already running', ab_need_doc: 'sign in as the doctor', ab_fell: '⚠️ Could not save to the chosen folder, so the backup was downloaded as a file. Re-pick the folder to fix it.',
   ab_done: 'Daily backup saved ✅', ab_tap: '💾 Tap anywhere to allow saving the daily backup', ab_fail: 'Backup failed',
   ab_ask: 'We recommend choosing a folder on this device to receive an automatic daily backup (last 14 days). Choose one now?', ab_ask_ok: 'Choose folder', ab_ask_no: 'Later (download file)',
   ab_empty: '⚠️ Warning: the archive on the server is empty although the last backup had {n} records. Data may have been wiped from the server (e.g. after a hosting redeploy).\nNo older backup was overwritten. Restore from Settings → Backup → "Restore" using your latest backup file.'
@@ -45,7 +47,7 @@ Object.assign(L.en, {
   const idb = () => new Promise((ok, no) => { const r = indexedDB.open('cc_ab_db', 1); r.onupgradeneeded = () => r.result.createObjectStore('h'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); });
   const hGet = async () => { try { const d = await idb(); return await new Promise(ok => { const q = d.transaction('h').objectStore('h').get('dir'); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); } catch (e) { return null; } };
   const hSet = async v => { const d = await idb(); return new Promise((ok, no) => { const tx = d.transaction('h', 'readwrite'); if (v) tx.objectStore('h').put(v, 'dir'); else tx.objectStore('h').delete('dir'); tx.oncomplete = ok; tx.onerror = () => no(tx.error); }); };
-  let busy = false, waiting = false;
+  let busy = false, busyAt = 0, waiting = false;
 
   const isDoctor = () => !!(S.token && S.me && S.me.role === 'doctor');
   async function prune(h) {
@@ -57,14 +59,20 @@ Object.assign(L.en, {
   }
   /* manual=true: بحركة من المستخدم (يسمح بطلب إذن المجلد) */
   async function runBackup(manual) {
-    if (busy || !isDoctor()) return false; busy = true;
+    if (busy && Date.now() - busyAt > 45000) busy = false;   // عملية عالقة (إذن لم يُجَب عليه…) لا تمنع النسخ اليدوي للأبد
+    if (busy) { if (manual) toast(t('ab_busy'), 'info'); return false; }
+    if (!isDoctor()) { if (manual) toast(t('ab_fail') + ': ' + t('ab_need_doc'), 'warning'); return false; }
+    busy = true; busyAt = Date.now(); if (manual) toast(t('ab_running'), 'info');
     try {
-      const h = canDir() ? await hGet() : null; let useDir = false;
+      let h = null; try { h = canDir() ? await hGet() : null; } catch (e) { h = null; }
+      let useDir = false;
       if (h) {   // الإذن أولاً (قبل أي انتظار) كي يبقى «تفاعل المستخدم» صالحاً
-        let perm = await h.queryPermission({ mode: 'readwrite' });
-        if (perm !== 'granted' && manual) perm = await h.requestPermission({ mode: 'readwrite' });
-        if (perm === 'granted') useDir = true;
-        else if (!manual) { askTap(); return false; }
+        try {
+          let perm = await h.queryPermission({ mode: 'readwrite' });
+          if (perm !== 'granted' && manual) perm = await h.requestPermission({ mode: 'readwrite' });
+          if (perm === 'granted') useDir = true;
+          else if (!manual) { askTap(); return false; }
+        } catch (e) { if (!manual) return false; }   // مجلد قديم/غير صالح: يدوياً نكمل بالتنزيل كملف
       }
       let n; try { n = (await api('GET', '/api/archive?limit=1', undefined, { noUnlock: true })).total; } catch (e) { if (e && e.code === 'locked') { if (manual) toast(t('e_locked'), 'warning'); return false; } throw e; }
       const c = cfg();
@@ -73,8 +81,10 @@ Object.assign(L.en, {
       if (!blob || !blob.size) throw new Error('empty');
       blob = withUi(blob);
       const name = `clinic_backup_${day()}.json`;
-      if (useDir) { const fh = await h.getFileHandle(name, { create: true }), w = await fh.createWritable(); await w.write(blob); await w.close(); prune(h); }
-      else download(blob, name);
+      let fell = false;
+      if (useDir) { try { const fh = await h.getFileHandle(name, { create: true }), w = await fh.createWritable(); await w.write(blob); await w.close(); prune(h); } catch (e) { if (!manual) throw e; useDir = false; fell = true; } }
+      if (!useDir) download(blob, name);
+      if (fell) toast(t('ab_fell'), 'warning');
       setCfg({ last: day(), lastTs: Date.now(), n, where: useDir ? 'dir:' + (h && h.name || '') : 'dl' }); toast(t('ab_done'), 'success'); abUI(); return true;
     } catch (e) { if (e && e.code === 'unauthorized') return false; toast(t('ab_fail') + (e && e.message ? ': ' + e.message : ''), 'danger'); return false; }
     finally { busy = false; }

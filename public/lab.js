@@ -89,11 +89,11 @@ async function labSend() {
 
 /* ---------- التبويب ---------- */
 const labInfoLine = c => [c.birthYear ? t('lab_age', { n: new Date().getFullYear() - c.birthYear }) : '', c.phone ? `<span dir="ltr">${esc(c.phone)}</span>` : ''].filter(Boolean).join(' · ');
-function labCardHTML(c) {
+function labCardHTML(c, noName) {
   const st = c.stages || [], dn = st.filter(s => s.at).length, cur = st.findIndex(s => !s.at), done = !!c.doneAt, late = !done && c.due && c.due < localDay();
   const labs = Lab.data.labs;
   return `<div class="lab-card${done ? ' done' : ''}" data-id="${c.id}">
-    <div class="lab-ch"><div><b class="lab-pn">${esc(c.name)}</b><div class="lab-sub">${labInfoLine(c)}</div></div>
+    <div class="lab-ch">${noName ? '' : `<div><b class="lab-pn">${esc(c.name)}</b><div class="lab-sub">${labInfoLine(c)}</div></div>`}
       <div class="lab-tr"><span class="lab-trn">${esc(treatLabel(c.treatment))}</span>${c.teeth && c.teeth.length ? `<span class="lab-th">${esc(t('lab_teeth'))}: ${esc(c.teeth.join(' '))}</span>` : ''}</div></div>
     <div class="lab-meta"><label class="lab-sel"><span>${esc(t('lab_choose'))}</span><select data-lab="caseLab" data-id="${c.id}"><option value="">${esc(t('lab_no_lab'))}</option>${labs.map(l => `<option value="${l.id}"${c.labId === l.id ? ' selected' : ''}>${esc(l.name)}</option>`).join('')}</select></label>
       <span class="lab-d">${esc(t('lab_sent_on'))}: <b dir="ltr">${esc(ymdHM(c.createdAt))}</b></span>
@@ -102,6 +102,11 @@ function labCardHTML(c) {
     <div class="lab-act">${done ? `<span class="lab-fin">${esc(t('lab_done'))}</span>` : `<span class="lab-prog">${esc(t('lab_progress', { a: Math.min(dn + 1, st.length), b: st.length }))}</span><button type="button" class="btn-action btn-green" data-act="labNext" data-id="${c.id}">${esc(t('lab_next'))}</button>`}
       ${dn ? `<button type="button" class="btn-action" data-act="labBack" data-id="${c.id}">${esc(t('lab_back'))}</button>` : ''}<button type="button" class="btn-action btn-red" data-act="labDel" data-id="${c.id}">${esc(t('lab_del'))}</button></div>
     <textarea class="lab-note" maxlength="500" data-lab="note" data-id="${c.id}" placeholder="${esc(t('lab_note_ph'))}">${esc(c.note || '')}</textarea></div>`;
+}
+/* مريض له أكثر من حالة (مثل فك علوي وفك سفلي): الاسم مرة واحدة والحالات تحته */
+function labGroups(list) {
+  const g = new Map(); for (const c of list) { const k = (c.name || '') + '|' + (c.birthYear || ''); if (!g.has(k)) g.set(k, []); g.get(k).push(c); }
+  return [...g.values()].map(cs => cs.length === 1 ? labCardHTML(cs[0]) : `<div class="lab-pgrp"><div class="lab-pgh"><b class="lab-pn">${esc(cs[0].name)}</b><div class="lab-sub">${labInfoLine(cs[0])}</div></div>${cs.map(c => labCardHTML(c, true)).join('')}</div>`).join('');
 }
 function labCfgHTML() {
   const d = Lab.draft, flagged = treatList().filter(labOn);
@@ -127,7 +132,7 @@ function labRender(reload) {
     <div class="lab-filters">${chip('open', 'lab_f_open', nOpen)}${chip('done', 'lab_f_done', nDone)}${chip('all', 'lab_f_all', all.length)}
       <select data-lab="fLab" aria-label="${esc(t('lab_choose'))}"><option value="">${esc(t('lab_all_labs'))}</option>${Lab.data.labs.map(l => `<option value="${l.id}"${Lab.lab === l.id ? ' selected' : ''}>${esc(l.name)}</option>`).join('')}</select>
       <input type="search" id="labSearch" data-lab="q" value="${esc(Lab.q)}" placeholder="${esc(t('lab_search'))}"></div>
-    ${list.length ? `<div class="lab-list">${list.map(labCardHTML).join('')}</div>` : `<div class="lab-empty">${esc(t('lab_empty'))}<div class="hint">${esc(t('lab_empty_hint'))}</div></div>`}</div>`;
+    ${list.length ? `<div class="lab-list">${labGroups(list)}</div>` : `<div class="lab-empty">${esc(t('lab_empty'))}<div class="hint">${esc(t('lab_empty_hint'))}</div></div>`}</div>`;
   if (typeof syncYmd === 'function') syncYmd();
   if (keep) { const i = $('#labSearch'); if (i) { i.focus(); try { const n = i.value.length; i.setSelectionRange(n, n); } catch (e) {} } }
 }

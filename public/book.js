@@ -33,7 +33,7 @@
       e_rate_limited: 'Too many attempts, try again shortly.', e_closed: 'Booking is unavailable.', e_limit: 'Today’s list is full, please call the clinic.', lang: 'العربية'
     }
   };
-  var lang = 'ar'; try { lang = localStorage.getItem('tk_lang') || (/^en/i.test(navigator.language || '') ? 'en' : 'ar'); } catch (e) {}
+  var lang = 'ar'; try { var sv = localStorage.getItem('tk_lang'); lang = sv === 'en' ? 'en' : 'ar'; } catch (e) {}   // العربية أولاً دائماً؛ الإنجليزية فقط إن اختارها الزائر بنفسه
   var info = null, mode = 'today', sel = { date: '', time: '' }, form = { name: '', phone: '', year: '', gender: 'ذكر', reason: '', note: '' }, poll = null, busy = false, err = '';
   var $ = function (id) { return document.getElementById(id); };
   function tr(k) { return T[lang][k] || k; }

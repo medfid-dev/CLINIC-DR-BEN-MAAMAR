@@ -135,8 +135,8 @@ Object.assign(L.en, { set_reasons: 'Visit reasons list (treatments)', reasons_hi
 /* الأسبوع يبدأ السبت وينتهي الجمعة: ترتيب العرض لأيام JS (0=الأحد … 6=السبت)؛ التخزين والمنطق كما هما */
 const WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
 const vcB = (n, ap) => n == null ? '' : `<span class="vc" title="${esc(t('hist_visits'))}">${+n || 0}</span>${lateB(ap)}`;
-/* مريض متأخر عن موعد حصته: دائرة حمراء بجوار الخضراء بعدد أيام التأخر بالسالب (مثل -15) */
-const lateB = ap => { if (!ap || typeof localDay !== 'function') return ''; const d = Math.round((Date.parse(ap + 'T00:00:00Z') - Date.parse(localDay() + 'T00:00:00Z')) / 864e5); return d < 0 ? `<span class="vc vc-late" dir="ltr" title="${esc(t('ap_late', { n: -d }))}">${d}</span>` : ''; };
+/* بجوار عدد الزيارات (الأخضر): متأخر عن موعد حصته = دائرة حمراء بالسالب (-15) · في موعده = دائرة خضراء ✓ · مبكّر = دائرة زرقاء بالموجب (+3) */
+const lateB = ap => { if (!ap || typeof localDay !== 'function') return ''; const d = Math.round((Date.parse(ap + 'T00:00:00Z') - Date.parse(localDay() + 'T00:00:00Z')) / 864e5); return d < 0 ? `<span class="vc vc-late" dir="ltr" title="${esc(t('ap_came_late', { n: -d }))}">${d}</span>` : d === 0 ? `<span class="vc vc-ok" title="${esc(t('ap_came'))}">✓</span>` : `<span class="vc vc-early" dir="ltr" title="${esc(t('ap_early', { n: d }))}">+${d}</span>`; };
 Object.assign(L.ar, { pay_day_ph: 'يوم صرف الراتب من الشهر (1-31) — اختياري', pay_salary_ph: 'مبلغ الراتب — اختياري', pay_day_l: 'يوم صرف الراتب (1-31):', pay_salary_l: 'مبلغ الراتب:', pay_dur: ['يوم واحد', 'يومين', '{n} أيام', '{n} يوماً'], pay_in: '💰 الراتب بعد {n}', pay_tomorrow: '⏰ الراتب غداً', pay_today: '⏰ اليوم موعد الراتب', pay_late: '⚠️ الراتب متأخر {n}', pay_paid_next: '✅ دُفع هذا الشهر · القادم بعد {n}', pay_every: 'يوم {d} من كل شهر', pay_mark: 'تم دفع الراتب ✅', pay_mark_q: 'تأكيد: هل دفعتَ راتب «{n}» لهذه الدورة؟', t_pay_marked: 'سُجّل دفع الراتب ✅', pay_due_title: '💰 موعد راتب ممرضة', pay_due_tomorrow: 'راتب {n} غداً', pay_due_today: 'اليوم موعد راتب {n}', pay_due_late: 'راتب {n} متأخر {d}' });
 Object.assign(L.en, { pay_day_ph: 'Salary day of month (1-31) — optional', pay_salary_ph: 'Salary amount — optional', pay_day_l: 'Salary day (1-31):', pay_salary_l: 'Salary amount:', pay_dur: ['1 day', '2 days', '{n} days', '{n} days'], pay_in: '💰 Salary in {n}', pay_tomorrow: '⏰ Salary due tomorrow', pay_today: '⏰ Salary due today', pay_late: '⚠️ Salary {n} late', pay_paid_next: '✅ Paid this month · next in {n}', pay_every: 'Day {d} of every month', pay_mark: 'Salary paid ✅', pay_mark_q: 'Confirm: did you pay «{n}» for this cycle?', t_pay_marked: 'Salary payment recorded ✅', pay_due_title: '💰 Nurse salary due', pay_due_tomorrow: '{n}\'s salary is due tomorrow', pay_due_today: '{n}\'s salary is due today', pay_due_late: '{n}\'s salary is {d} late' });
 /* رواتب الممرضات: عدد الأيام حتى الصرف بتوقيت جهاز الطبيب. days: موجب متبقٍ، 0 اليوم، سالب متأخر */
@@ -221,6 +221,12 @@ Object.assign(L.ar, { pl_del_sess: 'حذف حصة من هذا العلاج', pl_
 Object.assign(L.en, { pl_del_sess: 'Remove a session from this treatment', pl_sess_removed: 'Session removed from the treatment ✅', requeue: 'Send to end of queue', t_requeued: 'Patient moved to the end of the queue ↩️' });
 Object.assign(L.ar, { col_on_l: 'تلوين السن', col_part_l: 'أثناء العلاج', col_done_l: 'عند الاكتمال', col_hint: 'لكل علاج: لون السن أثناء العلاج (حصص متبقية) ولونه عند اكتمال الحصص، ويظهران في مخطط الأسنان بالمعاينة وفي سجل المريض.' });
 Object.assign(L.en, { col_on_l: 'Color the tooth', col_part_l: 'In progress', col_done_l: 'Completed', col_hint: 'Per treatment: tooth color while sessions remain and once completed; shown in the consultation tooth chart and the patient record.' });
+Object.assign(L.ar, { pf_title: 'ملفات المريض السابقة', pf_sub: 'صور وأشعة من زيارات سابقة — اطّلع عليها قبل أي إجراء (اضغط للتكبير)' });
+Object.assign(L.en, { pf_title: 'Previous patient files', pf_sub: 'Photos / X-rays from earlier visits — review before any procedure (tap to enlarge)' });
+Object.assign(L.ar, { ap_came: 'حضر في موعده', ap_early: 'حضر مبكرًا بـ {n} يوم', ap_came_late: 'حضر متأخرًا {n} يوم' });
+Object.assign(L.en, { ap_came: 'Arrived on time', ap_early: 'Arrived {n} day(s) early', ap_came_late: 'Arrived {n} day(s) late' });
+Object.assign(L.ar, { nurse_online: 'متصلة الآن', nurse_offline: 'غير متصلة' });
+Object.assign(L.en, { nurse_online: 'Online now', nurse_offline: 'Offline' });
 Object.assign(L.ar, { reg_all: 'كل المسجِّلين (ممرضات وطبيب وإلكترونيًا)', reg_f_doctor: '🧑‍⚕️ سجّلهم الطبيب', reg_f_nurse: '👩‍⚕️ سجّلتهم الممرضات (الكل)', reg_f_online: '🌐 حجز إلكتروني (من المريض)' });
 Object.assign(L.en, { reg_all: 'All registrars (nurses, doctor, online)', reg_f_doctor: '🧑‍⚕️ Registered by the doctor', reg_f_nurse: '👩‍⚕️ Registered by nurses (all)', reg_f_online: '🌐 Online booking (by the patient)' });
 Object.assign(L.ar, { money_all: 'الكل (مدينون ودائنون وغيرهم)', money_debtors: '🔴 المدينون (عليهم متبقٍّ)', money_creditors: '🟢 الدائنون (رصيدهم في الوعاء)', money_wal_sum: 'مجموع أرصدة الوعاء:' });
@@ -369,6 +375,7 @@ async function connect() {
   es.onopen = () => { S.retry = 0; S.lastEvt = Date.now(); setOnline(true); };
   es.addEventListener('ping', () => { S.lastEvt = Date.now(); });
   es.addEventListener('state', ev => { S.lastEvt = Date.now(); applyState(JSON.parse(ev.data)); renderSoon(); });
+  es.addEventListener('presence', ev => { S.lastEvt = Date.now(); try { S.onl = new Set(JSON.parse(ev.data)); const tab = $('#nursesTab'); if (tab && S.nurses && S.nurses.length) renderNurses(); } catch (e) {} });
   es.addEventListener('notify', ev => { S.lastEvt = Date.now(); onNotify(JSON.parse(ev.data)); });
   es.onerror = () => { es.close(); if (S.es === es) S.es = null; setOnline(false); retryConnect(); };
 }
@@ -479,7 +486,7 @@ function renderConsultation() {
     area.innerHTML = `<div class="consultation-card"><div id="contBar">${contBarHTML()}</div>${owed > 0 ? `<div class="debt-alert">⚠️ ${t('debt_note', { x: money(owed) })}</div>` : ''}${wizOpen(a)}<div class="pt-card${owed > 0 ? ' has-debt' : (a.wallet > 0 || wBal() > 0) ? ' has-wallet' : ''}">
       <div class="pc-reason"><span>${t('reason_l')}</span> <strong>${esc(reasonL(a.reason))}</strong></div>
       <div class="pc-info">${DENT() ? `<span class="pc-i">${t('tooth_l')} <b>${esc(a.tooth)}</b></span>` : ''}<span class="pc-i">${t('gender_l')} <b>${esc(genderL(a.gender))}</b></span><span class="pc-i">${t('birth_l')} <b>${a.birthYear} (${a.age} ${t('years_short')})</b></span><span class="pc-i">${t('phone_l')} <b dir="ltr">${esc(a.phone || t('not_set'))}</b></span><span class="pc-i">${t('wait_l')} <b data-wait="${a.createdAt}">${waitText(a.createdAt)}</b></span></div></div>
-      ${medAlertHTML(a)}${medHTML()}
+      ${medAlertHTML(a)}<div id="ptFiles">${ptFilesHTML(a)}</div>${medHTML()}
       <details class="xr-box"${a.images.length ? ' open' : ''}><summary>${t('xrays')}${a.images.length ? ' (' + a.images.length + ')' : ''}</summary>
         <div class="patient-images-container">${imgs}</div>
         <div style="display:flex;gap:10px;margin-top:12px"><button type="button" class="btn-action btn-green" style="flex:1" data-act="openCamera" data-id="${a.id}">${t('cam_live')}</button><button type="button" class="btn-action btn-yellow" style="flex:1" data-act="pickFile" data-id="${a.id}">${t('upload_gal')}</button></div></details>
@@ -493,7 +500,7 @@ function renderConsultation() {
       <textarea id="patientNote" maxlength="300" placeholder="${esc(t('pnote_ph'))}" style="height:56px;margin:4px 0 15px"></textarea>
       </section>${wizNav(a)}</div></div>`;
     if (notes) $('#consultNotes').value = notes; if (pnote) $('#patientNote').value = pnote;
-    recalc(); if (!samePid) loadAccount(a);
+    recalc(); if (!samePid) { loadAccount(a); loadPtFiles(a); }
     hydrate(area); if (window.rxMount) rxMount(a); consStickInit(area);
   }
   area.dataset.sig = sig; area.dataset.pid = a ? a.id : '';
@@ -802,6 +809,21 @@ function moneyUpdate() {
 function recalc() { const b = $('#planBox'); if (!b) return; contBarUpdate(); ptUpdate(); if (b.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return moneyUpdate(); b.innerHTML = planBoxInner(); moneyUpdate(); }
 /* مفاتيح بنود محذوفة يدوياً تعود إن اختار الطبيب السن أو العلاج من جديد */
 const unRemove = (th, tr) => { for (const k of [...S.removed]) { const [a, b] = k.split('|'); if ((th && a === th) || (tr && b === tr)) S.removed.delete(k); } };
+/* ملفات المريض السابقة (صور/أشعة زيارات سابقة): تظهر أعلى المعاينة ليطّلع عليها الطبيب قبل أي إجراء */
+function ptFilesHTML(a) {
+  const f = S.ptFiles; if (!a || !f || f.pid !== a.id || !f.items.length) return '';
+  const n = f.items.reduce((x, r) => x + r.images.length, 0);
+  return `<div class="pf-box"><div class="pf-h">📎 ${t('pf_title')} <span class="count-badge">${n}</span></div><div class="pf-sub">${t('pf_sub')}</div>${f.items.map(r => `<div class="pf-g"><div class="pf-d">${esc(r.label)}</div><div class="pf-row">${r.images.map(i => `<div class="pf-th"><img data-rec="${esc(r.id)}" data-img="${esc(i)}" data-act="lightbox" alt=""></div>`).join('')}</div></div>`).join('')}</div>`;
+}
+async function loadPtFiles(a) {
+  try {
+    const r = await api('GET', '/api/history?name=' + encodeURIComponent(a.name) + '&year=' + encodeURIComponent(a.birthYear));
+    if (!S.me || $('#consultationArea').dataset.pid !== a.id) return;
+    const nm = x => (x.lines && x.lines.length ? x.lines.map(l => l.treatment).join(' + ') : (x.treatments ? x.treatments.join(' + ') : x.treatment || ''));
+    S.ptFiles = { pid: a.id, items: (r.records || []).filter(x => x.images && x.images.length).sort((p, q) => (q.finishedAt || 0) - (p.finishedAt || 0)).map(x => ({ id: x.id, images: x.images, label: ymd(x.finishedAt) + (nm(x) ? ' · ' + nm(x) : '') })) };
+    const box = $('#ptFiles'); if (box) { box.innerHTML = ptFilesHTML(a); hydrate(box); }
+  } catch (e) {}
+}
 async function loadAccount(a) {
   try { const r = await api('GET', `/api/account?name=${encodeURIComponent(a.name)}&year=${a.birthYear}`); if (!S.me || $('#consultationArea').dataset.pid !== a.id) return; r.key = { name: a.name, year: a.birthYear }; S.account = r; recalc(); const c = $('#consultationArea'); c.dataset.sig = ''; renderAll(); } catch (e) {}
 }
@@ -1126,9 +1148,10 @@ async function showHistory(name, year) {
     ${pane('media', media || `<div class="hint">${t('hv_no_media')}</div>`)}`;
   hydrate(body);
 }
-async function loadNurses() { const r = await run(() => api('GET', '/api/nurses')); if (r) { S.nurses = r; renderNurses(); renderPayBadge(); } }
+async function loadNurses() { const r = await run(() => api('GET', '/api/nurses')); if (r) { S.nurses = r; S.onl = new Set(r.filter(n => n.online).map(n => n.id)); renderNurses(); renderPayBadge(); } }
+const onlDot = id => { const on = S.onl ? S.onl.has(id) : false; return `<span class="onl-dot${on ? ' on' : ''}" title="${on ? t('nurse_online') : t('nurse_offline')}"></span>`; };
 function renderNurses() {
-  $('#nursesList').innerHTML = S.nurses.length ? S.nurses.map(n => `<li class="patient-card"><div><strong>👩‍⚕️ ${esc(n.name)}</strong><div style="font-size:12px;color:var(--text-secondary);margin-top:3px">${t('phone_short', { p: esc(n.phone || '---') })}</div>${payBadge(n)}</div>
+  $('#nursesList').innerHTML = S.nurses.length ? S.nurses.map(n => `<li class="patient-card"><div><strong>${onlDot(n.id)}👩‍⚕️ ${esc(n.name)}</strong><div style="font-size:12px;color:var(--text-secondary);margin-top:3px">${t('phone_short', { p: esc(n.phone || '---') })}</div>${payBadge(n)}</div>
     <div class="actions">${payInfo(n) && !payInfo(n).paid ? `<button type="button" class="btn-action btn-green" data-act="payNurse" data-id="${n.id}">${t('pay_mark')}</button>` : ''}<button type="button" class="btn-action btn-yellow" data-act="editNurse" data-id="${n.id}">${t('edit')}</button><button type="button" class="btn-action btn-red" data-act="delNurse" data-id="${n.id}">${t('del')}</button></div></li>`).join('')
     : `<li class="patient-card" style="justify-content:center;color:var(--text-muted)">${t('no_nurses')}</li>`;
 }
@@ -1259,7 +1282,8 @@ function syncBooking() {
 function renderAppts() {
   const box = $('#apptsArea'); if (!box) return; renderBookings();
   const td = localDay(), list = S.appts || [], due = list.filter(a => a.date <= td), cnt = $('#apptCount'), ban = $('#apptBanner');
-  cnt.textContent = due.length; cnt.classList.toggle('zero', !due.length);
+  { const pend = due.filter(a => !a.here).length, okN = due.length - pend;   // الأحمر: مستحق لم يحضر · أخضر ✓: جميع المستحقين حضروا
+    cnt.classList.toggle('ok', !pend && okN > 0); cnt.textContent = pend ? pend : okN ? '✓' : 0; cnt.classList.toggle('zero', !due.length); }
   if (ban) { ban.hidden = true; ban.innerHTML = ''; }   // شريط المواعيد العلوي أُلغي
   let sb = $('#apptSearch');   // خانة البحث خارج #apptsArea كي لا تُعاد كتابتها ولا يفقد المستخدم مؤشّر الكتابة
   if (!sb) { sb = document.createElement('input'); sb.type = 'search'; sb.id = 'apptSearch'; sb.className = 'appt-search'; sb.autocomplete = 'off'; sb.dataset.input = 'apptq'; sb.value = S.apptQ || ''; box.insertAdjacentElement('beforebegin', sb); }
@@ -1276,11 +1300,22 @@ function renderAppts() {
     const half = arr => `<div class="arch-half">${arr.slice(0, arr.length / 2).map(btn).join('')}</div><div class="arch-half">${arr.slice(arr.length / 2).map(btn).join('')}</div>`;
     return `<div class="appt-teeth" aria-label="${esc(t('tooth'))} ${n}"><div class="teeth-chart"><div class="arch">${half(set.up)}</div><div class="arch-sep"></div><div class="arch">${half(set.lo)}</div></div></div>`;
   };
+  const rowItem = a => {
+    const d = dayDiff(a.date, td), st = d < 0 ? t('ap_late', { n: -d }) : d === 0 ? t('ap_today') : t('ap_in', { n: d }), cls = d < 0 ? 'late' : d === 0 ? 'today' : 'soon';
+    return `<div class="ap-item ${cls}"><div class="ap-info"><span class="badge">${a.tooth ? esc(a.tooth) + ' · ' : ''}${esc(treatLabel(a.treatment))}</span> <span class="badge">${t('pl_session_n', { n: a.no, m: a.sessions })}</span>
+      <div class="note-line appt-when"><span class="appt-chip ${cls}">${st}</span>${a.here ? ` <span class="appt-here${d > 0 ? ' early' : d < 0 ? ' late' : ''}"><i>${d > 0 ? '⏩' : '✓'}</i>${d > 0 ? t('ap_early', { n: d }) : d < 0 ? t('ap_came_late', { n: -d }) : t('ap_came')}</span>` : ''} <span class="ymd-pick"><span class="ymd-show" dir="ltr">📅 ${esc(ymdS(a.date))}</span><input type="date" class="appt-date" data-change="apptDate" data-id="${a.id}" value="${a.date}" aria-label="${esc(t('ap_date'))}"></span></div>${miniTeeth(a)}</div>
+      <div class="actions"><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="-1">➖ ${t('ap_day')}</button><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="1">➕ ${t('ap_day')}</button><button type="button" class="btn-action btn-red" data-act="apptDel" data-id="${a.id}" title="${esc(t('ap_del'))}">🗑 ${t('ap_del')}</button></div></div>`;
+  };
   const row = a => {
     const d = dayDiff(a.date, td), st = d < 0 ? t('ap_late', { n: -d }) : d === 0 ? t('ap_today') : t('ap_in', { n: d }), cls = d < 0 ? 'late' : d === 0 ? 'today' : 'soon';
-    return `<li class="patient-card appt-card ${cls}"><div><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc, a.ap)} <span class="badge">${a.tooth ? esc(a.tooth) + ' · ' : ''}${esc(treatLabel(a.treatment))}</span> <span class="badge">${t('pl_session_n', { n: a.no, m: a.sessions })}</span>
-      <div class="note-line appt-when"><span class="appt-chip ${cls}">${st}</span> <span class="ymd-pick"><span class="ymd-show" dir="ltr">📅 ${esc(ymdS(a.date))}</span><input type="date" class="appt-date" data-change="apptDate" data-id="${a.id}" value="${a.date}" aria-label="${esc(t('ap_date'))}"></span>${a.phone ? ` · <a href="tel:${esc(a.phone)}" dir="ltr">📞 ${esc(a.phone)}</a>` : ''}</div>${miniTeeth(a)}</div>
+    return `<li class="patient-card appt-card ${cls}${a.here ? ' here' : ''}"><div><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc, a.ap)} <span class="badge">${a.tooth ? esc(a.tooth) + ' · ' : ''}${esc(treatLabel(a.treatment))}</span> <span class="badge">${t('pl_session_n', { n: a.no, m: a.sessions })}</span>
+      <div class="note-line appt-when"><span class="appt-chip ${cls}">${st}</span>${a.here ? ` <span class="appt-here${d > 0 ? ' early' : d < 0 ? ' late' : ''}"><i>${d > 0 ? '⏩' : '✓'}</i>${d > 0 ? t('ap_early', { n: d }) : d < 0 ? t('ap_came_late', { n: -d }) : t('ap_came')}</span>` : ''} <span class="ymd-pick"><span class="ymd-show" dir="ltr">📅 ${esc(ymdS(a.date))}</span><input type="date" class="appt-date" data-change="apptDate" data-id="${a.id}" value="${a.date}" aria-label="${esc(t('ap_date'))}"></span>${a.phone ? ` · <a href="tel:${esc(a.phone)}" dir="ltr">📞 ${esc(a.phone)}</a>` : ''}</div>${miniTeeth(a)}</div>
       <div class="actions"><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="-1">➖ ${t('ap_day')}</button><button type="button" class="btn-action" data-act="apptShift" data-id="${a.id}" data-d="1">➕ ${t('ap_day')}</button><button type="button" class="btn-action btn-red" data-act="apptDel" data-id="${a.id}" title="${esc(t('ap_del'))}">🗑 ${t('ap_del')}</button></div></li>`;
+  };
+  const grpRows = arr => {   // مريض له أكثر من موعد (مثل فك علوي وفك سفلي): الاسم مرة واحدة والمواعيد تحته
+    const g = new Map(); for (const a of arr) { const k = pKey(a.name, a.birthYear); if (!g.has(k)) g.set(k, []); g.get(k).push(a); }
+    return [...g.values()].map(items => { if (items.length === 1) return row(items[0]); const a = items[0], d0 = dayDiff(a.date, td), cls0 = d0 < 0 ? 'late' : d0 === 0 ? 'today' : 'soon';
+      return `<li class="patient-card appt-card appt-grp ${cls0}${items.some(x => x.here) ? ' here' : ''}"><div class="ag-head"><strong style="font-size:15px">${esc(a.name)}</strong> ${vcB(a.vc, a.ap)}${a.phone ? ` <a href="tel:${esc(a.phone)}" dir="ltr" class="ag-ph">📞 ${esc(a.phone)}</a>` : ''}</div>${items.map(x => rowItem(x)).join('')}</li>`; }).join('');
   };
   const nq = x => String(x == null ? '' : x).toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').trim();
   const qs = nq(S.apptQ).split(/\s+/).filter(Boolean);
@@ -1288,7 +1323,7 @@ function renderAppts() {
   const byQ = qs.length ? list.filter(a => { const h = hay(a); return qs.every(w => h.includes(w)); }) : list;
   const shown = S.apptDay ? byQ.filter(a => dayDiff(a.date, td) === +S.apptDay) : byQ;
   const dueS = shown.filter(a => a.date <= td), up = shown.filter(a => a.date > td);
-  const html = (shown.length ? (dueS.length ? `<h3 class="appt-h due">🔔 ${t('ap_due_h')} (${dueS.length})</h3><ul class="patient-list">${dueS.map(row).join('')}</ul>` : '') + (up.length ? `<h3 class="appt-h">🗓 ${t('ap_up_h')} (${up.length})</h3><ul class="patient-list">${up.map(row).join('')}</ul>` : '') : `<div class="patient-card" style="justify-content:center;color:var(--text-muted)">${list.length ? t('no_results') : t('ap_empty')}</div>`) + `<p class="note-line" style="margin-top:12px">${t('ap_hint')}</p>`;
+  const html = (shown.length ? (dueS.length ? `<h3 class="appt-h due">🔔 ${t('ap_due_h')} (${dueS.length})</h3><ul class="patient-list">${grpRows(dueS)}</ul>` : '') + (up.length ? `<h3 class="appt-h">🗓 ${t('ap_up_h')} (${up.length})</h3><ul class="patient-list">${grpRows(up)}</ul>` : '') : `<div class="patient-card" style="justify-content:center;color:var(--text-muted)">${list.length ? t('no_results') : t('ap_empty')}</div>`) + `<p class="note-line" style="margin-top:12px">${t('ap_hint')}</p>`;
   if (box._h !== html) { box._h = html; box.innerHTML = html; }
 }
 function docTab(tab) {
@@ -1402,7 +1437,7 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('mess
 /* إعدادات الجهاز (اللون واللغة والصوت...) تُلحق بالنسخة الاحتياطية دون إعادة قراءتها: نستبدل القوس الأخير بحقل ui */
 const withUi = blob => blob && blob.size > 2 ? new Blob([blob.slice(0, blob.size - 1), ',"ui":' + JSON.stringify({ darkMode: settings.darkMode, theme: settings.theme, themeColor: settings.themeColor, lang: settings.lang, sound: settings.sound, autoQr: settings.autoQr, ledColor: settings.ledColor }) + '}'], { type: 'application/json' }) : blob;
 function restoreUi(txt) { try { const i = txt.lastIndexOf(',"ui":{'); if (i < 0) return; const u = JSON.parse(txt.slice(i + 6, -1).trim()); if (!u || typeof u !== 'object') return; if (typeof u.darkMode === 'boolean') settings.darkMode = u.darkMode; if (typeof u.theme === 'string') settings.theme = u.theme; if (typeof u.themeColor === 'string') settings.themeColor = u.themeColor; if (u.lang === 'ar' || u.lang === 'en') settings.lang = u.lang; if (typeof u.sound === 'boolean') settings.sound = u.sound; if (typeof u.autoQr === 'boolean') settings.autoQr = u.autoQr; if (typeof u.ledColor === 'string' && LEDS[u.ledColor]) settings.ledColor = u.ledColor; applySettings(); } catch (e) {} }
-function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }
+function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.style.display = 'none'; document.body.appendChild(a); a.click(); setTimeout(() => { a.remove(); URL.revokeObjectURL(a.href); }, 20000); }
 
 /* ===================== الأفعال (تفويض الأحداث) ===================== */
 const ACT = {
@@ -1849,7 +1884,7 @@ const acOff = el => {
 };
 ['focusin', 'pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, e => acOff(e.target), true));
 document.querySelectorAll('input,textarea').forEach(acOff);
-const APP_VER = 'v176';
+const APP_VER = 'v183';
 Object.assign(L.ar, { set_about: 'عن البرنامج' });
 Object.assign(L.en, { set_about: 'About' });
 const ABOUT = {
