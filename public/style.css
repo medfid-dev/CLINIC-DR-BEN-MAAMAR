@@ -91,10 +91,10 @@ body:not(.light-mode) .treatment-item.selected{background:var(--primary-sage);co
 .thumb-box img{width:100%;height:100%;object-fit:cover;cursor:pointer}
 .thumb-box .del-img{position:absolute;top:4px;inset-inline-start:4px;background:var(--danger-soft);color:#fff;border:0;width:22px;height:22px;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center}
 
-#toast-container{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;width:90%;max-width:420px;pointer-events:none}
+#toast-container{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:60000;display:flex;flex-direction:column;gap:8px;width:90%;max-width:420px;pointer-events:none}
 .toast{padding:12px 18px;border-radius:999px;background:var(--bar,#2E2A6E);color:#fff;font-size:13px;text-align:center;box-shadow:0 10px 24px -10px rgba(20,15,70,.6);animation:settle .25s ease}
 .toast-success{background:var(--accent-mint)}.toast-warning{background:var(--orange)}.toast-danger{background:var(--danger-soft)}
-#visual-alert-container{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:10000;width:92%;max-width:520px}
+#visual-alert-container{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:60001;width:92%;max-width:520px}
 .card-alert-banner{background:var(--bar);color:#fff;border-radius:var(--radius-md);border-inline-start:5px solid var(--orange);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 18px 40px -14px rgba(20,15,70,.6);animation:settle .3s ease}
 .card-alert-banner>div>div>div:first-child{color:rgba(255,255,255,.75)!important}
 .card-alert-banner.success-banner{border-inline-start-color:var(--accent-mint)}
@@ -1555,3 +1555,20 @@ body.np-open .nav-tabs{visibility:hidden}
 .appt-grp .ap-info{flex:1;min-width:200px}
 .lab-pgrp{border:2px solid var(--border-calm);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:10px;background:var(--surface-sunk)}
 .lab-pgh{padding:0 4px}.lab-pgrp .lab-card{margin:0}.lab-pgrp .lab-ch{justify-content:flex-start}
+
+/* بطاقة المختبر مدمجة (أصغر): مراحل في سطر أفقي، ملاحظة مختصرة */
+.lab-card{padding:9px 11px;border-radius:13px}
+.lab-ch{margin-bottom:6px;gap:6px}.lab-pn{font-size:15px}
+.lab-meta{gap:8px;margin-bottom:6px}.lab-meta .lab-sel{flex-direction:row;align-items:center;gap:5px}.lab-meta select,.lab-meta input[type=date]{padding:4px 6px;min-height:0;font-size:12px}
+.lab-steps{flex-wrap:nowrap;overflow-x:auto;gap:5px;margin:5px 0;padding-bottom:3px;-webkit-overflow-scrolling:touch}
+.lab-step{flex:none;flex-direction:row;gap:5px;min-width:0;padding:4px 9px 4px 5px;border-radius:999px;white-space:nowrap}
+.lab-step i{width:20px;height:20px;font-size:11px}.lab-step small{display:none}
+.lab-act{margin:4px 0}.lab-act .btn-action{padding:6px 12px;font-size:12.5px}
+.lab-note{height:34px;min-height:34px;margin-top:2px;padding:6px 10px;font-size:13px;resize:vertical}.lab-note:focus{height:64px}
+.lab-list{gap:9px}.lab-pgrp{padding:8px;gap:8px;border-radius:14px}
+.lab-meta .ymd-pick .ymd-show{padding:4px 8px;font-size:12px;min-height:0;height:auto}
+/* مراحل التركيب داخل المعاينة */
+.lab-mine{margin-top:10px;border-top:1px dashed var(--border-calm);padding-top:8px}
+.lab-mine-h{font-size:13px;font-weight:800;color:var(--primary-sage);margin-bottom:6px}
+.lab-mc{background:var(--surface-sunk);border:1px solid var(--border-calm);border-radius:12px;padding:8px 10px;margin-bottom:8px}
+.lab-mc-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px}

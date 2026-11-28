@@ -1282,7 +1282,8 @@ function syncBooking() {
 function renderAppts() {
   const box = $('#apptsArea'); if (!box) return; renderBookings();
   const td = localDay(), list = S.appts || [], due = list.filter(a => a.date <= td), cnt = $('#apptCount'), ban = $('#apptBanner');
-  { const pend = due.filter(a => !a.here).length, okN = due.length - pend;   // الأحمر: مستحق لم يحضر · أخضر ✓: جميع المستحقين حضروا
+  const npt = arr => new Set(arr.map(a => pKey(a.name, a.birthYear))).size;   // العدّ بالمرضى لا بالمواعيد
+  { const pend = npt(due.filter(a => !a.here)), okN = npt(due) - pend;   // الأحمر: مستحق لم يحضر · أخضر ✓: جميع المستحقين حضروا
     cnt.classList.toggle('ok', !pend && okN > 0); cnt.textContent = pend ? pend : okN ? '✓' : 0; cnt.classList.toggle('zero', !due.length); }
   if (ban) { ban.hidden = true; ban.innerHTML = ''; }   // شريط المواعيد العلوي أُلغي
   let sb = $('#apptSearch');   // خانة البحث خارج #apptsArea كي لا تُعاد كتابتها ولا يفقد المستخدم مؤشّر الكتابة
@@ -1290,8 +1291,8 @@ function renderAppts() {
   sb.placeholder = t('ap_search');
   let dc = $('#apptDayChips');   // فلتر اليوم: أمس / اليوم / غداً (خارج #apptsArea أيضاً)
   if (!dc) { dc = document.createElement('div'); dc.id = 'apptDayChips'; dc.className = 'appt-chips'; sb.insertAdjacentElement('afterend', dc); }
-  const cntD = k => list.filter(a => dayDiff(a.date, td) === k).length, curD = S.apptDay || '';
-  dc.innerHTML = [['', t('ap_f_all'), list.length], ['-1', t('ap_f_yest'), cntD(-1)], ['0', t('ap_f_today'), cntD(0)], ['1', t('ap_f_tom'), cntD(1)]].map(([k, l, n]) => `<button type="button" class="btn-action${curD === k ? ' st-on' : ''}" data-act="apptDay" data-d="${k}">${esc(l)} <span class="count-badge${n ? '' : ' zero'}">${n}</span></button>`).join('');
+  const cntD = k => npt(list.filter(a => dayDiff(a.date, td) === k)), curD = S.apptDay || '';
+  dc.innerHTML = [['', t('ap_f_all'), npt(list)], ['-1', t('ap_f_yest'), cntD(-1)], ['0', t('ap_f_today'), cntD(0)], ['1', t('ap_f_tom'), cntD(1)]].map(([k, l, n]) => `<button type="button" class="btn-action${curD === k ? ' st-on' : ''}" data-act="apptDay" data-d="${k}">${esc(l)} <span class="count-badge${n ? '' : ' zero'}">${n}</span></button>`).join('');
   if (box.contains(document.activeElement) && document.activeElement.matches('input')) return;
   const miniTeeth = a => {   // مخطط أسنان صغير يبيّن السن المعالج (بلون العلاج أثناء الحصص)
     const n = String(a.tooth || ''); if (!DENT() || !ALL_TEETH.has(n)) return '';
@@ -1323,7 +1324,7 @@ function renderAppts() {
   const byQ = qs.length ? list.filter(a => { const h = hay(a); return qs.every(w => h.includes(w)); }) : list;
   const shown = S.apptDay ? byQ.filter(a => dayDiff(a.date, td) === +S.apptDay) : byQ;
   const dueS = shown.filter(a => a.date <= td), up = shown.filter(a => a.date > td);
-  const html = (shown.length ? (dueS.length ? `<h3 class="appt-h due">🔔 ${t('ap_due_h')} (${dueS.length})</h3><ul class="patient-list">${grpRows(dueS)}</ul>` : '') + (up.length ? `<h3 class="appt-h">🗓 ${t('ap_up_h')} (${up.length})</h3><ul class="patient-list">${grpRows(up)}</ul>` : '') : `<div class="patient-card" style="justify-content:center;color:var(--text-muted)">${list.length ? t('no_results') : t('ap_empty')}</div>`) + `<p class="note-line" style="margin-top:12px">${t('ap_hint')}</p>`;
+  const html = (shown.length ? (dueS.length ? `<h3 class="appt-h due">🔔 ${t('ap_due_h')} (${npt(dueS)})</h3><ul class="patient-list">${grpRows(dueS)}</ul>` : '') + (up.length ? `<h3 class="appt-h">🗓 ${t('ap_up_h')} (${npt(up)})</h3><ul class="patient-list">${grpRows(up)}</ul>` : '') : `<div class="patient-card" style="justify-content:center;color:var(--text-muted)">${list.length ? t('no_results') : t('ap_empty')}</div>`) + `<p class="note-line" style="margin-top:12px">${t('ap_hint')}</p>`;
   if (box._h !== html) { box._h = html; box.innerHTML = html; }
 }
 function docTab(tab) {
@@ -1884,7 +1885,7 @@ const acOff = el => {
 };
 ['focusin', 'pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, e => acOff(e.target), true));
 document.querySelectorAll('input,textarea').forEach(acOff);
-const APP_VER = 'v183';
+const APP_VER = 'v186';
 Object.assign(L.ar, { set_about: 'عن البرنامج' });
 Object.assign(L.en, { set_about: 'About' });
 const ABOUT = {

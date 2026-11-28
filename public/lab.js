@@ -16,6 +16,7 @@ Object.assign(L.ar, {
   lab_def_t: 'المراحل العامة (الافتراضية)', lab_add_stage: '＋ مرحلة', lab_stage_ph: 'اسم المرحلة', lab_use_def: 'استعمال المراحل العامة', lab_custom: 'مراحل خاصة', lab_save: '💾 حفظ', lab_saved: 'تم الحفظ', lab_reset_st: 'مسح المراحل الخاصة',
   lab_no_flag: 'لم يُعلَّم أي علاج بـ«يحتاج مختبر» بعد؛ علّمه من الإعدادات ← العلاجات والأسعار لتظهر مراحله هنا.', lab_next: 'المرحلة التالية ▶', lab_back: '◀ تراجع', lab_done: '✓ اكتملت',
   lab_sent_on: 'أُرسلت', lab_due: 'موعد التسليم المتوقع', lab_note_ph: 'ملاحظات للمختبر أو للحالة…', lab_del: 'حذف الحالة', lab_del_q: 'حذف هذه الحالة من المختبر؟', lab_progress: 'المرحلة {a} من {b}', lab_age: '{n} سنة', lab_late: 'متأخرة', lab_stage_done_on: 'أُنجزت',
+  lab_mine_t: 'مراحل تركيب هذا المريض (اضغط لتغيير المرحلة)',
   e_not_found: 'العنصر غير موجود'
 });
 Object.assign(L.en, {
@@ -28,6 +29,7 @@ Object.assign(L.en, {
   lab_def_t: 'General (default) stages', lab_add_stage: '＋ Stage', lab_stage_ph: 'Stage name', lab_use_def: 'Use general stages', lab_custom: 'Own stages', lab_save: '💾 Save', lab_saved: 'Saved', lab_reset_st: 'Clear own stages',
   lab_no_flag: 'No treatment is marked “Needs lab” yet; mark it in Settings → Treatments & prices so its stages show here.', lab_next: 'Next stage ▶', lab_back: '◀ Undo', lab_done: '✓ Completed',
   lab_sent_on: 'Sent', lab_due: 'Expected delivery', lab_note_ph: 'Notes for the lab or the case…', lab_del: 'Delete case', lab_del_q: 'Delete this case from the lab?', lab_progress: 'Stage {a} of {b}', lab_age: '{n} y', lab_late: 'Overdue', lab_stage_done_on: 'Done',
+  lab_mine_t: 'Prosthesis stages for this patient (tap to change)',
   e_not_found: 'Item not found'
 });
 
@@ -43,7 +45,8 @@ async function labLoad(quiet) {
   try { Lab.data = await api('GET', '/api/lab'); } catch (e) { if (!quiet) toast(errMsg(e), 'danger'); }
   Lab.busy = false; labBadge(); if ($('#labTab.active') && !(quiet && $('#labArea').contains(document.activeElement))) labRender(); if (Lab.data) labUpdate();
 }
-function labBadge() { const b = $('#labCount'); if (!b || !Lab.data) return; const n = Lab.data.cases.filter(c => !c.doneAt).length; b.textContent = n; b.classList.toggle('zero', !n); }
+const labPts = cs => new Set(cs.map(c => (c.name || '') + '|' + (c.birthYear || ''))).size;   // العدّ بالمرضى لا بالحالات
+function labBadge() { const b = $('#labCount'); if (!b || !Lab.data) return; const n = labPts(Lab.data.cases.filter(c => !c.doneAt)); b.textContent = n; b.classList.toggle('zero', !n); }
 function labMerge(c) { if (!Lab.data) return; const i = Lab.data.cases.findIndex(z => z.id === c.id); if (i >= 0) Lab.data.cases[i] = c; else Lab.data.cases.unshift(c); labBadge(); }
 
 /* ---------- المعاينة: صندوق «المختبر» ---------- */
@@ -58,15 +61,25 @@ function labItems() {
   }
   return out;
 }
+/* مراحل حالات المختبر المفتوحة لهذا المريض داخل المعاينة: يغيّر الطبيب المرحلة من هنا دون الذهاب إلى تبويب المختبر */
+function labCasesHTML(a) {
+  if (!a || !Lab.data) return '';
+  const cs = Lab.data.cases.filter(c => !c.doneAt && c.name === a.name && (c.birthYear || 0) === (a.birthYear || 0)); if (!cs.length) return '';
+  return `<div class="lab-mine"><div class="lab-mine-h">🦷 ${esc(t('lab_mine_t'))}</div>${cs.map(c => {
+    const st = c.stages || [], dn = st.filter(x => x.at).length, cur = st.findIndex(x => !x.at);
+    return `<div class="lab-mc"><div class="lab-mc-h"><b>${esc(treatLabel(c.treatment))}</b>${c.teeth && c.teeth.length ? `<span class="lab-th">${esc(t('lab_teeth'))}: ${esc(c.teeth.join(' '))}</span>` : ''}${c.labId ? `<span class="lab-th">${esc(labName(c.labId))}</span>` : ''}</div>
+      <div class="lab-steps" role="list">${st.map((x, i) => `<button type="button" role="listitem" class="lab-step${x.at ? ' on' : ''}${i === cur ? ' cur' : ''}" data-act="labTog" data-id="${c.id}" data-i="${i}"><i>${x.at ? '✓' : i + 1}</i><span>${esc(x.n)}</span></button>`).join('')}</div>
+      <div class="lab-act"><span class="lab-prog">${esc(t('lab_progress', { a: Math.min(dn + 1, st.length), b: st.length }))}</span>${dn ? `<button type="button" class="btn-action" data-act="labBack" data-id="${c.id}">${esc(t('lab_back'))}</button>` : ''}<button type="button" class="btn-action btn-green" data-act="labNext" data-id="${c.id}">${esc(t('lab_next'))}</button></div></div>`; }).join('')}</div>`;
+}
 function labBoxHTML() {
-  const a = S.patients.find(p => p.status === 'in'), items = a ? labItems() : [], labs = Lab.data ? Lab.data.labs : [];
+  const a = S.patients.find(p => p.status === 'in'), items = a ? labItems() : [], labs = Lab.data ? Lab.data.labs : [], mine = labCasesHTML(a);
   if (!Lab.data && !Lab.tried) labLoad(true);
-  if (!items.length) return `<div id="labBox" class="lab-box"><div class="lab-box-h"><strong>${esc(t('lab_box_t'))}</strong></div><div class="hint">${esc(t('lab_none_sel'))}</div></div>`;
+  if (!items.length) return `<div id="labBox" class="lab-box"><div class="lab-box-h"><strong>${esc(t('lab_box_t'))}</strong></div><div class="hint">${esc(t('lab_none_sel'))}</div>${mine}</div>`;
   const known = new Set((Lab.data ? Lab.data.cases : []).map(c => labCaseKey(c.patientId, c.treatment, c.teeth || []))), todo = items.filter(i => !known.has(labCaseKey(a.id, i.treatment, i.teeth)));
   const sel = labs.length ? `<label class="lab-sel"><span>${esc(t('lab_choose'))}</span><select id="labPickSel" data-lab="pick"><option value="">${esc(t('lab_no_lab'))}</option>${labs.map(l => `<option value="${l.id}"${Lab.pick === l.id ? ' selected' : ''}>${esc(l.name)}</option>`).join('')}</select></label>` : '';
   return `<div id="labBox" class="lab-box"><div class="lab-box-h"><strong>${esc(t('lab_box_t'))}</strong></div><div class="hint">${esc(t('lab_box_hint'))}</div>
     <div class="lab-items">${items.map(i => { const sent = known.has(labCaseKey(a.id, i.treatment, i.teeth)); return `<div class="lab-item${sent ? ' sent' : ''}"><b>${esc(treatLabel(i.treatment))}</b>${i.teeth.length ? `<span class="lab-th">${esc(t('lab_teeth'))}: ${esc(i.teeth.join(' '))}</span>` : ''}${sent ? `<span class="lab-ok">${esc(t('lab_sent'))}</span>` : ''}</div>`; }).join('')}</div>
-    <div class="lab-send-row">${sel}${todo.length ? `<button type="button" class="btn-primary" data-act="labSend">${esc(t('lab_send'))}${todo.length > 1 ? ' (' + todo.length + ')' : ''}</button>` : ''}</div></div>`;
+    <div class="lab-send-row">${sel}${todo.length ? `<button type="button" class="btn-primary" data-act="labSend">${esc(t('lab_send'))}${todo.length > 1 ? ' (' + todo.length + ')' : ''}</button>` : ''}</div>${mine}</div>`;
 }
 function labUpdate() { const b = $('#labBox'); if (b && window.labBoxHTML) b.outerHTML = labBoxHTML(); }
 
@@ -125,11 +138,11 @@ function labRender(reload) {
   if (reload) labLoad(true);
   const q = Lab.q.trim().toLowerCase(), all = Lab.data.cases;
   const list = all.filter(c => (Lab.filter === 'all' || (Lab.filter === 'done' ? !!c.doneAt : !c.doneAt)) && (!Lab.lab || c.labId === Lab.lab) && (!q || (c.name + ' ' + c.treatment + ' ' + (c.teeth || []).join(' ')).toLowerCase().includes(q)));
-  const nOpen = all.filter(c => !c.doneAt).length, nDone = all.length - nOpen, chip = (k, lbl, n) => `<button type="button" class="chip${Lab.filter === k ? ' on' : ''}" data-act="labFilter" data-v="${k}">${esc(t(lbl))} <b>${n}</b></button>`;
+  const nOpen = labPts(all.filter(c => !c.doneAt)), nDone = labPts(all.filter(c => c.doneAt)), chip = (k, lbl, n) => `<button type="button" class="chip${Lab.filter === k ? ' on' : ''}" data-act="labFilter" data-v="${k}">${esc(t(lbl))} <b>${n}</b></button>`;
   const keep = document.activeElement && document.activeElement.id === 'labSearch';
   area.innerHTML = `<div class="lab-wrap"><div class="lab-top"><h2 class="lab-h">${esc(t('lab_title'))}</h2><button type="button" class="btn-action btn-yellow" data-act="labCfg">${esc(Lab.cfg ? t('lab_close_cfg') : t('lab_manage'))}</button></div>
     ${Lab.cfg ? labCfgHTML() : ''}
-    <div class="lab-filters">${chip('open', 'lab_f_open', nOpen)}${chip('done', 'lab_f_done', nDone)}${chip('all', 'lab_f_all', all.length)}
+    <div class="lab-filters">${chip('open', 'lab_f_open', nOpen)}${chip('done', 'lab_f_done', nDone)}${chip('all', 'lab_f_all', labPts(all))}
       <select data-lab="fLab" aria-label="${esc(t('lab_choose'))}"><option value="">${esc(t('lab_all_labs'))}</option>${Lab.data.labs.map(l => `<option value="${l.id}"${Lab.lab === l.id ? ' selected' : ''}>${esc(l.name)}</option>`).join('')}</select>
       <input type="search" id="labSearch" data-lab="q" value="${esc(Lab.q)}" placeholder="${esc(t('lab_search'))}"></div>
     ${list.length ? `<div class="lab-list">${labGroups(list)}</div>` : `<div class="lab-empty">${esc(t('lab_empty'))}<div class="hint">${esc(t('lab_empty_hint'))}</div></div>`}</div>`;
